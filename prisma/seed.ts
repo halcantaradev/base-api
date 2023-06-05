@@ -10,7 +10,7 @@ async function main() {
 
   let empresa = await prisma.pessoa.findUnique({ where: { nome: 'Gestart' } });
 
-  if (tipoEmpresa && !empresa) {
+  if (!tipoEmpresa && !empresa) {
     tipoEmpresa = await prisma.tiposPessoa.create({
       data: { nome: 'empresa' },
     });

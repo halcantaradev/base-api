@@ -1,4 +1,3 @@
-import { EmpresasHasUsuarios } from './../../node_modules/.prisma/client/index.d';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';

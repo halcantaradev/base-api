@@ -8,41 +8,41 @@ datasource db {
 }
 
 model Pessoa {
-  id                Int                   @id @default(autoincrement())
-  nome              String                @unique
-  cnpj              String                @unique
-  endereco          String?
-  cep               String?
-  bairro            String?
-  cidade            String?
-  uf                String?
-  ativa             Boolean               @default(true)
-  created_at        DateTime              @default(now())
-  updateda_at       DateTime              @updatedAt
-  PessoaHasUsuarios EmpresasHasUsuarios[]
-  PessoasHasTipos   PessoasHasTipos[]
+  id                    Int                   @id @default(autoincrement())
+  nome                  String                @unique
+  cnpj                  String                @unique
+  endereco              String?
+  cep                   String?
+  bairro                String?
+  cidade                String?
+  uf                    String?
+  ativa                 Boolean               @default(true)
+  created_at            DateTime              @default(now())
+  updateda_at           DateTime              @updatedAt
+  empresas_has_usuarios EmpresasHasUsuarios[]
+  Pessoas_has_tipos     PessoasHasTipos[]
 
   @@map("pessoas")
 }
 
 model TiposPessoa {
-  id              Int               @id @default(autoincrement())
-  nome            String            @unique
-  ativo           Boolean           @default(true)
-  created_at      DateTime          @default(now())
-  updateda_at     DateTime          @updatedAt
-  PessoasHasTipos PessoasHasTipos[]
+  id                Int               @id @default(autoincrement())
+  nome              String            @unique
+  ativo             Boolean           @default(true)
+  created_at        DateTime          @default(now())
+  updateda_at       DateTime          @updatedAt
+  Pessoas_has_tipos PessoasHasTipos[]
 
   @@map("tipos_pessoas")
 }
 
 model Cargo {
-  id                  Int                   @id @default(autoincrement())
-  nome                String                @unique
-  ativo               Boolean               @default(true)
-  created_at          DateTime              @default(now())
-  updateda_at         DateTime              @updatedAt
-  EmpresasHasUsuarios EmpresasHasUsuarios[]
+  id                    Int                   @id @default(autoincrement())
+  nome                  String                @unique
+  ativo                 Boolean               @default(true)
+  created_at            DateTime              @default(now())
+  updateda_at           DateTime              @updatedAt
+  empresas_has_usuarios EmpresasHasUsuarios[]
 
   @@map("cargos")
 }
@@ -71,7 +71,7 @@ model User {
   created_at  DateTime @default(now())
   updateda_at DateTime @updatedAt
 
-  PessoaHasUsuarios EmpresasHasUsuarios[]
+  empresas_has_usuarios EmpresasHasUsuarios[]
 
   @@map("usuarios")
 }

@@ -13,6 +13,8 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginEntity } from './entity/login.entity';
+import { TokenEntity } from 'src/shared/entity/token.entity';
+import { RequestEntity } from 'src/shared/entity/request.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -45,12 +47,13 @@ export class AuthController {
   @ApiResponse({
     description: 'Dados listados com sucesso',
     status: HttpStatus.OK,
+    type: TokenEntity,
   })
   @ApiResponse({
     description: 'Ocorreu um erro ao listar os dados',
     status: HttpStatus.INTERNAL_SERVER_ERROR,
   })
-  getProfile(@Request() req) {
-    return req.user;
+  getProfile(@Request() req: RequestEntity) {
+    return req.token_data;
   }
 }

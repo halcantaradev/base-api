@@ -20,7 +20,7 @@ model Pessoa {
   created_at            DateTime              @default(now())
   updateda_at           DateTime              @updatedAt
   empresas_has_usuarios EmpresasHasUsuarios[]
-  Pessoas_has_tipos     PessoasHasTipos[]
+  pessoas_has_tipos     PessoasHasTipos[]
 
   @@map("pessoas")
 }
@@ -31,7 +31,7 @@ model TiposPessoa {
   ativo             Boolean           @default(true)
   created_at        DateTime          @default(now())
   updateda_at       DateTime          @updatedAt
-  Pessoas_has_tipos PessoasHasTipos[]
+  pessoas_has_tipos PessoasHasTipos[]
 
   @@map("tipos_pessoas")
 }

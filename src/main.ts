@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import 'reflect-metadata';
+import { useContainer } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,7 +20,10 @@ async function bootstrap() {
     SwaggerModule.setup('docs', app, document);
   }
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

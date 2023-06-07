@@ -4,7 +4,7 @@ import {
   ValidationArguments,
 } from 'class-validator';
 
-@ValidatorConstraint({ name: 'isBoolenType', async: false })
+@ValidatorConstraint({ name: 'IsBoolenType', async: false })
 export class IsBooleanType implements ValidatorConstraintInterface {
   validate(value: string | boolean) {
     if (typeof value == 'boolean') return true;

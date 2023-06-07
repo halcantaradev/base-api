@@ -7,7 +7,7 @@ import {
   Validate,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UsernameNotExists, EmailNotExists } from '../validators';
+import { UsernameNotExists, EmailNotExists, CargoExists } from '../validators';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -79,5 +79,6 @@ export class CreateUserDto {
     message: 'O parâmetro cargo_id precisa ser do tipo Int',
   })
   @Type(() => Number)
+  @Validate(CargoExists)
   cargo_id: number;
 }

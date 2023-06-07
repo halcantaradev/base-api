@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Request,
+  UseFilters,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '../shared/guards/auth.guard';
@@ -15,9 +16,11 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginEntity } from './entities/login.entity';
 import { TokenEntity } from 'src/shared/entities/token.entity';
 import { RequestEntity } from 'src/shared/entities/request.entity';
+import { HttpExceptionFilter } from 'src/shared/filters/http-exception-filter';
 
 @ApiTags('Auth')
 @Controller('auth')
+@UseFilters(new HttpExceptionFilter())
 export class AuthController {
   constructor(private authService: AuthService) {}
 

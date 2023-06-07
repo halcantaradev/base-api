@@ -128,7 +128,7 @@ export class UserRepository {
       data: {
         nome: updateUserDto.nome,
         username: updateUserDto.username,
-        password: updateUserDto.password,
+        password: PasswordHelper.create(updateUserDto.password),
         email: updateUserDto.email,
         ativo: updateUserDto.ativo,
         empresas_has_usuarios: {

@@ -127,7 +127,6 @@ export class UserRepository {
       },
       data: {
         nome: updateUserDto.nome,
-        username: updateUserDto.username,
         password: updateUserDto.password
           ? PasswordHelper.create(updateUserDto.password)
           : undefined,

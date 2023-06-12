@@ -5,7 +5,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { JwtModule } from '@nestjs/jwt';
-import { CargoModule } from './cargo/cargo.module';
 
 @Module({
   imports: [
@@ -22,7 +21,6 @@ import { CargoModule } from './cargo/cargo.module';
     }),
     AuthModule,
     UserModule,
-    CargoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

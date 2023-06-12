@@ -1,21 +1,25 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/shared/services/prisma.service';
 import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
   ValidationArguments,
 } from 'class-validator';
-import { CargoRepository } from 'src/cargo/cargo.repository';
 
 @Injectable()
 @ValidatorConstraint({ name: 'CargoExists', async: true })
 export class CargoExists implements ValidatorConstraintInterface {
-  constructor(private readonly repository: CargoRepository) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async validate(id: number) {
     try {
-      const user = await this.repository.findOne({ id });
+      const cargo = await this.prisma.cargo.findFirst({
+        where: {
+          id,
+        },
+      });
 
-      return !!user;
+      return !!cargo;
     } catch (err) {
       return false;
     }

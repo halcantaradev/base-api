@@ -7,6 +7,8 @@ import {
 @ValidatorConstraint({ name: 'IsBoolenType', async: false })
 export class IsBooleanType implements ValidatorConstraintInterface {
   validate(value: string | boolean) {
+    if (value == null) return true;
+
     if (typeof value == 'boolean') return true;
 
     return ['true', 'false', '1', '0'].includes(value);

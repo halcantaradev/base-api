@@ -13,7 +13,7 @@ export class AuthService {
   async signIn(username, pass) {
     const user = await this.usersService.findOneByUsername(username, true);
 
-    if (!PasswordHelper.compare(pass, user?.password)) {
+    if (user.ativo && !PasswordHelper.compare(pass, user?.password)) {
       throw new UnauthorizedException();
     }
 

@@ -8,7 +8,6 @@ import {
   UseGuards,
   HttpStatus,
   Request,
-  UseFilters,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,12 +16,9 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
 import { RequestEntity } from 'src/shared/entities/request.entity';
 import { UserEntity } from './entities/user.entity';
-import { HttpExceptionFilter } from 'src/shared/filters/http-exception-filter';
-import { PrismaExceptionFilter } from 'src/shared/filters/prisma-exception-filter';
 
 @ApiTags('User')
 @Controller('users')
-@UseFilters(HttpExceptionFilter, PrismaExceptionFilter)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

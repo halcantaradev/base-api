@@ -14,7 +14,7 @@ export class UpdateUserDto {
   @ApiProperty({
     description: 'Email de acesso do usuário',
     example: 'usuario@exemplo.com',
-    required: true,
+    required: false,
   })
   @IsEmail(
     { ignore_max_length: true },
@@ -29,7 +29,7 @@ export class UpdateUserDto {
   @ApiProperty({
     description: 'Nome do usuário',
     example: 'Usuario Teste',
-    required: true,
+    required: false,
   })
   @IsString({
     message: 'O parâmetro nome precisa ser do tipo String',
@@ -40,7 +40,7 @@ export class UpdateUserDto {
   @ApiProperty({
     description: 'Senha de acesso do usuário',
     example: '123456',
-    required: true,
+    required: false,
   })
   @IsString({
     message: 'O parâmetro password precisa ser do tipo String',
@@ -51,7 +51,7 @@ export class UpdateUserDto {
   @ApiProperty({
     description: 'Cargo do usuário',
     example: 1,
-    required: true,
+    required: false,
   })
   @IsInt({
     message: 'O parâmetro cargo_id precisa ser do tipo Int',
@@ -64,7 +64,7 @@ export class UpdateUserDto {
   @ApiProperty({
     description: 'Situação atual do usuário',
     example: true,
-    required: true,
+    required: false,
   })
   @Validate(IsBooleanType)
   @Transform(({ value }) => {

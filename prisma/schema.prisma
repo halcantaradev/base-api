@@ -138,11 +138,13 @@ model Notificacao {
   id                  Int      @id @default(autoincrement())
   unidade_id          Int
   infracao_id         Int
+  tipo_registro       Int      @default(1)
   data_emissao        DateTime @default(now())
   data_infracao       DateTime @default(now())
+  n_notificacao       String
   detalhes_infracao   String
   fundamentacao_legal String   @db.Text
-  observacao          String   @db.Text
+  observacao          String   @default("") @db.Text
   createdAt           DateTime @default(now())
   updateda_at         DateTime @updatedAt
 

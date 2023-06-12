@@ -134,16 +134,18 @@ async function createNotificacao(unidade: Unidade) {
     },
   });
 
-  if (!tipoInfracao && !notificacao) {
+  if (!tipoInfracao) {
     tipoInfracao = await prisma.tipoInfracao.create({
       data: { descricao: 'Animais' },
     });
+  }
 
+  if (!notificacao) {
     notificacao = await prisma.notificacao.create({
       data: {
         unidade_id: unidade.id,
         fundamentacao_legal: '',
-        observacao: '',
+        n_notificacao: '01/2023',
         detalhes_infracao: '',
         data_emissao: new Date(),
         data_infracao: new Date(),

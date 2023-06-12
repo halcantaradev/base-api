@@ -12,9 +12,9 @@ import { AuthGuard } from '../shared/guards/auth.guard';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { LoginEntity } from './entity/login.entity';
-import { TokenEntity } from 'src/shared/entity/token.entity';
-import { RequestEntity } from 'src/shared/entity/request.entity';
+import { LoginEntity } from './entities/login.entity';
+import { TokenEntity } from 'src/shared/entities/token.entity';
+import { RequestEntity } from 'src/shared/entities/request.entity';
 
 @ApiTags('Auth')
 @Controller('auth')

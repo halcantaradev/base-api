@@ -44,7 +44,25 @@ export class NotificationService {
   }
 
   async findOne(id: number) {
-    return `This action returns a #${id} notification`;
+    return this.prisma.notificacao.findFirst({
+      select: {
+        id: true,
+        unidade: { select: { codigo: true } },
+        tipoInfracao: {
+          select: { descricao: true },
+        },
+        tipo_registro: true,
+        data_emissao: true,
+        data_infracao: true,
+        n_notificacao: true,
+        detalhes_infracao: true,
+        fundamentacao_legal: true,
+        observacao: true,
+      },
+      where: {
+        id,
+      },
+    });
   }
 
   async update(id: number, updateNotificationDto: UpdateNotificationDto) {

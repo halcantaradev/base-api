@@ -24,12 +24,13 @@ export class UserService {
       },
     });
 
-    return { success: true };
+    return { success: true, message: 'Usuário criado com sucesso' };
   }
 
   async findAll(empresa_id: number) {
     return {
       success: true,
+      message: 'Usuários listados com sucesso',
       data: await this.prisma.user.findMany({
         select: {
           id: true,
@@ -90,51 +91,59 @@ export class UserService {
 
     if (user == null) throw new NotFoundException('Usuário não encontrado');
 
-    return { success: true, data: user };
+    return {
+      success: true,
+      message: 'Usuário listado com sucesso',
+      data: user,
+    };
   }
 
   async update(id: number, empresa_id: number, updateUserDto: UpdateUserDto) {
-    return this.prisma.user.update({
-      select: {
-        id: true,
-        nome: true,
-        username: true,
-        email: true,
-        ativo: true,
-        updateda_at: true,
-        empresas_has_usuarios: {
-          select: {
-            empresa_id: true,
-            cargo: {
-              select: {
-                nome: true,
+    return {
+      success: true,
+      message: 'Usuário atualizado com sucesso',
+      data: await this.prisma.user.update({
+        select: {
+          id: true,
+          nome: true,
+          username: true,
+          email: true,
+          ativo: true,
+          updateda_at: true,
+          empresas_has_usuarios: {
+            select: {
+              empresa_id: true,
+              cargo: {
+                select: {
+                  nome: true,
+                },
               },
             },
           },
         },
-      },
-      data: {
-        nome: updateUserDto.nome,
-        password: updateUserDto.password
-          ? PasswordHelper.create(updateUserDto.password)
-          : undefined,
-        email: updateUserDto.email,
-        ativo: updateUserDto.ativo,
-        empresas_has_usuarios: {
-          updateMany: {
-            data: {
-              cargo_id: updateUserDto.cargo_id,
-            },
-            where: {
-              empresa_id,
-              usuario_id: id,
+        data: {
+          nome: updateUserDto.nome,
+          password: updateUserDto.password
+            ? PasswordHelper.create(updateUserDto.password)
+            : undefined,
+          email: updateUserDto.email,
+          ativo: updateUserDto.ativo,
+          empresas_has_usuarios: {
+            updateMany: {
+              data: {
+                cargo_id: updateUserDto.cargo_id,
+              },
+              where: {
+                empresa_id,
+                usuario_id: id,
+              },
             },
           },
         },
-      },
-      where: {
-        id,
-      },
-    });
+        where: {
+          id,
+        },
+      }),
+    };
   }
 }

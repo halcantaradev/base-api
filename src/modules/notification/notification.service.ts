@@ -21,53 +21,62 @@ export class NotificationService {
       },
     });
 
-    return { success: true };
+    return { success: true, message: 'Notificação criada com sucesso' };
   }
 
   async findAll() {
-    return this.prisma.notificacao.findMany({
-      select: {
-        id: true,
-        unidade: { select: { codigo: true } },
-        tipoInfracao: {
-          select: { descricao: true },
+    return {
+      success: true,
+      message: 'Notificações listadas com sucesso',
+      data: await this.prisma.notificacao.findMany({
+        select: {
+          id: true,
+          unidade: { select: { codigo: true } },
+          tipoInfracao: {
+            select: { descricao: true },
+          },
+          tipo_registro: true,
+          data_emissao: true,
+          data_infracao: true,
+          n_notificacao: true,
+          detalhes_infracao: true,
+          fundamentacao_legal: true,
+          observacao: true,
         },
-        tipo_registro: true,
-        data_emissao: true,
-        data_infracao: true,
-        n_notificacao: true,
-        detalhes_infracao: true,
-        fundamentacao_legal: true,
-        observacao: true,
-      },
-    });
+      }),
+    };
   }
 
   async findOne(id: number) {
-    return this.prisma.notificacao.findFirst({
-      select: {
-        id: true,
-        unidade: { select: { codigo: true } },
-        tipoInfracao: {
-          select: { descricao: true },
+    return {
+      success: true,
+      message: 'Notificação listada com sucesso',
+      data: await this.prisma.notificacao.findFirst({
+        select: {
+          id: true,
+          unidade: { select: { codigo: true } },
+          tipoInfracao: {
+            select: { descricao: true },
+          },
+          tipo_registro: true,
+          data_emissao: true,
+          data_infracao: true,
+          n_notificacao: true,
+          detalhes_infracao: true,
+          fundamentacao_legal: true,
+          observacao: true,
         },
-        tipo_registro: true,
-        data_emissao: true,
-        data_infracao: true,
-        n_notificacao: true,
-        detalhes_infracao: true,
-        fundamentacao_legal: true,
-        observacao: true,
-      },
-      where: {
-        id,
-      },
-    });
+        where: {
+          id,
+        },
+      }),
+    };
   }
 
   async update(id: number, updateNotificationDto: UpdateNotificationDto) {
     return {
       success: true,
+      message: 'Notificação atualizada com sucesso',
       data: await this.prisma.notificacao.update({
         select: {
           id: true,

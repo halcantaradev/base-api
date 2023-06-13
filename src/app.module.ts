@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
-import { NotificationModule } from './notification/notification.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [

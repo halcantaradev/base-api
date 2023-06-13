@@ -16,12 +16,12 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro email é obrigatório',
+    message: 'O email é obrigatório',
   })
   @IsEmail(
     { ignore_max_length: true },
     {
-      message: 'O parâmetro email precisa ser um email válido',
+      message: 'O email informado não é válido',
     },
   )
   @Validate(EmailNotExists)
@@ -33,10 +33,10 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro nome é obrigatório',
+    message: 'O nome é obrigatório',
   })
   @IsString({
-    message: 'O parâmetro nome precisa ser do tipo String',
+    message: 'O nome precisa ser um texto',
   })
   nome: string;
 
@@ -46,10 +46,10 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro username é obrigatório',
+    message: 'O usuário de acesso é obrigatório',
   })
   @IsString({
-    message: 'O parâmetro username precisa ser do tipo String',
+    message: 'O usuário de acesso precisa ser do tipo String',
   })
   @Validate(UsernameNotExists)
   username: string;
@@ -60,11 +60,12 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro password é obrigatório',
+    message: 'A senha é obrigatório',
   })
   @IsString({
-    message: 'O parâmetro password precisa ser do tipo String',
+    message: 'A senha precisa ser um texto',
   })
+  @Type(() => String)
   password: string;
 
   @ApiProperty({
@@ -73,10 +74,10 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro cargo_id é obrigatório',
+    message: 'O cargo é obrigatório',
   })
   @IsInt({
-    message: 'O parâmetro cargo_id precisa ser do tipo Int',
+    message: 'O cargo informado não é válido',
   })
   @Type(() => Number)
   @Validate(CargoExists)

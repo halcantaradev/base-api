@@ -12,7 +12,7 @@ async function createEmpresa() {
 
   if (!tipoEmpresa && !empresa) {
     tipoEmpresa = await prisma.tiposPessoa.create({
-      data: { nome: 'empresa' },
+      data: { nome: 'empresa', descricao: 'Empresa' },
     });
 
     empresa = await prisma.pessoa.create({
@@ -81,7 +81,7 @@ async function createCondominio() {
 
   if (!tipoCondominio && !condominio) {
     tipoCondominio = await prisma.tiposPessoa.create({
-      data: { nome: 'condominio' },
+      data: { nome: 'condominio', descricao: 'Condomínio' },
     });
 
     condominio = await prisma.pessoa.create({

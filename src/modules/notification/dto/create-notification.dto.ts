@@ -15,10 +15,10 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro unidade_id é obrigatório',
+    message: 'A unidade é obrigatória',
   })
   @IsInt({
-    message: 'O parâmetro unidade_id precisa ser do tipo Int',
+    message: 'A unidade informada não é válido',
   })
   unidade_id: number;
 
@@ -28,10 +28,10 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro infracao_id é obrigatório',
+    message: 'A infração é obrigatório',
   })
   @IsInt({
-    message: 'O parâmetro infracao_id precisa ser do tipo Int',
+    message: 'A infração informada não é válida',
   })
   infracao_id: number;
 
@@ -41,10 +41,10 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro data_emissao é obrigatório',
+    message: 'A data de emissão é obrigatória',
   })
   @IsDate({
-    message: 'O parâmetro data_emissao precisa ser do tipo Date',
+    message: 'A data de emissão informada não é válida',
   })
   @Type(() => Date)
   data_emissao: Date;
@@ -55,10 +55,10 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro data_infracao é obrigatório',
+    message: 'A data de infração é obrigatório',
   })
   @IsDate({
-    message: 'O parâmetro data_infracao precisa ser do tipo Date',
+    message: 'A data de infração informada não é válida',
   })
   @Type(() => Date)
   data_infracao: Date;
@@ -69,10 +69,10 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro n_notificacao é obrigatório',
+    message: 'O número da notificação é obrigatório',
   })
   @IsString({
-    message: 'O parâmetro n_notificacao precisa ser do tipo String',
+    message: 'O número da notificação informado não é válido',
   })
   n_notificacao: string;
 
@@ -82,10 +82,10 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro detalhes_infracao é obrigatório',
+    message: 'O detalhe da notificação é obrigatório',
   })
   @IsString({
-    message: 'O parâmetro detalhes_infracao precisa ser do tipo String',
+    message: 'O detalhe da notificação informado não é válido',
   })
   detalhes_infracao: string;
 
@@ -95,10 +95,10 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro tipo_registro é obrigatório',
+    message: 'O tipo de registro é obrigatório',
   })
   @IsInt({
-    message: 'O parâmetro tipo_registro precisa ser do tipo Int',
+    message: 'O tipo de registro informado não é válido',
   })
   tipo_registro: 1 | 2;
 
@@ -108,10 +108,10 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro fundamentacao_legal é obrigatório',
+    message: 'A fundamentação legal é obrigatória',
   })
   @IsString({
-    message: 'O parâmetro fundamentacao_legal precisa ser do tipo String',
+    message: 'A fundamentação legal informada não é válida',
   })
   fundamentacao_legal: string;
 
@@ -122,7 +122,7 @@ export class CreateNotificationDto {
   })
   @IsOptional()
   @IsString({
-    message: 'O parâmetro observacao precisa ser do tipo String',
+    message: 'A observação informada não é válida',
   })
   observacao: string;
 }

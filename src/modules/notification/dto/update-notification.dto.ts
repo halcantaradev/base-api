@@ -38,7 +38,7 @@ export class UpdateNotificationDto extends PartialType(CreateNotificationDto) {
     required: false,
   })
   @IsOptional()
-  @Validate(IsBooleanType)
+  @Validate(IsBooleanType, { message: 'O status informado não é válido' })
   @Transform(({ value }) => {
     return ['true', '1'].includes(value);
   })

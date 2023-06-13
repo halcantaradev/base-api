@@ -33,6 +33,6 @@ export class DbValidator implements ValidatorConstraintInterface {
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `O valor do parâmetro ${args.property} informado não pode ser utilizado`;
+    return `${args.property} informado não pode ser utilizado`;
   }
 }

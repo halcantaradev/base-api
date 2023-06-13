@@ -8,10 +8,10 @@ export class LoginDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro username é obrigatório',
+    message: 'O usuário de acesso é obrigatório',
   })
   @IsString({
-    message: 'O parâmetro username precisa ser do tipo String',
+    message: 'O usuário de acesso não é válido',
   })
   username: string;
 

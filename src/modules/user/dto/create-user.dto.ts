@@ -49,7 +49,7 @@ export class CreateUserDto {
     message: 'O usuário de acesso é obrigatório',
   })
   @IsString({
-    message: 'O usuário de acesso precisa ser do tipo String',
+    message: 'O usuário de acesso informado não é válido',
   })
   @Validate(UsernameNotExists)
   username: string;
@@ -60,7 +60,7 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'A senha é obrigatório',
+    message: 'A senha é obrigatória',
   })
   @IsString({
     message: 'A senha precisa ser um texto',

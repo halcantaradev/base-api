@@ -120,13 +120,13 @@ export class UserService {
       },
     });
 
-    if (user == null) throw new NotFoundException('Usuário não encontrado');
+    if (user == null) throw new NotFoundException('Usuário ou senha inválidos');
 
     return user;
   }
 
   async findOneByUsername(username: string, include_password: boolean) {
-    const user = this.prisma.user.findFirst({
+    const user = await this.prisma.user.findFirst({
       select: {
         id: true,
         nome: true,
@@ -151,7 +151,7 @@ export class UserService {
       },
     });
 
-    if (user == null) throw new NotFoundException('Usuário não encontrado');
+    if (user == null) throw new NotFoundException('Usuário ou senha inválidos');
 
     return user;
   }
@@ -182,7 +182,7 @@ export class UserService {
       },
     });
 
-    if (user == null) throw new NotFoundException('Usuário não encontrado');
+    if (user == null) throw new NotFoundException('Usuário ou senha inválidos');
 
     return user;
   }

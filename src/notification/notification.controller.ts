@@ -16,14 +16,15 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/shared/guards/auth.guard';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
+import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 
 @ApiTags('Notifications')
 @Controller('notifications')
+@UseGuards(AuthGuard)
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 
   @Post()
-  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Cria uma nova notificação' })
   @ApiResponse({
@@ -46,11 +47,11 @@ export class NotificationController {
   }
 
   @Get()
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Lista as notificação' })
   @ApiResponse({
     description: 'Notificações listadas com sucesso',
     status: HttpStatus.OK,
+    type: () => ReturnNotificationListEntity,
   })
   @ApiResponse({
     description: 'Ocorreu um erro ao listar as notificações',
@@ -62,7 +63,6 @@ export class NotificationController {
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Lista os dados de uma notificação' })
   @ApiResponse({
     description: 'Notificação listada com sucesso',
@@ -79,7 +79,6 @@ export class NotificationController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard)
   @ApiOperation({ summary: 'Atualiza os dados de uma notificação' })
   @ApiResponse({
     description: 'Notificação atualizada com sucesso',
@@ -94,7 +93,7 @@ export class NotificationController {
   @ApiResponse({
     description: 'Ocorreu um erro ao atualizar a notificação',
     status: HttpStatus.INTERNAL_SERVER_ERROR,
-    type: () => ReturnEntity,
+    type: () => ReturnEntity.error,
   })
   update(
     @Param('id') id: string,

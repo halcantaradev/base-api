@@ -1,17 +1,26 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
+import { PrismaService } from 'src/shared/services/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UserService,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async signIn(username, pass) {
-    const user = await this.usersService.findOneByUsername(username, true);
+    const user = await this.prisma.user.findFirst({
+      include: { empresas_has_usuarios: true },
+      where: { username },
+    });
+
+    if (!user) throw new NotFoundException('Usuário ou senha inválidos');
 
     if (user.ativo && !PasswordHelper.compare(pass, user?.password)) {
       throw new UnauthorizedException();

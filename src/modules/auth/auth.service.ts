@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
 import { PrismaService } from 'src/shared/services/prisma.service';
@@ -20,10 +16,10 @@ export class AuthService {
       where: { username },
     });
 
-    if (!user) throw new NotFoundException('Usuário ou senha inválidos');
+    if (!user) throw new UnauthorizedException('Usuário ou senha inválidos');
 
-    if (user.ativo && !PasswordHelper.compare(pass, user?.password)) {
-      throw new UnauthorizedException();
+    if (!user.ativo || !PasswordHelper.compare(pass, user?.password)) {
+      throw new UnauthorizedException('Usuário ou senha inválidos');
     }
 
     const payload = {

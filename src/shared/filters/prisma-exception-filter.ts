@@ -14,9 +14,8 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
 
     return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      success: false,
       message: `Ocorreu um erro ao interno`,
-      code: exception.code,
     });
   }
 }

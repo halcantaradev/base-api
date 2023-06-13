@@ -30,6 +30,7 @@ model Pessoa {
 model TiposPessoa {
   id                Int               @id @default(autoincrement())
   nome              String            @unique
+  descricao         String            @unique
   ativo             Boolean           @default(true)
   created_at        DateTime          @default(now())
   updateda_at       DateTime          @updatedAt
@@ -56,8 +57,9 @@ model PessoasHasTipos {
   pessoa    Pessoa      @relation(fields: [pessoa_id], references: [id])
   tipo      TiposPessoa @relation(fields: [tipo_id], references: [id])
 
-  createdAt   DateTime @default(now())
-  updateda_at DateTime @updatedAt
+  created_at         DateTime             @default(now())
+  updateda_at        DateTime             @updatedAt
+  PessoasHasUnidades PessoasHasUnidades[]
 
   @@map("pessoas_has_tipo")
 }
@@ -83,7 +85,7 @@ model EmpresasHasUsuarios {
   usuario_id  Int
   empresa_id  Int
   cargo_id    Int
-  createdAt   DateTime @default(now())
+  created_at  DateTime @default(now())
   updateda_at DateTime @updatedAt
 
   user   User   @relation(fields: [usuario_id], references: [id])
@@ -98,7 +100,7 @@ model Unidade {
   condominio_id Int
   codigo        String   @unique
   ativo         Boolean  @default(true)
-  createdAt     DateTime @default(now())
+  created_at    DateTime @default(now())
   updateda_at   DateTime @updatedAt
 
   PessoasHasUnidades PessoasHasUnidades[]
@@ -110,14 +112,16 @@ model Unidade {
 }
 
 model PessoasHasUnidades {
-  id          Int      @id @default(autoincrement())
-  unidade_id  Int
-  pessoa_id   Int
-  createdAt   DateTime @default(now())
-  updateda_at DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  unidade_id     Int
+  pessoa_id      Int
+  pessoa_tipo_id Int
+  created_at     DateTime @default(now())
+  updateda_at    DateTime @updatedAt
 
-  pessoa  Pessoa  @relation(fields: [pessoa_id], references: [id])
-  unidade Unidade @relation(fields: [unidade_id], references: [id])
+  pessoa            Pessoa          @relation(fields: [pessoa_id], references: [id])
+  unidade           Unidade         @relation(fields: [unidade_id], references: [id])
+  pessoas_has_tipos PessoasHasTipos @relation(fields: [pessoa_tipo_id], references: [id])
 
   @@map("pessoas_has_unidades")
 }
@@ -126,7 +130,7 @@ model TipoInfracao {
   id          Int      @id @default(autoincrement())
   descricao   String   @unique
   ativo       Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  created_at  DateTime @default(now())
   updateda_at DateTime @updatedAt
 
   Notificacao Notificacao[]
@@ -146,7 +150,7 @@ model Notificacao {
   fundamentacao_legal String   @db.Text
   observacao          String   @default("") @db.Text
   ativo               Boolean  @default(true)
-  createdAt           DateTime @default(now())
+  created_at          DateTime @default(now())
   updateda_at         DateTime @updatedAt
 
   unidade      Unidade      @relation(fields: [unidade_id], references: [id])

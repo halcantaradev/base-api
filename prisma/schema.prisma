@@ -8,34 +8,36 @@ datasource db {
 }
 
 model Pessoa {
-  id                    Int                    @id @default(autoincrement())
-  nome                  String                 @unique
-  cnpj                  String                 @unique
-  endereco              String?
-  cep                   String?
-  bairro                String?
-  cidade                String?
-  uf                    String?
-  ativa                 Boolean                @default(true)
-  created_at            DateTime               @default(now())
-  updateda_at           DateTime               @updatedAt
-  empresas_has_usuarios EmpresasHasUsuarios[]
-  pessoas_has_tipos     PessoasHasTipos[]
-  PessoasHasUnidades    PessoasHasUnidades[]
-  Unidade               Unidade[]
-  cargos_has_permissoes CargosHasPermissoes[]
-  UsuarioHasPermissoes  UsuarioHasPermissoes[]
+  id          Int      @id @default(autoincrement())
+  nome        String   @unique
+  cnpj        String   @unique
+  endereco    String?
+  cep         String?
+  bairro      String?
+  cidade      String?
+  uf          String?
+  ativa       Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updateda_at DateTime @updatedAt
+
+  empresas_has_usuarios  EmpresasHasUsuarios[]
+  pessoas_has_tipos      PessoasHasTipos[]
+  pessoas_has_unidades   PessoasHasUnidades[]
+  unidade                Unidade[]
+  cargos_has_permissoes  CargosHasPermissoes[]
+  usuario_has_permissoes UsuarioHasPermissoes[]
 
   @@map("pessoas")
 }
 
 model TiposPessoa {
-  id                Int               @id @default(autoincrement())
-  nome              String            @unique
-  descricao         String            @unique
-  ativo             Boolean           @default(true)
-  created_at        DateTime          @default(now())
-  updateda_at       DateTime          @updatedAt
+  id          Int      @id @default(autoincrement())
+  nome        String   @unique
+  descricao   String   @unique
+  ativo       Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updateda_at DateTime @updatedAt
+
   pessoas_has_tipos PessoasHasTipos[]
 
   @@map("tipos_pessoas")
@@ -54,15 +56,15 @@ model Cargo {
 }
 
 model PessoasHasTipos {
-  id        Int         @id @default(autoincrement())
-  pessoa_id Int
-  tipo_id   Int
-  pessoa    Pessoa      @relation(fields: [pessoa_id], references: [id])
-  tipo      TiposPessoa @relation(fields: [tipo_id], references: [id])
+  id          Int         @id @default(autoincrement())
+  pessoa_id   Int
+  tipo_id     Int
+  pessoa      Pessoa      @relation(fields: [pessoa_id], references: [id])
+  tipo        TiposPessoa @relation(fields: [tipo_id], references: [id])
+  created_at  DateTime    @default(now())
+  updateda_at DateTime    @updatedAt
 
-  created_at         DateTime             @default(now())
-  updateda_at        DateTime             @updatedAt
-  PessoasHasUnidades PessoasHasUnidades[]
+  pessoas_has_unidades PessoasHasUnidades[]
 
   @@map("pessoas_has_tipo")
 }
@@ -78,8 +80,8 @@ model User {
   created_at  DateTime @default(now())
   updateda_at DateTime @updatedAt
 
-  empresas_has_usuarios EmpresasHasUsuarios[]
-  usuario_has_permissoes  UsuarioHasPermissoes[]
+  empresas_has_usuarios  EmpresasHasUsuarios[]
+  usuario_has_permissoes UsuarioHasPermissoes[]
 
   @@map("usuarios")
 }
@@ -137,7 +139,7 @@ model TipoInfracao {
   created_at  DateTime @default(now())
   updateda_at DateTime @updatedAt
 
-  Notificacao Notificacao[]
+  notificacao Notificacao[]
 
   @@map("tipos_infracao")
 }
@@ -157,21 +159,21 @@ model Notificacao {
   created_at          DateTime @default(now())
   updateda_at         DateTime @updatedAt
 
-  unidade      Unidade      @relation(fields: [unidade_id], references: [id])
-  tipoInfracao TipoInfracao @relation(fields: [infracao_id], references: [id])
+  unidade       Unidade      @relation(fields: [unidade_id], references: [id])
+  tipo_infracao TipoInfracao @relation(fields: [infracao_id], references: [id])
 
   @@map("notificacoes")
 }
 
 model Permissoes {
-  id                   Int                    @id @default(autoincrement())
-  label                String
-  key                  String
-  message              String
-  active               Boolean                @default(true)
-  created_at           DateTime               @default(now())
-  updateda_at          DateTime               @updatedAt
-  cargos_has_ermissoes CargosHasPermissoes[]
+  id                     Int                    @id @default(autoincrement())
+  label                  String
+  key                    String
+  message                String
+  active                 Boolean                @default(true)
+  created_at             DateTime               @default(now())
+  updateda_at            DateTime               @updatedAt
+  cargos_has_ermissoes   CargosHasPermissoes[]
   usuario_has_permissoes UsuarioHasPermissoes[]
 
   @@map("permissoes")
@@ -200,7 +202,7 @@ model UsuarioHasPermissoes {
   createdAt    DateTime @default(now())
   updateda_at  DateTime @updatedAt
 
-  usuari    User       @relation(fields: [usuario_id], references: [id])
+  usuario   User       @relation(fields: [usuario_id], references: [id])
   empresa   Pessoa     @relation(fields: [empresa_id], references: [id])
   permissao Permissoes @relation(fields: [permissao_id], references: [id])
 

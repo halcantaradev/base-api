@@ -1,15 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
+import { PrismaService } from 'src/shared/services/prisma.service';
 import { UserPayload } from './entities/user-payload.entity';
-import { UserAuth } from './entities/user-auth.entity';
+import { UserAuth } from '../../shared/entities/user-auth.entity';
 
 @Injectable()
 export class AuthService {
 	constructor(
-		private usersService: UserService,
 		private jwtService: JwtService,
+		private readonly prisma: PrismaService,
 	) {}
 
 	login(user: UserAuth) {
@@ -28,17 +28,24 @@ export class AuthService {
 	}
 
 	async validateUser(username: string, password?: string) {
-		const user = await this.usersService.findOneByUsername(username);
+		const user = await this.prisma.user.findFirst({
+			include: {
+				empresas_has_usuarios: {
+					include: { cargo: true },
+				},
+			},
+			where: { username },
+		});
 
-		if (!user) throw new UnauthorizedException();
+		if (!user)
+			throw new UnauthorizedException('Usuário ou senha inválidos');
 
 		if (!user.ativo || !PasswordHelper.compare(password, user?.password)) {
-			throw new UnauthorizedException();
+			throw new UnauthorizedException('Usuário ou senha inválidos');
 		}
 
 		return {
 			...user,
-			password: undefined,
 			empresa_id: user.empresas_has_usuarios[0].empresa_id,
 			cargo_id: user.empresas_has_usuarios[0].cargo.id,
 		};

@@ -1,8 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { NotFoundException } from 'src/shared/errors';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
 
 @Injectable()
@@ -25,78 +24,47 @@ export class UserService {
 			},
 		});
 
-		return;
+		return { success: true };
 	}
 
 	async findAll(empresa_id: number) {
-		return this.prisma.user.findMany({
-			select: {
-				id: true,
-				nome: true,
-				username: true,
-				email: true,
-				ativo: true,
-				updateda_at: true,
-				empresas_has_usuarios: {
-					select: {
-						empresa_id: true,
-						cargo: {
-							select: {
-								nome: true,
+		return {
+			success: true,
+			data: await this.prisma.user.findMany({
+				select: {
+					id: true,
+					nome: true,
+					username: true,
+					email: true,
+					ativo: true,
+					updateda_at: true,
+					empresas_has_usuarios: {
+						select: {
+							empresa_id: true,
+							cargo: {
+								select: {
+									nome: true,
+								},
 							},
 						},
 					},
 				},
-			},
-			where: {
-				empresas_has_usuarios: {
-					every: {
-						empresa_id: empresa_id,
-					},
-				},
-			},
-			orderBy: {
-				nome: 'asc',
-			},
-		});
-	}
-
-	findAllEnabled(empresa_id: number) {
-		return this.prisma.user.findMany({
-			select: {
-				id: true,
-				nome: true,
-				username: true,
-				email: true,
-				ativo: true,
-				updateda_at: true,
-				empresas_has_usuarios: {
-					select: {
-						empresa_id: true,
-						cargo: {
-							select: {
-								nome: true,
-							},
+				where: {
+					empresas_has_usuarios: {
+						every: {
+							empresa_id: empresa_id,
 						},
 					},
 				},
-			},
-			where: {
-				ativo: true,
-				empresas_has_usuarios: {
-					every: {
-						empresa_id: empresa_id,
-					},
+				orderBy: {
+					nome: 'asc',
 				},
-			},
-			orderBy: {
-				nome: 'asc',
-			},
-		});
+			}),
+		};
 	}
 
 	async findOneById(id: number) {
-		const user = this.prisma.user.findFirst({
+		const user = await this.prisma.user.findFirst({
 			select: {
 				id: true,
 				nome: true,
@@ -122,70 +90,7 @@ export class UserService {
 
 		if (user == null) throw new NotFoundException('Usuário não encontrado');
 
-		return user;
-	}
-
-	async findOneByUsername(username: string) {
-		const user = this.prisma.user.findFirst({
-			select: {
-				id: true,
-				nome: true,
-				username: true,
-				password: true,
-				email: true,
-				ativo: true,
-				updateda_at: true,
-				empresas_has_usuarios: {
-					select: {
-						empresa_id: true,
-						cargo: {
-							select: {
-								nome: true,
-								id: true,
-							},
-						},
-					},
-				},
-			},
-			where: {
-				username,
-			},
-		});
-
-		if (user == null) throw new NotFoundException('Usuário não encontrado');
-
-		return user;
-	}
-
-	async findOneByEmail(email: string, include_password: boolean) {
-		const user = this.prisma.user.findFirst({
-			select: {
-				id: true,
-				nome: true,
-				username: true,
-				password: include_password || false,
-				email: true,
-				ativo: true,
-				updateda_at: true,
-				empresas_has_usuarios: {
-					select: {
-						empresa_id: true,
-						cargo: {
-							select: {
-								nome: true,
-							},
-						},
-					},
-				},
-			},
-			where: {
-				email,
-			},
-		});
-
-		if (user == null) throw new NotFoundException('Usuário não encontrado');
-
-		return user;
+		return { success: true, data: user };
 	}
 
 	async update(id: number, empresa_id: number, updateUserDto: UpdateUserDto) {

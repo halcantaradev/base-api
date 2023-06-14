@@ -21,7 +21,9 @@ model Pessoa {
   updateda_at           DateTime              @updatedAt
   empresas_has_usuarios EmpresasHasUsuarios[]
   pessoas_has_tipos     PessoasHasTipos[]
-  cargos_has_permissoes   CargosHasPermissoes[]
+  PessoasHasUnidades    PessoasHasUnidades[]
+  Unidade               Unidade[]
+  cargos_has_permissoes CargosHasPermissoes[]
 
   @@map("pessoas")
 }
@@ -29,6 +31,7 @@ model Pessoa {
 model TiposPessoa {
   id                Int               @id @default(autoincrement())
   nome              String            @unique
+  descricao         String            @unique
   ativo             Boolean           @default(true)
   created_at        DateTime          @default(now())
   updateda_at       DateTime          @updatedAt
@@ -56,8 +59,9 @@ model PessoasHasTipos {
   pessoa    Pessoa      @relation(fields: [pessoa_id], references: [id])
   tipo      TiposPessoa @relation(fields: [tipo_id], references: [id])
 
-  created_at  DateTime @default(now())
-  updateda_at DateTime @updatedAt
+  created_at         DateTime             @default(now())
+  updateda_at        DateTime             @updatedAt
+  PessoasHasUnidades PessoasHasUnidades[]
 
   @@map("pessoas_has_tipo")
 }
@@ -93,14 +97,78 @@ model EmpresasHasUsuarios {
   @@map("empresas_has_usuarios")
 }
 
+model Unidade {
+  id            Int      @id @default(autoincrement())
+  condominio_id Int
+  codigo        String   @unique
+  ativo         Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updateda_at   DateTime @updatedAt
+
+  PessoasHasUnidades PessoasHasUnidades[]
+  Notificacao        Notificacao[]
+
+  pessoa Pessoa @relation(fields: [condominio_id], references: [id])
+
+  @@map("unidades")
+}
+
+model PessoasHasUnidades {
+  id             Int      @id @default(autoincrement())
+  unidade_id     Int
+  pessoa_id      Int
+  pessoa_tipo_id Int
+  created_at     DateTime @default(now())
+  updateda_at    DateTime @updatedAt
+
+  pessoa            Pessoa          @relation(fields: [pessoa_id], references: [id])
+  unidade           Unidade         @relation(fields: [unidade_id], references: [id])
+  pessoas_has_tipos PessoasHasTipos @relation(fields: [pessoa_tipo_id], references: [id])
+
+  @@map("pessoas_has_unidades")
+}
+
+model TipoInfracao {
+  id          Int      @id @default(autoincrement())
+  descricao   String   @unique
+  ativo       Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updateda_at DateTime @updatedAt
+
+  Notificacao Notificacao[]
+
+  @@map("tipos_infracao")
+}
+
+model Notificacao {
+  id                  Int      @id @default(autoincrement())
+  unidade_id          Int
+  infracao_id         Int
+  tipo_registro       Int      @default(1)
+  data_emissao        DateTime @default(now())
+  data_infracao       DateTime @default(now())
+  n_notificacao       String
+  detalhes_infracao   String
+  fundamentacao_legal String   @db.Text
+  observacao          String   @default("") @db.Text
+  ativo               Boolean  @default(true)
+  created_at          DateTime @default(now())
+  updateda_at         DateTime @updatedAt
+
+  unidade      Unidade      @relation(fields: [unidade_id], references: [id])
+  tipoInfracao TipoInfracao @relation(fields: [infracao_id], references: [id])
+
+  @@map("notificacoes")
+}
+
 model Permissoes {
-  id                  Int                   @id @default(autoincrement())
-  label               String
-  key                 String
-  message             String
-  active              Boolean               @default(true)
-  created_at          DateTime              @default(now())
-  updateda_at         DateTime              @updatedAt
+  id                   Int                   @id @default(autoincrement())
+  label                String
+  key                  String
+  message              String
+  active               Boolean               @default(true)
+  created_at           DateTime              @default(now())
+  updateda_at          DateTime              @updatedAt
   cargos_has_ermissoes CargosHasPermissoes[]
 
   @@map("permissoes")

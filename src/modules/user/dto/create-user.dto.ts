@@ -16,12 +16,13 @@ export class CreateUserDto {
 		required: true,
 	})
 	@IsNotEmpty({
-		message: 'O parâmetro email é obrigatório',
+		message: 'O campo email é obrigatório. Por favor, forneça um email.',
 	})
 	@IsEmail(
 		{ ignore_max_length: true },
 		{
-			message: 'O parâmetro email precisa ser um email válido',
+			message:
+				'O campo email informado não é válido. Por favor, forneça um email válido.',
 		},
 	)
 	@Validate(EmailNotExists)
@@ -33,10 +34,11 @@ export class CreateUserDto {
 		required: true,
 	})
 	@IsNotEmpty({
-		message: 'O parâmetro nome é obrigatório',
+		message: 'O campo nome é obrigatório. Por favor, forneça um nome.',
 	})
 	@IsString({
-		message: 'O parâmetro nome precisa ser do tipo String',
+		message:
+			'O campo nome informado não é válido. Por favor, forneça um nome válido',
 	})
 	nome: string;
 
@@ -46,10 +48,12 @@ export class CreateUserDto {
 		required: true,
 	})
 	@IsNotEmpty({
-		message: 'O parâmetro username é obrigatório',
+		message:
+			'O campo usuário de acesso é obrigatório. Por favor, forneça um usuário.',
 	})
 	@IsString({
-		message: 'O parâmetro username precisa ser do tipo String',
+		message:
+			'O campo usuário de acesso informado não é válido. Por favor, forneça um nome de usuário válido.',
 	})
 	@Validate(UsernameNotExists)
 	username: string;
@@ -60,11 +64,13 @@ export class CreateUserDto {
 		required: true,
 	})
 	@IsNotEmpty({
-		message: 'O parâmetro password é obrigatório',
+		message: 'O campo senha é obrigatório. Por favor, forneça uma senha.',
 	})
 	@IsString({
-		message: 'O parâmetro password precisa ser do tipo String',
+		message:
+			'O campo senha informado não é válido. Por favor, forneça uma senha válida.',
 	})
+	@Type(() => String)
 	password: string;
 
 	@ApiProperty({
@@ -73,10 +79,11 @@ export class CreateUserDto {
 		required: true,
 	})
 	@IsNotEmpty({
-		message: 'O parâmetro cargo_id é obrigatório',
+		message: 'O campo cargo é obrigatório. Por favor, forneça um cargo.',
 	})
 	@IsInt({
-		message: 'O parâmetro cargo_id precisa ser do tipo Int',
+		message:
+			'O campo cargo informado não é válido. Por favor, forneça um cargo válido.',
 	})
 	@Type(() => Number)
 	@Validate(CargoExists)

@@ -3,7 +3,6 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import {
 	ValidatorConstraint,
 	ValidatorConstraintInterface,
-	ValidationArguments,
 } from 'class-validator';
 
 @Injectable()
@@ -23,7 +22,7 @@ export class UsernameNotExists implements ValidatorConstraintInterface {
 		}
 	}
 
-	defaultMessage(args: ValidationArguments) {
-		return `O valor do parâmetro ${args.property} informado não pode ser utilizado`;
+	defaultMessage() {
+		return `O usuário informado não pode ser utilizado`;
 	}
 }

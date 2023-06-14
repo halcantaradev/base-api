@@ -79,7 +79,7 @@ model User {
   updateda_at DateTime @updatedAt
 
   empresas_has_usuarios EmpresasHasUsuarios[]
-  UsuarioHasPermissoes  UsuarioHasPermissoes[]
+  usuario_has_permissoes  UsuarioHasPermissoes[]
 
   @@map("usuarios")
 }

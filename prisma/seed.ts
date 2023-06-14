@@ -130,7 +130,7 @@ async function createNotificacao(unidade: Unidade) {
 
 	let notificacao = await prisma.notificacao.findFirst({
 		where: {
-			tipoInfracao: {
+			tipo_infracao: {
 				descricao: 'Animais',
 			},
 		},

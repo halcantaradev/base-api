@@ -15,10 +15,11 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'A unidade é obrigatória',
+    message: 'O campo unidade é obrigatório. Por favor, forneça uma unidade.',
   })
   @IsInt({
-    message: 'A unidade informada não é válido',
+    message:
+      'O campo unidade informado não é válido. Por favor, forneça uma unidade válida.',
   })
   unidade_id: number;
 
@@ -28,10 +29,11 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'A infração é obrigatório',
+    message: 'O campo infração é obrigatório. Por favor, forneça uma infração.',
   })
   @IsInt({
-    message: 'A infração informada não é válida',
+    message:
+      'O campo infração informado não é válido. Por favor, forneça uma infração válida.',
   })
   infracao_id: number;
 
@@ -41,10 +43,12 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'A data de emissão é obrigatória',
+    message:
+      'O campo data de emissão é obrigatório. Por favor, forneça uma data de emissão.',
   })
   @IsDate({
-    message: 'A data de emissão informada não é válida',
+    message:
+      'O campo data de emissão informado não é válido. Por favor, forneça uma data de emissão válida.',
   })
   @Type(() => Date)
   data_emissao: Date;
@@ -55,10 +59,12 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'A data de infração é obrigatório',
+    message:
+      'O campo data de infração é obrigatório. Por favor, forneça uma data de infração.',
   })
   @IsDate({
-    message: 'A data de infração informada não é válida',
+    message:
+      'O campo data de infração informado não é válido. Por favor, forneça uma data de infração válida.',
   })
   @Type(() => Date)
   data_infracao: Date;
@@ -69,10 +75,12 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O número da notificação é obrigatório',
+    message:
+      'O campo número da notificação é obrigatório. Por favor, forneça o número da notificação.',
   })
   @IsString({
-    message: 'O número da notificação informado não é válido',
+    message:
+      'O campo número da notificação informado não é válido. Por favor, forneça um nome de usuário válido.',
   })
   n_notificacao: string;
 
@@ -82,10 +90,12 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O detalhe da notificação é obrigatório',
+    message:
+      'O campo detalhe da notificação é obrigatório. Por favor, forneça o detalhe da notificação.',
   })
   @IsString({
-    message: 'O detalhe da notificação informado não é válido',
+    message:
+      'O campo detalhe da notificação informado não é válido. Por favor, forneça um detalhamento da notificação válido.',
   })
   detalhes_infracao: string;
 
@@ -95,10 +105,12 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O tipo de registro é obrigatório',
+    message:
+      'O campo tipo de registro é obrigatório. Por favor, forneça um tipo de registro.',
   })
   @IsInt({
-    message: 'O tipo de registro informado não é válido',
+    message:
+      'O campo tipo de registro informado não é válido. Por favor, forneça um tipo de registro válido.',
   })
   tipo_registro: 1 | 2;
 
@@ -108,10 +120,12 @@ export class CreateNotificationDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'A fundamentação legal é obrigatória',
+    message:
+      'O campo fundamentação legal é obrigatório. Por favor, forneça uma fundamentação legal.',
   })
   @IsString({
-    message: 'A fundamentação legal informada não é válida',
+    message:
+      'O campo fundamentação legal informado não é válido. Por favor, forneça uma fundamentação legal válida.',
   })
   fundamentacao_legal: string;
 
@@ -122,7 +136,8 @@ export class CreateNotificationDto {
   })
   @IsOptional()
   @IsString({
-    message: 'A observação informada não é válida',
+    message:
+      'O campo observação informado não é válido. Por favor, forneça uma observação válida.',
   })
   observacao: string;
 }

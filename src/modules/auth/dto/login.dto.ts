@@ -4,14 +4,15 @@ import { IsNotEmpty, IsString } from 'class-validator';
 export class LoginDto {
   @ApiProperty({
     description: 'Username de acesso do usuário',
-    example: 'usuario.exemplo',
+    example: 'admin',
     required: true,
   })
   @IsNotEmpty({
-    message: 'O usuário de acesso é obrigatório',
+    message: 'O campo usuário é obrigatório. Por favor, forneça um usuário.',
   })
   @IsString({
-    message: 'O usuário de acesso não é válido',
+    message:
+      'O campo usuário informado não é válido. Por favor, forneça um usuário válido.',
   })
   username: string;
 
@@ -21,10 +22,11 @@ export class LoginDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O parâmetro password é obrigatório',
+    message: 'O campo senha é obrigatório. Por favor, forneça uma senha.',
   })
   @IsString({
-    message: 'O parâmetro password precisa ser do tipo String',
+    message:
+      'O campo senha informado não é válido. Por favor, forneça um senha válido.',
   })
   password: string;
 }

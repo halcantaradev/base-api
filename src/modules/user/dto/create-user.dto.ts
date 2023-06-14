@@ -16,12 +16,13 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O email é obrigatório',
+    message: 'O campo email é obrigatório. Por favor, forneça um email.',
   })
   @IsEmail(
     { ignore_max_length: true },
     {
-      message: 'O email informado não é válido',
+      message:
+        'O campo email informado não é válido. Por favor, forneça um email válido.',
     },
   )
   @Validate(EmailNotExists)
@@ -33,10 +34,11 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O nome é obrigatório',
+    message: 'O campo nome é obrigatório. Por favor, forneça um nome.',
   })
   @IsString({
-    message: 'O nome precisa ser um texto',
+    message:
+      'O campo nome informado não é válido. Por favor, forneça um nome válido',
   })
   nome: string;
 
@@ -46,10 +48,12 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O usuário de acesso é obrigatório',
+    message:
+      'O campo usuário de acesso é obrigatório. Por favor, forneça um usuário.',
   })
   @IsString({
-    message: 'O usuário de acesso informado não é válido',
+    message:
+      'O campo usuário de acesso informado não é válido. Por favor, forneça um nome de usuário válido.',
   })
   @Validate(UsernameNotExists)
   username: string;
@@ -60,10 +64,11 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'A senha é obrigatória',
+    message: 'O campo senha é obrigatório. Por favor, forneça uma senha.',
   })
   @IsString({
-    message: 'A senha precisa ser um texto',
+    message:
+      'O campo senha informado não é válido. Por favor, forneça uma senha válida.',
   })
   @Type(() => String)
   password: string;
@@ -74,10 +79,11 @@ export class CreateUserDto {
     required: true,
   })
   @IsNotEmpty({
-    message: 'O cargo é obrigatório',
+    message: 'O campo cargo é obrigatório. Por favor, forneça um cargo.',
   })
   @IsInt({
-    message: 'O cargo informado não é válido',
+    message:
+      'O campo cargo informado não é válido. Por favor, forneça um cargo válido.',
   })
   @Type(() => Number)
   @Validate(CargoExists)

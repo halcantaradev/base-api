@@ -22,6 +22,7 @@ async function bootstrap() {
     SwaggerModule.setup('docs', app, document);
   }
 
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalFilters(new PrismaExceptionFilter());

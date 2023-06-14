@@ -17,6 +17,9 @@ export class PermissionsService {
 					where: { cargo_id },
 				},
 			},
+			where: {
+				key: key_permission,
+			},
 		});
 	}
 }

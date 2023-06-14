@@ -8,22 +8,23 @@ datasource db {
 }
 
 model Pessoa {
-  id                    Int                   @id @default(autoincrement())
-  nome                  String                @unique
-  cnpj                  String                @unique
+  id                    Int                    @id @default(autoincrement())
+  nome                  String                 @unique
+  cnpj                  String                 @unique
   endereco              String?
   cep                   String?
   bairro                String?
   cidade                String?
   uf                    String?
-  ativa                 Boolean               @default(true)
-  created_at            DateTime              @default(now())
-  updateda_at           DateTime              @updatedAt
+  ativa                 Boolean                @default(true)
+  created_at            DateTime               @default(now())
+  updateda_at           DateTime               @updatedAt
   empresas_has_usuarios EmpresasHasUsuarios[]
   pessoas_has_tipos     PessoasHasTipos[]
   PessoasHasUnidades    PessoasHasUnidades[]
   Unidade               Unidade[]
   cargos_has_permissoes CargosHasPermissoes[]
+  UsuarioHasPermissoes  UsuarioHasPermissoes[]
 
   @@map("pessoas")
 }
@@ -78,6 +79,7 @@ model User {
   updateda_at DateTime @updatedAt
 
   empresas_has_usuarios EmpresasHasUsuarios[]
+  UsuarioHasPermissoes  UsuarioHasPermissoes[]
 
   @@map("usuarios")
 }
@@ -162,14 +164,15 @@ model Notificacao {
 }
 
 model Permissoes {
-  id                   Int                   @id @default(autoincrement())
+  id                   Int                    @id @default(autoincrement())
   label                String
   key                  String
   message              String
-  active               Boolean               @default(true)
-  created_at           DateTime              @default(now())
-  updateda_at          DateTime              @updatedAt
+  active               Boolean                @default(true)
+  created_at           DateTime               @default(now())
+  updateda_at          DateTime               @updatedAt
   cargos_has_ermissoes CargosHasPermissoes[]
+  UsuarioHasPermissoes UsuarioHasPermissoes[]
 
   @@map("permissoes")
 }
@@ -187,4 +190,19 @@ model CargosHasPermissoes {
   permissao Permissoes @relation(fields: [permissao_id], references: [id])
 
   @@map("cargos_has_permissoes")
+}
+
+model UsuarioHasPermissoes {
+  id           Int      @id @default(autoincrement())
+  usuario_id   Int
+  permissao_id Int
+  empresa_id   Int
+  createdAt    DateTime @default(now())
+  updateda_at  DateTime @updatedAt
+
+  usuari    User       @relation(fields: [usuario_id], references: [id])
+  empresa   Pessoa     @relation(fields: [empresa_id], references: [id])
+  permissao Permissoes @relation(fields: [permissao_id], references: [id])
+
+  @@map("usuario_has_permissoes")
 }

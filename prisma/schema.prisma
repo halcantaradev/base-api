@@ -23,6 +23,7 @@ model Pessoa {
   pessoas_has_tipos     PessoasHasTipos[]
   PessoasHasUnidades    PessoasHasUnidades[]
   Unidade               Unidade[]
+  cargos_has_permissoes CargosHasPermissoes[]
 
   @@map("pessoas")
 }
@@ -46,6 +47,7 @@ model Cargo {
   created_at            DateTime              @default(now())
   updateda_at           DateTime              @updatedAt
   empresas_has_usuarios EmpresasHasUsuarios[]
+  cargos_has_permissoes CargosHasPermissoes[]
 
   @@map("cargos")
 }
@@ -157,4 +159,32 @@ model Notificacao {
   tipoInfracao TipoInfracao @relation(fields: [infracao_id], references: [id])
 
   @@map("notificacoes")
+}
+
+model Permissoes {
+  id                   Int                   @id @default(autoincrement())
+  label                String
+  key                  String
+  message              String
+  active               Boolean               @default(true)
+  created_at           DateTime              @default(now())
+  updateda_at          DateTime              @updatedAt
+  cargos_has_ermissoes CargosHasPermissoes[]
+
+  @@map("permissoes")
+}
+
+model CargosHasPermissoes {
+  id           Int      @id @default(autoincrement())
+  cargo_id     Int
+  permissao_id Int
+  empresa_id   Int
+  createdAt    DateTime @default(now())
+  updateda_at  DateTime @updatedAt
+
+  cargo     Cargo      @relation(fields: [cargo_id], references: [id])
+  empresa   Pessoa     @relation(fields: [empresa_id], references: [id])
+  permissao Permissoes @relation(fields: [permissao_id], references: [id])
+
+  @@map("cargos_has_permissoes")
 }

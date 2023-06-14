@@ -8,27 +8,29 @@ import { PrismaExceptionFilter } from './shared/filters/prisma-exception-filter'
 import { HttpExceptionFilter } from './shared/filters/http-exception-filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: { origin: ['*'] } });
+	const app = await NestFactory.create(AppModule, {
+		cors: { origin: ['*'] },
+	});
 
-  // Swagger Config
-  if (process.env.NODE_ENV == 'development') {
-    const config = new DocumentBuilder()
-      .setTitle('Gestão')
-      .setDescription('API para o sistema de gestão')
-      .setVersion('1.0')
-      .build();
+	// Swagger Config
+	if (process.env.NODE_ENV == 'development') {
+		const config = new DocumentBuilder()
+			.setTitle('Gestão')
+			.setDescription('API para o sistema de gestão')
+			.setVersion('1.0')
+			.build();
 
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('docs', app, document);
-  }
+		const document = SwaggerModule.createDocument(app, config);
+		SwaggerModule.setup('docs', app, document);
+	}
 
-  app.enableCors();
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalFilters(new PrismaExceptionFilter());
+	app.enableCors();
+	app.useGlobalPipes(new ValidationPipe({ transform: true }));
+	app.useGlobalFilters(new HttpExceptionFilter());
+	app.useGlobalFilters(new PrismaExceptionFilter());
 
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+	useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
-  await app.listen(process.env.PORT || 3000);
+	await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

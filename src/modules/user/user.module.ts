@@ -5,16 +5,15 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { UsernameNotExists, EmailNotExists, CargoExists } from './validators';
 
 @Module({
-  imports: [],
-  controllers: [UserController],
-  providers: [
-    UserService,
-    PrismaService,
-    // Validators
-    UsernameNotExists,
-    EmailNotExists,
-    CargoExists,
-  ],
-  exports: [UserService],
+	imports: [],
+	controllers: [UserController],
+	providers: [
+		UserService,
+		PrismaService,
+		UsernameNotExists,
+		EmailNotExists,
+		CargoExists,
+	],
+	exports: [UserService],
 })
 export class UserModule {}

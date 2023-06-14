@@ -3,10 +3,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import {
 	ValidatorConstraint,
 	ValidatorConstraintInterface,
-<<<<<<< HEAD
-=======
 	ValidationArguments,
->>>>>>> 3e00e975c8bce90a5a4cc87bbaf358f4698127dc
 } from 'class-validator';
 
 @Injectable()
@@ -24,12 +21,7 @@ export class EmailNotExists implements ValidatorConstraintInterface {
 		}
 	}
 
-<<<<<<< HEAD
-	defaultMessage() {
-		return `O email informado não pode ser utilizado`;
-=======
 	defaultMessage(args: ValidationArguments) {
 		return `O valor do parâmetro ${args.property} informado não pode ser utilizado`;
->>>>>>> 3e00e975c8bce90a5a4cc87bbaf358f4698127dc
 	}
 }

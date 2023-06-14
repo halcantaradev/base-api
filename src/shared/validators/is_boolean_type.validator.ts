@@ -15,6 +15,6 @@ export class IsBooleanType implements ValidatorConstraintInterface {
 	}
 
 	defaultMessage(args: ValidationArguments) {
-		return `O parâmetro ${args.property} precisa ser do tipo Boolean`;
+		return `O campo ${args.property} informado não é válido. Por favor, forneça um ${args.property} válido.`;
 	}
 }

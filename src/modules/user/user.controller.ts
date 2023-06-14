@@ -7,18 +7,18 @@ import {
 	Param,
 	UseGuards,
 	HttpStatus,
-	Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { RequestEntity } from 'src/shared/entities/request.entity';
-import { UserEntity } from './entities/user.entity';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { ReturnUserEntity } from './entities/return-user.entity';
+import { ReturnUserListEntity } from './entities/return-user-list.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { PermissionGuard } from 'src/shared/guards/permission.guard';
 import { AuthGuard } from '@nestjs/passport';
-import { UserAuth } from '../auth/entities/user-auth.entity';
+import { UserAuth } from '../../shared/entities/user-auth.entity';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 
 @ApiTags('User')
@@ -33,19 +33,15 @@ export class UserController {
 	@ApiResponse({
 		description: 'Usuário criado com sucesso',
 		status: HttpStatus.CREATED,
+		type: ReturnEntity.success(),
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao criar o usuário',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
 	})
-	create(
-		@Request() req: RequestEntity,
-		@Body() createUserDto: CreateUserDto,
-	) {
-		return this.userService.create(
-			createUserDto,
-			req.token_data.empresa_id,
-		);
+	create(@CurrentUser() req: UserAuth, @Body() createUserDto: CreateUserDto) {
+		return this.userService.create(createUserDto, req.empresa_id);
 	}
 
 	@Get()
@@ -54,28 +50,29 @@ export class UserController {
 	@ApiResponse({
 		description: 'Usuários listados com sucesso',
 		status: HttpStatus.OK,
-		type: UserEntity,
-		isArray: true,
+		type: ReturnUserListEntity,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os usuários',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
 	})
 	findAll(@CurrentUser() user: UserAuth) {
 		return this.userService.findAll(user.empresa_id);
 	}
 
-	@Role('usuarios-exibir-dados')
 	@Get(':id')
+	@Role('usuarios-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados do usuário' })
 	@ApiResponse({
 		description: 'Dados do usuário listados com sucesso',
 		status: HttpStatus.OK,
-		type: UserEntity,
+		type: ReturnUserEntity,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados usuário',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
 	})
 	findOne(@Param('id') id: string) {
 		return this.userService.findOneById(+id);
@@ -86,21 +83,18 @@ export class UserController {
 	@ApiResponse({
 		description: 'Dados do usuário atualizados com sucesso',
 		status: HttpStatus.OK,
-		type: UserEntity,
+		type: ReturnUserEntity,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao atualizar os dados usuário',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
 	})
 	update(
 		@Param('id') id: string,
-		@Request() req: RequestEntity,
+		@CurrentUser() req: UserAuth,
 		@Body() updateUserDto: UpdateUserDto,
 	) {
-		return this.userService.update(
-			+id,
-			req.token_data.empresa_id,
-			updateUserDto,
-		);
+		return this.userService.update(+id, req.empresa_id, updateUserDto);
 	}
 }

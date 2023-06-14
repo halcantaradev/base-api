@@ -1,20 +1,19 @@
 import {
+	Body,
 	Controller,
 	Get,
 	HttpCode,
 	HttpStatus,
 	Post,
-	Request,
 	UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { ApiOperation, ApiResponse, ApiTags, ApiBody } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginEntity } from './entities/login.entity';
-import { AuthRequest } from './entities/auth-request.entity';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { UserAuth } from './entities/user-auth.entity';
+import { UserAuth } from '../../shared/entities/user-auth.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -37,10 +36,9 @@ export class AuthController {
 		description: 'Ocorreu um erro ao realizar o login',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 	})
-	@ApiBody({ type: LoginDto })
 	@UseGuards(AuthGuard('local'))
-	login(@Request() req: AuthRequest) {
-		return this.authService.login(req.user);
+	login(@CurrentUser() user: UserAuth, @Body() _: LoginDto) {
+		return this.authService.login(user);
 	}
 
 	@Get('profile')
@@ -55,7 +53,7 @@ export class AuthController {
 		description: 'Ocorreu um erro ao listar os dados',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 	})
-	getProfile(@CurrentUser() user: UserAuth): { nome: string } {
+	getProfile(@CurrentUser() user: UserAuth) {
 		return { nome: user.nome };
 	}
 }

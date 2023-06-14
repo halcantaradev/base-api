@@ -172,7 +172,7 @@ model Permissoes {
   created_at           DateTime               @default(now())
   updateda_at          DateTime               @updatedAt
   cargos_has_ermissoes CargosHasPermissoes[]
-  UsuarioHasPermissoes UsuarioHasPermissoes[]
+  usuario_has_permissoes UsuarioHasPermissoes[]
 
   @@map("permissoes")
 }

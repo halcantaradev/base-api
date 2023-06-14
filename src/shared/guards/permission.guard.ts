@@ -2,25 +2,29 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { PermissionsService } from 'src/modules/permissions/permissions.service';
+import { PrismaService } from '../services/prisma.service';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
 	constructor(
 		private reflector: Reflector,
-		private readonly permissionsService: PermissionsService,
+		private readonly peermissionService: PermissionsService,
 	) {}
 
-	canActivate(
-		context: ExecutionContext,
-	): boolean | Promise<boolean> | Observable<boolean> {
+	async canActivate(context: ExecutionContext) {
 		const roleKey = this.reflector.getAllAndOverride<string>('role', [
 			context.getHandler(),
 			context.getClass(),
 		]);
 
 		const request = context.switchToHttp().getRequest();
+		const permission = await this.peermissionService.permissoesDoUsuario(
+			request.user.id,
+			roleKey,
+			request.user.cargo_id,
+		);
 
-		console.log(request.user);
+		console.log(permission);
 
 		return true;
 	}

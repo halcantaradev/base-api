@@ -1,20 +1,20 @@
 import {
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-  ValidationArguments,
+	ValidatorConstraint,
+	ValidatorConstraintInterface,
+	ValidationArguments,
 } from 'class-validator';
 
 @ValidatorConstraint({ name: 'IsBoolenType', async: false })
 export class IsBooleanType implements ValidatorConstraintInterface {
-  validate(value: string | boolean) {
-    if (value == null) return true;
+	validate(value: string | boolean) {
+		if (value == null) return true;
 
-    if (typeof value == 'boolean') return true;
+		if (typeof value == 'boolean') return true;
 
-    return ['true', 'false', '1', '0'].includes(value);
-  }
+		return ['true', 'false', '1', '0'].includes(value);
+	}
 
-  defaultMessage(args: ValidationArguments) {
-    return `O parâmetro ${args.property} precisa ser do tipo Boolean`;
-  }
+	defaultMessage(args: ValidationArguments) {
+		return `O parâmetro ${args.property} precisa ser do tipo Boolean`;
+	}
 }

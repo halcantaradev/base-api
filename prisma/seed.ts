@@ -2,6 +2,7 @@ import { Pessoa, PrismaClient, Unidade } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
+import { permissionslist } from '../src/modules/permissions/permissions-list';
 
 async function createEmpresa() {
 	let tipoEmpresa = await prisma.tiposPessoa.findUnique({
@@ -157,6 +158,18 @@ async function createNotificacao(unidade: Unidade) {
 	}
 }
 
+async function createPermissoesList() {
+	for await (const permission of permissionslist) {
+		const p = await prisma.permissoes.findFirst({
+			where: { key: permission.key },
+		});
+
+		if (!p) {
+			await prisma.permissoes.create({ data: permission });
+		}
+	}
+}
+
 async function main() {
 	const empresa = await createEmpresa();
 	await createUser(empresa);
@@ -165,6 +178,8 @@ async function main() {
 	const unidade = await createUnidade(condominio);
 
 	await createNotificacao(unidade);
+
+	await createPermissoesList();
 
 	console.log('Seeds executadas');
 }

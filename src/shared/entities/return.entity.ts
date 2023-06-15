@@ -25,7 +25,7 @@ export class ReturnEntity {
 		return ReturnSuccessObject;
 	}
 
-	static error() {
+	static error(msg = 'Mensagem teste') {
 		class ReturnErrorObject {
 			@ApiProperty({
 				description: 'Sucesso da requisição',
@@ -37,7 +37,7 @@ export class ReturnEntity {
 
 			@ApiProperty({
 				description: 'Mensagem do retorno',
-				example: 'Mensagem teste',
+				example: msg,
 				readOnly: true,
 				required: false,
 			})

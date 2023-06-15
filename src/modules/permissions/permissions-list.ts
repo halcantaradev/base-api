@@ -1,4 +1,4 @@
-export const Permissions: Array<{
+export const permissionslist: Array<{
 	label: string;
 	key: string;
 	message: string;

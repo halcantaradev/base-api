@@ -6,7 +6,7 @@ export class PermissionsService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	permissoesDoUsuario(
-		user_id: number,
+		usuario_id: number,
 		key_permission: string,
 		cargo_id: number,
 	) {
@@ -15,6 +15,10 @@ export class PermissionsService {
 				cargos_has_ermissoes: {
 					select: { id: true },
 					where: { cargo_id },
+				},
+				usuario_has_permissoes: {
+					select: { id: true },
+					where: { usuario_id },
 				},
 			},
 			where: {

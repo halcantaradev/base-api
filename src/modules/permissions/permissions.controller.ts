@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	HttpCode,
@@ -33,18 +34,20 @@ export class PermissionsController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error('Permissão não encontrada'),
 	})
-	checkAcesse(
+	async checkAcesse(
 		@Body() validPermission: ValidPermissionDTO,
 		@CurrentUser() user: UserAuth,
 	) {
-		try {
-			return this.permissionsService.checkAcess({
-				user_id: user.id,
-				cargo_id: user.cargo_id,
-				action: validPermission.action,
-			});
-		} catch (error) {
-			return { success: false, message: 'Permissão não encontrada' };
+		const permission = await this.permissionsService.checkAcess({
+			user_id: user.id,
+			cargo_id: user.cargo_id,
+			action: validPermission.action,
+		});
+
+		if (!permission) {
+			throw new BadRequestException('Permissão não encontrada');
 		}
+
+		return permission;
 	}
 }

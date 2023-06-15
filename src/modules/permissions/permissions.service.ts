@@ -11,7 +11,7 @@ export class PermissionsService {
 		cargo_id?: number;
 		action: string;
 	}) {
-		return this.prisma.permissoes.findFirstOrThrow({
+		return this.prisma.permissoes.findFirst({
 			include: {
 				cargos_has_ermissoes: {
 					select: { id: true },

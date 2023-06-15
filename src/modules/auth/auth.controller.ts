@@ -14,6 +14,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginEntity } from './entities/login.entity';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from '../../shared/entities/user-auth.entity';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -31,10 +32,12 @@ export class AuthController {
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
 		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao realizar o login',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
 	})
 	@UseGuards(AuthGuard('local'))
 	login(@CurrentUser() user: UserAuth, @Body() _: LoginDto) {
@@ -52,6 +55,7 @@ export class AuthController {
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
 	})
 	getProfile(@CurrentUser() user: UserAuth) {
 		return { nome: user.nome };

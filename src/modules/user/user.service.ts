@@ -3,6 +3,8 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
+import { ReturnUserEntity } from './entities/return-user.entity';
+import { ReturnUserListEntity } from './entities/return-user-list.entity';
 
 @Injectable()
 export class UserService {
@@ -24,12 +26,13 @@ export class UserService {
 			},
 		});
 
-		return { success: true };
+		return { success: true, message: 'Usuário criado com sucesso.' };
 	}
 
-	async findAll(empresa_id: number) {
+	async findAll(empresa_id: number): Promise<ReturnUserListEntity> {
 		return {
 			success: true,
+			message: 'Usuários listados com sucesso.',
 			data: await this.prisma.user.findMany({
 				select: {
 					id: true,
@@ -63,7 +66,7 @@ export class UserService {
 		};
 	}
 
-	async findOneById(id: number) {
+	async findOneById(id: number): Promise<ReturnUserEntity> {
 		const user = await this.prisma.user.findFirst({
 			select: {
 				id: true,
@@ -90,51 +93,67 @@ export class UserService {
 
 		if (user == null) throw new NotFoundException('Usuário não encontrado');
 
-		return { success: true, data: user };
+		return {
+			success: true,
+			message: 'Usuário listado com sucesso.',
+			data: user,
+		};
 	}
 
-	async update(id: number, empresa_id: number, updateUserDto: UpdateUserDto) {
-		return this.prisma.user.update({
-			select: {
-				id: true,
-				nome: true,
-				username: true,
-				email: true,
-				ativo: true,
-				updateda_at: true,
-				empresas_has_usuarios: {
-					select: {
-						empresa_id: true,
-						cargo: {
-							select: {
-								nome: true,
+	async update(
+		id: number,
+		empresa_id: number,
+		updateUserDto: UpdateUserDto,
+	): Promise<ReturnUserEntity> {
+		const user = await this.prisma.user.findUnique({ where: { id } });
+
+		if (user == null) throw new NotFoundException('Usuário não encontrado');
+
+		return {
+			success: true,
+			message: 'Usuário atualizado com sucesso.',
+			data: await this.prisma.user.update({
+				select: {
+					id: true,
+					nome: true,
+					username: true,
+					email: true,
+					ativo: true,
+					updateda_at: true,
+					empresas_has_usuarios: {
+						select: {
+							empresa_id: true,
+							cargo: {
+								select: {
+									nome: true,
+								},
 							},
 						},
 					},
 				},
-			},
-			data: {
-				nome: updateUserDto.nome,
-				password: updateUserDto.password
-					? PasswordHelper.create(updateUserDto.password)
-					: undefined,
-				email: updateUserDto.email,
-				ativo: updateUserDto.ativo,
-				empresas_has_usuarios: {
-					updateMany: {
-						data: {
-							cargo_id: updateUserDto.cargo_id,
-						},
-						where: {
-							empresa_id,
-							usuario_id: id,
+				data: {
+					nome: updateUserDto.nome,
+					password: updateUserDto.password
+						? PasswordHelper.create(updateUserDto.password)
+						: undefined,
+					email: updateUserDto.email,
+					ativo: updateUserDto.ativo,
+					empresas_has_usuarios: {
+						updateMany: {
+							data: {
+								cargo_id: updateUserDto.cargo_id,
+							},
+							where: {
+								empresa_id,
+								usuario_id: id,
+							},
 						},
 					},
 				},
-			},
-			where: {
-				id,
-			},
-		});
+				where: {
+					id,
+				},
+			}),
+		};
 	}
 }

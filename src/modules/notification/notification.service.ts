@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { PrismaService } from 'src/shared/services/prisma.service';
+import { ReturnNotificationEntity } from './entities/return-notification.entity';
+import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 
 @Injectable()
 export class NotificationService {
@@ -21,30 +23,34 @@ export class NotificationService {
 			},
 		});
 
-		return { success: true };
+		return { success: true, message: 'Notificação criada com sucesso.' };
 	}
 
-	async findAll() {
-		return this.prisma.notificacao.findMany({
-			select: {
-				id: true,
-				unidade: { select: { codigo: true } },
-				tipo_infracao: {
-					select: { descricao: true },
+	async findAll(): Promise<ReturnNotificationListEntity> {
+		return {
+			success: true,
+			message: 'Notificações listadas com sucesso.',
+			data: await this.prisma.notificacao.findMany({
+				select: {
+					id: true,
+					unidade: { select: { codigo: true } },
+					tipo_infracao: {
+						select: { descricao: true },
+					},
+					tipo_registro: true,
+					data_emissao: true,
+					data_infracao: true,
+					n_notificacao: true,
+					detalhes_infracao: true,
+					fundamentacao_legal: true,
+					observacao: true,
 				},
-				tipo_registro: true,
-				data_emissao: true,
-				data_infracao: true,
-				n_notificacao: true,
-				detalhes_infracao: true,
-				fundamentacao_legal: true,
-				observacao: true,
-			},
-		});
+			}),
+		};
 	}
 
-	async findOne(id: number) {
-		return this.prisma.notificacao.findFirst({
+	async findOneById(id: number): Promise<ReturnNotificationEntity> {
+		const notification = await this.prisma.notificacao.findFirst({
 			select: {
 				id: true,
 				unidade: { select: { codigo: true } },
@@ -63,11 +69,31 @@ export class NotificationService {
 				id,
 			},
 		});
-	}
 
-	async update(id: number, updateNotificationDto: UpdateNotificationDto) {
+		if (notification == null)
+			throw new NotFoundException('Notificação não encontrada');
+
 		return {
 			success: true,
+			message: 'Notificação listada com sucesso.',
+			data: notification,
+		};
+	}
+
+	async update(
+		id: number,
+		updateNotificationDto: UpdateNotificationDto,
+	): Promise<ReturnNotificationEntity> {
+		const notification = await this.prisma.notificacao.findUnique({
+			where: { id },
+		});
+
+		if (notification == null)
+			throw new NotFoundException('Notificação não encontrada');
+
+		return {
+			success: true,
+			message: 'Notificação atualizada com sucesso.',
 			data: await this.prisma.notificacao.update({
 				select: {
 					id: true,

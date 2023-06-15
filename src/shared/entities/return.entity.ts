@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ReturnEntity {
-	static success() {
+	static success(msg = 'Mensagem teste') {
 		class ReturnSuccessObject {
 			@ApiProperty({
 				description: 'Sucesso da requisição',
@@ -10,6 +10,14 @@ export class ReturnEntity {
 				readOnly: true,
 			})
 			success: boolean;
+
+			@ApiProperty({
+				description: 'Mensagem do retorno',
+				example: msg,
+				readOnly: true,
+				required: false,
+			})
+			message?: string;
 
 			data: any;
 		}

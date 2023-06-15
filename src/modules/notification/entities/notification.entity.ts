@@ -13,7 +13,7 @@ export class NotificationEntity {
 		example: { descricao: 'Animais' },
 		required: true,
 	})
-	tipoInfracao: { descricao: string };
+	tipo_infracao: { descricao: string };
 
 	@ApiProperty({
 		description: 'Data da emissão',
@@ -48,7 +48,7 @@ export class NotificationEntity {
 		example: 1,
 		required: true,
 	})
-	tipo_registro: 1 | 2;
+	tipo_registro: number;
 
 	@ApiProperty({
 		description: 'Fundamentação legal infrigida na notificação',

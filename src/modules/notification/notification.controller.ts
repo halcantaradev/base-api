@@ -32,17 +32,17 @@ export class NotificationController {
 	@ApiResponse({
 		description: 'Notificação criada com sucesso',
 		status: HttpStatus.OK,
-		type: () => ReturnEntity.success(),
+		type: ReturnEntity.success(),
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
 		status: HttpStatus.BAD_REQUEST,
-		type: ReturnEntity.error,
+		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao criar a notificação',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		type: ReturnEntity.error,
+		type: ReturnEntity.error(),
 	})
 	create(@Body() createNotificationDto: CreateNotificationDto) {
 		return this.notificationService.create(createNotificationDto);
@@ -53,12 +53,12 @@ export class NotificationController {
 	@ApiResponse({
 		description: 'Notificações listadas com sucesso',
 		status: HttpStatus.OK,
-		type: () => ReturnNotificationListEntity,
+		type: ReturnNotificationListEntity,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar as notificações',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		type: ReturnEntity.error,
+		type: ReturnEntity.error(),
 	})
 	findAll() {
 		return this.notificationService.findAll();
@@ -74,10 +74,10 @@ export class NotificationController {
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados da notificação',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		type: () => ReturnEntity,
+		type: ReturnEntity.error(),
 	})
 	findOne(@Param('id') id: string) {
-		return this.notificationService.findOne(+id);
+		return this.notificationService.findOneById(+id);
 	}
 
 	@Patch(':id')
@@ -90,12 +90,12 @@ export class NotificationController {
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
 		status: HttpStatus.BAD_REQUEST,
-		type: ReturnEntity.error,
+		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao atualizar a notificação',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		type: () => ReturnEntity.error,
+		type: ReturnEntity.error(),
 	})
 	update(
 		@Param('id') id: string,

@@ -1,41 +1,41 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ReturnEntity {
-  static success() {
-    class ReturnSuccessObject {
-      @ApiProperty({
-        description: 'Sucesso da requisição',
-        example: true,
-        required: true,
-        readOnly: true,
-      })
-      success: boolean;
+	static success() {
+		class ReturnSuccessObject {
+			@ApiProperty({
+				description: 'Sucesso da requisição',
+				example: true,
+				required: true,
+				readOnly: true,
+			})
+			success: boolean;
 
-      data: any;
-    }
+			data: any;
+		}
 
-    return ReturnSuccessObject;
-  }
+		return ReturnSuccessObject;
+	}
 
-  static error() {
-    class ReturnErrorObject {
-      @ApiProperty({
-        description: 'Sucesso da requisição',
-        example: false,
-        required: true,
-        readOnly: true,
-      })
-      success: boolean;
+	static error(msg = 'Mensagem teste') {
+		class ReturnErrorObject {
+			@ApiProperty({
+				description: 'Sucesso da requisição',
+				example: false,
+				required: true,
+				readOnly: true,
+			})
+			success: boolean;
 
-      @ApiProperty({
-        description: 'Mensagem do retorno',
-        example: 'Mensagem teste',
-        readOnly: true,
-        required: false,
-      })
-      message?: string;
-    }
+			@ApiProperty({
+				description: 'Mensagem do retorno',
+				example: msg,
+				readOnly: true,
+				required: false,
+			})
+			message?: string;
+		}
 
-    return ReturnErrorObject;
-  }
+		return ReturnErrorObject;
+	}
 }

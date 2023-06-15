@@ -22,12 +22,11 @@ export class PermissionGuard implements CanActivate {
 
 		const request = context.switchToHttp().getRequest();
 		if (roleKey) {
-			const permission =
-				await this.peermissionService.permissoesDoUsuario(
-					request.user.id,
-					roleKey,
-					request.user.cargo_id,
-				);
+			const permission = await this.peermissionService.checkAcess({
+				user_id: request.user.id,
+				action: roleKey,
+				cargo_id: request.user.cargo_id,
+			});
 			console.log(permission);
 			if (
 				!permission.cargos_has_ermissoes.length &&

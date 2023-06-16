@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
-import { CreatePermissionOcupationDto } from './dto/create-permission-ocupation.dto';
-import { CreatePermissionUserDto } from './dto/create-permission-user.dto';
+import { CreatePermissionsDto } from './dto/create-permission.dto';
 
 @Injectable()
 export class PermissionsService {
@@ -42,29 +41,31 @@ export class PermissionsService {
 	}
 
 	async givePermissionToOcupation(
-		permissionDTO: CreatePermissionOcupationDto[],
+		permissionDTO: CreatePermissionsDto,
 		empresa_id: number,
+		cargo_id: number,
 	) {
-		await this.deletePermissionsOcupation(permissionDTO[0].cargo_id);
+		await this.deletePermissionsOcupation(cargo_id);
 		return this.prisma.cargosHasPermissoes.createMany({
-			data: permissionDTO.map((item) => ({
-				cargo_id: item.cargo_id,
+			data: permissionDTO.permissoes.map((permissao_id) => ({
+				cargo_id,
 				empresa_id,
-				permissao_id: item.permissao_id,
+				permissao_id,
 			})),
 		});
 	}
 
 	async givePermissionToUser(
-		permissionDTO: CreatePermissionUserDto[],
+		permissionDTO: CreatePermissionsDto,
 		empresa_id: number,
+		usuario_id: number,
 	) {
-		await this.deletePermissionsUser(permissionDTO[0].usuario_id);
+		await this.deletePermissionsUser(usuario_id);
 		return this.prisma.usuarioHasPermissoes.createMany({
-			data: permissionDTO.map((item) => ({
-				usuario_id: item.usuario_id,
+			data: permissionDTO.permissoes.map((permissao_id) => ({
+				usuario_id,
 				empresa_id,
-				permissao_id: item.permissao_id,
+				permissao_id,
 			})),
 		});
 	}

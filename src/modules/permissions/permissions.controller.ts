@@ -4,7 +4,9 @@ import {
 	Controller,
 	HttpCode,
 	HttpStatus,
+	Param,
 	Post,
+	Put,
 	UseGuards,
 } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
@@ -15,7 +17,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { PermissionReturn } from './entities/permission-return.entity';
-import { CreatePermissionOcupationDto } from './dto/create-permission-ocupation.dto';
+import { CreatePermissionsDto } from './dto/create-permission.dto';
 import { PermissionGuard } from 'src/shared/guards/permission.guard';
 import { CreatePermissionUserDto } from './dto/create-permission-user.dto';
 @ApiTags('Permissions')
@@ -55,13 +57,13 @@ export class PermissionsController {
 		return permission;
 	}
 
-	@Post('cargo/update')
+	@Put('cargo/:id')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Conceder permissões ao cargo' })
 	@ApiResponse({
 		description: 'Permissões concedidas com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success('Permissões concedidas com sucesso'),
+		type: () => ReturnEntity.success('Permissões concedidas com sucesso'),
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao conceder as permissões',
@@ -73,20 +75,23 @@ export class PermissionsController {
 		status: HttpStatus.BAD_REQUEST,
 		type: ReturnEntity.error('Verifique os campos'),
 	})
-	@ApiBody({ type: CreatePermissionOcupationDto, isArray: true })
-	givePermissionToOcupation(
-		@Body() permissionDTO: CreatePermissionOcupationDto[],
+	async givePermissionToOcupation(
+		@Body() permissionDTO: CreatePermissionsDto,
 		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
 	) {
-		return this.permissionsService.givePermissionToOcupation(
+		await this.permissionsService.givePermissionToOcupation(
 			permissionDTO,
 			user.empresa_id,
+			+id,
 		);
+
+		return { success: true, message: 'Permissões concedidas com sucesso' };
 	}
 
-	@Post('user/update')
+	@Put('user/:id')
 	@HttpCode(HttpStatus.OK)
-	@ApiOperation({ summary: 'Conceder permissões ao user' })
+	@ApiOperation({ summary: 'Conceder permissões ao usuário' })
 	@ApiResponse({
 		description: 'Permissões concedidas com sucesso',
 		status: HttpStatus.OK,
@@ -102,14 +107,17 @@ export class PermissionsController {
 		status: HttpStatus.BAD_REQUEST,
 		type: ReturnEntity.error('Verifique os campos'),
 	})
-	@ApiBody({ type: CreatePermissionUserDto, isArray: true })
-	givePermissionToUser(
-		@Body() permissionDTO: CreatePermissionUserDto[],
+	async givePermissionToUser(
+		@Body() permissionDTO: CreatePermissionsDto,
 		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
 	) {
-		return this.permissionsService.givePermissionToUser(
+		await this.permissionsService.givePermissionToUser(
 			permissionDTO,
 			user.empresa_id,
+			+id,
 		);
+
+		return { success: true, message: 'Permissões concedidas com sucesso' };
 	}
 }

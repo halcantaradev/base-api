@@ -29,7 +29,7 @@ export class PermissionGuard implements CanActivate {
 			});
 			console.log(permission);
 			if (
-				!permission.cargos_has_ermissoes.length &&
+				!permission.cargos_has_permissoes.length &&
 				!permission.usuario_has_permissoes.length
 			) {
 				throw new UnauthorizedException(permission.message);

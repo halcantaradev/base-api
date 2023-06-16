@@ -24,6 +24,4 @@ export class CreatePermissionUserDto {
 		message: 'Informe a permissão',
 	})
 	permissao_id: number;
-	createdAt?: string | Date;
-	updateda_at?: string | Date;
 }

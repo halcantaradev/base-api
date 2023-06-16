@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
-import { ValidPermissionDTO } from './dto/valid-permission.dto';
+import { CreatePermissionOcupationDto } from './dto/create-permission-ocupation.dto';
+import { CreatePermissionUserDto } from './dto/create-permission-user.dto';
 
 @Injectable()
 export class PermissionsService {
@@ -13,18 +14,58 @@ export class PermissionsService {
 	}) {
 		return this.prisma.permissoes.findFirst({
 			include: {
-				cargos_has_ermissoes: {
-					select: { id: true },
+				cargos_has_permissoes: {
+					select: { cargo_id: true },
 					where: { cargo_id: validPermission.cargo_id || null },
 				},
 				usuario_has_permissoes: {
-					select: { id: true },
+					select: { usuario_id: true },
 					where: { usuario_id: validPermission.user_id || null },
 				},
 			},
 			where: {
 				key: validPermission.action,
 			},
+		});
+	}
+
+	deletePermissionsOcupation(cargo_id: number) {
+		return this.prisma.cargosHasPermissoes.deleteMany({
+			where: { cargo_id },
+		});
+	}
+
+	deletePermissionsUser(usuario_id: number) {
+		return this.prisma.usuarioHasPermissoes.deleteMany({
+			where: { usuario_id },
+		});
+	}
+
+	async givePermissionToOcupation(
+		permissionDTO: CreatePermissionOcupationDto[],
+		empresa_id: number,
+	) {
+		await this.deletePermissionsOcupation(permissionDTO[0].cargo_id);
+		return this.prisma.cargosHasPermissoes.createMany({
+			data: permissionDTO.map((item) => ({
+				cargo_id: item.cargo_id,
+				empresa_id,
+				permissao_id: item.permissao_id,
+			})),
+		});
+	}
+
+	async givePermissionToUser(
+		permissionDTO: CreatePermissionUserDto[],
+		empresa_id: number,
+	) {
+		await this.deletePermissionsUser(permissionDTO[0].usuario_id);
+		return this.prisma.usuarioHasPermissoes.createMany({
+			data: permissionDTO.map((item) => ({
+				usuario_id: item.usuario_id,
+				empresa_id,
+				permissao_id: item.permissao_id,
+			})),
 		});
 	}
 }

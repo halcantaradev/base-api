@@ -23,7 +23,11 @@ export class AuthService {
 		const token = this.jwtService.sign(userPayload);
 
 		return {
-			access_token: token,
+			success: true,
+			data: {
+				access_token: token,
+			},
+			message: 'Login realizado com sucesso!',
 		};
 	}
 
@@ -38,10 +42,10 @@ export class AuthService {
 		});
 
 		if (!user)
-			throw new UnauthorizedException('Usuário ou senha inválidos');
+			throw new UnauthorizedException('Usuário e/ou senha inválidos');
 
 		if (!user.ativo || !PasswordHelper.compare(password, user?.password)) {
-			throw new UnauthorizedException('Usuário ou senha inválidos');
+			throw new UnauthorizedException('Usuário e/ou senha inválidos');
 		}
 
 		return {

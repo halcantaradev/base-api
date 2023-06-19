@@ -27,7 +27,6 @@ export class PermissionGuard implements CanActivate {
 				action: roleKey,
 				cargo_id: request.user.cargo_id,
 			});
-			console.log(permission);
 			if (
 				!permission.cargos_has_permissoes.length &&
 				!permission.usuario_has_permissoes.length

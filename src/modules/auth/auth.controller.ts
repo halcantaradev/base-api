@@ -8,13 +8,14 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { UserAuth } from '../../shared/entities/user-auth.entity';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginEntity } from './entities/login.entity';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { UserAuth } from '../../shared/entities/user-auth.entity';
-import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -45,7 +46,7 @@ export class AuthController {
 	}
 
 	@Get('profile')
-	@UseGuards(AuthGuard('jwt'))
+	@UseGuards(JwtAuthGuard)
 	@ApiOperation({ summary: 'Retorna os dados salvos no token do usuário' })
 	@ApiResponse({
 		description: 'Dados listados com sucesso',

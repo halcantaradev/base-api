@@ -9,19 +9,18 @@ import {
 	Put,
 	UseGuards,
 } from '@nestjs/common';
-import { PermissionsService } from './permissions.service';
-import { ValidPermissionDTO } from './dto/valid-permission.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { PermissionReturn } from './entities/permission-return.entity';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreatePermissionsDto } from './dto/create-permission.dto';
-import { PermissionGuard } from 'src/shared/guards/permission.guard';
-import { CreatePermissionUserDto } from './dto/create-permission-user.dto';
+import { ValidPermissionDTO } from './dto/valid-permission.dto';
+import { PermissionReturn } from './entities/permission-return.entity';
+import { PermissionsService } from './permissions.service';
 @ApiTags('Permissions')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtAuthGuard)
 @UseGuards(PermissionGuard)
 @Controller('permissions')
 export class PermissionsController {

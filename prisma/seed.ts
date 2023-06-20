@@ -79,7 +79,7 @@ async function createCondominio() {
 	});
 
 	let condominio = await prisma.pessoa.findUnique({
-		where: { nome: 'Condominio Teste' },
+		where: { nome: 'Condominio' },
 	});
 
 	if (!tipoCondominio && !condominio) {

@@ -37,10 +37,6 @@ export class CondominiumService {
 					mode: 'insensitive',
 				},
 				id: +filters.condominio || undefined,
-				// consultor_id: {
-				// 	contains: +filters.consultor_id,
-				// 	mode: 'insensitive',
-				// },
 				categoria_id: +filters.tipo_id || undefined,
 				created_at: {
 					lte: filters.data_fim || undefined,

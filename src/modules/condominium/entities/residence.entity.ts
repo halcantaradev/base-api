@@ -1,4 +1,4 @@
-export class Unidade {
+export class Residence {
 	id: number;
 	codigo: string;
 }

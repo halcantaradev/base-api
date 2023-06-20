@@ -5,8 +5,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { NotificationModule } from './modules/notification/notification.module';
-import { CondominioModule } from './modules/condominio/condominio.module';
-import { PessoaModule } from './modules/pessoa/pessoa.module';
+import { CondominiumModule } from './modules/condominium/condominium.module';
+import { PersonModule } from './modules/person/person.module';
 
 @Module({
 	imports: [
@@ -14,8 +14,8 @@ import { PessoaModule } from './modules/pessoa/pessoa.module';
 		UserModule,
 		PermissionsModule,
 		NotificationModule,
-		CondominioModule,
-		PessoaModule,
+		CondominiumModule,
+		PersonModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

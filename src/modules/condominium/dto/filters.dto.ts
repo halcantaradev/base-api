@@ -2,7 +2,7 @@ import { IsDate, IsInt, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-export class FiltersDto {
+export class FiltersCondominiumDto {
 	@ApiProperty({
 		description: 'Filtro por nome ou código do condomínio',
 		example: '001',

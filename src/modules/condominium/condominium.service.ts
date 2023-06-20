@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { PessoaService } from '../pessoa/pessoa.service';
-import { Condominio } from './entities/condominio.entity';
+import { PersonService } from '../person/person.service';
+import { Condominium } from './entities/condominium.entity';
 import { PrismaService } from 'src/shared/services/prisma.service';
-import { Unidade } from './entities/unidade.entity';
-import { FiltersDto } from './dto/filters.dto';
+import { Residence } from './entities/residence.entity';
+import { FiltersCondominiumDto } from './dto/filters.dto';
 
 @Injectable()
-export class CondominioService {
+export class CondominiumService {
 	constructor(
-		private readonly pessoaService: PessoaService,
+		private readonly pessoaService: PersonService,
 		private readonly prisma: PrismaService,
 	) {}
 
-	async findAll(filters: FiltersDto): Promise<Condominio[]> {
+	async findAll(filters: FiltersCondominiumDto): Promise<Condominium[]> {
 		return this.pessoaService.findAll(
 			'condominio',
 			{
@@ -82,7 +82,7 @@ export class CondominioService {
 		);
 	}
 
-	async findOne(id: number): Promise<Condominio> {
+	async findOne(id: number): Promise<Condominium> {
 		return this.pessoaService.findOneById(id, 'condominio', {
 			id: true,
 			nome: true,
@@ -101,7 +101,7 @@ export class CondominioService {
 		});
 	}
 
-	async findAllUnidades(idCondominio: number): Promise<Unidade[]> {
+	async findAllResidences(id_condominium: number): Promise<Residence[]> {
 		return this.prisma.unidade.findMany({
 			select: {
 				id: true,
@@ -109,12 +109,15 @@ export class CondominioService {
 				ativo: true,
 			},
 			where: {
-				condominio_id: idCondominio,
+				condominio_id: id_condominium,
 			},
 		});
 	}
 
-	async findOneUnidade(idCondominio: number, id: number): Promise<Unidade> {
+	async findOneResidence(
+		id_condominium: number,
+		id: number,
+	): Promise<Residence> {
 		return this.prisma.unidade.findFirst({
 			select: {
 				id: true,
@@ -122,7 +125,7 @@ export class CondominioService {
 				ativo: true,
 			},
 			where: {
-				condominio_id: idCondominio,
+				condominio_id: id_condominium,
 				id: id,
 			},
 		});

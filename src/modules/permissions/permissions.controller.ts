@@ -2,6 +2,7 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
+	Get,
 	HttpCode,
 	HttpStatus,
 	Param,
@@ -19,9 +20,12 @@ import { CreatePermissionsDto } from './dto/create-permission.dto';
 import { ValidPermissionDTO } from './dto/valid-permission.dto';
 import { PermissionReturn } from './entities/permission-return.entity';
 import { PermissionsService } from './permissions.service';
+import { Role } from 'src/shared/decorators/role.decorator';
+import { PermissionOcupationReturn } from './entities/permissions-ocupation-return';
+import { PermissionUserReturn } from './entities/permissions-user-return';
 @ApiTags('Permissions')
-@UseGuards(JwtAuthGuard)
 @UseGuards(PermissionGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('permissions')
 export class PermissionsController {
 	constructor(private readonly permissionsService: PermissionsService) {}
@@ -56,7 +60,25 @@ export class PermissionsController {
 		return permission;
 	}
 
+	@ApiOperation({ summary: 'Listar permissões do cargo' })
+	@ApiResponse({
+		description: 'Retorna permissões  com ou sem cargo relacionado',
+		status: HttpStatus.OK,
+		type: PermissionOcupationReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar permissões',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error('Erro ao listar permissões'),
+	})
+	@Get('cargo/:id')
+	@Role('permissions-cargos-listar')
+	getPermissionsToOcupation(@Param('id') id: string) {
+		return this.permissionsService.getPermissionsToOcupation(+id);
+	}
+
 	@Put('cargo/:id')
+	@Role('permissoes-cargos-conceder')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Conceder permissões ao cargo' })
 	@ApiResponse({
@@ -86,6 +108,23 @@ export class PermissionsController {
 		);
 
 		return { success: true, message: 'Permissões concedidas com sucesso' };
+	}
+
+	@ApiOperation({ summary: 'Listar permissões do usuãrio' })
+	@ApiResponse({
+		description: 'Retorna permissões com ou sem usuário relacionado',
+		status: HttpStatus.OK,
+		type: PermissionUserReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar permissões',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error('Erro ao listar permissões'),
+	})
+	@Get('user/:id')
+	@Role('permissions-usuarios-listar')
+	getPermissionsToUser(@Param('id') id: string) {
+		return this.permissionsService.getPermissionsToUser(+id);
 	}
 
 	@Put('user/:id')

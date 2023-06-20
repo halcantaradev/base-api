@@ -25,7 +25,7 @@ async function createEmpresa() {
 			},
 		});
 
-		prisma.pessoasHasTipos.create({
+		await prisma.pessoasHasTipos.create({
 			data: {
 				pessoa_id: empresa.id,
 				tipo_id: tipoEmpresa.id,
@@ -94,7 +94,7 @@ async function createCondominio() {
 			},
 		});
 
-		prisma.pessoasHasTipos.create({
+		await prisma.pessoasHasTipos.create({
 			data: {
 				pessoa_id: condominio.id,
 				tipo_id: tipoCondominio.id,
@@ -103,6 +103,22 @@ async function createCondominio() {
 	}
 
 	return condominio;
+}
+
+async function createContato(condominio: Pessoa) {
+	const contatos = await prisma.contato.findFirst({
+		where: { pessoa_id: condominio.id },
+	});
+
+	if (!contatos) {
+		await prisma.contato.create({
+			data: {
+				descricao: 'Síndico',
+				contato: 'exemplo@gmail.com',
+				pessoa_id: condominio.id,
+			},
+		});
+	}
 }
 
 async function createUnidade(condominio: Pessoa) {
@@ -176,6 +192,7 @@ async function main() {
 
 	const condominio = await createCondominio();
 	const unidade = await createUnidade(condominio);
+	await createContato(condominio);
 
 	await createNotificacao(unidade);
 

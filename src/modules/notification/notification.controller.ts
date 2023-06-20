@@ -7,6 +7,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -18,6 +19,9 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { NotificationService } from './notification.service';
+import { FilterNotificationDto } from './dto/filter-notification.dto';
+import { createReadStream } from 'fs';
+import { join } from '@prisma/client/runtime';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -62,6 +66,29 @@ export class NotificationController {
 	})
 	findAll() {
 		return this.notificationService.findAll();
+	}
+
+	@Post('reports')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ summary: 'Lista as notificação' })
+	@ApiResponse({
+		description: 'Notificações listadas com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnNotificationListEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar as notificações',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	report(
+		@Body() filtros: FilterNotificationDto,
+		@Query('tipo') tipo: string,
+	) {
+		const file = createReadStream(join(process.cwd(), 'package.json'));
+		if (tipo === 'condominio') {
+			return this.notificationService.reportByCondominium(filtros);
+		}
 	}
 
 	@Get(':id')

@@ -4,6 +4,7 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
+import { FilterNotificationDto } from './dto/filter-notification.dto';
 
 @Injectable()
 export class NotificationService {
@@ -24,6 +25,100 @@ export class NotificationService {
 		});
 
 		return { success: true, message: 'Notificação criada com sucesso.' };
+	}
+
+	async reportByCondominium(filtro: FilterNotificationDto) {
+		console.log(filtro);
+		const report = await this.prisma.pessoa.findMany({
+			select: {
+				nome: true,
+				unidade: {
+					select: {
+						codigo: true,
+						_count: { select: { Notificacao: true } },
+						Notificacao: {
+							select: {
+								id: true,
+								data_emissao: true,
+								data_infracao: true,
+								tipo_registro: true,
+								infracao_id: true,
+								observacao: true,
+								detalhes_infracao: true,
+								tipo_infracao: {
+									select: {
+										descricao: true,
+									},
+								},
+							},
+						},
+					},
+					where: {
+						id: { in: filtro.unidades_ids },
+						PessoasHasUnidades: {
+							every: {
+								pessoa_id: { in: filtro.condominos_ids },
+							},
+						},
+						Notificacao: {
+							every: {
+								tipo_registro: filtro.tipo_notificacao,
+								infracao_id: filtro.tipo_infracao_id,
+								OR: [
+									filtro.tipo_data_filtro === 1
+										? {
+												data_emissao: {
+													gte: new Date(
+														filtro.data_inicial,
+													),
+													lte: new Date(
+														filtro.data_final,
+													),
+												},
+										  }
+										: {
+												data_infracao: {
+													gte: new Date(
+														filtro.data_inicial,
+													),
+													lte: new Date(
+														filtro.data_final,
+													),
+												},
+										  },
+								],
+							},
+						},
+					},
+				},
+			},
+			where: {
+				pessoas_has_tipos: {
+					every: {
+						tipo: {
+							nome: 'condominio',
+						},
+					},
+				},
+				AND: [
+					filtro.condominios_ids
+						? { id: { in: filtro.condominios_ids } }
+						: {},
+				],
+			},
+		});
+
+		if (!report) {
+			throw new NotFoundException(
+				'Dados não encontrados, por favor verifique os filtros!',
+			);
+		}
+
+		return {
+			success: true,
+			message: 'Notificações listadas com sucesso.',
+			data: report,
+		};
 	}
 
 	async findAll(): Promise<ReturnNotificationListEntity> {

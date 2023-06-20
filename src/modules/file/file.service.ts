@@ -1,8 +1,4 @@
-import {
-	BadRequestException,
-	Injectable,
-	UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { FileOrigin } from 'src/shared/enum/file-origin.enum';
 import { PrismaService } from 'src/shared/services/prisma.service';
 

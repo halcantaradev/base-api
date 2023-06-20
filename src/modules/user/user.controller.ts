@@ -1,30 +1,30 @@
 import {
+	Body,
 	Controller,
 	Get,
-	Post,
-	Body,
-	Patch,
-	Param,
-	UseGuards,
 	HttpStatus,
+	Param,
+	Patch,
+	Post,
+	UseGuards,
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { Role } from 'src/shared/decorators/role.decorator';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { UserAuth } from '../../shared/entities/user-auth.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { ReturnUserEntity } from './entities/return-user.entity';
 import { ReturnUserListEntity } from './entities/return-user-list.entity';
-import { Role } from 'src/shared/decorators/role.decorator';
-import { PermissionGuard } from 'src/shared/guards/permission.guard';
-import { AuthGuard } from '@nestjs/passport';
-import { UserAuth } from '../../shared/entities/user-auth.entity';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { ReturnUserEntity } from './entities/return-user.entity';
+import { UserService } from './user.service';
 
 @ApiTags('User')
 @Controller('users')
 @UseGuards(PermissionGuard)
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtAuthGuard)
 export class UserController {
 	constructor(private readonly userService: UserService) {}
 
@@ -58,6 +58,23 @@ export class UserController {
 		type: ReturnEntity.error(),
 	})
 	findAll(@CurrentUser() user: UserAuth) {
+		return this.userService.findAll(user.empresa_id);
+	}
+
+	@Get('active')
+	@Role('usuarios-listar-ativos')
+	@ApiOperation({ summary: 'Lista usuários ativos' })
+	@ApiResponse({
+		description: 'Usuários ativos listados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnUserListEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os usuários',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	findAllActive(@CurrentUser() user: UserAuth) {
 		return this.userService.findAll(user.empresa_id);
 	}
 

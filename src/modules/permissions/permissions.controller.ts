@@ -2,6 +2,7 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
+	Get,
 	HttpCode,
 	HttpStatus,
 	Param,
@@ -9,20 +10,22 @@ import {
 	Put,
 	UseGuards,
 } from '@nestjs/common';
-import { PermissionsService } from './permissions.service';
-import { ValidPermissionDTO } from './dto/valid-permission.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { PermissionReturn } from './entities/permission-return.entity';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreatePermissionsDto } from './dto/create-permission.dto';
-import { PermissionGuard } from 'src/shared/guards/permission.guard';
-import { CreatePermissionUserDto } from './dto/create-permission-user.dto';
+import { ValidPermissionDTO } from './dto/valid-permission.dto';
+import { PermissionReturn } from './entities/permission-return.entity';
+import { PermissionsService } from './permissions.service';
+import { Role } from 'src/shared/decorators/role.decorator';
+import { PermissionOcupationReturn } from './entities/permissions-ocupation-return';
+import { PermissionUserReturn } from './entities/permissions-user-return';
 @ApiTags('Permissions')
-@UseGuards(AuthGuard('jwt'))
 @UseGuards(PermissionGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('permissions')
 export class PermissionsController {
 	constructor(private readonly permissionsService: PermissionsService) {}
@@ -57,7 +60,25 @@ export class PermissionsController {
 		return permission;
 	}
 
+	@ApiOperation({ summary: 'Listar permissões do cargo' })
+	@ApiResponse({
+		description: 'Retorna permissões  com ou sem cargo relacionado',
+		status: HttpStatus.OK,
+		type: PermissionOcupationReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar permissões',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error('Erro ao listar permissões'),
+	})
+	@Get('cargo/:id')
+	@Role('permissions-cargos-listar')
+	getPermissionsToOcupation(@Param('id') id: string) {
+		return this.permissionsService.getPermissionsToOcupation(+id);
+	}
+
 	@Put('cargo/:id')
+	@Role('permissoes-cargos-conceder')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Conceder permissões ao cargo' })
 	@ApiResponse({
@@ -87,6 +108,23 @@ export class PermissionsController {
 		);
 
 		return { success: true, message: 'Permissões concedidas com sucesso' };
+	}
+
+	@ApiOperation({ summary: 'Listar permissões do usuãrio' })
+	@ApiResponse({
+		description: 'Retorna permissões com ou sem usuário relacionado',
+		status: HttpStatus.OK,
+		type: PermissionUserReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar permissões',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error('Erro ao listar permissões'),
+	})
+	@Get('user/:id')
+	@Role('permissions-usuarios-listar')
+	getPermissionsToUser(@Param('id') id: string) {
+		return this.permissionsService.getPermissionsToUser(+id);
 	}
 
 	@Put('user/:id')

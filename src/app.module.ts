@@ -6,6 +6,8 @@ import { UserModule } from './modules/user/user.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { FileModule } from './modules/file/file.module';
+import { CondominiumModule } from './modules/condominium/condominium.module';
+import { PersonModule } from './modules/person/person.module';
 
 @Module({
 	imports: [
@@ -14,6 +16,8 @@ import { FileModule } from './modules/file/file.module';
 		PermissionsModule,
 		NotificationModule,
 		FileModule,
+		CondominiumModule,
+		PersonModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

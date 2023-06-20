@@ -1,28 +1,28 @@
 import {
+	Body,
 	Controller,
 	Get,
-	Post,
-	Body,
-	Patch,
-	Param,
-	HttpStatus,
-	UseGuards,
 	HttpCode,
+	HttpStatus,
+	Param,
+	Patch,
+	Post,
+	UseGuards,
 } from '@nestjs/common';
-import { NotificationService } from './notification.service';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
-import { PermissionGuard } from 'src/shared/guards/permission.guard';
-import { AuthGuard } from '@nestjs/passport';
+import { ReturnNotificationEntity } from './entities/return-notification.entity';
+import { NotificationService } from './notification.service';
 
 @ApiTags('Notifications')
 @Controller('notifications')
 @UseGuards(PermissionGuard)
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtAuthGuard)
 export class NotificationController {
 	constructor(private readonly notificationService: NotificationService) {}
 

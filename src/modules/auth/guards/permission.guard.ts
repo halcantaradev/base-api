@@ -1,6 +1,7 @@
 import {
 	CanActivate,
 	ExecutionContext,
+	ForbiddenException,
 	Injectable,
 	UnauthorizedException,
 } from '@nestjs/common';
@@ -27,12 +28,13 @@ export class PermissionGuard implements CanActivate {
 				action: roleKey,
 				cargo_id: request.user.cargo_id,
 			});
-			console.log(permission);
+
 			if (
+				permission &&
 				!permission.cargos_has_permissoes.length &&
 				!permission.usuario_has_permissoes.length
 			) {
-				throw new UnauthorizedException(permission.message);
+				throw new ForbiddenException(permission.message);
 			}
 		}
 

@@ -8,17 +8,18 @@ datasource db {
 }
 
 model Pessoa {
-  id          Int      @id @default(autoincrement())
-  nome        String   @unique
-  cnpj        String   @unique
-  endereco    String?
-  cep         String?
-  bairro      String?
-  cidade      String?
-  uf          String?
-  ativa       Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updateda_at DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  nome         String   @unique
+  cnpj         String   @unique
+  endereco     String?
+  cep          String?
+  bairro       String?
+  cidade       String?
+  uf           String?
+  categoria_id Int?
+  ativa        Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updateda_at  DateTime @updatedAt
 
   empresas_has_usuarios  EmpresasHasUsuarios[]
   pessoas_has_tipos      PessoasHasTipos[]
@@ -26,6 +27,7 @@ model Pessoa {
   unidade                Unidade[]
   cargos_has_permissoes  CargosHasPermissoes[]
   usuario_has_permissoes UsuarioHasPermissoes[]
+  contato                Contato[]
 
   @@map("pessoas")
 }
@@ -218,4 +220,17 @@ model Arquivo {
   updateda_at   DateTime @updatedAt
 
   @@map("arquivos")
+}
+
+model Contato {
+  id            Int     @id @default(autoincrement())
+  contato       String  @unique
+  descricao     String  @unique
+  ativo         Boolean @default(true)
+  tipo_registro Int     @default(1)
+  pessoa_id     Int
+
+  pessoa Pessoa @relation(fields: [pessoa_id], references: [id])
+
+  @@map("contatos")
 }

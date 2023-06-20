@@ -32,7 +32,6 @@ export class UserService {
 	async findAll(empresa_id: number): Promise<ReturnUserListEntity> {
 		return {
 			success: true,
-			message: 'Usuários listados com sucesso.',
 			data: await this.prisma.user.findMany({
 				select: {
 					id: true,
@@ -58,6 +57,43 @@ export class UserService {
 							empresa_id: empresa_id,
 						},
 					},
+				},
+				orderBy: {
+					nome: 'asc',
+				},
+			}),
+		};
+	}
+
+	async findAllActive(empresa_id: number): Promise<ReturnUserListEntity> {
+		return {
+			success: true,
+			data: await this.prisma.user.findMany({
+				select: {
+					id: true,
+					nome: true,
+					username: true,
+					email: true,
+					ativo: true,
+					updateda_at: true,
+					empresas_has_usuarios: {
+						select: {
+							empresa_id: true,
+							cargo: {
+								select: {
+									nome: true,
+								},
+							},
+						},
+					},
+				},
+				where: {
+					empresas_has_usuarios: {
+						every: {
+							empresa_id: empresa_id,
+						},
+					},
+					ativo: true,
 				},
 				orderBy: {
 					nome: 'asc',

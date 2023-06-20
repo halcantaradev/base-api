@@ -2,6 +2,7 @@ import {
 	BadRequestException,
 	Body,
 	Controller,
+	Get,
 	HttpCode,
 	HttpStatus,
 	Param,
@@ -19,9 +20,10 @@ import { CreatePermissionsDto } from './dto/create-permission.dto';
 import { ValidPermissionDTO } from './dto/valid-permission.dto';
 import { PermissionReturn } from './entities/permission-return.entity';
 import { PermissionsService } from './permissions.service';
+import { Role } from 'src/shared/decorators/role.decorator';
 @ApiTags('Permissions')
-@UseGuards(JwtAuthGuard)
 @UseGuards(PermissionGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('permissions')
 export class PermissionsController {
 	constructor(private readonly permissionsService: PermissionsService) {}
@@ -57,6 +59,7 @@ export class PermissionsController {
 	}
 
 	@Put('cargo/:id')
+	@Role('permissoes-cargos-conceder')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Conceder permissões ao cargo' })
 	@ApiResponse({
@@ -86,6 +89,18 @@ export class PermissionsController {
 		);
 
 		return { success: true, message: 'Permissões concedidas com sucesso' };
+	}
+
+	@Get('cargo/:id')
+	@Role('permissions-cargos-listar')
+	getPermissionsToOcupation(@Param('id') id: string) {
+		return this.permissionsService.getPermissionsToOcupation(+id);
+	}
+
+	@Get('user/:id')
+	@Role('permissions-cargos-listar')
+	getPermissionsToUser(@Param('id') id: string) {
+		return this.permissionsService.getPermissionsToUser(+id);
 	}
 
 	@Put('user/:id')

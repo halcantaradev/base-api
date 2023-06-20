@@ -40,6 +40,22 @@ export class PermissionsService {
 		});
 	}
 
+	async getPermissionsToOcupation(cargo_id: number) {
+		return {
+			success: true,
+			data: await this.prisma.permissoes.findMany({
+				select: {
+					id: true,
+					label: true,
+					cargos_has_permissoes: {
+						select: { cargo_id: true },
+						where: { cargo_id },
+					},
+				},
+			}),
+		};
+	}
+
 	async givePermissionToOcupation(
 		permissionDTO: CreatePermissionsDto,
 		empresa_id: number,
@@ -55,6 +71,21 @@ export class PermissionsService {
 		});
 	}
 
+	async getPermissionsToUser(usuario_id: number) {
+		return {
+			success: true,
+			data: await this.prisma.permissoes.findMany({
+				select: {
+					id: true,
+					label: true,
+					usuario_has_permissoes: {
+						select: { usuario_id: true },
+						where: { usuario_id },
+					},
+				},
+			}),
+		};
+	}
 	async givePermissionToUser(
 		permissionDTO: CreatePermissionsDto,
 		empresa_id: number,

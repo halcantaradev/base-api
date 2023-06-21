@@ -20,6 +20,7 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { NotificationService } from './notification.service';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
+import { Role } from 'src/shared/decorators/role.decorator';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -29,6 +30,7 @@ export class NotificationController {
 	constructor(private readonly notificationService: NotificationService) {}
 
 	@Post()
+	@Role('notificacoes-cadastrar')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Cria uma nova notificação' })
 	@ApiResponse({
@@ -51,6 +53,7 @@ export class NotificationController {
 	}
 
 	@Get()
+	@Role('notificacoes-listar')
 	@ApiOperation({ summary: 'Lista as notificação' })
 	@ApiResponse({
 		description: 'Notificações listadas com sucesso',
@@ -67,6 +70,7 @@ export class NotificationController {
 	}
 
 	@Post('reports')
+	@Role('notificacoes-relatorios-condominio')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({
 		summary:
@@ -93,6 +97,7 @@ export class NotificationController {
 	}
 
 	@Get(':id')
+	@Role('notificacoes-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados de uma notificação' })
 	@ApiResponse({
 		description: 'Notificação listada com sucesso',
@@ -109,6 +114,7 @@ export class NotificationController {
 	}
 
 	@Patch(':id')
+	@Role('notificacoes-atualizar-dados')
 	@ApiOperation({ summary: 'Atualiza os dados de uma notificação' })
 	@ApiResponse({
 		description: 'Notificação atualizada com sucesso',

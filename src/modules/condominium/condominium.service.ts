@@ -79,7 +79,7 @@ export class CondominiumService {
 							mode: 'insensitive',
 						},
 					},
-				],
+				].filter((filter) => !!filter),
 			},
 		);
 	}

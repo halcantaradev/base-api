@@ -97,7 +97,7 @@ export class FilterNotificationDto {
 	})
 	@IsOptional()
 	@IsDate({
-		message: 'Por favor data válido',
+		message: 'Por favor forneça uma data válido',
 	})
 	@Type(() => Date)
 	data_inicial: Date;
@@ -108,7 +108,7 @@ export class FilterNotificationDto {
 	})
 	@IsOptional()
 	@IsDate({
-		message: 'Por favor data válido',
+		message: 'Por favor forneça uma data válido',
 	})
 	@Type(() => Date)
 	data_final: Date;

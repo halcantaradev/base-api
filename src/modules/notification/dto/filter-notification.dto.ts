@@ -96,7 +96,9 @@ export class FilterNotificationDto {
 		example: '2023-06-20T00:00:00',
 	})
 	@IsOptional()
-	@IsDate()
+	@IsDate({
+		message: 'Por favor data válido',
+	})
 	@Type(() => Date)
 	data_inicial: Date;
 
@@ -105,7 +107,9 @@ export class FilterNotificationDto {
 		example: '2023-06-21T00:00:00',
 	})
 	@IsOptional()
-	@IsDate()
+	@IsDate({
+		message: 'Por favor data válido',
+	})
 	@Type(() => Date)
 	data_final: Date;
 }

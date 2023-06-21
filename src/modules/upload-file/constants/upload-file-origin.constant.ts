@@ -1,1 +1,1 @@
-export const uploadFileOrigin = ['notificacao'];
+export const uploadFileOrigin = [null, 'notificacao'];

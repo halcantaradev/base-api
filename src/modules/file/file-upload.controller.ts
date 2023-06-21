@@ -8,14 +8,14 @@ import {
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
-import { FileService } from './file.service';
+import { FileUploadService } from './file-upload.service';
 import {
 	ApiTags,
 	ApiConsumes,
 	ApiOperation,
 	ApiResponse,
 } from '@nestjs/swagger';
-import { PermissionGuard } from 'src/shared/guards/permission.guard';
+import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FileUploadDto } from './dto/file-upload.dto';
@@ -25,8 +25,8 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 @Controller('files')
 @UseGuards(PermissionGuard)
 @UseGuards(AuthGuard('jwt'))
-export class FileController {
-	constructor(private readonly fileService: FileService) {}
+export class FileUploadController {
+	constructor(private readonly fileUploadService: FileUploadService) {}
 
 	@Post()
 	@HttpCode(HttpStatus.OK)
@@ -51,7 +51,7 @@ export class FileController {
 		@Body() body: FileUploadDto,
 		@UploadedFiles() files: Express.Multer.File[],
 	) {
-		return this.fileService.saveFiles(
+		return this.fileUploadService.saveFiles(
 			body.reference_id,
 			body.origin,
 			files,

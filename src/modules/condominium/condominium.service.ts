@@ -14,11 +14,13 @@ export class CondominiumService {
 
 	async findAll(filters: FiltersCondominiumDto): Promise<Condominium[]> {
 		const filtros = [
-			filters.tipo_id && { categoria_id: +filters.tipo_id },
+			!Number.isNaN(+filters.tipo_id) && {
+				categoria_id: +filters.tipo_id,
+			},
 			(filters.data_inicio || filters.data_fim) && {
 				created_at: {
-					lte: filters.data_fim,
-					gte: filters.data_inicio,
+					lte: filters.data_fim || undefined,
+					gte: filters.data_inicio || undefined,
 				},
 			},
 			filters.condominio && {
@@ -27,7 +29,7 @@ export class CondominiumService {
 					mode: 'insensitive',
 				},
 			},
-			filters.condominio && {
+			!Number.isNaN(+filters.condominio) && {
 				id: +filters.condominio,
 			},
 			filters.endereco && {

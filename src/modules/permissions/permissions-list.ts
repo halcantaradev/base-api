@@ -13,4 +13,19 @@ export const permissionslist: Array<{
 		key: 'usuarios-exibir-dados',
 		message: 'Sem permissão para listar dados do usuário',
 	},
+	{
+		label: 'Listar permissões do cargo',
+		key: 'permissions-cargos-listar',
+		message: 'Sem permissão para listar as permissões do cargo',
+	},
+	{
+		label: 'Conceder permissões aos cargos',
+		key: 'permissoes-cargos-conceder',
+		message: 'Sem permissão para conceder permissão ao cargo',
+	},
+	{
+		label: 'Listar usuários ativos',
+		key: 'usuarios-listar-ativos',
+		message: 'Sem permissão para listar usuários ativos',
+	},
 ];

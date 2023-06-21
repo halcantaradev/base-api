@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CargoEntity } from './cargo.entity';
+import { Ocupation } from 'src/modules/ocupations/entities/ocupation.entity';
 
 export class EmpresaHasUsuarioEntity {
 	@ApiProperty({
@@ -11,8 +11,8 @@ export class EmpresaHasUsuarioEntity {
 
 	@ApiProperty({
 		description: 'Dados do cargo do usuario na empresa',
-		type: CargoEntity,
+		type: Ocupation,
 		required: false,
 	})
-	cargo: CargoEntity;
+	cargo: Ocupation;
 }

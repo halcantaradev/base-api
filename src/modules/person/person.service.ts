@@ -8,11 +8,29 @@ export class PersonService {
 
 	async findAll(
 		tipo: string,
-		select: Prisma.PessoaSelect,
+		select: Prisma.PessoaSelect = {},
 		where: Prisma.PessoaWhereInput = {},
 	): Promise<any[]> {
 		return this.prisma.pessoa.findMany({
-			select,
+			select: {
+				id: true,
+				nome: true,
+				cnpj: true,
+				endereco: true,
+				cep: true,
+				bairro: true,
+				cidade: true,
+				uf: true,
+				ativa: true,
+				contatos: {
+					select: {
+						contato: true,
+						tipo_registro: true,
+						descricao: true,
+					},
+				},
+				...select,
+			},
 			where: {
 				...where,
 				pessoas_has_tipos: { some: { tipo: { nome: tipo } } },
@@ -23,11 +41,29 @@ export class PersonService {
 	async findOneById(
 		id: number,
 		tipo: string,
-		select: Prisma.PessoaSelect,
+		select: Prisma.PessoaSelect = {},
 		where: Prisma.PessoaWhereInput = {},
 	): Promise<any> {
 		return this.prisma.pessoa.findFirst({
-			select,
+			select: {
+				id: true,
+				nome: true,
+				cnpj: true,
+				endereco: true,
+				cep: true,
+				bairro: true,
+				cidade: true,
+				uf: true,
+				ativa: true,
+				contatos: {
+					select: {
+						contato: true,
+						tipo_registro: true,
+						descricao: true,
+					},
+				},
+				...select,
+			},
 			where: {
 				...where,
 				id,

@@ -27,7 +27,7 @@ model Pessoa {
   unidade                Unidade[]
   cargos_has_permissoes  CargosHasPermissoes[]
   usuario_has_permissoes UsuarioHasPermissoes[]
-  contato                Contato[]
+  contatos               Contato[]
 
   @@map("pessoas")
 }

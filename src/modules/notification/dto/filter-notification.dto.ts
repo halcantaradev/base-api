@@ -4,6 +4,7 @@ import {
 	IsArray,
 	IsDate,
 	IsDateString,
+	IsIn,
 	IsInt,
 	IsNotEmpty,
 	IsOptional,
@@ -53,11 +54,11 @@ export class FilterNotificationDto {
 		description: 'Tipo da notificação',
 		example: 1,
 	})
+	@IsOptional()
 	@IsInt({
 		message:
 			'O campo condômino informado não é válido. Por favor, selecione uma unidade válida',
 	})
-	@IsOptional()
 	tipo_notificacao: number;
 
 	@ApiProperty({
@@ -65,6 +66,9 @@ export class FilterNotificationDto {
 		example: 1,
 	})
 	@IsOptional()
+	@IsInt({
+		message: 'Por favor forneça um consultor válido',
+	})
 	consultor_id: number;
 
 	@ApiProperty({
@@ -72,6 +76,9 @@ export class FilterNotificationDto {
 		example: 1,
 	})
 	@IsOptional()
+	@IsInt({
+		message: 'Por favor forneça um tipo de infração válida',
+	})
 	tipo_infracao_id: number;
 
 	@ApiProperty({
@@ -79,6 +86,9 @@ export class FilterNotificationDto {
 			'Tipo de filtragem entre períodos, sendo 1 para data de emissão e 2 para data da infração',
 	})
 	@IsOptional()
+	@IsInt({
+		message: 'Por favor forneça um tipo de filtro de data válido',
+	})
 	tipo_data_filtro: number;
 
 	@ApiProperty({

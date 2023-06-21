@@ -5,7 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { NotificationModule } from './modules/notification/notification.module';
-import { FileUploadModule } from './modules/file/file-upload.module';
+import { UploadFileModule } from './modules/file/upload-file.module';
 import { CondominiumModule } from './modules/condominium/condominium.module';
 import { PersonModule } from './modules/person/person.module';
 
@@ -15,7 +15,7 @@ import { PersonModule } from './modules/person/person.module';
 		UserModule,
 		PermissionsModule,
 		NotificationModule,
-		FileUploadModule,
+		UploadFileModule,
 		CondominiumModule,
 		PersonModule,
 	],

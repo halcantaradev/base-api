@@ -2,7 +2,7 @@ import { IsInt, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
-export class FileUploadDto {
+export class UploadFileDto {
 	@ApiProperty({
 		description: 'Origem do arquivo',
 		example: 1,

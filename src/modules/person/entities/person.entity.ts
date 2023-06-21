@@ -66,7 +66,7 @@ export class Person {
 
 	@ApiProperty({
 		description: 'Informações de contato do objeto referente',
-		example: { contato: 'contato@teste.com' },
+		example: [{ contato: 'contato@teste.com' }],
 		isArray: true,
 		readOnly: true,
 	})

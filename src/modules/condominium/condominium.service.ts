@@ -13,6 +13,55 @@ export class CondominiumService {
 	) {}
 
 	async findAll(filters: FiltersCondominiumDto): Promise<Condominium[]> {
+		const filtros = [
+			filters.tipo_id && { categoria_id: +filters.tipo_id },
+			(filters.data_inicio || filters.data_fim) && {
+				created_at: {
+					lte: filters.data_fim,
+					gte: filters.data_inicio,
+				},
+			},
+			filters.condominio && {
+				nome: {
+					contains: filters.condominio,
+					mode: 'insensitive',
+				},
+			},
+			filters.condominio && {
+				id: +filters.condominio,
+			},
+			filters.endereco && {
+				bairro: {
+					contains: filters.endereco,
+					mode: 'insensitive',
+				},
+			},
+			filters.endereco && {
+				endereco: {
+					contains: filters.endereco,
+					mode: 'insensitive',
+				},
+			},
+			filters.endereco && {
+				cidade: {
+					contains: filters.endereco,
+					mode: 'insensitive',
+				},
+			},
+			filters.endereco && {
+				uf: {
+					contains: filters.endereco,
+					mode: 'insensitive',
+				},
+			},
+			filters.endereco && {
+				cep: {
+					contains: filters.endereco,
+					mode: 'insensitive',
+				},
+			},
+		].filter((filter) => !!filter);
+
 		return this.pessoaService.findAll(
 			'condominio',
 			{
@@ -32,54 +81,7 @@ export class CondominiumService {
 				},
 			},
 			{
-				OR: [
-					filters.tipo_id && { categoria_id: +filters.tipo_id },
-					(filters.data_inicio || filters.data_fim) && {
-						created_at: {
-							lte: filters.data_fim,
-							gte: filters.data_inicio,
-						},
-					},
-					filters.condominio && {
-						nome: {
-							contains: filters.condominio,
-							mode: 'insensitive',
-						},
-					},
-					filters.condominio && {
-						id: +filters.condominio,
-					},
-					filters.endereco && {
-						bairro: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-					filters.endereco && {
-						endereco: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-					filters.endereco && {
-						cidade: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-					filters.endereco && {
-						uf: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-					filters.endereco && {
-						cep: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-				].filter((filter) => !!filter),
+				OR: [].concat(filtros),
 			},
 		);
 	}

@@ -6,13 +6,22 @@ import {
 	HttpStatus,
 	Param,
 	Post,
+	UseGuards,
 } from '@nestjs/common';
 import { CondominiumService } from './condominium.service';
 import { FiltersCondominiumDto } from './dto/filters.dto';
-import { Condominium } from './entities/condominium.entity';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { PermissionGuard } from '../auth/guards/permission.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CondominiumReturn } from './entities/condominium-return.entity';
+import { ResidenceReturn } from './entities/residence-return.entity';
+import { ResidenceListReturn } from './entities/residence-list-return.entity';
+import { CondominiumListReturn } from './entities/condominium-list-return.entity';
 
+@ApiTags('Condominium')
+@UseGuards(PermissionGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('condominiums')
 export class CondominiumController {
 	constructor(private readonly condominioService: CondominiumService) {}
@@ -23,7 +32,7 @@ export class CondominiumController {
 	@ApiResponse({
 		description: 'Condomínios listados com sucesso',
 		status: HttpStatus.OK,
-		type: Condominium,
+		type: CondominiumListReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os filtros enviados',
@@ -47,7 +56,7 @@ export class CondominiumController {
 	@ApiResponse({
 		description: 'Condomínio listado com sucesso',
 		status: HttpStatus.OK,
-		type: Condominium,
+		type: CondominiumReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados do condomínio',
@@ -66,7 +75,7 @@ export class CondominiumController {
 	@ApiResponse({
 		description: 'Unidades listadas com sucesso',
 		status: HttpStatus.OK,
-		type: Condominium,
+		type: ResidenceListReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar as unidades',
@@ -87,7 +96,7 @@ export class CondominiumController {
 	@ApiResponse({
 		description: 'Unidade listada com sucesso',
 		status: HttpStatus.OK,
-		type: Condominium,
+		type: ResidenceReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados da unidade',

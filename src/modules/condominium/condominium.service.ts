@@ -33,7 +33,7 @@ export class CondominiumService {
 			},
 			{
 				nome: {
-					contains: filters.condominio,
+					contains: filters.condominio || undefined,
 					mode: 'insensitive',
 				},
 				id: +filters.condominio || undefined,
@@ -42,38 +42,40 @@ export class CondominiumService {
 					lte: filters.data_fim || undefined,
 					gte: filters.data_inicio || undefined,
 				},
-				OR: [
-					{
-						bairro: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-					{
-						endereco: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-					{
-						cidade: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-					{
-						uf: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-					{
-						cep: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-					},
-				],
+				OR: filters.endereco
+					? [
+							{
+								bairro: {
+									contains: filters.endereco,
+									mode: 'insensitive',
+								},
+							},
+							{
+								endereco: {
+									contains: filters.endereco,
+									mode: 'insensitive',
+								},
+							},
+							{
+								cidade: {
+									contains: filters.endereco,
+									mode: 'insensitive',
+								},
+							},
+							{
+								uf: {
+									contains: filters.endereco,
+									mode: 'insensitive',
+								},
+							},
+							{
+								cep: {
+									contains: filters.endereco,
+									mode: 'insensitive',
+								},
+							},
+					  ]
+					: undefined,
 			},
 		);
 	}

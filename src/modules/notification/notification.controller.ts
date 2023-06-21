@@ -20,8 +20,6 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { NotificationService } from './notification.service';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
-import { createReadStream } from 'fs';
-import { join } from '@prisma/client/runtime';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -70,14 +68,18 @@ export class NotificationController {
 
 	@Post('reports')
 	@HttpCode(HttpStatus.OK)
-	@ApiOperation({ summary: 'Lista as notificação' })
+	@ApiOperation({
+		summary:
+			'Gera relação de dados dos filtros para relatorios das notificações',
+	})
 	@ApiResponse({
-		description: 'Notificações listadas com sucesso',
+		description: 'Dados de relatórios gerados com sucesso',
 		status: HttpStatus.OK,
 		type: ReturnNotificationListEntity,
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao listar as notificações',
+		description:
+			'Ocorreu um erro ao gerar os dados para relatório das notificações',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
@@ -85,7 +87,6 @@ export class NotificationController {
 		@Body() filtros: FilterNotificationDto,
 		@Query('tipo') tipo: string,
 	) {
-		const file = createReadStream(join(process.cwd(), 'package.json'));
 		if (tipo === 'condominio') {
 			return this.notificationService.reportByCondominium(filtros);
 		}

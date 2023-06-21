@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
 	IsArray,
+	IsDate,
 	IsDateString,
 	IsInt,
 	IsNotEmpty,
@@ -10,35 +12,41 @@ import {
 export class FilterNotificationDto {
 	@ApiProperty({
 		description: 'Id(s) do(s) condomínio(s)',
-		example: [1],
+		isArray: true,
 		required: true,
 	})
 	@IsNotEmpty({
 		message:
 			'O campo condomínio é obrigatório. Por favor, selecione um condomínio válido.',
 	})
-	@IsArray({
+	@IsInt({
+		each: true,
 		message:
-			'O campo condomínio informado não é válido. Por favor, forneça uma unidade válida.',
+			'O campo condomínio informado não é válido. Por favor, forneça ao menos um condomínio válido.',
 	})
 	condominios_ids: number[];
 
 	@ApiProperty({
 		description: 'Id(s) da(s) unidades(s)',
-		example: [1],
+		isArray: true,
 	})
 	@IsOptional()
-	@IsArray({
+	@IsInt({
+		each: true,
 		message:
 			'O campo unidade informado não é válido. Por favor, forneça uma unidade válida.',
 	})
-	unidades_ids: number[];
+	unidades_ids: number;
 
 	@ApiProperty({
 		description: 'Id(s) dos condôminos(s)',
-		example: [1],
+		isArray: true,
 	})
 	@IsOptional()
+	@IsInt({
+		each: true,
+		message: 'O campo dos condominos_ids precisa ser do tipo inteiro',
+	})
 	condominos_ids: number[];
 
 	@ApiProperty({
@@ -78,7 +86,8 @@ export class FilterNotificationDto {
 		example: '2023-06-20T00:00:00',
 	})
 	@IsOptional()
-	@IsDateString()
+	@IsDate()
+	@Type(() => Date)
 	data_inicial: Date;
 
 	@ApiProperty({
@@ -86,6 +95,7 @@ export class FilterNotificationDto {
 		example: '2023-06-21T00:00:00',
 	})
 	@IsOptional()
-	@IsDateString()
+	@IsDate()
+	@Type(() => Date)
 	data_final: Date;
 }

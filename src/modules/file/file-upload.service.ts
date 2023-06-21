@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { FileUploadOrigin } from 'src/shared/enum/file-upload-origin.enum';
 import { PrismaService } from 'src/shared/services/prisma.service';
+import { fileUploadOrigin } from './constants/file-upload-origin.constant';
 
 @Injectable()
 export class FileUploadService {
@@ -8,7 +8,7 @@ export class FileUploadService {
 
 	async saveFiles(
 		reference_id: number,
-		origin: FileUploadOrigin,
+		origin: number,
 		files: Express.Multer.File[],
 	) {
 		if (await this.validateReference(reference_id, origin))
@@ -31,14 +31,13 @@ export class FileUploadService {
 
 	async validateReference(
 		reference_id: number,
-		origin: FileUploadOrigin,
+		origin: number,
 	): Promise<boolean> {
-		let retorno = null;
+		if (!fileUploadOrigin[origin]) return false;
 
-		if (origin == FileUploadOrigin.Notification)
-			retorno = await this.prisma.notificacao.findUnique({
-				where: { id: reference_id },
-			});
+		const retorno = await this.prisma[fileUploadOrigin[origin]].findUnique({
+			where: { id: reference_id },
+		});
 
 		return !!retorno;
 	}

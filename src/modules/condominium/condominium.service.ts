@@ -32,50 +32,54 @@ export class CondominiumService {
 				},
 			},
 			{
-				nome: {
-					contains: filters.condominio || undefined,
-					mode: 'insensitive',
-				},
-				id: +filters.condominio || undefined,
-				categoria_id: +filters.tipo_id || undefined,
-				created_at: {
-					lte: filters.data_fim || undefined,
-					gte: filters.data_inicio || undefined,
-				},
-				OR: filters.endereco
-					? [
-							{
-								bairro: {
-									contains: filters.endereco,
-									mode: 'insensitive',
-								},
-							},
-							{
-								endereco: {
-									contains: filters.endereco,
-									mode: 'insensitive',
-								},
-							},
-							{
-								cidade: {
-									contains: filters.endereco,
-									mode: 'insensitive',
-								},
-							},
-							{
-								uf: {
-									contains: filters.endereco,
-									mode: 'insensitive',
-								},
-							},
-							{
-								cep: {
-									contains: filters.endereco,
-									mode: 'insensitive',
-								},
-							},
-					  ]
-					: undefined,
+				OR: [
+					filters.tipo_id && { categoria_id: +filters.tipo_id },
+					(filters.data_inicio || filters.data_fim) && {
+						created_at: {
+							lte: filters.data_fim,
+							gte: filters.data_inicio,
+						},
+					},
+					filters.condominio && {
+						nome: {
+							contains: filters.condominio,
+							mode: 'insensitive',
+						},
+					},
+					filters.condominio && {
+						id: +filters.condominio,
+					},
+					filters.endereco && {
+						bairro: {
+							contains: filters.endereco,
+							mode: 'insensitive',
+						},
+					},
+					filters.endereco && {
+						endereco: {
+							contains: filters.endereco,
+							mode: 'insensitive',
+						},
+					},
+					filters.endereco && {
+						cidade: {
+							contains: filters.endereco,
+							mode: 'insensitive',
+						},
+					},
+					filters.endereco && {
+						uf: {
+							contains: filters.endereco,
+							mode: 'insensitive',
+						},
+					},
+					filters.endereco && {
+						cep: {
+							contains: filters.endereco,
+							mode: 'insensitive',
+						},
+					},
+				],
 			},
 		);
 	}

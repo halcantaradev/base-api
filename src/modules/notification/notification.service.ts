@@ -28,7 +28,6 @@ export class NotificationService {
 	}
 
 	async reportByCondominium(filtro: FilterNotificationDto) {
-		console.log(filtro);
 		const report = await this.prisma.pessoa.findMany({
 			select: {
 				nome: true,
@@ -65,7 +64,7 @@ export class NotificationService {
 								tipo_registro: filtro.tipo_notificacao,
 								infracao_id: filtro.tipo_infracao_id,
 								OR: [
-									filtro.tipo_data_filtro === 1
+									filtro.tipo_data_filtro == 1
 										? {
 												data_emissao: {
 													gte: new Date(
@@ -116,7 +115,6 @@ export class NotificationService {
 
 		return {
 			success: true,
-			message: 'Notificações listadas com sucesso.',
 			data: report,
 		};
 	}

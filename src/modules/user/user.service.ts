@@ -39,7 +39,7 @@ export class UserService {
 					username: true,
 					email: true,
 					ativo: true,
-					updateda_at: true,
+					updated_at: true,
 					empresas: {
 						select: {
 							empresa_id: true,
@@ -75,7 +75,7 @@ export class UserService {
 					username: true,
 					email: true,
 					ativo: true,
-					updateda_at: true,
+					updated_at: true,
 					empresas: {
 						select: {
 							empresa_id: true,
@@ -110,7 +110,7 @@ export class UserService {
 				username: true,
 				email: true,
 				ativo: true,
-				updateda_at: true,
+				updated_at: true,
 				empresas: {
 					select: {
 						empresa_id: true,
@@ -155,7 +155,7 @@ export class UserService {
 					username: true,
 					email: true,
 					ativo: true,
-					updateda_at: true,
+					updated_at: true,
 					empresas: {
 						select: {
 							empresa_id: true,

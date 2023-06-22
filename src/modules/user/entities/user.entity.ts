@@ -49,7 +49,7 @@ export class UserEntity {
 		example: '2023-01-01T23:59:59.000Z',
 		required: true,
 	})
-	updateda_at: Date;
+	updated_at: Date;
 
 	@ApiProperty({
 		description: 'Dados da Empresa do usuário',

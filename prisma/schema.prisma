@@ -212,12 +212,12 @@ model UsuarioHasPermissoes {
 }
 
 model Contato {
-  id            Int     @id @default(autoincrement())
-  contato       String  @unique
-  descricao     String  @unique
-  ativo         Boolean @default(true)
-  tipo_registro Int     @default(1)
-  pessoa_id     Int
+  id        Int     @id @default(autoincrement())
+  contato   String  @unique
+  descricao String  @unique
+  ativo     Boolean @default(true)
+  tipo      Int     @default(1)
+  pessoa_id Int
 
   pessoa Pessoa @relation(fields: [pessoa_id], references: [id])
 

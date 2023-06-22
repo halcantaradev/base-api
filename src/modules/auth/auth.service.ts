@@ -34,7 +34,7 @@ export class AuthService {
 	async validateUser(username: string, password?: string) {
 		const user = await this.prisma.user.findFirst({
 			include: {
-				empresas_has_usuarios: {
+				empresas: {
 					include: { cargo: true },
 				},
 			},
@@ -50,8 +50,8 @@ export class AuthService {
 
 		return {
 			...user,
-			empresa_id: user.empresas_has_usuarios[0].empresa_id,
-			cargo_id: user.empresas_has_usuarios[0].cargo.id,
+			empresa_id: user.empresas[0].empresa_id,
+			cargo_id: user.empresas[0].cargo.id,
 		};
 	}
 }

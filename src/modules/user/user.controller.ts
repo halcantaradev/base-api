@@ -11,7 +11,7 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { Role } from 'src/shared/decorators/role.decorator';
+// import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from '../../shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -45,7 +45,7 @@ export class UserController {
 	}
 
 	@Get()
-	@Role('usuarios-listar-todos')
+	// @Role('usuarios-listar-todos')
 	@ApiOperation({ summary: 'Lista todos os usuários' })
 	@ApiResponse({
 		description: 'Usuários listados com sucesso',
@@ -62,7 +62,7 @@ export class UserController {
 	}
 
 	@Get('active')
-	@Role('usuarios-listar-ativos')
+	// @Role('usuarios-listar-ativos')
 	@ApiOperation({ summary: 'Lista usuários ativos' })
 	@ApiResponse({
 		description: 'Usuários ativos listados com sucesso',
@@ -79,7 +79,7 @@ export class UserController {
 	}
 
 	@Get(':id')
-	@Role('usuarios-exibir-dados')
+	// @Role('usuarios-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados do usuário' })
 	@ApiResponse({
 		description: 'Dados do usuário listados com sucesso',

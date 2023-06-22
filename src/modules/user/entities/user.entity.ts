@@ -57,5 +57,5 @@ export class UserEntity {
 		isArray: true,
 		required: false,
 	})
-	empresas_has_usuarios: EmpresaHasUsuarioEntity[];
+	empresas: EmpresaHasUsuarioEntity[];
 }

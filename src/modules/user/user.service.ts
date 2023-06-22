@@ -17,7 +17,7 @@ export class UserService {
 				username: createUserDto.username,
 				password: PasswordHelper.create(createUserDto.password),
 				email: createUserDto.email,
-				empresas_has_usuarios: {
+				empresas: {
 					create: {
 						cargo_id: createUserDto.cargo_id,
 						empresa_id,
@@ -40,7 +40,7 @@ export class UserService {
 					email: true,
 					ativo: true,
 					updateda_at: true,
-					empresas_has_usuarios: {
+					empresas: {
 						select: {
 							empresa_id: true,
 							cargo: {
@@ -52,7 +52,7 @@ export class UserService {
 					},
 				},
 				where: {
-					empresas_has_usuarios: {
+					empresas: {
 						every: {
 							empresa_id: empresa_id,
 						},
@@ -76,7 +76,7 @@ export class UserService {
 					email: true,
 					ativo: true,
 					updateda_at: true,
-					empresas_has_usuarios: {
+					empresas: {
 						select: {
 							empresa_id: true,
 							cargo: {
@@ -88,7 +88,7 @@ export class UserService {
 					},
 				},
 				where: {
-					empresas_has_usuarios: {
+					empresas: {
 						every: {
 							empresa_id: empresa_id,
 						},
@@ -111,7 +111,7 @@ export class UserService {
 				email: true,
 				ativo: true,
 				updateda_at: true,
-				empresas_has_usuarios: {
+				empresas: {
 					select: {
 						empresa_id: true,
 						cargo: {
@@ -156,7 +156,7 @@ export class UserService {
 					email: true,
 					ativo: true,
 					updateda_at: true,
-					empresas_has_usuarios: {
+					empresas: {
 						select: {
 							empresa_id: true,
 							cargo: {
@@ -174,7 +174,7 @@ export class UserService {
 						: undefined,
 					email: updateUserDto.email,
 					ativo: updateUserDto.ativo,
-					empresas_has_usuarios: {
+					empresas: {
 						updateMany: {
 							data: {
 								cargo_id: updateUserDto.cargo_id,

@@ -184,7 +184,7 @@ model CargosHasPermissoes {
   cargo_id     Int
   permissao_id Int
   empresa_id   Int
-  createdAt    DateTime @default(now())
+  created_at   DateTime @default(now())
   updateda_at  DateTime @updatedAt
 
   cargo     Cargo      @relation(fields: [cargo_id], references: [id])
@@ -199,7 +199,7 @@ model UsuarioHasPermissoes {
   usuario_id   Int
   permissao_id Int
   empresa_id   Int
-  createdAt    DateTime @default(now())
+  created_at   DateTime @default(now())
   updateda_at  DateTime @updatedAt
 
   usuario   User       @relation(fields: [usuario_id], references: [id])
@@ -208,6 +208,17 @@ model UsuarioHasPermissoes {
 
   @@id([usuario_id, permissao_id, empresa_id])
   @@map("usuario_has_permissoes")
+}
+
+model Arquivo {
+  id            Int      @id @default(autoincrement())
+  url           String
+  origem        Int
+  referencia_id Int
+  created_at    DateTime @default(now())
+  updateda_at   DateTime @updatedAt
+
+  @@map("arquivos")
 }
 
 model Contato {

@@ -60,11 +60,12 @@ model Cargo {
 }
 
 model PessoasHasTipos {
-  id          Int      @id @default(autoincrement())
-  pessoa_id   Int
-  tipo_id     Int
-  created_at  DateTime @default(now())
-  updateda_at DateTime @updatedAt
+  id                 Int      @id @default(autoincrement())
+  pessoa_id          Int
+  original_pessoa_id Int?
+  tipo_id            Int
+  created_at         DateTime @default(now())
+  updateda_at        DateTime @updatedAt
 
   pessoa Pessoa      @relation(fields: [pessoa_id], references: [id])
   tipo   TiposPessoa @relation(fields: [tipo_id], references: [id])
@@ -105,12 +106,13 @@ model EmpresasHasUsuarios {
 }
 
 model Unidade {
-  id            Int      @id @default(autoincrement())
-  condominio_id Int
-  codigo        String   @unique
-  ativo         Boolean  @default(true)
-  created_at    DateTime @default(now())
-  updateda_at   DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  original_unidade_id Int?
+  condominio_id       Int
+  codigo              String   @unique
+  ativo               Boolean  @default(true)
+  created_at          DateTime @default(now())
+  updateda_at         DateTime @updatedAt
 
   condominos   PessoasHasUnidades[]
   notificacoes Notificacao[]

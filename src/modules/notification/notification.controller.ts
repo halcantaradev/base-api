@@ -7,6 +7,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -18,6 +19,8 @@ import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { NotificationService } from './notification.service';
+import { FilterNotificationDto } from './dto/filter-notification.dto';
+import { Role } from 'src/shared/decorators/role.decorator';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -27,6 +30,7 @@ export class NotificationController {
 	constructor(private readonly notificationService: NotificationService) {}
 
 	@Post()
+	@Role('notificacoes-cadastrar')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Cria uma nova notificação' })
 	@ApiResponse({
@@ -49,6 +53,7 @@ export class NotificationController {
 	}
 
 	@Get()
+	@Role('notificacoes-listar')
 	@ApiOperation({ summary: 'Lista as notificação' })
 	@ApiResponse({
 		description: 'Notificações listadas com sucesso',
@@ -64,7 +69,35 @@ export class NotificationController {
 		return this.notificationService.findAll();
 	}
 
+	@Post('reports')
+	@Role('notificacoes-relatorios-condominio')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({
+		summary:
+			'Gera relação de dados dos filtros para relatorios das notificações',
+	})
+	@ApiResponse({
+		description: 'Dados de relatórios gerados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnNotificationListEntity,
+	})
+	@ApiResponse({
+		description:
+			'Ocorreu um erro ao gerar os dados para relatório das notificações',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	report(
+		@Body() filtros: FilterNotificationDto,
+		@Query('tipo') tipo: string,
+	) {
+		if (tipo === 'condominio') {
+			return this.notificationService.reportByCondominium(filtros);
+		}
+	}
+
 	@Get(':id')
+	@Role('notificacoes-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados de uma notificação' })
 	@ApiResponse({
 		description: 'Notificação listada com sucesso',
@@ -81,6 +114,7 @@ export class NotificationController {
 	}
 
 	@Patch(':id')
+	@Role('notificacoes-atualizar-dados')
 	@ApiOperation({ summary: 'Atualiza os dados de uma notificação' })
 	@ApiResponse({
 		description: 'Notificação atualizada com sucesso',

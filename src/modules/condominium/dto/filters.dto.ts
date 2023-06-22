@@ -51,7 +51,7 @@ export class FiltersCondominiumDto {
 			'O campo tipo informado não é válido. Por favor, forneça um tipo válido.',
 	})
 	@Type(() => Number)
-	tipo_id: number;
+	categoria_id: number;
 
 	@ApiProperty({
 		description: 'Filtro inicial por data de criação',

@@ -14,9 +14,9 @@ export class CondominiumService {
 
 	async findAll(filters: FiltersCondominiumDto): Promise<Condominium[]> {
 		const filtersSelected: Array<any> = [
-			filters.tipo_id && !Number.isNaN(+filters.tipo_id)
+			filters.categoria_id && !Number.isNaN(+filters.categoria_id)
 				? {
-						categoria_id: +filters.tipo_id,
+						categoria_id: +filters.categoria_id,
 				  }
 				: null,
 			filters.data_inicio || filters.data_fim

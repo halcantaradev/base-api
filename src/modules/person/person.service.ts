@@ -25,7 +25,7 @@ export class PersonService {
 				contatos: {
 					select: {
 						contato: true,
-						tipo_registro: true,
+						tipo: true,
 						descricao: true,
 					},
 				},
@@ -58,7 +58,7 @@ export class PersonService {
 				contatos: {
 					select: {
 						contato: true,
-						tipo_registro: true,
+						tipo: true,
 						descricao: true,
 					},
 				},

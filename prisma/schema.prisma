@@ -27,7 +27,7 @@ model Pessoa {
   unidade                Unidade[]
   cargos_has_permissoes  CargosHasPermissoes[]
   usuario_has_permissoes UsuarioHasPermissoes[]
-  contato                Contato[]
+  contatos               Contato[]
 
   @@map("pessoas")
 }
@@ -40,7 +40,8 @@ model TiposPessoa {
   created_at  DateTime @default(now())
   updateda_at DateTime @updatedAt
 
-  pessoas_has_tipos PessoasHasTipos[]
+  pessoas_has_tipos  PessoasHasTipos[]
+  PessoasHasUnidades PessoasHasUnidades[]
 
   @@map("tipos_pessoas")
 }
@@ -65,8 +66,6 @@ model PessoasHasTipos {
   tipo        TiposPessoa @relation(fields: [tipo_id], references: [id])
   created_at  DateTime    @default(now())
   updateda_at DateTime    @updatedAt
-
-  pessoas_has_unidades PessoasHasUnidades[]
 
   @@map("pessoas_has_tipo")
 }
@@ -111,8 +110,8 @@ model Unidade {
   created_at    DateTime @default(now())
   updateda_at   DateTime @updatedAt
 
-  PessoasHasUnidades PessoasHasUnidades[]
-  Notificacao        Notificacao[]
+  condominos  PessoasHasUnidades[]
+  Notificacao Notificacao[]
 
   pessoa Pessoa @relation(fields: [condominio_id], references: [id])
 
@@ -127,9 +126,9 @@ model PessoasHasUnidades {
   created_at     DateTime @default(now())
   updateda_at    DateTime @updatedAt
 
-  pessoa            Pessoa          @relation(fields: [pessoa_id], references: [id])
-  unidade           Unidade         @relation(fields: [unidade_id], references: [id])
-  pessoas_has_tipos PessoasHasTipos @relation(fields: [pessoa_tipo_id], references: [id])
+  condomino Pessoa      @relation(fields: [pessoa_id], references: [id])
+  unidade   Unidade     @relation(fields: [unidade_id], references: [id])
+  tipo      TiposPessoa @relation(fields: [pessoa_tipo_id], references: [id])
 
   @@map("pessoas_has_unidades")
 }
@@ -212,12 +211,12 @@ model UsuarioHasPermissoes {
 }
 
 model Contato {
-  id            Int     @id @default(autoincrement())
-  contato       String  @unique
-  descricao     String  @unique
-  ativo         Boolean @default(true)
-  tipo_registro Int     @default(1)
-  pessoa_id     Int
+  id        Int     @id @default(autoincrement())
+  contato   String  @unique
+  descricao String  @unique
+  ativo     Boolean @default(true)
+  tipo      Int     @default(1)
+  pessoa_id Int
 
   pessoa Pessoa @relation(fields: [pessoa_id], references: [id])
 

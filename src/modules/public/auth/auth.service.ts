@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { UserPayload } from './entities/user-payload.entity';
-import { UserAuth } from '../../shared/entities/user-auth.entity';
+import { UserAuth } from '../../../shared/entities/user-auth.entity';
 
 @Injectable()
 export class AuthService {

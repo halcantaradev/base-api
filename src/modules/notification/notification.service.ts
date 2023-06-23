@@ -31,11 +31,11 @@ export class NotificationService {
 		const report = await this.prisma.pessoa.findMany({
 			select: {
 				nome: true,
-				unidade: {
+				unidades_condominio: {
 					select: {
 						codigo: true,
-						_count: { select: { Notificacao: true } },
-						Notificacao: {
+						_count: { select: { notificacoes: true } },
+						notificacoes: {
 							select: {
 								id: true,
 								data_emissao: true,
@@ -54,12 +54,10 @@ export class NotificationService {
 					},
 					where: {
 						id: { in: filtro.unidades_ids },
-						PessoasHasUnidades: {
-							every: {
-								pessoa_id: { in: filtro.condominos_ids },
-							},
+						condominio_id: {
+							in: filtro.condominos_ids,
 						},
-						Notificacao: {
+						notificacoes: {
 							every: {
 								tipo_registro: filtro.tipo_notificacao,
 								infracao_id: filtro.tipo_infracao_id,
@@ -92,18 +90,16 @@ export class NotificationService {
 				},
 			},
 			where: {
-				pessoas_has_tipos: {
+				tipos: {
 					every: {
 						tipo: {
 							nome: 'condominio',
 						},
 					},
 				},
-				AND: [
-					filtro.condominios_ids
-						? { id: { in: filtro.condominios_ids } }
-						: {},
-				],
+				id: filtro.condominios_ids
+					? { in: filtro.condominios_ids }
+					: undefined,
 			},
 		});
 

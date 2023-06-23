@@ -13,11 +13,11 @@ export class PermissionsService {
 	}) {
 		return this.prisma.permissoes.findFirst({
 			include: {
-				cargos_has_permissoes: {
+				cargos: {
 					select: { cargo_id: true },
 					where: { cargo_id: validPermission.cargo_id || null },
 				},
-				usuario_has_permissoes: {
+				usuarios: {
 					select: { usuario_id: true },
 					where: { usuario_id: validPermission.user_id || null },
 				},
@@ -47,7 +47,7 @@ export class PermissionsService {
 				select: {
 					id: true,
 					label: true,
-					cargos_has_permissoes: {
+					cargos: {
 						select: { cargo_id: true },
 						where: { cargo_id },
 					},
@@ -78,7 +78,7 @@ export class PermissionsService {
 				select: {
 					id: true,
 					label: true,
-					usuario_has_permissoes: {
+					usuarios: {
 						select: { usuario_id: true },
 						where: { usuario_id },
 					},

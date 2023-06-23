@@ -56,7 +56,7 @@ export class Permission implements Prisma.PermissoesUncheckedCreateInput {
 		required: false,
 		readOnly: true,
 	})
-	updateda_at?: string | Date;
+	updated_at?: string | Date;
 
 	@ApiProperty({
 		description: 'Cargos com a permissão',

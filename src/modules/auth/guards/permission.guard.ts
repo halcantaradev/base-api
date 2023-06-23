@@ -3,7 +3,6 @@ import {
 	ExecutionContext,
 	ForbiddenException,
 	Injectable,
-	UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PermissionsService } from 'src/modules/permissions/permissions.service';
@@ -31,8 +30,8 @@ export class PermissionGuard implements CanActivate {
 
 			if (
 				permission &&
-				!permission.cargos_has_permissoes.length &&
-				!permission.usuario_has_permissoes.length
+				!permission.cargos.length &&
+				!permission.usuarios.length
 			) {
 				throw new ForbiddenException(permission.message);
 			}

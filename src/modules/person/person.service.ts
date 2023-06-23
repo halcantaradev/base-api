@@ -33,7 +33,7 @@ export class PersonService {
 			},
 			where: {
 				...where,
-				pessoas_has_tipos: { some: { tipo: { nome: tipo } } },
+				tipos: { some: { tipo: { nome: tipo } } },
 			},
 		});
 	}
@@ -67,7 +67,7 @@ export class PersonService {
 			where: {
 				...where,
 				id,
-				pessoas_has_tipos: { some: { tipo: { nome: tipo } } },
+				tipos: { some: { tipo: { nome: tipo } } },
 			},
 		});
 	}

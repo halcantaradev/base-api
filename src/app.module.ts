@@ -8,6 +8,7 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { UploadFileModule } from './modules/upload-file/upload-file.module';
 import { CondominiumModule } from './modules/condominium/condominium.module';
 import { PersonModule } from './modules/person/person.module';
+import { MenuModule } from './modules/public/menu/menu.module';
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { PersonModule } from './modules/person/person.module';
 		UploadFileModule,
 		CondominiumModule,
 		PersonModule,
+		MenuModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

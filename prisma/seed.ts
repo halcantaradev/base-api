@@ -2,7 +2,7 @@ import { Pessoa, PrismaClient, Unidade } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
-import { permissionslist } from '../src/modules/permissions/permissions-list';
+import { permissionslist } from '../src/modules/public/permissions/permissions-list';
 
 async function createEmpresa() {
 	let tipoEmpresa = await prisma.tiposPessoa.findUnique({

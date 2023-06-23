@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
 import { permissionslist } from '../src/modules/public/permissions/permissions-list';
+import { menulist } from '../src/modules/public/menu/menus-list';
 
 async function createEmpresa() {
 	let tipoEmpresa = await prisma.tiposPessoa.findUnique({
@@ -245,6 +246,72 @@ async function createPermissoesList() {
 	}
 }
 
+async function createMenu() {
+	for await (const menu of menulist) {
+		let notification = await prisma.menu.findFirst({
+			where: { url: menu.url },
+		});
+
+		if (!notification) {
+			const permission = menu.permission_key
+				? await prisma.permissoes.findFirst({
+						where: {
+							key: menu.permission_key,
+						},
+				  })
+				: null;
+
+			notification = await prisma.menu.create({
+				data: {
+					permissao_id: permission?.id,
+					label: menu.label,
+					url: menu.url,
+					icon: menu.icon,
+					target: menu.target,
+				},
+			});
+		}
+
+		if (
+			menulist.findIndex((item) => menu.id_relation == item.relation) !=
+			-1
+		) {
+			await Promise.all(
+				menulist
+					.filter((item) => item.relation == menu.id_relation)
+					.map(async (item) => {
+						const notificationNested = await prisma.menu.findFirst({
+							where: { url: item.url },
+						});
+
+						if (!notificationNested) {
+							const permission = item.permission_key
+								? await prisma.permissoes.findFirst({
+										where: {
+											key: item.permission_key,
+										},
+								  })
+								: null;
+
+							return prisma.menu.create({
+								data: {
+									menu_id: notification.id,
+									permissao_id: permission?.id,
+									label: item.label,
+									url: item.url,
+									icon: item.icon,
+									target: item.target,
+								},
+							});
+						}
+
+						return null;
+					}),
+			);
+		}
+	}
+}
+
 async function main() {
 	const empresa = await createEmpresa();
 	await createUser(empresa);
@@ -258,6 +325,8 @@ async function main() {
 	await createNotificacao(unidade);
 
 	await createPermissoesList();
+
+	await createMenu();
 
 	console.log('Seeds executadas');
 }

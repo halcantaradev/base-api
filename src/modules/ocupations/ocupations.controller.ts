@@ -1,8 +1,8 @@
 import { Controller, Get, HttpStatus, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PermissionGuard } from '../auth/guards/permission.guard';
+import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
+import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { Ocupation } from './entities/ocupation.entity';
 import { OcupationsService } from './ocupations.service';
 

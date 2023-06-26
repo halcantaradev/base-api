@@ -11,7 +11,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { UserAuth } from '../../shared/entities/user-auth.entity';
+import { UserAuth } from '../../../shared/entities/user-auth.entity';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { LoginEntity } from './entities/login.entity';

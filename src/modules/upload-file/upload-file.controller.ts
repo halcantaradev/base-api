@@ -15,7 +15,7 @@ import {
 	ApiOperation,
 	ApiResponse,
 } from '@nestjs/swagger';
-import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
+import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadFileDto } from './dto/upload-file.dto';

@@ -12,6 +12,12 @@ export class NotificationService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async create(createNotificationDto: CreateNotificationDto) {
+		let codigo: any =
+			(await this.findQtdByResidence(createNotificationDto.unidade_id)) +
+			1;
+
+		codigo = codigo.toString().padStart(2, '0');
+
 		await this.prisma.notificacao.create({
 			data: {
 				unidade_id: createNotificationDto.unidade_id,
@@ -20,7 +26,7 @@ export class NotificationService {
 				data_emissao: createNotificationDto.data_emissao,
 				data_infracao: createNotificationDto.data_infracao,
 				fundamentacao_legal: createNotificationDto.fundamentacao_legal,
-				n_notificacao: createNotificationDto.n_notificacao,
+				n_notificacao: `${codigo}/${new Date().getFullYear()}`,
 				detalhes_infracao: createNotificationDto.detalhes_infracao,
 			},
 		});
@@ -138,6 +144,14 @@ export class NotificationService {
 		};
 	}
 
+	async findQtdByResidence(unidade_id: number): Promise<number> {
+		return this.prisma.notificacao.count({
+			where: {
+				unidade_id,
+			},
+		});
+	}
+
 	async findAllInfraction(): Promise<ReturnInfractionListEntity> {
 		return {
 			success: true,
@@ -221,7 +235,6 @@ export class NotificationService {
 					data_infracao: updateNotificationDto.data_infracao,
 					fundamentacao_legal:
 						updateNotificationDto.fundamentacao_legal,
-					n_notificacao: updateNotificationDto.n_notificacao,
 					detalhes_infracao: updateNotificationDto.detalhes_infracao,
 					ativo: updateNotificationDto.ativo,
 				},

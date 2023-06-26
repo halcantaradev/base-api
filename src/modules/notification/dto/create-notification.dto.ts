@@ -72,21 +72,6 @@ export class CreateNotificationDto {
 	data_infracao: Date;
 
 	@ApiProperty({
-		description: 'Número da notificação',
-		example: '01/2023',
-		required: true,
-	})
-	@IsNotEmpty({
-		message:
-			'O campo número da notificação é obrigatório. Por favor, forneça o número da notificação.',
-	})
-	@IsString({
-		message:
-			'O campo número da notificação informado não é válido. Por favor, forneça um nome de usuário válido.',
-	})
-	n_notificacao: string;
-
-	@ApiProperty({
 		description: 'Detalhamento da notificação',
 		example: 'INFRAÇÃO DE TESTE',
 		required: true,

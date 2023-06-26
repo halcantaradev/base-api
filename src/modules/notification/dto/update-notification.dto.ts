@@ -18,9 +18,6 @@ export class UpdateNotificationDto extends CreateNotificationDto {
 	data_infração: Date;
 
 	@IsOptional()
-	n_notificacao: string;
-
-	@IsOptional()
 	detalhes_infracao: string;
 
 	@IsOptional()

@@ -9,6 +9,7 @@ import { UploadFileModule } from './modules/upload-file/upload-file.module';
 import { CondominiumModule } from './modules/condominium/condominium.module';
 import { PersonModule } from './modules/person/person.module';
 import { MenuModule } from './modules/public/menu/menu.module';
+import { DepartmentModule } from './modules/department/department.module';
 
 @Module({
 	imports: [
@@ -20,6 +21,7 @@ import { MenuModule } from './modules/public/menu/menu.module';
 		CondominiumModule,
 		PersonModule,
 		MenuModule,
+		DepartmentModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

@@ -248,11 +248,11 @@ async function createPermissoesList() {
 
 async function createMenu() {
 	for await (const menu of menulist) {
-		let notification = await prisma.menu.findFirst({
+		let menuSaved = await prisma.menu.findFirst({
 			where: { url: menu.url },
 		});
 
-		if (!notification) {
+		if (!menuSaved) {
 			const permission = menu.permission_key
 				? await prisma.permissoes.findFirst({
 						where: {
@@ -261,7 +261,7 @@ async function createMenu() {
 				  })
 				: null;
 
-			notification = await prisma.menu.create({
+			menuSaved = await prisma.menu.create({
 				data: {
 					permissao_id: permission?.id,
 					label: menu.label,
@@ -280,11 +280,11 @@ async function createMenu() {
 				menulist
 					.filter((item) => item.relation == menu.id_relation)
 					.map(async (item) => {
-						const notificationNested = await prisma.menu.findFirst({
+						const menuSavedNested = await prisma.menu.findFirst({
 							where: { url: item.url },
 						});
 
-						if (!notificationNested) {
+						if (!menuSavedNested) {
 							const permission = item.permission_key
 								? await prisma.permissoes.findFirst({
 										where: {
@@ -295,7 +295,7 @@ async function createMenu() {
 
 							return prisma.menu.create({
 								data: {
-									menu_id: notification.id,
+									menu_id: menuSaved.id,
 									permissao_id: permission?.id,
 									label: item.label,
 									url: item.url,

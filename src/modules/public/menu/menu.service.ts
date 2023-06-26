@@ -7,8 +7,6 @@ export class MenuService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	findAll(user: UserAuth) {
-		console.log(user);
-
 		return this.prisma.menu.findMany({
 			include: {
 				items: {

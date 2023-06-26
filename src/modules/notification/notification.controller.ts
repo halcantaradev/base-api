@@ -21,6 +21,7 @@ import { ReturnNotificationEntity } from './entities/return-notification.entity'
 import { NotificationService } from './notification.service';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { Role } from 'src/shared/decorators/role.decorator';
+import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -101,7 +102,8 @@ export class NotificationController {
 	@ApiResponse({
 		description: 'Infrações listadas com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnNotificationListEntity,
+		type: ReturnInfractionListEntity,
+		isArray: true,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os infrações',

@@ -5,6 +5,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
+import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 
 @Injectable()
 export class NotificationService {
@@ -132,6 +133,21 @@ export class NotificationService {
 					detalhes_infracao: true,
 					fundamentacao_legal: true,
 					observacao: true,
+				},
+			}),
+		};
+	}
+
+	async findAllInfraction(): Promise<ReturnInfractionListEntity> {
+		return {
+			success: true,
+			data: await this.prisma.tipoInfracao.findMany({
+				select: {
+					id: true,
+					descricao: true,
+				},
+				where: {
+					ativo: true,
 				},
 			}),
 		};

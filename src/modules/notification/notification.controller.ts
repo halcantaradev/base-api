@@ -96,6 +96,22 @@ export class NotificationController {
 		}
 	}
 
+	@Get('infractions')
+	@ApiOperation({ summary: 'Lista as infrações de notificação disponíveis' })
+	@ApiResponse({
+		description: 'Infrações listadas com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnNotificationListEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os infrações',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	findAllInfraction() {
+		return this.notificationService.findAllInfraction();
+	}
+
 	@Get(':id')
 	@Role('notificacoes-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados de uma notificação' })

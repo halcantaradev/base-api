@@ -70,7 +70,42 @@ async function createUser(empresa: Pessoa) {
 		});
 
 		return user;
+		console.log('Usuário criado');
+	} else {
+		console.log('Usuário já cadastrado');
 	}
+
+	return useExist;
+}
+
+async function createPermissoesList() {
+	for await (const permission of permissionslist) {
+		const p = await prisma.permissoes.findFirst({
+			where: { key: permission.key },
+		});
+
+		if (!p) {
+			await prisma.permissoes.create({ data: permission });
+		}
+	}
+}
+
+async function cretePermissionToUser(usuario_id: number, empresa_id: number) {
+	await prisma.usuarioHasPermissoes.deleteMany({
+		where: { usuario_id },
+	});
+
+	const permissoes = await prisma.permissoes.findMany({});
+
+	await prisma.usuarioHasPermissoes.createMany({
+		data: permissoes.map((permission) => ({
+			usuario_id,
+			empresa_id,
+			permissao_id: permission.id,
+		})),
+	});
+
+	console.log('Permissões consedidas ao usuário Admin');
 }
 
 async function createCondominio() {
@@ -233,21 +268,10 @@ async function createNotificacao(unidade: Unidade) {
 	}
 }
 
-async function createPermissoesList() {
-	for await (const permission of permissionslist) {
-		const p = await prisma.permissoes.findFirst({
-			where: { key: permission.key },
-		});
-
-		if (!p) {
-			await prisma.permissoes.create({ data: permission });
-		}
-	}
-}
-
 async function main() {
 	const empresa = await createEmpresa();
-	await createUser(empresa);
+	const user = await createUser(empresa);
+	await cretePermissionToUser(user.id, empresa.id);
 
 	const condominio = await createCondominio();
 	await createContato(condominio);

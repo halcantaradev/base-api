@@ -53,4 +53,9 @@ export const permissionslist: Array<{
 		key: 'notificacoes-relatorios-condominio',
 		message: 'Sem permissão para gerar relatórios de notificações',
 	},
+	{
+		label: 'Listar todos os condomínios',
+		key: 'condominios-listar',
+		message: 'Sem permissão para listar condomínios',
+	},
 ];

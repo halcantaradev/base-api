@@ -118,7 +118,6 @@ export class NotificationService {
 	async findAll(): Promise<ReturnNotificationListEntity> {
 		return {
 			success: true,
-			message: 'Notificações listadas com sucesso.',
 			data: await this.prisma.notificacao.findMany({
 				select: {
 					id: true,

@@ -30,7 +30,10 @@ export class CondominiumService {
 			filters.condominio
 				? {
 						nome: {
-							contains: filters.condominio,
+							contains: filters.condominio
+								.toString()
+								.normalize('NFD')
+								.replace(/[\u0300-\u036f]/g, ''),
 							mode: 'insensitive',
 						},
 				  }
@@ -95,7 +98,10 @@ export class CondominiumService {
 		return this.pessoaService.findOneById(id, 'condominio');
 	}
 
-	async findAllResidences(id_condominium: number): Promise<Residence[]> {
+	async findAllResidences(
+		id_condominium: number,
+		busca?: string,
+	): Promise<Residence[]> {
 		return this.prisma.unidade.findMany({
 			select: {
 				id: true,
@@ -110,6 +116,37 @@ export class CondominiumService {
 			},
 			where: {
 				condominio_id: id_condominium,
+				OR: [
+					{
+						condominos: {
+							some: {
+								condomino: busca
+									? {
+											nome: {
+												contains: busca
+													.toString()
+													.normalize('NFD')
+													.replace(
+														/[\u0300-\u036f]/g,
+														'',
+													),
+												mode: 'insensitive',
+											},
+									  }
+									: {},
+							},
+						},
+					},
+					{
+						codigo: {
+							contains: (busca || '')
+								.toString()
+								.normalize('NFD')
+								.replace(/[\u0300-\u036f]/g, ''),
+							mode: 'insensitive',
+						},
+					},
+				],
 			},
 		});
 	}

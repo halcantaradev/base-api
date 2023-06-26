@@ -6,6 +6,7 @@ import {
 	HttpStatus,
 	Param,
 	Post,
+	Query,
 	UseGuards,
 } from '@nestjs/common';
 import { CondominiumService } from './condominium.service';
@@ -82,11 +83,16 @@ export class CondominiumController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllResidences(@Param('id_condominium') id_condominium: string) {
+	async findAllResidences(
+		@Param('id_condominium') id_condominium: string,
+		@Query('busca') busca?: string,
+	) {
+		console.log(busca);
 		return {
 			success: true,
 			data: await this.condominioService.findAllResidences(
 				+id_condominium,
+				busca,
 			),
 		};
 	}

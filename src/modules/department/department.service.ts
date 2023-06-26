@@ -11,6 +11,7 @@ export class DepartmentService {
 		return this.prisma.departamento.create({
 			data: {
 				nome: createDepartmentDto.nome,
+				nac: createDepartmentDto.nac,
 				empresa_id,
 			},
 		});
@@ -70,6 +71,7 @@ export class DepartmentService {
 				nac: true,
 			},
 			data: {
+				nac: updateDepartmentDto.nac,
 				nome: updateDepartmentDto.nome,
 				ativo: updateDepartmentDto.ativo,
 			},

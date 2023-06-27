@@ -21,6 +21,7 @@ import { ReturnNotificationEntity } from './entities/return-notification.entity'
 import { NotificationService } from './notification.service';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { Role } from 'src/shared/decorators/role.decorator';
+import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -94,6 +95,23 @@ export class NotificationController {
 		if (tipo === 'condominio') {
 			return this.notificationService.reportByCondominium(filtros);
 		}
+	}
+
+	@Get('infractions')
+	@ApiOperation({ summary: 'Lista as infrações de notificação disponíveis' })
+	@ApiResponse({
+		description: 'Infrações listadas com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnInfractionListEntity,
+		isArray: true,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os infrações',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	findAllInfraction() {
+		return this.notificationService.findAllInfraction();
 	}
 
 	@Get(':id')

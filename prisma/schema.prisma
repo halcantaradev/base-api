@@ -29,6 +29,7 @@ model Pessoa {
   permissoes_cargos   CargosHasPermissoes[]
   permissoes_usuarios UsuarioHasPermissoes[]
   departamentos       Departamento[]
+  notificacoes        Notificacao[]
 
   @@map("pessoas")
 }
@@ -153,22 +154,28 @@ model TipoInfracao {
 }
 
 model Notificacao {
-  id                  Int      @id @default(autoincrement())
+  id                  Int       @id @default(autoincrement())
   unidade_id          Int
-  infracao_id         Int
-  tipo_registro       Int      @default(1)
-  data_emissao        DateTime @default(now())
-  data_infracao       DateTime @default(now())
-  n_notificacao       String
+  pessoa_id           Int
+  tipo_infracao_id    Int
+  tipo_registro       Int       @default(1)
+  data_emissao        DateTime  @default(now())
+  data_infracao       DateTime  @default(now())
+  codigo              String
   detalhes_infracao   String
-  fundamentacao_legal String   @db.Text
-  observacao          String   @default("") @db.Text
-  ativo               Boolean  @default(true)
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
+  fundamentacao_legal String    @db.Text
+  observacoes         String?   @db.Text
+  valor_multa         Float?
+  competencia_multa   String?
+  unir_taxa           Boolean   @default(false)
+  vencimento_multa    DateTime?
+  ativo               Boolean   @default(true)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
 
   unidade       Unidade      @relation(fields: [unidade_id], references: [id])
-  tipo_infracao TipoInfracao @relation(fields: [infracao_id], references: [id])
+  pessoa        Pessoa       @relation(fields: [pessoa_id], references: [id])
+  tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])
 
   @@map("notificacoes")
 }

@@ -3,6 +3,7 @@ import {
 	IsEmail,
 	IsInt,
 	IsNotEmpty,
+	IsOptional,
 	IsString,
 	Validate,
 } from 'class-validator';
@@ -88,4 +89,17 @@ export class CreateUserDto {
 	@Type(() => Number)
 	@Validate(CargoExists)
 	cargo_id: number;
+
+	@ApiProperty({
+		description: 'Departamentos do usuário',
+		example: [1, 2],
+		required: false,
+	})
+	@IsInt({
+		message:
+			'O campo departamentos informado não é válido. Por favor, forneça um departamento válido.',
+		each: true,
+	})
+	@IsOptional()
+	departamentos: number[];
 }

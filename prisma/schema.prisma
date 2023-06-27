@@ -75,18 +75,20 @@ model PessoasHasTipos {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  email      String   @unique
-  nome       String
-  username   String   @unique
-  password   String
-  secret     String   @default(uuid())
-  ativo      Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id                         Int      @id @default(autoincrement())
+  email                      String   @unique
+  nome                       String
+  username                   String   @unique
+  password                   String
+  secret                     String   @default(uuid())
+  ativo                      Boolean  @default(true)
+  acessa_todos_departamentos Boolean  @default(true)
+  created_at                 DateTime @default(now())
+  updated_at                 DateTime @updatedAt
 
-  empresas   EmpresasHasUsuarios[]
-  permissoes UsuarioHasPermissoes[]
+  empresas      EmpresasHasUsuarios[]
+  permissoes    UsuarioHasPermissoes[]
+  departamentos UsuarioHasDepartamentos[]
 
   @@map("usuarios")
 }
@@ -269,5 +271,20 @@ model Departamento {
 
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
 
+  usuarios UsuarioHasDepartamentos[]
+
   @@map("departamentos")
+}
+
+model UsuarioHasDepartamentos {
+  usuario_id      Int
+  departamento_id Int
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  usuario      User         @relation(fields: [usuario_id], references: [id])
+  departamento Departamento @relation(fields: [departamento_id], references: [id])
+
+  @@id([usuario_id, departamento_id])
+  @@map("usuario_has_departamentos")
 }

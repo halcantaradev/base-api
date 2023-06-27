@@ -3,9 +3,9 @@ import { Type } from 'class-transformer';
 import {
 	IsBoolean,
 	IsDate,
-	IsDecimal,
 	IsInt,
 	IsNotEmpty,
+	IsNumber,
 	IsOptional,
 	IsString,
 } from 'class-validator';
@@ -136,7 +136,8 @@ export class CreateNotificationDto {
 		required: false,
 	})
 	@IsOptional()
-	@IsDecimal({}, { message: 'O campo deve conter apenas números' })
+	@Type(() => Number)
+	@IsNumber({}, { message: 'O campo deve conter apenas números' })
 	valor_multa?: number;
 
 	@ApiProperty({

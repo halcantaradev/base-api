@@ -9,17 +9,17 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
+import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-// import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from '../../shared/entities/user-auth.entity';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ReturnUserListEntity } from './entities/return-user-list.entity';
 import { ReturnUserEntity } from './entities/return-user.entity';
 import { UserService } from './user.service';
+import { Role } from 'src/shared/decorators/role.decorator';
 
 @ApiTags('User')
 @Controller('users')
@@ -45,7 +45,7 @@ export class UserController {
 	}
 
 	@Get()
-	// @Role('usuarios-listar-todos')
+	@Role('usuarios-listar-todos')
 	@ApiOperation({ summary: 'Lista todos os usuários' })
 	@ApiResponse({
 		description: 'Usuários listados com sucesso',

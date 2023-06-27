@@ -2,7 +2,8 @@ import { Pessoa, PrismaClient, Unidade } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
-import { permissionslist } from '../src/modules/permissions/permissions-list';
+import { permissionslist } from '../src/modules/public/permissions/permissions-list';
+import { menulist } from '../src/modules/public/menu/menus-list';
 
 async function createEmpresa() {
 	let tipoEmpresa = await prisma.tiposPessoa.findUnique({
@@ -268,6 +269,72 @@ async function createNotificacao(unidade: Unidade) {
 	}
 }
 
+async function createMenu() {
+	for await (const menu of menulist) {
+		let menuSaved = await prisma.menu.findFirst({
+			where: { url: menu.url },
+		});
+
+		if (!menuSaved) {
+			const permission = menu.permission_key
+				? await prisma.permissoes.findFirst({
+						where: {
+							key: menu.permission_key,
+						},
+				  })
+				: null;
+
+			menuSaved = await prisma.menu.create({
+				data: {
+					permissao_id: permission?.id,
+					label: menu.label,
+					url: menu.url,
+					icon: menu.icon,
+					target: menu.target,
+				},
+			});
+		}
+
+		if (
+			menulist.findIndex((item) => menu.id_relation == item.relation) !=
+			-1
+		) {
+			await Promise.all(
+				menulist
+					.filter((item) => item.relation == menu.id_relation)
+					.map(async (item) => {
+						const menuSavedNested = await prisma.menu.findFirst({
+							where: { url: item.url },
+						});
+
+						if (!menuSavedNested) {
+							const permission = item.permission_key
+								? await prisma.permissoes.findFirst({
+										where: {
+											key: item.permission_key,
+										},
+								  })
+								: null;
+
+							return prisma.menu.create({
+								data: {
+									menu_id: menuSaved.id,
+									permissao_id: permission?.id,
+									label: item.label,
+									url: item.url,
+									icon: item.icon,
+									target: item.target,
+								},
+							});
+						}
+
+						return null;
+					}),
+			);
+		}
+	}
+}
+
 async function main() {
 	const empresa = await createEmpresa();
 	const user = await createUser(empresa);
@@ -282,6 +349,8 @@ async function main() {
 	await createNotificacao(unidade);
 
 	await createPermissoesList();
+
+	await createMenu();
 
 	console.log('Seeds executadas');
 }

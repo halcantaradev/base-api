@@ -11,7 +11,7 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
+import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';

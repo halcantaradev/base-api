@@ -11,9 +11,9 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PermissionGuard } from 'src/modules/auth/guards/permission.guard';
+import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';

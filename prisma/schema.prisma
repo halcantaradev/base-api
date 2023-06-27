@@ -19,7 +19,7 @@ model Pessoa {
   categoria_id Int?
   ativa        Boolean  @default(true)
   created_at   DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  updated_at   DateTime @updatedAt
 
   contatos            Contato[]
   unidades_condominio Unidade[]
@@ -33,11 +33,11 @@ model Pessoa {
 }
 
 model TiposPessoa {
-  id          Int      @id @default(autoincrement())
-  nome        String   @unique
-  descricao   String   @unique
-  ativo       Boolean  @default(true)
-  created_at  DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  nome       String   @unique
+  descricao  String   @unique
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   pessoas  PessoasHasTipos[]
@@ -47,10 +47,10 @@ model TiposPessoa {
 }
 
 model Cargo {
-  id          Int      @id @default(autoincrement())
-  nome        String   @unique
-  ativo       Boolean  @default(true)
-  created_at  DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  nome       String   @unique
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   usuarios   EmpresasHasUsuarios[]
@@ -65,7 +65,7 @@ model PessoasHasTipos {
   original_pessoa_id Int?
   tipo_id            Int
   created_at         DateTime @default(now())
-  updated_at        DateTime @updatedAt
+  updated_at         DateTime @updatedAt
 
   pessoa Pessoa      @relation(fields: [pessoa_id], references: [id])
   tipo   TiposPessoa @relation(fields: [tipo_id], references: [id])
@@ -74,14 +74,14 @@ model PessoasHasTipos {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  nome        String
-  username    String   @unique
-  password    String
-  secret      String   @default(uuid())
-  ativo       Boolean  @default(true)
-  created_at  DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  nome       String
+  username   String   @unique
+  password   String
+  secret     String   @default(uuid())
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   empresas   EmpresasHasUsuarios[]
@@ -91,11 +91,11 @@ model User {
 }
 
 model EmpresasHasUsuarios {
-  id          Int      @id @default(autoincrement())
-  usuario_id  Int
-  empresa_id  Int
-  cargo_id    Int
-  created_at  DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  usuario_id Int
+  empresa_id Int
+  cargo_id   Int
+  created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   usuario User   @relation(fields: [usuario_id], references: [id])
@@ -112,7 +112,7 @@ model Unidade {
   codigo              String   @unique
   ativo               Boolean  @default(true)
   created_at          DateTime @default(now())
-  updated_at         DateTime @updatedAt
+  updated_at          DateTime @updatedAt
 
   condominos   PessoasHasUnidades[]
   notificacoes Notificacao[]
@@ -128,7 +128,7 @@ model PessoasHasUnidades {
   pessoa_id      Int
   pessoa_tipo_id Int
   created_at     DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  updated_at     DateTime @updatedAt
 
   condomino Pessoa      @relation(fields: [pessoa_id], references: [id])
   unidade   Unidade     @relation(fields: [unidade_id], references: [id])
@@ -138,10 +138,10 @@ model PessoasHasUnidades {
 }
 
 model TipoInfracao {
-  id          Int      @id @default(autoincrement())
-  descricao   String   @unique
-  ativo       Boolean  @default(true)
-  created_at  DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  descricao  String   @unique
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   notificacoes Notificacao[]
@@ -162,7 +162,7 @@ model Notificacao {
   observacao          String   @default("") @db.Text
   ativo               Boolean  @default(true)
   created_at          DateTime @default(now())
-  updated_at         DateTime @updatedAt
+  updated_at          DateTime @updatedAt
 
   unidade       Unidade      @relation(fields: [unidade_id], references: [id])
   tipo_infracao TipoInfracao @relation(fields: [infracao_id], references: [id])
@@ -171,16 +171,17 @@ model Notificacao {
 }
 
 model Permissoes {
-  id          Int      @id @default(autoincrement())
-  label       String
-  key         String
-  message     String
-  active      Boolean  @default(true)
-  created_at  DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  label      String
+  key        String
+  message    String
+  active     Boolean  @default(true)
+  created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   cargos   CargosHasPermissoes[]
   usuarios UsuarioHasPermissoes[]
+  menus    Menu[]
 
   @@map("permissoes")
 }
@@ -190,7 +191,7 @@ model CargosHasPermissoes {
   permissao_id Int
   empresa_id   Int
   created_at   DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  updated_at   DateTime @updatedAt
 
   cargo     Cargo      @relation(fields: [cargo_id], references: [id])
   empresa   Pessoa     @relation(fields: [empresa_id], references: [id])
@@ -205,7 +206,7 @@ model UsuarioHasPermissoes {
   permissao_id Int
   empresa_id   Int
   created_at   DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  updated_at   DateTime @updatedAt
 
   usuario   User       @relation(fields: [usuario_id], references: [id])
   empresa   Pessoa     @relation(fields: [empresa_id], references: [id])
@@ -221,7 +222,7 @@ model Arquivo {
   origem        Int
   referencia_id Int
   created_at    DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  updated_at    DateTime @updatedAt
 
   @@map("arquivos")
 }
@@ -237,4 +238,22 @@ model Contato {
   pessoa Pessoa @relation(fields: [pessoa_id], references: [id])
 
   @@map("contatos")
+}
+
+model Menu {
+  id           Int     @id @default(autoincrement())
+  label        String
+  url          String? @unique
+  permissao_id Int?
+  icon         String
+  target       String
+  menu_id      Int?
+  ativo        Boolean @default(true)
+
+  menu  Menu?  @relation("Menus", fields: [menu_id], references: [id])
+  items Menu[] @relation("Menus")
+
+  permissao Permissoes? @relation(fields: [permissao_id], references: [id])
+
+  @@map("menus")
 }

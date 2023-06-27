@@ -87,7 +87,6 @@ export class CondominiumController {
 		@Param('id_condominium') id_condominium: string,
 		@Query('busca') busca?: string,
 	) {
-		console.log(busca);
 		return {
 			success: true,
 			data: await this.condominioService.findAllResidences(

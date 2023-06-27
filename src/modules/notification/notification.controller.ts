@@ -50,7 +50,6 @@ export class NotificationController {
 		type: ReturnEntity.error(),
 	})
 	create(@Body() createNotificationDto: CreateNotificationDto) {
-		console.log(createNotificationDto);
 		return this.notificationService.create(createNotificationDto);
 	}
 

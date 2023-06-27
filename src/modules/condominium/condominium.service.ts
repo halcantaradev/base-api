@@ -108,7 +108,7 @@ export class CondominiumService {
 				codigo: true,
 				condominos: {
 					select: {
-						condomino: { select: { nome: true } },
+						condomino: { select: { nome: true, id: true } },
 						tipo: { select: { descricao: true } },
 					},
 				},

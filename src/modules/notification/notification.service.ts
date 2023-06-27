@@ -33,6 +33,7 @@ export class NotificationService {
 				unir_taxa: createNotificationDto.unir_taxa,
 				vencimento_multa: createNotificationDto.vencimento_multa,
 				observacoes: createNotificationDto.observacoes,
+				pessoa_id: createNotificationDto.pessoa_id,
 			},
 		});
 

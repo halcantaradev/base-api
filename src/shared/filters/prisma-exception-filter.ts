@@ -12,6 +12,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 	catch(exception, host: ArgumentsHost) {
 		const ctx = host.switchToHttp();
 		const response = ctx.getResponse<Response>();
+		console.log(exception);
 
 		return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
 			success: false,

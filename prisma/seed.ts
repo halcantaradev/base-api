@@ -177,94 +177,77 @@ async function createUnidade(condominio: Pessoa) {
 }
 
 async function createCondominos(unidade: Unidade) {
-	let condomino = await prisma.pessoa.findUnique({
-		where: { nome: 'Condômino' },
-	});
-
-	const condominos = await prisma.pessoasHasUnidades.findMany({
-		where: {
-			unidade_id: unidade.id,
-		},
+	let proprietario = await prisma.pessoa.findUnique({
+		where: { nome: 'Francisco' },
 	});
 
 	let tipoProrietario = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'proprietario' },
 	});
 
+	if (!tipoProrietario) {
+		tipoProrietario = await prisma.tiposPessoa.create({
+			data: { nome: 'proprietario', descricao: 'Proprietário' },
+		});
+	}
+
+	if (!proprietario) {
+		proprietario = await prisma.pessoa.create({
+			data: {
+				nome: 'Francisco',
+				cnpj: '9999999999999',
+			},
+		});
+
+		await prisma.pessoasHasUnidades.create({
+			data: {
+				unidade_id: unidade.id,
+				pessoa_tipo_id: tipoProrietario.id,
+				pessoa_id: proprietario.id,
+			},
+		});
+	}
+
+	let inquilino = await prisma.pessoa.findUnique({
+		where: { nome: 'Antônio' },
+	});
+
 	let tipoInquilino = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'inquilino' },
 	});
 
-	if (
-		!condomino &&
-		!condominos.length &&
-		!tipoProrietario &&
-		!tipoInquilino
-	) {
-		tipoProrietario = await prisma.tiposPessoa.create({
-			data: { nome: 'proprietario', descricao: 'Proprietário' },
-		});
-
+	if (!tipoInquilino) {
 		tipoInquilino = await prisma.tiposPessoa.create({
 			data: { nome: 'inquilino', descricao: 'Inquilino' },
 		});
-
-		condomino = await prisma.pessoa.create({
-			data: {
-				nome: 'Condômino',
-				cnpj: '77777777777777',
-			},
-		});
-
-		await prisma.pessoasHasUnidades.createMany({
-			data: [
-				{
-					unidade_id: unidade.id,
-					pessoa_tipo_id: tipoProrietario.id,
-					pessoa_id: condomino.id,
-				},
-				{
-					unidade_id: unidade.id,
-					pessoa_tipo_id: tipoInquilino.id,
-					pessoa_id: condomino.id,
-				},
-			],
-		});
 	}
 
-	return;
+	if (!inquilino) {
+		inquilino = await prisma.pessoa.create({
+			data: {
+				nome: 'Antônio',
+				cnpj: '8888888888888',
+			},
+		});
+
+		await prisma.pessoasHasUnidades.create({
+			data: {
+				unidade_id: unidade.id,
+				pessoa_tipo_id: tipoInquilino.id,
+				pessoa_id: inquilino.id,
+			},
+		});
+	}
 }
 
-async function createNotificacao(unidade: Unidade) {
+async function createTipoInfracao() {
 	let tipoInfracao = await prisma.tipoInfracao.findUnique({
 		where: { descricao: 'Animais' },
-	});
-
-	let notificacao = await prisma.notificacao.findFirst({
-		where: {
-			tipo_infracao: {
-				descricao: 'Animais',
-			},
-		},
 	});
 
 	if (!tipoInfracao) {
 		tipoInfracao = await prisma.tipoInfracao.create({
 			data: { descricao: 'Animais' },
-		});
-	}
-
-	if (!notificacao) {
-		notificacao = await prisma.notificacao.create({
-			data: {
-				unidade_id: unidade.id,
-				fundamentacao_legal: '',
-				codigo: '01/2023',
-				detalhes_infracao: '',
-				data_emissao: new Date(),
-				data_infracao: new Date(),
-				tipo_infracao_id: tipoInfracao.id,
-			},
 		});
 	}
 }
@@ -345,9 +328,7 @@ async function main() {
 
 	const unidade = await createUnidade(condominio);
 	await createCondominos(unidade);
-
-	await createNotificacao(unidade);
-
+	await createTipoInfracao();
 	await createPermissoesList();
 
 	await createMenu();

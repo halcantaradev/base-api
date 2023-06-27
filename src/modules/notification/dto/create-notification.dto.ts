@@ -27,6 +27,21 @@ export class CreateNotificationDto {
 	unidade_id: number;
 
 	@ApiProperty({
+		description: 'Id do morador, inquilino ou proprietário',
+		example: 1,
+		required: true,
+	})
+	@IsNotEmpty({
+		message:
+			'O campo pessoa é obrigatório. Por favor, forneça pessoa unidade.',
+	})
+	@IsInt({
+		message:
+			'O campo pessoa informado não é válido. Por favor, forneça uma pessoa válida.',
+	})
+	pessoa_id: number;
+
+	@ApiProperty({
 		description: 'Id do tipo da infração',
 		example: 1,
 		required: true,

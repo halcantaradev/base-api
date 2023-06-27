@@ -29,17 +29,17 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar usuários ativos',
 	},
 	{
-		label: 'Cadastrar novo registro de notificação',
+		label: 'Cadastrar notificação',
 		key: 'notificacoes-cadastrar',
 		message: 'Sem permissão para cadastrar notificação',
 	},
 	{
-		label: 'Listar registros de notificações',
+		label: 'Listar  notificações',
 		key: 'notificacoes-listar',
 		message: 'Sem permissão para listar notificação',
 	},
 	{
-		label: 'Exibir dados do registro de notificação',
+		label: 'Exibir dados de uma notificação',
 		key: 'notificacoes-exibir-dados',
 		message: 'Sem permissão para exibir dados da notificação',
 	},

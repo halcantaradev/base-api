@@ -6,6 +6,9 @@ export class UpdateUserDto extends CreateUserDto {
 	email: string;
 
 	@IsOptional()
+	username: string;
+
+	@IsOptional()
 	nome: string;
 
 	@IsOptional()

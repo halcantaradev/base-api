@@ -22,6 +22,7 @@ import { NotificationService } from './notification.service';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
+import { query } from 'express';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -70,6 +71,30 @@ export class NotificationController {
 		return this.notificationService.findAll();
 	}
 
+	@Post('search')
+	@Role('notificacoes-listar')
+	@ApiOperation({
+		summary: 'Busca as notificação baseado nos filtros enviados',
+	})
+	@ApiResponse({
+		description: 'Notificações encontradas com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnNotificationListEntity,
+	})
+	@ApiResponse({
+		description:
+			'Ocorreu um erro ao buscar as notificações, por favor verifique o campos preenchidos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnNotificationListEntity,
+	})
+	search(
+		@Body() filtros: FilterNotificationDto,
+		@Query('page') page: string,
+		@Query('skip') skip: string,
+	) {
+		return this.notificationService.findBy(filtros, page, skip);
+	}
+
 	@Post('reports')
 	@Role('notificacoes-relatorios-condominio')
 	@HttpCode(HttpStatus.OK)
@@ -92,7 +117,7 @@ export class NotificationController {
 		@Body() filtros: FilterNotificationDto,
 		@Query('tipo') tipo: string,
 	) {
-		if (tipo === 'condominio') {
+		if (+tipo === 2) {
 			return this.notificationService.reportByCondominium(filtros);
 		}
 	}

@@ -40,8 +40,10 @@ export class NotificationService {
 		return { success: true, message: 'Notificação criada com sucesso.' };
 	}
 
-	async reportByCondominium(filtro: FilterNotificationDto) {
-		const report = await this.prisma.pessoa.findMany({
+	async findBy(filtro: FilterNotificationDto, rows, skip) {
+		const notifications = await this.prisma.pessoa.findMany({
+			take: +rows || 10,
+			skip: +skip || 0,
 			select: {
 				nome: true,
 				unidades_condominio: {
@@ -67,8 +69,8 @@ export class NotificationService {
 					},
 					where: {
 						id: { in: filtro.unidades_ids },
-						condominio_id: {
-							in: filtro.condominos_ids,
+						condominos: {
+							every: { pessoa_id: { in: filtro.condominos_ids } },
 						},
 						notificacoes: {
 							every: {
@@ -116,6 +118,90 @@ export class NotificationService {
 			},
 		});
 
+		console.log(notifications);
+
+		if (!notifications) {
+			throw new NotFoundException(
+				'Dados não encontrados, por favor verifique os filtros!',
+			);
+		}
+
+		return {
+			success: true,
+			data: notifications,
+		};
+	}
+
+	async reportByCondominium(filtro: FilterNotificationDto) {
+		const report = await this.prisma.pessoa.findMany({
+			select: {
+				nome: true,
+				unidades_condominio: {
+					select: {
+						codigo: true,
+						_count: { select: { notificacoes: true } },
+						notificacoes: {
+							select: {
+								id: true,
+								data_emissao: true,
+								data_infracao: true,
+								tipo_registro: true,
+								tipo_infracao_id: true,
+								observacoes: true,
+								detalhes_infracao: true,
+								tipo_infracao: {
+									select: {
+										descricao: true,
+									},
+								},
+							},
+						},
+					},
+					where: {
+						id: { in: filtro.unidades_ids },
+						condominos: {
+							every: {
+								pessoa_id: { in: filtro.condominos_ids },
+							},
+						},
+						notificacoes: {
+							every: {
+								tipo_registro: filtro.tipo_notificacao,
+								tipo_infracao_id: filtro.tipo_infracao_id,
+								OR: [
+									filtro.tipo_data_filtro == 1
+										? {
+												data_emissao: {
+													gte: filtro.data_inicial,
+													lte: filtro.data_final,
+												},
+										  }
+										: {
+												data_infracao: {
+													gte: filtro.data_inicial,
+													lte: filtro.data_final,
+												},
+										  },
+								],
+							},
+						},
+					},
+				},
+			},
+			where: {
+				tipos: {
+					every: {
+						tipo: {
+							nome: 'condominio',
+						},
+					},
+				},
+				id: filtro.condominios_ids
+					? { in: filtro.condominios_ids }
+					: undefined,
+			},
+		});
+
 		if (!report) {
 			throw new NotFoundException(
 				'Dados não encontrados, por favor verifique os filtros!',
@@ -134,6 +220,7 @@ export class NotificationService {
 			data: await this.prisma.notificacao.findMany({
 				select: {
 					id: true,
+					codigo: true,
 					unidade: { select: { codigo: true } },
 					tipo_infracao: {
 						select: { descricao: true },
@@ -141,7 +228,7 @@ export class NotificationService {
 					tipo_registro: true,
 					data_emissao: true,
 					data_infracao: true,
-					codigo: true,
+					unidade_id: true,
 					detalhes_infracao: true,
 					fundamentacao_legal: true,
 					observacoes: true,

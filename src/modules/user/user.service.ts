@@ -23,6 +23,17 @@ export class UserService {
 						empresa_id,
 					},
 				},
+				departamentos: createUserDto.departamentos
+					? {
+							createMany: {
+								data: createUserDto.departamentos.map(
+									(departamento) => ({
+										departamento_id: departamento,
+									}),
+								),
+							},
+					  }
+					: undefined,
 			},
 		});
 
@@ -47,6 +58,14 @@ export class UserService {
 								select: {
 									nome: true,
 								},
+							},
+						},
+					},
+					departamentos: {
+						select: {
+							departamento_id: true,
+							departamento: {
+								select: { nome: true },
 							},
 						},
 					},
@@ -86,6 +105,14 @@ export class UserService {
 							},
 						},
 					},
+					departamentos: {
+						select: {
+							departamento_id: true,
+							departamento: {
+								select: { nome: true },
+							},
+						},
+					},
 				},
 				where: {
 					empresas: {
@@ -118,6 +145,14 @@ export class UserService {
 							select: {
 								nome: true,
 							},
+						},
+					},
+				},
+				departamentos: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: { nome: true },
 						},
 					},
 				},
@@ -166,6 +201,14 @@ export class UserService {
 							},
 						},
 					},
+					departamentos: {
+						select: {
+							departamento_id: true,
+							departamento: {
+								select: { nome: true },
+							},
+						},
+					},
 				},
 				data: {
 					nome: updateUserDto.nome,
@@ -185,6 +228,20 @@ export class UserService {
 							},
 						},
 					},
+					departamentos: updateUserDto.departamentos
+						? {
+								deleteMany: {
+									usuario_id: id,
+								},
+								createMany: {
+									data: updateUserDto.departamentos.map(
+										(departamento) => ({
+											departamento_id: departamento,
+										}),
+									),
+								},
+						  }
+						: undefined,
 				},
 				where: {
 					id,

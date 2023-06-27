@@ -62,7 +62,7 @@ export class UserController {
 	}
 
 	@Get('active')
-	// @Role('usuarios-listar-ativos')
+	@Role('usuarios-listar-ativos')
 	@ApiOperation({ summary: 'Lista usuários ativos' })
 	@ApiResponse({
 		description: 'Usuários ativos listados com sucesso',
@@ -79,7 +79,7 @@ export class UserController {
 	}
 
 	@Get(':id')
-	// @Role('usuarios-exibir-dados')
+	@Role('usuarios-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados do usuário' })
 	@ApiResponse({
 		description: 'Dados do usuário listados com sucesso',

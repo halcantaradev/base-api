@@ -28,6 +28,7 @@ model Pessoa {
   usuarios_empresa    EmpresasHasUsuarios[]
   permissoes_cargos   CargosHasPermissoes[]
   permissoes_usuarios UsuarioHasPermissoes[]
+  departamentos       Departamento[]
 
   @@map("pessoas")
 }
@@ -256,4 +257,17 @@ model Menu {
   permissao Permissoes? @relation(fields: [permissao_id], references: [id])
 
   @@map("menus")
+}
+
+model Departamento {
+  id         Int     @id @default(autoincrement())
+  nome       String
+  empresa_id Int
+  nac        Boolean @default(false)
+  ativo      Boolean @default(true)
+  excluido   Boolean @default(false)
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("departamentos")
 }

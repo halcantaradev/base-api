@@ -49,8 +49,33 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para atualizar notificação',
 	},
 	{
-		label: 'Gerar relatórios de notificações ',
+		label: 'Gerar relatórios de notificações',
 		key: 'notificacoes-relatorios-condominio',
 		message: 'Sem permissão para gerar relatórios de notificações',
+	},
+	{
+		label: 'Cadastrar novo departamento',
+		key: 'departamentos-cadastrar',
+		message: 'Sem permissão para criar departamentos',
+	},
+	{
+		label: 'Listar departamentos ativos',
+		key: 'departamentos-listar',
+		message: 'Sem permissão para listar os departamentos',
+	},
+	{
+		label: 'Exibir dados do departamento',
+		key: 'departamentos-exibir-dados',
+		message: 'Sem permissão para listar os dados dos departamentos',
+	},
+	{
+		label: 'Atualizar dados do departamento',
+		key: 'departamentos-atualizar-dados',
+		message: 'Sem permissão para atualizar os dados dos departamentos',
+	},
+	{
+		label: 'Desativar os departamentos',
+		key: 'departamentos-desativar',
+		message: 'Sem permissão para desativar os departamentos',
 	},
 ];

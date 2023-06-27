@@ -43,7 +43,7 @@ export class UpdateNotificationDto extends CreateNotificationDto {
 			'O campo status informado não é válido. Por favor, forneça um status válido.',
 	})
 	@Transform(({ value }) => {
-		return ['true', '1'].includes(value);
+		return ['true', '1', true, 1].includes(value);
 	})
 	ativo: boolean;
 }

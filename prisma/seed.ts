@@ -71,7 +71,42 @@ async function createUser(empresa: Pessoa) {
 		});
 
 		return user;
+		console.log('Usuário criado');
+	} else {
+		console.log('Usuário já cadastrado');
 	}
+
+	return useExist;
+}
+
+async function createPermissoesList() {
+	for await (const permission of permissionslist) {
+		const p = await prisma.permissoes.findFirst({
+			where: { key: permission.key },
+		});
+
+		if (!p) {
+			await prisma.permissoes.create({ data: permission });
+		}
+	}
+}
+
+async function cretePermissionToUser(usuario_id: number, empresa_id: number) {
+	await prisma.usuarioHasPermissoes.deleteMany({
+		where: { usuario_id },
+	});
+
+	const permissoes = await prisma.permissoes.findMany({});
+
+	await prisma.usuarioHasPermissoes.createMany({
+		data: permissoes.map((permission) => ({
+			usuario_id,
+			empresa_id,
+			permissao_id: permission.id,
+		})),
+	});
+
+	console.log('Permissões consedidas ao usuário Admin');
 }
 
 async function createCondominio() {
@@ -142,107 +177,78 @@ async function createUnidade(condominio: Pessoa) {
 }
 
 async function createCondominos(unidade: Unidade) {
-	let condomino = await prisma.pessoa.findUnique({
-		where: { nome: 'Condômino' },
-	});
-
-	const condominos = await prisma.pessoasHasUnidades.findMany({
-		where: {
-			unidade_id: unidade.id,
-		},
+	let proprietario = await prisma.pessoa.findUnique({
+		where: { nome: 'Francisco' },
 	});
 
 	let tipoProrietario = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'proprietario' },
 	});
 
+	if (!tipoProrietario) {
+		tipoProrietario = await prisma.tiposPessoa.create({
+			data: { nome: 'proprietario', descricao: 'Proprietário' },
+		});
+	}
+
+	if (!proprietario) {
+		proprietario = await prisma.pessoa.create({
+			data: {
+				nome: 'Francisco',
+				cnpj: '9999999999999',
+			},
+		});
+
+		await prisma.pessoasHasUnidades.create({
+			data: {
+				unidade_id: unidade.id,
+				pessoa_tipo_id: tipoProrietario.id,
+				pessoa_id: proprietario.id,
+			},
+		});
+	}
+
+	let inquilino = await prisma.pessoa.findUnique({
+		where: { nome: 'Antônio' },
+	});
+
 	let tipoInquilino = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'inquilino' },
 	});
 
-	if (
-		!condomino &&
-		!condominos.length &&
-		!tipoProrietario &&
-		!tipoInquilino
-	) {
-		tipoProrietario = await prisma.tiposPessoa.create({
-			data: { nome: 'proprietario', descricao: 'Proprietário' },
-		});
-
+	if (!tipoInquilino) {
 		tipoInquilino = await prisma.tiposPessoa.create({
 			data: { nome: 'inquilino', descricao: 'Inquilino' },
 		});
-
-		condomino = await prisma.pessoa.create({
-			data: {
-				nome: 'Condômino',
-				cnpj: '77777777777777',
-			},
-		});
-
-		await prisma.pessoasHasUnidades.createMany({
-			data: [
-				{
-					unidade_id: unidade.id,
-					pessoa_tipo_id: tipoProrietario.id,
-					pessoa_id: condomino.id,
-				},
-				{
-					unidade_id: unidade.id,
-					pessoa_tipo_id: tipoInquilino.id,
-					pessoa_id: condomino.id,
-				},
-			],
-		});
 	}
 
-	return;
+	if (!inquilino) {
+		inquilino = await prisma.pessoa.create({
+			data: {
+				nome: 'Antônio',
+				cnpj: '8888888888888',
+			},
+		});
+
+		await prisma.pessoasHasUnidades.create({
+			data: {
+				unidade_id: unidade.id,
+				pessoa_tipo_id: tipoInquilino.id,
+				pessoa_id: inquilino.id,
+			},
+		});
+	}
 }
 
-async function createNotificacao(unidade: Unidade) {
+async function createTipoInfracao() {
 	let tipoInfracao = await prisma.tipoInfracao.findUnique({
 		where: { descricao: 'Animais' },
-	});
-
-	let notificacao = await prisma.notificacao.findFirst({
-		where: {
-			tipo_infracao: {
-				descricao: 'Animais',
-			},
-		},
 	});
 
 	if (!tipoInfracao) {
 		tipoInfracao = await prisma.tipoInfracao.create({
 			data: { descricao: 'Animais' },
 		});
-	}
-
-	if (!notificacao) {
-		notificacao = await prisma.notificacao.create({
-			data: {
-				unidade_id: unidade.id,
-				fundamentacao_legal: '',
-				n_notificacao: '01/2023',
-				detalhes_infracao: '',
-				data_emissao: new Date(),
-				data_infracao: new Date(),
-				infracao_id: tipoInfracao.id,
-			},
-		});
-	}
-}
-
-async function createPermissoesList() {
-	for await (const permission of permissionslist) {
-		const p = await prisma.permissoes.findFirst({
-			where: { key: permission.key },
-		});
-
-		if (!p) {
-			await prisma.permissoes.create({ data: permission });
-		}
 	}
 }
 
@@ -314,16 +320,15 @@ async function createMenu() {
 
 async function main() {
 	const empresa = await createEmpresa();
-	await createUser(empresa);
+	const user = await createUser(empresa);
+	await cretePermissionToUser(user.id, empresa.id);
 
 	const condominio = await createCondominio();
 	await createContato(condominio);
 
 	const unidade = await createUnidade(condominio);
 	await createCondominos(unidade);
-
-	await createNotificacao(unidade);
-
+	await createTipoInfracao();
 	await createPermissoesList();
 
 	await createMenu();

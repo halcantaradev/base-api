@@ -5,22 +5,35 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
+import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 
 @Injectable()
 export class NotificationService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async create(createNotificationDto: CreateNotificationDto) {
+		let codigo: any =
+			(await this.findQtdByResidence(createNotificationDto.unidade_id)) +
+			1;
+
+		codigo = codigo.toString().padStart(2, '0');
+
 		await this.prisma.notificacao.create({
 			data: {
 				unidade_id: createNotificationDto.unidade_id,
-				infracao_id: createNotificationDto.infracao_id,
+				tipo_infracao_id: createNotificationDto.tipo_infracao_id,
 				tipo_registro: createNotificationDto.tipo_registro,
 				data_emissao: createNotificationDto.data_emissao,
 				data_infracao: createNotificationDto.data_infracao,
 				fundamentacao_legal: createNotificationDto.fundamentacao_legal,
-				n_notificacao: createNotificationDto.n_notificacao,
+				codigo: `${codigo}/${new Date().getFullYear()}`,
 				detalhes_infracao: createNotificationDto.detalhes_infracao,
+				valor_multa: createNotificationDto.valor_multa,
+				competencia_multa: createNotificationDto.competencia_multa,
+				unir_taxa: createNotificationDto.unir_taxa,
+				vencimento_multa: createNotificationDto.vencimento_multa,
+				observacoes: createNotificationDto.observacoes,
+				pessoa_id: createNotificationDto.pessoa_id,
 			},
 		});
 
@@ -41,8 +54,8 @@ export class NotificationService {
 								data_emissao: true,
 								data_infracao: true,
 								tipo_registro: true,
-								infracao_id: true,
-								observacao: true,
+								tipo_infracao_id: true,
+								observacoes: true,
 								detalhes_infracao: true,
 								tipo_infracao: {
 									select: {
@@ -60,7 +73,7 @@ export class NotificationService {
 						notificacoes: {
 							every: {
 								tipo_registro: filtro.tipo_notificacao,
-								infracao_id: filtro.tipo_infracao_id,
+								tipo_infracao_id: filtro.tipo_infracao_id,
 								OR: [
 									filtro.tipo_data_filtro == 1
 										? {
@@ -118,7 +131,6 @@ export class NotificationService {
 	async findAll(): Promise<ReturnNotificationListEntity> {
 		return {
 			success: true,
-			message: 'Notificações listadas com sucesso.',
 			data: await this.prisma.notificacao.findMany({
 				select: {
 					id: true,
@@ -129,10 +141,33 @@ export class NotificationService {
 					tipo_registro: true,
 					data_emissao: true,
 					data_infracao: true,
-					n_notificacao: true,
+					codigo: true,
 					detalhes_infracao: true,
 					fundamentacao_legal: true,
-					observacao: true,
+					observacoes: true,
+				},
+			}),
+		};
+	}
+
+	async findQtdByResidence(unidade_id: number): Promise<number> {
+		return this.prisma.notificacao.count({
+			where: {
+				unidade_id,
+			},
+		});
+	}
+
+	async findAllInfraction(): Promise<ReturnInfractionListEntity> {
+		return {
+			success: true,
+			data: await this.prisma.tipoInfracao.findMany({
+				select: {
+					id: true,
+					descricao: true,
+				},
+				where: {
+					ativo: true,
 				},
 			}),
 		};
@@ -140,19 +175,11 @@ export class NotificationService {
 
 	async findOneById(id: number): Promise<ReturnNotificationEntity> {
 		const notification = await this.prisma.notificacao.findFirst({
-			select: {
-				id: true,
+			include: {
 				unidade: { select: { codigo: true } },
 				tipo_infracao: {
 					select: { descricao: true },
 				},
-				tipo_registro: true,
-				data_emissao: true,
-				data_infracao: true,
-				n_notificacao: true,
-				detalhes_infracao: true,
-				fundamentacao_legal: true,
-				observacao: true,
 			},
 			where: {
 				id,
@@ -193,20 +220,23 @@ export class NotificationService {
 					tipo_registro: true,
 					data_emissao: true,
 					data_infracao: true,
-					n_notificacao: true,
+					codigo: true,
 					detalhes_infracao: true,
 					fundamentacao_legal: true,
-					observacao: true,
+					observacoes: true,
+					valor_multa: true,
+					competencia_multa: true,
+					unir_taxa: true,
+					vencimento_multa: true,
 				},
 				data: {
 					unidade_id: updateNotificationDto.unidade_id,
-					infracao_id: updateNotificationDto.infracao_id,
+					tipo_infracao_id: updateNotificationDto.infracao_id,
 					tipo_registro: updateNotificationDto.tipo_registro,
 					data_emissao: updateNotificationDto.data_emissao,
 					data_infracao: updateNotificationDto.data_infracao,
 					fundamentacao_legal:
 						updateNotificationDto.fundamentacao_legal,
-					n_notificacao: updateNotificationDto.n_notificacao,
 					detalhes_infracao: updateNotificationDto.detalhes_infracao,
 					ativo: updateNotificationDto.ativo,
 				},

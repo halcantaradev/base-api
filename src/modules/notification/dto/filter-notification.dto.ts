@@ -1,14 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-	IsArray,
-	IsDate,
-	IsDateString,
-	IsIn,
-	IsInt,
-	IsNotEmpty,
-	IsOptional,
-} from 'class-validator';
+import { IsDate, IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class FilterNotificationDto {
 	@ApiProperty({

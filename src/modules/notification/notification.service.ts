@@ -21,13 +21,18 @@ export class NotificationService {
 		await this.prisma.notificacao.create({
 			data: {
 				unidade_id: createNotificationDto.unidade_id,
-				infracao_id: createNotificationDto.infracao_id,
+				tipo_infracao_id: createNotificationDto.tipo_infracao_id,
 				tipo_registro: createNotificationDto.tipo_registro,
 				data_emissao: createNotificationDto.data_emissao,
 				data_infracao: createNotificationDto.data_infracao,
 				fundamentacao_legal: createNotificationDto.fundamentacao_legal,
-				n_notificacao: `${codigo}/${new Date().getFullYear()}`,
+				codigo: `${codigo}/${new Date().getFullYear()}`,
 				detalhes_infracao: createNotificationDto.detalhes_infracao,
+				valor_multa: createNotificationDto.valor_multa,
+				competencia_multa: createNotificationDto.competencia_multa,
+				unir_taxa: createNotificationDto.unir_taxa,
+				vencimento_multa: createNotificationDto.vencimento_multa,
+				observacoes: createNotificationDto.observacoes,
 			},
 		});
 
@@ -48,8 +53,8 @@ export class NotificationService {
 								data_emissao: true,
 								data_infracao: true,
 								tipo_registro: true,
-								infracao_id: true,
-								observacao: true,
+								tipo_infracao_id: true,
+								observacoes: true,
 								detalhes_infracao: true,
 								tipo_infracao: {
 									select: {
@@ -67,7 +72,7 @@ export class NotificationService {
 						notificacoes: {
 							every: {
 								tipo_registro: filtro.tipo_notificacao,
-								infracao_id: filtro.tipo_infracao_id,
+								tipo_infracao_id: filtro.tipo_infracao_id,
 								OR: [
 									filtro.tipo_data_filtro == 1
 										? {
@@ -135,10 +140,10 @@ export class NotificationService {
 					tipo_registro: true,
 					data_emissao: true,
 					data_infracao: true,
-					n_notificacao: true,
+					codigo: true,
 					detalhes_infracao: true,
 					fundamentacao_legal: true,
-					observacao: true,
+					observacoes: true,
 				},
 			}),
 		};
@@ -169,19 +174,11 @@ export class NotificationService {
 
 	async findOneById(id: number): Promise<ReturnNotificationEntity> {
 		const notification = await this.prisma.notificacao.findFirst({
-			select: {
-				id: true,
+			include: {
 				unidade: { select: { codigo: true } },
 				tipo_infracao: {
 					select: { descricao: true },
 				},
-				tipo_registro: true,
-				data_emissao: true,
-				data_infracao: true,
-				n_notificacao: true,
-				detalhes_infracao: true,
-				fundamentacao_legal: true,
-				observacao: true,
 			},
 			where: {
 				id,
@@ -222,14 +219,18 @@ export class NotificationService {
 					tipo_registro: true,
 					data_emissao: true,
 					data_infracao: true,
-					n_notificacao: true,
+					codigo: true,
 					detalhes_infracao: true,
 					fundamentacao_legal: true,
-					observacao: true,
+					observacoes: true,
+					valor_multa: true,
+					competencia_multa: true,
+					unir_taxa: true,
+					vencimento_multa: true,
 				},
 				data: {
 					unidade_id: updateNotificationDto.unidade_id,
-					infracao_id: updateNotificationDto.infracao_id,
+					tipo_infracao_id: updateNotificationDto.infracao_id,
 					tipo_registro: updateNotificationDto.tipo_registro,
 					data_emissao: updateNotificationDto.data_emissao,
 					data_infracao: updateNotificationDto.data_infracao,

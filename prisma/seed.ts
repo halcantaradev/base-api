@@ -259,11 +259,11 @@ async function createNotificacao(unidade: Unidade) {
 			data: {
 				unidade_id: unidade.id,
 				fundamentacao_legal: '',
-				n_notificacao: '01/2023',
+				codigo: '01/2023',
 				detalhes_infracao: '',
 				data_emissao: new Date(),
 				data_infracao: new Date(),
-				infracao_id: tipoInfracao.id,
+				tipo_infracao_id: tipoInfracao.id,
 			},
 		});
 	}

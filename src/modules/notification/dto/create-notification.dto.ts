@@ -1,7 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+	IsBoolean,
 	IsDate,
+	IsDecimal,
 	IsInt,
 	IsNotEmpty,
 	IsOptional,
@@ -37,7 +39,7 @@ export class CreateNotificationDto {
 		message:
 			'O campo infração informado não é válido. Por favor, forneça uma infração válida.',
 	})
-	infracao_id: number;
+	tipo_infracao_id: number;
 
 	@ApiProperty({
 		description: 'Data da emissão',
@@ -126,5 +128,47 @@ export class CreateNotificationDto {
 		message:
 			'O campo observação informado não é válido. Por favor, forneça uma observação válida.',
 	})
-	observacao: string;
+	observacoes?: string;
+
+	@ApiProperty({
+		description: 'Valor da multa',
+		example: 1202.01,
+		required: false,
+	})
+	@IsOptional()
+	@IsDecimal({}, { message: 'O campo deve conter apenas números' })
+	valor_multa?: number;
+
+	@ApiProperty({
+		description: 'Competência da multa',
+		example: '2023/01',
+		required: false,
+	})
+	@IsOptional()
+	@IsString({
+		message: 'O campo dever seguir o formato esperado.',
+	})
+	competencia_multa?: string;
+
+	@ApiProperty({
+		description: 'Unir a taxa de condomínio',
+		example: true,
+		required: false,
+	})
+	@IsOptional()
+	@IsBoolean({
+		message: 'O campo dever ser verdadeiro ou falso.',
+	})
+	unir_taxa?: boolean;
+
+	@ApiProperty({
+		description: 'Vencimento da multa',
+		example: '2023-08-01T23:59:59.000Z',
+		required: false,
+	})
+	@IsOptional()
+	@IsString({
+		message: 'O campo dever está no formato válido.',
+	})
+	vencimento_multa?: Date;
 }

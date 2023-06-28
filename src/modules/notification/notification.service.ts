@@ -12,11 +12,11 @@ export class NotificationService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async create(createNotificationDto: CreateNotificationDto) {
-		let codigo: any =
+		let codigo: string = (
 			(await this.findQtdByResidence(createNotificationDto.unidade_id)) +
-			1;
-
-		codigo = codigo.toString().padStart(2, '0');
+			1
+		).toString();
+		codigo = codigo.padStart(2, '0');
 
 		await this.prisma.notificacao.create({
 			data: {
@@ -40,16 +40,15 @@ export class NotificationService {
 		return { success: true, message: 'Notificação criada com sucesso.' };
 	}
 
-	async findBy(filtro: FilterNotificationDto, rows, skip) {
+	async findBy(filtro?: FilterNotificationDto) {
 		const notifications = await this.prisma.pessoa.findMany({
-			take: +rows || 10,
-			skip: +skip || 0,
 			select: {
+				id: true,
 				nome: true,
+				endereco: true,
 				unidades_condominio: {
 					select: {
 						codigo: true,
-						_count: { select: { notificacoes: true } },
 						notificacoes: {
 							select: {
 								id: true,
@@ -57,6 +56,7 @@ export class NotificationService {
 								data_infracao: true,
 								tipo_registro: true,
 								tipo_infracao_id: true,
+								valor_multa: true,
 								observacoes: true,
 								detalhes_infracao: true,
 								tipo_infracao: {
@@ -64,44 +64,93 @@ export class NotificationService {
 										descricao: true,
 									},
 								},
+								pessoa: {
+									select: {
+										nome: true,
+									},
+								},
+								unidade: {
+									select: {
+										condominos: {
+											select: {
+												condomino: {
+													select: { nome: true },
+												},
+												tipo: {
+													select: { nome: true },
+												},
+											},
+										},
+									},
+								},
 							},
+							where: filtro
+								? {
+										tipo_registro: filtro.tipo_notificacao
+											? filtro.tipo_notificacao
+											: undefined,
+										tipo_infracao_id:
+											filtro.tipo_infracao_id
+												? filtro.tipo_infracao_id
+												: undefined,
+										OR: filtro.tipo_data_filtro
+											? [
+													filtro.tipo_data_filtro == 1
+														? {
+																data_emissao: {
+																	gte: filtro.data_inicial,
+																	lte: filtro.data_final,
+																},
+														  }
+														: {
+																data_infracao: {
+																	gte: filtro.data_inicial,
+																	lte: filtro.data_final,
+																},
+														  },
+											  ]
+											: undefined,
+								  }
+								: undefined,
 						},
 					},
-					where: {
-						id: { in: filtro.unidades_ids },
-						condominos: {
-							every: { pessoa_id: { in: filtro.condominos_ids } },
-						},
-						notificacoes: {
-							every: {
-								tipo_registro: filtro.tipo_notificacao,
-								tipo_infracao_id: filtro.tipo_infracao_id,
-								OR: [
-									filtro.tipo_data_filtro == 1
-										? {
-												data_emissao: {
-													gte: new Date(
-														filtro.data_inicial,
-													),
-													lte: new Date(
-														filtro.data_final,
-													),
-												},
-										  }
-										: {
-												data_infracao: {
-													gte: new Date(
-														filtro.data_inicial,
-													),
-													lte: new Date(
-														filtro.data_final,
-													),
-												},
-										  },
-								],
-							},
-						},
-					},
+					where: filtro
+						? {
+								id: filtro.unidades_ids
+									? {
+											in: filtro.unidades_ids,
+									  }
+									: undefined,
+								notificacoes: {
+									some: {
+										tipo_registro: filtro.tipo_notificacao
+											? filtro.tipo_notificacao
+											: undefined,
+										tipo_infracao_id:
+											filtro.tipo_infracao_id
+												? filtro.tipo_infracao_id
+												: undefined,
+										OR: filtro.tipo_data_filtro
+											? [
+													filtro.tipo_data_filtro == 1
+														? {
+																data_emissao: {
+																	gte: filtro.data_inicial,
+																	lte: filtro.data_final,
+																},
+														  }
+														: {
+																data_infracao: {
+																	gte: filtro.data_inicial,
+																	lte: filtro.data_final,
+																},
+														  },
+											  ]
+											: undefined,
+									},
+								},
+						  }
+						: {},
 				},
 			},
 			where: {
@@ -117,8 +166,6 @@ export class NotificationService {
 					: undefined,
 			},
 		});
-
-		console.log(notifications);
 
 		if (!notifications) {
 			throw new NotFoundException(

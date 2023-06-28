@@ -73,6 +73,7 @@ export class NotificationController {
 
 	@Post('search')
 	@Role('notificacoes-listar')
+	@HttpCode(HttpStatus.OK)
 	@ApiOperation({
 		summary: 'Busca as notificação baseado nos filtros enviados',
 	})
@@ -87,12 +88,8 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnNotificationListEntity,
 	})
-	search(
-		@Body() filtros: FilterNotificationDto,
-		@Query('page') page: string,
-		@Query('skip') skip: string,
-	) {
-		return this.notificationService.findBy(filtros, page, skip);
+	search(@Body() filtros: FilterNotificationDto) {
+		return this.notificationService.findBy(filtros);
 	}
 
 	@Post('reports')
@@ -118,7 +115,7 @@ export class NotificationController {
 		@Query('tipo') tipo: string,
 	) {
 		if (+tipo === 2) {
-			return this.notificationService.reportByCondominium(filtros);
+			return this.notificationService.findBy(filtros);
 		}
 	}
 

@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
 import { ReturnUserEntity } from './entities/return-user.entity';
 import { ReturnUserListEntity } from './entities/return-user-list.entity';
+import { ListUserDto } from './dto/list-user.dto';
 
 @Injectable()
 export class UserService {
@@ -40,7 +41,10 @@ export class UserService {
 		return { success: true, message: 'Usuário criado com sucesso.' };
 	}
 
-	async findAll(empresa_id: number): Promise<ReturnUserListEntity> {
+	async findAll(
+		empresa_id: number,
+		filtros: ListUserDto = {},
+	): Promise<ReturnUserListEntity> {
 		return {
 			success: true,
 			data: await this.prisma.user.findMany({
@@ -71,9 +75,36 @@ export class UserService {
 					},
 				},
 				where: {
+					OR: filtros.busca
+						? [
+								{
+									id: !Number.isNaN(+filtros.busca)
+										? +filtros.busca
+										: undefined,
+								},
+								{
+									nome: {
+										contains: filtros.busca,
+										mode: 'insensitive',
+									},
+								},
+								{
+									email: {
+										contains: filtros.busca,
+										mode: 'insensitive',
+									},
+								},
+						  ]
+						: undefined,
 					empresas: {
 						every: {
 							empresa_id: empresa_id,
+							cargo_id:
+								filtros.cargos && filtros.cargos.length
+									? {
+											in: filtros.cargos,
+									  }
+									: undefined,
 						},
 					},
 				},

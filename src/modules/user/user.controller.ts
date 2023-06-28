@@ -20,6 +20,7 @@ import { ReturnUserListEntity } from './entities/return-user-list.entity';
 import { ReturnUserEntity } from './entities/return-user.entity';
 import { UserService } from './user.service';
 import { Role } from 'src/shared/decorators/role.decorator';
+import { ListUserDto } from './dto/list-user.dto';
 
 @ApiTags('User')
 @Controller('users')
@@ -44,7 +45,7 @@ export class UserController {
 		return this.userService.create(createUserDto, req.empresa_id);
 	}
 
-	@Get()
+	@Post('list')
 	@Role('usuarios-listar-todos')
 	@ApiOperation({ summary: 'Lista todos os usuários' })
 	@ApiResponse({
@@ -57,25 +58,8 @@ export class UserController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	findAll(@CurrentUser() user: UserAuth) {
-		return this.userService.findAll(user.empresa_id);
-	}
-
-	@Get('active')
-	@Role('usuarios-listar-ativos')
-	@ApiOperation({ summary: 'Lista usuários ativos' })
-	@ApiResponse({
-		description: 'Usuários ativos listados com sucesso',
-		status: HttpStatus.OK,
-		type: ReturnUserListEntity,
-	})
-	@ApiResponse({
-		description: 'Ocorreu um erro ao listar os usuários',
-		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		type: ReturnEntity.error(),
-	})
-	findAllActive(@CurrentUser() user: UserAuth) {
-		return this.userService.findAll(user.empresa_id);
+	findAll(@CurrentUser() user: UserAuth, @Body() filtros: ListUserDto) {
+		return this.userService.findAll(user.empresa_id, filtros);
 	}
 
 	@Get(':id')

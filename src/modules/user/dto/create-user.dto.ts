@@ -3,7 +3,6 @@ import {
 	IsEmail,
 	IsInt,
 	IsNotEmpty,
-	IsOptional,
 	IsString,
 	Validate,
 } from 'class-validator';
@@ -100,6 +99,9 @@ export class CreateUserDto {
 			'O campo departamentos informado não é válido. Por favor, forneça um departamento válido.',
 		each: true,
 	})
-	@IsOptional()
+	@IsNotEmpty({
+		message:
+			'O campo departamento é obrigatório. Por favor, forneça um departamento.',
+	})
 	departamentos: number[];
 }

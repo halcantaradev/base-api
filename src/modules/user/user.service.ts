@@ -60,6 +60,7 @@ export class UserService {
 							empresa_id: true,
 							cargo: {
 								select: {
+									id: true,
 									nome: true,
 								},
 							},
@@ -131,6 +132,7 @@ export class UserService {
 							empresa_id: true,
 							cargo: {
 								select: {
+									id: true,
 									nome: true,
 								},
 							},
@@ -174,6 +176,7 @@ export class UserService {
 						empresa_id: true,
 						cargo: {
 							select: {
+								id: true,
 								nome: true,
 							},
 						},
@@ -227,6 +230,7 @@ export class UserService {
 							empresa_id: true,
 							cargo: {
 								select: {
+									id: true,
 									nome: true,
 								},
 							},

@@ -64,7 +64,7 @@ model Cargo {
 model PessoasHasTipos {
   id                 Int      @id @default(autoincrement())
   pessoa_id          Int
-  original_pessoa_id Int?
+  original_pessoa_id String?
   tipo_id            Int
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt

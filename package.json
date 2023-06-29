@@ -19,8 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate:dev": "prisma migrate dev --name dev",
-    "seed:dev": "prisma db seed:dev",
-    "seed:prod": "prisma db seed:prod"
+    "seed:dev": "ts-node prisma/seed.ts",
+    "seed:prod": "ts-node prisma/seed.prod.ts"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
@@ -86,8 +86,5 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
-  "prisma": {
-    "seed:dev": "ts-node prisma/seed.ts",
-    "seed:prod": "ts-node prisma/seed.prod.ts"
-  }
+  "prisma": {}
 }

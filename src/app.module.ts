@@ -10,6 +10,7 @@ import { CondominiumModule } from './modules/condominium/condominium.module';
 import { PersonModule } from './modules/person/person.module';
 import { MenuModule } from './modules/public/menu/menu.module';
 import { DepartmentModule } from './modules/department/department.module';
+import { OcupationsModule } from './modules/ocupations/ocupations.module';
 
 @Module({
 	imports: [
@@ -22,6 +23,7 @@ import { DepartmentModule } from './modules/department/department.module';
 		PersonModule,
 		MenuModule,
 		DepartmentModule,
+		OcupationsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

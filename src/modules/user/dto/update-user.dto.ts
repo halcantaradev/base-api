@@ -19,4 +19,7 @@ export class UpdateUserDto extends CreateUserDto {
 
 	@IsOptional()
 	ativo: boolean;
+
+	@IsOptional()
+	departamentos: number[];
 }

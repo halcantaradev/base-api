@@ -5,6 +5,7 @@ import {
 	HttpCode,
 	HttpStatus,
 	Param,
+	Patch,
 	Post,
 	Query,
 	UseGuards,
@@ -19,6 +20,7 @@ import { CondominiumReturn } from './entities/condominium-return.entity';
 import { ResidenceReturn } from './entities/residence-return.entity';
 import { ResidenceListReturn } from './entities/residence-list-return.entity';
 import { CondominiumListReturn } from './entities/condominium-list-return.entity';
+import { LinkDepartamentDto } from './dto/link-department.dto';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -68,6 +70,36 @@ export class CondominiumController {
 		return {
 			success: true,
 			data: await this.condominioService.findOne(+id),
+		};
+	}
+
+	@Patch(':id_condominium')
+	@ApiOperation({ summary: 'Vincula um departamento a um condomínio' })
+	@ApiResponse({
+		description: 'Condomínio vinculado com sucesso',
+		status: HttpStatus.OK,
+		type: CondominiumReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os filtros enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao vincular o departamento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async linkDepartament(
+		@Param('id_condominium') condominio_id: string,
+		@Body() body: LinkDepartamentDto,
+	) {
+		return {
+			success: true,
+			data: await this.condominioService.linkDepartament(
+				+condominio_id,
+				body.departamento,
+			),
 		};
 	}
 

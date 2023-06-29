@@ -116,6 +116,32 @@ export class CondominiumService {
 		});
 	}
 
+	async linkDepartament(condominio_id: number, departamento_id: number) {
+		const vinculo = await this.prisma.condominioHasDepartamentos.findMany({
+			where: { condominio_id },
+		});
+
+		if (vinculo.length) {
+			await this.prisma.condominioHasDepartamentos.updateMany({
+				data: {
+					departamento_id,
+				},
+				where: {
+					condominio_id,
+				},
+			});
+		} else {
+			await this.prisma.condominioHasDepartamentos.create({
+				data: {
+					condominio_id,
+					departamento_id,
+				},
+			});
+		}
+
+		return this.findOne(condominio_id);
+	}
+
 	async findAllResidences(
 		id_condominium: number,
 		busca?: string,

@@ -3,10 +3,11 @@ import { CondominiumService } from './condominium.service';
 import { CondominiumController } from './condominium.controller';
 import { PersonModule } from '../person/person.module';
 import { PrismaService } from 'src/shared/services/prisma.service';
+import { DepartmentExists } from './validators';
 
 @Module({
 	imports: [PersonModule],
 	controllers: [CondominiumController],
-	providers: [CondominiumService, PrismaService],
+	providers: [CondominiumService, PrismaService, DepartmentExists],
 })
 export class CondominiumModule {}

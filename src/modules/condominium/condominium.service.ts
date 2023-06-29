@@ -87,7 +87,16 @@ export class CondominiumService {
 
 		return this.pessoaService.findAll(
 			'condominio',
-			{},
+			{
+				departamentos_condominio: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: { nome: true },
+						},
+					},
+				},
+			},
 			{
 				OR: filtersSelected.length ? filtersSelected : undefined,
 			},
@@ -95,7 +104,16 @@ export class CondominiumService {
 	}
 
 	async findOne(id: number): Promise<Condominium> {
-		return this.pessoaService.findOneById(id, 'condominio');
+		return this.pessoaService.findOneById(id, 'condominio', {
+			departamentos_condominio: {
+				select: {
+					departamento_id: true,
+					departamento: {
+						select: { nome: true },
+					},
+				},
+			},
+		});
 	}
 
 	async findAllResidences(

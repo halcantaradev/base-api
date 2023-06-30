@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
 import { Condominium } from './entities/condominium.entity';
 import { PrismaService } from 'src/shared/services/prisma.service';
@@ -117,11 +117,14 @@ export class CondominiumService {
 	}
 
 	async linkDepartament(condominio_id: number, departamento_id: number) {
-		const vinculo = await this.prisma.condominioHasDepartamentos.findMany({
-			where: { condominio_id },
-		});
+		const condominio = await this.findOne(condominio_id);
 
-		if (vinculo.length) {
+		if (!condominio)
+			throw new BadRequestException(
+				'Ocorreu um erro ao vindular um condomínio',
+			);
+
+		if (condominio.departamentos.length) {
 			await this.prisma.condominioHasDepartamentos.updateMany({
 				data: {
 					departamento_id,
@@ -139,7 +142,7 @@ export class CondominiumService {
 			});
 		}
 
-		return this.findOne(condominio_id);
+		return condominio;
 	}
 
 	async findAllResidences(

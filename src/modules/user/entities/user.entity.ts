@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { EmpresaHasUsuarioEntity } from './empresa-has-usuario.entity';
+import { UsuarioHasDepartamento } from './usuario-has-departamento.entity';
 
 export class UserEntity {
 	@ApiProperty({
@@ -58,4 +59,12 @@ export class UserEntity {
 		required: false,
 	})
 	empresas: EmpresaHasUsuarioEntity[];
+
+	@ApiProperty({
+		description: 'Dados dos departamentos do usuário',
+		type: UsuarioHasDepartamento,
+		isArray: true,
+		required: false,
+	})
+	departamentos: UsuarioHasDepartamento[];
 }

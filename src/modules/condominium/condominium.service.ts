@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
 import { Condominium } from './entities/condominium.entity';
 import { PrismaService } from 'src/shared/services/prisma.service';
@@ -87,7 +87,16 @@ export class CondominiumService {
 
 		return this.pessoaService.findAll(
 			'condominio',
-			{},
+			{
+				departamentos_condominio: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: { nome: true },
+						},
+					},
+				},
+			},
 			{
 				OR: filtersSelected.length ? filtersSelected : undefined,
 			},
@@ -95,7 +104,44 @@ export class CondominiumService {
 	}
 
 	async findOne(id: number): Promise<Condominium> {
-		return this.pessoaService.findOneById(id, 'condominio');
+		return this.pessoaService.findOneById(id, 'condominio', {
+			departamentos_condominio: {
+				select: {
+					departamento_id: true,
+					departamento: {
+						select: { nome: true },
+					},
+				},
+			},
+		});
+	}
+
+	async linkDepartament(condominio_id: number, departamento_id: number) {
+		let condominio = await this.findOne(condominio_id);
+
+		if (!condominio)
+			throw new BadRequestException(
+				'Ocorreu um erro ao vindular um condomínio',
+			);
+
+		if (condominio.departamentos_condominio.length) {
+			await this.prisma.condominioHasDepartamentos.deleteMany({
+				where: {
+					condominio_id,
+				},
+			});
+		}
+
+		await this.prisma.condominioHasDepartamentos.create({
+			data: {
+				condominio_id,
+				departamento_id,
+			},
+		});
+
+		condominio = await this.findOne(condominio_id);
+
+		return condominio;
 	}
 
 	async findAllResidences(

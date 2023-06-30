@@ -117,7 +117,7 @@ export class CondominiumService {
 	}
 
 	async linkDepartament(condominio_id: number, departamento_id: number) {
-		const condominio = await this.findOne(condominio_id);
+		let condominio = await this.findOne(condominio_id);
 
 		if (!condominio)
 			throw new BadRequestException(
@@ -125,22 +125,21 @@ export class CondominiumService {
 			);
 
 		if (condominio.departamentos_condominio.length) {
-			await this.prisma.condominioHasDepartamentos.updateMany({
-				data: {
-					departamento_id,
-				},
+			await this.prisma.condominioHasDepartamentos.deleteMany({
 				where: {
 					condominio_id,
 				},
 			});
-		} else {
-			await this.prisma.condominioHasDepartamentos.create({
-				data: {
-					condominio_id,
-					departamento_id,
-				},
-			});
 		}
+
+		await this.prisma.condominioHasDepartamentos.create({
+			data: {
+				condominio_id,
+				departamento_id,
+			},
+		});
+
+		condominio = await this.findOne(condominio_id);
 
 		return condominio;
 	}

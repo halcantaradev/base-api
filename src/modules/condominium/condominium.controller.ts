@@ -96,6 +96,7 @@ export class CondominiumController {
 	) {
 		return {
 			success: true,
+			message: 'Condomínio vinculado com sucesso!',
 			data: await this.condominioService.linkDepartament(
 				+condominio_id,
 				body.departamento,

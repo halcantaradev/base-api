@@ -64,8 +64,13 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para criar departamentos',
 	},
 	{
-		label: 'Listar departamentos ativos',
+		label: 'Listar todos os departamentos',
 		key: 'departamentos-listar',
+		message: 'Sem permissão para listar os departamentos',
+	},
+	{
+		label: 'Listar departamentos ativos',
+		key: 'departamentos-listar-ativos',
 		message: 'Sem permissão para listar os departamentos',
 	},
 	{

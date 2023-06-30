@@ -1,3 +1,4 @@
+import { FiltersDepartmentDto } from './dto/filters-department.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
@@ -17,7 +18,7 @@ export class DepartmentService {
 		});
 	}
 
-	async findAll(empresa_id: number) {
+	async findAll(empresa_id: number, filters: FiltersDepartmentDto) {
 		return this.prisma.departamento.findMany({
 			select: {
 				id: true,
@@ -27,7 +28,7 @@ export class DepartmentService {
 			},
 			where: {
 				empresa_id,
-				ativo: true,
+				ativo: filters.ativo || true,
 				excluido: false,
 			},
 		});

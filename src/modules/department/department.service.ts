@@ -28,7 +28,26 @@ export class DepartmentService {
 			},
 			where: {
 				empresa_id,
-				ativo: filters.ativo || true,
+				OR: filters.busca
+					? [
+							{
+								nome: {
+									contains: filters.busca
+										.toString()
+										.normalize('NFD')
+										.replace(/[\u0300-\u036f]/g, ''),
+									mode: 'insensitive',
+								},
+							},
+							{
+								id: !Number.isNaN(+filters.busca)
+									? +filters.busca
+									: undefined,
+							},
+					  ]
+					: undefined,
+				nac: filters.nac != null ? filters.nac : true,
+				ativo: filters.ativo != null ? filters.ativo : true,
 				excluido: false,
 			},
 		});

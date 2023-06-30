@@ -29,7 +29,7 @@ export class FilterNotificationDto {
 		message:
 			'O campo unidade informado não é válido. Por favor, forneça uma unidade válida.',
 	})
-	unidades_ids: number;
+	unidades_ids: number[];
 
 	@ApiProperty({
 		description: 'Id(s) dos condôminos(s)',

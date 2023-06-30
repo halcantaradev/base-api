@@ -21,4 +21,11 @@ export class Department {
 		readOnly: true,
 	})
 	nac: boolean;
+
+	@ApiProperty({
+		description: 'Status do departamento',
+		example: true,
+		readOnly: true,
+	})
+	ativo: boolean;
 }

@@ -23,6 +23,7 @@ export class DepartmentService {
 				id: true,
 				nome: true,
 				nac: true,
+				ativo: true,
 			},
 			where: {
 				empresa_id,
@@ -38,6 +39,7 @@ export class DepartmentService {
 				id: true,
 				nome: true,
 				nac: true,
+				ativo: true,
 			},
 			where: {
 				id,
@@ -69,6 +71,7 @@ export class DepartmentService {
 				id: true,
 				nome: true,
 				nac: true,
+				ativo: true,
 			},
 			data: {
 				nac: updateDepartmentDto.nac,

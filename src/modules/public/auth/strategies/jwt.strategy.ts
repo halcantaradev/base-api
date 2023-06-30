@@ -20,6 +20,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 			empresa_id: payload.empresa_id,
 			cargo_id: payload.cargo_id,
 			nome: payload.nome,
+			departamentos_ids: payload.departamentos_ids,
+			acessa_todos_departamentos: payload.acessa_todos_departamentos,
 		};
 	}
 }

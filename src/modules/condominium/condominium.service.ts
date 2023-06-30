@@ -88,7 +88,6 @@ export class CondominiumService {
 				  }
 				: null,
 		].filter((filter) => !!filter);
-		console.log(user);
 
 		return this.pessoaService.findAll(
 			'condominio',

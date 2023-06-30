@@ -124,7 +124,7 @@ export class CondominiumService {
 				'Ocorreu um erro ao vindular um condomínio',
 			);
 
-		if (condominio.departamentos.length) {
+		if (condominio.departamentos_condominio.length) {
 			await this.prisma.condominioHasDepartamentos.updateMany({
 				data: {
 					departamento_id,

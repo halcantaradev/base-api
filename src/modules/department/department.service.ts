@@ -1,3 +1,4 @@
+import { FiltersDepartmentDto } from './dto/filters-department.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
@@ -17,16 +18,36 @@ export class DepartmentService {
 		});
 	}
 
-	async findAll(empresa_id: number) {
+	async findAll(empresa_id: number, filters: FiltersDepartmentDto) {
 		return this.prisma.departamento.findMany({
 			select: {
 				id: true,
 				nome: true,
 				nac: true,
+				ativo: true,
 			},
 			where: {
 				empresa_id,
-				ativo: true,
+				OR: filters.busca
+					? [
+							{
+								nome: {
+									contains: filters.busca
+										.toString()
+										.normalize('NFD')
+										.replace(/[\u0300-\u036f]/g, ''),
+									mode: 'insensitive',
+								},
+							},
+							{
+								id: !Number.isNaN(+filters.busca)
+									? +filters.busca
+									: undefined,
+							},
+					  ]
+					: undefined,
+				nac: filters.nac != null ? filters.nac : true,
+				ativo: filters.ativo != null ? filters.ativo : true,
 				excluido: false,
 			},
 		});
@@ -38,6 +59,7 @@ export class DepartmentService {
 				id: true,
 				nome: true,
 				nac: true,
+				ativo: true,
 			},
 			where: {
 				id,
@@ -69,6 +91,7 @@ export class DepartmentService {
 				id: true,
 				nome: true,
 				nac: true,
+				ativo: true,
 			},
 			data: {
 				nac: updateDepartmentDto.nac,

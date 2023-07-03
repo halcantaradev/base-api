@@ -22,6 +22,7 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { DepartmentListReturn } from './entities/department-list-return.entity';
 import { DepartmentReturn } from './entities/department-return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
+import { FiltersDepartmentDto } from './dto/filters-department.dto';
 
 @ApiTags('Departments')
 @UseGuards(PermissionGuard)
@@ -61,7 +62,7 @@ export class DepartmentController {
 		return { success: true, message: 'Departamento criado com sucesso' };
 	}
 
-	@Get()
+	@Post('list')
 	@Role('departamentos-listar')
 	@ApiOperation({ summary: 'Lista todos os departamentos' })
 	@ApiResponse({
@@ -74,10 +75,38 @@ export class DepartmentController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAll(@CurrentUser() user: UserAuth) {
+	async findAll(
+		@CurrentUser() user: UserAuth,
+		@Body() filters: FiltersDepartmentDto,
+	) {
 		return {
 			success: true,
-			data: await this.departmentService.findAll(user.empresa_id),
+			data: await this.departmentService.findAll(
+				user.empresa_id,
+				filters,
+			),
+		};
+	}
+
+	@Get('active')
+	@Role('departamentos-listar-ativos')
+	@ApiOperation({ summary: 'Lista todos os departamentos ativos' })
+	@ApiResponse({
+		description: 'Departamentos listados com sucesso',
+		status: HttpStatus.OK,
+		type: DepartmentListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os departamentos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllActive(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.departmentService.findAll(user.empresa_id, {
+				ativo: true,
+			}),
 		};
 	}
 

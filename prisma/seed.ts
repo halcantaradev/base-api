@@ -91,7 +91,7 @@ async function createPermissoesList() {
 	}
 }
 
-async function cretePermissionToUser(usuario_id: number, empresa_id: number) {
+async function createPermissionToUser(usuario_id: number, empresa_id: number) {
 	await prisma.usuarioHasPermissoes.deleteMany({
 		where: { usuario_id },
 	});
@@ -109,7 +109,7 @@ async function cretePermissionToUser(usuario_id: number, empresa_id: number) {
 	console.log('Permissões consedidas ao usuário Admin');
 }
 
-async function createCondominio() {
+async function createCondominio(empresa: Pessoa) {
 	let tipoCondominio = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'condominio' },
 	});
@@ -127,6 +127,7 @@ async function createCondominio() {
 			data: {
 				nome: 'Condominio',
 				cnpj: '999999999999',
+				empresa_id: empresa.id,
 			},
 		});
 
@@ -134,6 +135,13 @@ async function createCondominio() {
 			data: {
 				pessoa_id: condominio.id,
 				tipo_id: tipoCondominio.id,
+			},
+		});
+
+		await prisma.empresaHasPessoas.create({
+			data: {
+				empresa_id: empresa.id,
+				pessoa_id: condominio.id,
 			},
 		});
 	}
@@ -321,15 +329,15 @@ async function createMenu() {
 async function main() {
 	const empresa = await createEmpresa();
 	const user = await createUser(empresa);
-	await cretePermissionToUser(user.id, empresa.id);
+	await createPermissoesList();
+	await createPermissionToUser(user.id, empresa.id);
 
-	const condominio = await createCondominio();
+	const condominio = await createCondominio(empresa);
 	await createContato(condominio);
 
 	const unidade = await createUnidade(condominio);
 	await createCondominos(unidade);
 	await createTipoInfracao();
-	await createPermissoesList();
 
 	await createMenu();
 

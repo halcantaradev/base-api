@@ -18,6 +18,8 @@ export class AuthService {
 			nome: user.nome,
 			empresa_id: user.empresa_id,
 			cargo_id: user.cargo_id,
+			departamentos_ids: user.departamentos_ids,
+			acessa_todos_departamentos: user.acessa_todos_departamentos,
 		};
 
 		const token = this.jwtService.sign(userPayload);
@@ -37,6 +39,11 @@ export class AuthService {
 				empresas: {
 					include: { cargo: true },
 				},
+				departamentos: {
+					include: {
+						departamento: true,
+					},
+				},
 			},
 			where: { username },
 		});
@@ -50,6 +57,9 @@ export class AuthService {
 
 		return {
 			...user,
+			departamentos_ids: user.departamentos.map(
+				(departamento) => departamento.departamento_id,
+			),
 			empresa_id: user.empresas[0].empresa_id,
 			cargo_id: user.empresas[0].cargo.id,
 		};

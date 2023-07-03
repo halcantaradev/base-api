@@ -21,6 +21,8 @@ import { ResidenceReturn } from './entities/residence-return.entity';
 import { ResidenceListReturn } from './entities/residence-list-return.entity';
 import { CondominiumListReturn } from './entities/condominium-list-return.entity';
 import { LinkDepartamentDto } from './dto/link-department.dto';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -47,10 +49,13 @@ export class CondominiumController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAll(@Body() filters: FiltersCondominiumDto) {
+	async findAll(
+		@CurrentUser() user: UserAuth,
+		@Body() filters: FiltersCondominiumDto,
+	) {
 		return {
 			success: true,
-			data: await this.condominioService.findAll(filters),
+			data: await this.condominioService.findAll(filters, user),
 		};
 	}
 
@@ -66,10 +71,10 @@ export class CondominiumController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findOne(@Param('id') id: string) {
+	async findOne(@CurrentUser() user: UserAuth, @Param('id') id: string) {
 		return {
 			success: true,
-			data: await this.condominioService.findOne(+id),
+			data: await this.condominioService.findOne(+id, user),
 		};
 	}
 
@@ -91,6 +96,7 @@ export class CondominiumController {
 		type: ReturnEntity.error(),
 	})
 	async linkDepartament(
+		@CurrentUser() user: UserAuth,
 		@Param('id_condominium') condominio_id: string,
 		@Body() body: LinkDepartamentDto,
 	) {
@@ -100,6 +106,7 @@ export class CondominiumController {
 			data: await this.condominioService.linkDepartament(
 				+condominio_id,
 				body.departamento,
+				user,
 			),
 		};
 	}
@@ -117,6 +124,7 @@ export class CondominiumController {
 		type: ReturnEntity.error(),
 	})
 	async findAllResidences(
+		@CurrentUser() user: UserAuth,
 		@Param('id_condominium') id_condominium: string,
 		@Query('busca') busca?: string,
 	) {
@@ -125,6 +133,7 @@ export class CondominiumController {
 			data: await this.condominioService.findAllResidences(
 				+id_condominium,
 				busca,
+				user,
 			),
 		};
 	}
@@ -142,6 +151,7 @@ export class CondominiumController {
 		type: ReturnEntity.error(),
 	})
 	async findOneResidence(
+		@CurrentUser() user: UserAuth,
 		@Param('id_condominium') id_condominium: string,
 		@Param('id') id: string,
 	) {
@@ -150,6 +160,7 @@ export class CondominiumController {
 			data: await this.condominioService.findOneResidence(
 				+id_condominium,
 				+id,
+				user,
 			),
 		};
 	}

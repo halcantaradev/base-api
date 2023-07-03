@@ -11,6 +11,7 @@ model Pessoa {
   id           Int      @id @default(autoincrement())
   nome         String   @unique
   cnpj         String   @unique
+  empresa_id   Int?
   endereco     String?
   cep          String?
   bairro       String?
@@ -31,6 +32,8 @@ model Pessoa {
   departamentos            Departamento[]
   notificacoes             Notificacao[]
   departamentos_condominio CondominioHasDepartamentos[]
+  empresas_pessoa        EmpresaHasPessoas[] @relation("EmpresaEmpresaPessoa")
+  pessoas_empresa        EmpresaHasPessoas[] @relation("PessoaEmpresaPessoa")
 
   @@map("pessoas")
 }
@@ -315,4 +318,17 @@ model CondominioHasDepartamentos {
 
   @@id([condominio_id, departamento_id])
   @@map("condominio_has_departamentos")
+}
+
+model EmpresaHasPessoas {
+  empresa_id Int
+  pessoa_id  Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa @relation(name: "EmpresaEmpresaPessoa", fields: [empresa_id], references: [id])
+  pessoa  Pessoa @relation(name: "PessoaEmpresaPessoa", fields: [pessoa_id], references: [id])
+
+  @@id([empresa_id, pessoa_id])
+  @@map("empresa_has_pessoas")
 }

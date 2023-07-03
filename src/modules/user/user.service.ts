@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -196,7 +196,8 @@ export class UserService {
 			},
 		});
 
-		if (user == null) throw new NotFoundException('Usuário não encontrado');
+		if (user == null)
+			throw new BadRequestException('Usuário não encontrado');
 
 		return {
 			success: true,
@@ -212,7 +213,35 @@ export class UserService {
 	): Promise<ReturnUserEntity> {
 		const user = await this.prisma.user.findUnique({ where: { id } });
 
-		if (user == null) throw new NotFoundException('Usuário não encontrado');
+		if (!user) throw new BadRequestException('Usuário não encontrado');
+
+		if (updateUserDto.username) {
+			const userWithUsername = await this.prisma.user.findFirst({
+				where: {
+					username: updateUserDto.username,
+					id: {
+						not: id,
+					},
+				},
+			});
+
+			if (userWithUsername)
+				throw new BadRequestException('Usuário não pode ser utilizado');
+		}
+
+		if (updateUserDto.email) {
+			const userWithEmail = await this.prisma.user.findFirst({
+				where: {
+					email: updateUserDto.email,
+					id: {
+						not: id,
+					},
+				},
+			});
+
+			if (userWithEmail)
+				throw new BadRequestException('Email não pode ser utilizado');
+		}
 
 		return {
 			success: true,

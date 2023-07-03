@@ -21,7 +21,7 @@ export class PersonService {
 				bairro: true,
 				cidade: true,
 				uf: true,
-				ativa: true,
+				ativo: true,
 				contatos: {
 					select: {
 						contato: true,
@@ -54,7 +54,7 @@ export class PersonService {
 				bairro: true,
 				cidade: true,
 				uf: true,
-				ativa: true,
+				ativo: true,
 				contatos: {
 					select: {
 						contato: true,

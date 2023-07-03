@@ -264,7 +264,7 @@ async function createTipoInfracao() {
 async function createMenu() {
 	for await (const menu of menulist) {
 		let menuSaved = await prisma.menu.findFirst({
-			where: { url: menu.url },
+			where: { label: menu.label, url: menu.url },
 		});
 
 		if (!menuSaved) {

@@ -62,7 +62,7 @@ export class Person {
 		example: true,
 		readOnly: true,
 	})
-	ativa: boolean;
+	ativo: boolean;
 
 	@ApiProperty({
 		description: 'Informações de contato do objeto referente',

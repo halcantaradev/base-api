@@ -32,6 +32,8 @@ export class CreateDepartmentDto {
 			'O campo NAC informado não é válido. Por favor, forneça uma indicação válida.',
 	})
 	@Transform(({ value }) => {
+		if (value === null) return null;
+
 		return ['true', '1', true, 1].includes(value);
 	})
 	nac: boolean;

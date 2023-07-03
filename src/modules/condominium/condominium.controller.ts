@@ -11,7 +11,7 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { CondominiumService } from './condominium.service';
-import { FiltersCondominiumDto } from './dto/filters.dto';
+import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
@@ -23,6 +23,8 @@ import { CondominiumListReturn } from './entities/condominium-list-return.entity
 import { LinkDepartamentDto } from './dto/link-department.dto';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { Role } from 'src/shared/decorators/role.decorator';
+import { FiltersResidenceDto } from './dto/filters-residence.dto';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -32,6 +34,7 @@ export class CondominiumController {
 	constructor(private readonly condominioService: CondominiumService) {}
 
 	@Post()
+	@Role('condominios-listar')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Lista todos os condomínios' })
 	@ApiResponse({
@@ -59,7 +62,34 @@ export class CondominiumController {
 		};
 	}
 
+	@Get('active')
+	@Role('condominios-listar-ativos')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ summary: 'Lista todos os condomínios ativos' })
+	@ApiResponse({
+		description: 'Condomínios listados com sucesso',
+		status: HttpStatus.OK,
+		type: CondominiumListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os filtros enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os condomínios',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllActive(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.condominioService.findAll({ ativo: true }, user),
+		};
+	}
+
 	@Get(':id')
+	@Role('condominios-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados de um condomínio' })
 	@ApiResponse({
 		description: 'Condomínio listado com sucesso',
@@ -79,6 +109,7 @@ export class CondominiumController {
 	}
 
 	@Patch(':id_condominium')
+	@Role('condominios-vincular')
 	@ApiOperation({ summary: 'Vincula um departamento a um condomínio' })
 	@ApiResponse({
 		description: 'Condomínio vinculado com sucesso',
@@ -111,7 +142,8 @@ export class CondominiumController {
 		};
 	}
 
-	@Get(':id_condominium/residences')
+	@Post(':id_condominium/residences')
+	@Role('unidades-listar')
 	@ApiOperation({ summary: 'Lista todos as unidades' })
 	@ApiResponse({
 		description: 'Unidades listadas com sucesso',
@@ -126,19 +158,48 @@ export class CondominiumController {
 	async findAllResidences(
 		@CurrentUser() user: UserAuth,
 		@Param('id_condominium') id_condominium: string,
+		@Body() body: FiltersResidenceDto,
+	) {
+		return {
+			success: true,
+			data: await this.condominioService.findAllResidences(
+				+id_condominium,
+				body,
+				user,
+			),
+		};
+	}
+
+	@Get(':id_condominium/residences/active')
+	@Role('unidades-listar-ativos')
+	@ApiOperation({ summary: 'Lista todos as unidades ativas' })
+	@ApiResponse({
+		description: 'Unidades listadas com sucesso',
+		status: HttpStatus.OK,
+		type: ResidenceListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar as unidades',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllResidencesActive(
+		@CurrentUser() user: UserAuth,
+		@Param('id_condominium') id_condominium: string,
 		@Query('busca') busca?: string,
 	) {
 		return {
 			success: true,
 			data: await this.condominioService.findAllResidences(
 				+id_condominium,
-				busca,
+				{ busca, ativo: true },
 				user,
 			),
 		};
 	}
 
 	@Get(':id_condominium/residences/:id')
+	@Role('unidades-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados de uma unidade' })
 	@ApiResponse({
 		description: 'Unidade listada com sucesso',

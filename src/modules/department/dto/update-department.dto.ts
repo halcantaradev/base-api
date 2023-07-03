@@ -18,6 +18,8 @@ export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {
 			'O campo status informado não é válido. Por favor, forneça um status válido.',
 	})
 	@Transform(({ value }) => {
+		if (value === null) return null;
+
 		return ['true', '1', true, 1].includes(value);
 	})
 	@IsOptional()

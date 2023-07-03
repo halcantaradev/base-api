@@ -18,7 +18,7 @@ model Pessoa {
   cidade       String?
   uf           String?
   categoria_id Int?
-  ativa        Boolean  @default(true)
+  ativo        Boolean  @default(true)
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 

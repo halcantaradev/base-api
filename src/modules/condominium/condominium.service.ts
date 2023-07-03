@@ -3,8 +3,9 @@ import { PersonService } from '../person/person.service';
 import { Condominium } from './entities/condominium.entity';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { Residence } from './entities/residence.entity';
-import { FiltersCondominiumDto } from './dto/filters.dto';
+import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { FiltersResidenceDto } from './dto/filters-residence.dto';
 
 @Injectable()
 export class CondominiumService {
@@ -102,6 +103,7 @@ export class CondominiumService {
 				},
 			},
 			{
+				ativo: filters.ativo != null ? filters.ativo : undefined,
 				empresa_id: user.empresa_id,
 				departamentos_condominio: !user.acessa_todos_departamentos
 					? {
@@ -180,7 +182,7 @@ export class CondominiumService {
 
 	async findAllResidences(
 		id_condominium: number,
-		busca: string,
+		body: FiltersResidenceDto,
 		user: UserAuth,
 	): Promise<Residence[]> {
 		const condominio = await this.findOne(id_condominium, user);
@@ -204,14 +206,15 @@ export class CondominiumService {
 			},
 			where: {
 				condominio_id: id_condominium,
+				ativo: body.ativo != null ? body.ativo : undefined,
 				OR: [
 					{
 						condominos: {
 							some: {
-								condomino: busca
+								condomino: body.busca
 									? {
 											nome: {
-												contains: busca
+												contains: body.busca
 													.toString()
 													.normalize('NFD')
 													.replace(
@@ -227,7 +230,7 @@ export class CondominiumService {
 					},
 					{
 						codigo: {
-							contains: (busca || '')
+							contains: (body.busca || '')
 								.toString()
 								.normalize('NFD')
 								.replace(/[\u0300-\u036f]/g, ''),

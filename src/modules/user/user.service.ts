@@ -251,7 +251,10 @@ export class UserService {
 						? PasswordHelper.create(updateUserDto.password)
 						: undefined,
 					email: updateUserDto.email,
-					ativo: updateUserDto.ativo,
+					ativo:
+						updateUserDto.ativo != null
+							? updateUserDto.ativo
+							: undefined,
 					empresas: {
 						updateMany: {
 							data: {

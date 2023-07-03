@@ -59,6 +59,36 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar condomínios',
 	},
 	{
+		label: 'Listar todos os condomínios ativos',
+		key: 'condominios-listar-ativos',
+		message: 'Sem permissão para listar condomínios ativos',
+	},
+	{
+		label: 'Exibir dados de um condomínio',
+		key: 'condominios-exibir-dados',
+		message: 'Sem permissão para exibir os dados do condomínio',
+	},
+	{
+		label: 'Vincular um condomínio a um departamento',
+		key: 'condominios-vincular-departamento',
+		message: 'Sem permissão para vincular departamentos a um condomínio',
+	},
+	{
+		label: 'Listar todos as unidades',
+		key: 'unidades-listar',
+		message: 'Sem permissão para listar unidades',
+	},
+	{
+		label: 'Listar todos as unidades ativas',
+		key: 'unidades-listar-ativos',
+		message: 'Sem permissão para listar unidades ativos',
+	},
+	{
+		label: 'Exibir dados de um unidade',
+		key: 'unidades-exibir-dados',
+		message: 'Sem permissão para exibir as dados do unidade',
+	},
+	{
 		label: 'Cadastrar novo departamento',
 		key: 'departamentos-cadastrar',
 		message: 'Sem permissão para criar departamentos',

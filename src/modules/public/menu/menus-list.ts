@@ -57,7 +57,7 @@ export const menulist: Array<{
 	},
 	{
 		id_relation: 7,
-		relation: 1,
+		relation: 6,
 		permission_key: 'departamentos-listar',
 		label: 'Buscar',
 		url: 'departamentos/buscar',

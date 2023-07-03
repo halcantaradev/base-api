@@ -62,6 +62,23 @@ export class UserController {
 		return this.userService.findAll(user.empresa_id, filtros);
 	}
 
+	@Get('active')
+	@Role('usuarios-listar-ativos')
+	@ApiOperation({ summary: 'Lista usuários ativos' })
+	@ApiResponse({
+		description: 'Usuários ativos listados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnUserListEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os usuários',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	findAllActive(@CurrentUser() user: UserAuth) {
+		return this.userService.findAll(user.empresa_id, { ativo: true });
+	}
+
 	@Get(':id')
 	@Role('usuarios-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados do usuário' })

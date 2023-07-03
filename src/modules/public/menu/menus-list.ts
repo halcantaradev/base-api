@@ -58,9 +58,18 @@ export const menulist: Array<{
 	{
 		id_relation: 7,
 		relation: 1,
+		permission_key: 'departamentos-listar',
 		label: 'Buscar',
 		url: 'departamentos/buscar',
 		icon: 'add',
+		target: '_self',
+	},
+	{
+		id_relation: 8,
+		permission_key: 'condominios-listar',
+		label: 'Condominios',
+		url: 'condominios',
+		icon: 'shop',
 		target: '_self',
 	},
 	{
@@ -73,6 +82,7 @@ export const menulist: Array<{
 	{
 		id_relation: 99991,
 		relation: 99990,
+		permission_key: 'usuarios-listar-todos',
 		label: 'Usuários',
 		url: 'usuarios',
 		icon: 'user',
@@ -81,6 +91,7 @@ export const menulist: Array<{
 	{
 		id_relation: 99992,
 		relation: 99990,
+		permission_key: 'permissions-cargos-listar',
 		label: 'Permissões',
 		url: 'permissoes',
 		icon: 'guard',

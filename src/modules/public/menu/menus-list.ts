@@ -51,21 +51,13 @@ export const menulist: Array<{
 	{
 		id_relation: 6,
 		label: 'Departamentos',
-		url: null,
+		permission_key: 'departamentos-listar',
+		url: 'departamentos/buscar',
 		icon: 'usergroup-add',
 		target: '_self',
 	},
 	{
 		id_relation: 7,
-		relation: 6,
-		permission_key: 'departamentos-listar',
-		label: 'Buscar',
-		url: 'departamentos/buscar',
-		icon: 'add',
-		target: '_self',
-	},
-	{
-		id_relation: 8,
 		permission_key: 'condominios-listar',
 		label: 'Condominios',
 		url: 'condominios',

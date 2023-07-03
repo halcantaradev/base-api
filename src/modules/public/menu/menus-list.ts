@@ -67,7 +67,7 @@ export const menulist: Array<{
 	{
 		id_relation: 99990,
 		label: 'Configurações',
-		url: 'configuracoes',
+		url: null,
 		icon: 'setting',
 		target: '_self',
 	},

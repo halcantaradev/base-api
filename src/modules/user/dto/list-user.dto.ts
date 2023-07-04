@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Validate } from 'class-validator';
+import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
 
 export class ListUserDto {
@@ -39,11 +40,7 @@ export class ListUserDto {
 		message:
 			'O campo status informado não é válido. Por favor, forneça um status válido.',
 	})
-	@Transform(({ value }) => {
-		if (value === null) return null;
-
-		return ['true', '1', true, 1].includes(value);
-	})
+	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	ativo?: boolean;
 }

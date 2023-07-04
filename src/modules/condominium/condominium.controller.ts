@@ -64,7 +64,6 @@ export class CondominiumController {
 
 	@Get('active')
 	@Role('condominios-listar-ativos')
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Lista todos os condomínios ativos' })
 	@ApiResponse({
 		description: 'Condomínios listados com sucesso',
@@ -143,6 +142,7 @@ export class CondominiumController {
 	}
 
 	@Post(':id_condominium/residences')
+	@HttpCode(HttpStatus.OK)
 	@Role('unidades-listar')
 	@ApiOperation({ summary: 'Lista todos as unidades' })
 	@ApiResponse({

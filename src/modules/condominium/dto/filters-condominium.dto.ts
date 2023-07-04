@@ -2,6 +2,7 @@ import { IsDate, IsInt, IsOptional, IsString, Validate } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
+import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class FiltersCondominiumDto {
 	@ApiProperty({
@@ -89,11 +90,7 @@ export class FiltersCondominiumDto {
 		message:
 			'O campo status informado não é válido. Por favor, forneça um status válido.',
 	})
-	@Transform(({ value }) => {
-		if (value === null) return null;
-
-		return ['true', '1', true, 1].includes(value);
-	})
+	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	ativo?: boolean;
 }

@@ -1,9 +1,14 @@
-import { IsOptional } from 'class-validator';
+import { IsOptional, Validate } from 'class-validator';
 import { CreateUserDto } from './create-user.dto';
 
 export class UpdateUserDto extends CreateUserDto {
+	@Validate(null)
 	@IsOptional()
 	email: string;
+
+	@Validate(null)
+	@IsOptional()
+	username: string;
 
 	@IsOptional()
 	nome: string;
@@ -16,4 +21,7 @@ export class UpdateUserDto extends CreateUserDto {
 
 	@IsOptional()
 	ativo: boolean;
+
+	@IsOptional()
+	departamentos: number[];
 }

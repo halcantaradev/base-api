@@ -1,15 +1,23 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateDepartmentDto } from './create-department.dto';
-import { IsOptional, Validate } from 'class-validator';
+import { IsOptional, IsString, Validate } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
 
-export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {
+export class FiltersResidenceDto {
+	@ApiProperty({
+		description: 'Filtro por nome ou código da unidade',
+		example: '001',
+		required: false,
+	})
 	@IsOptional()
-	nome?: string;
+	@IsString({
+		message:
+			'O campo de busca informado não é válido. Por favor, forneça um código ou nome de unidade válido.',
+	})
+	busca?: string;
 
 	@ApiProperty({
-		description: 'Status do departamento',
+		description: 'Status da unidade',
 		example: true,
 		required: false,
 	})

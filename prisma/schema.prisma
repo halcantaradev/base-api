@@ -11,26 +11,30 @@ model Pessoa {
   id           Int      @id @default(autoincrement())
   nome         String   @unique
   cnpj         String   @unique
+  empresa_id   Int?
   endereco     String?
   cep          String?
   bairro       String?
   cidade       String?
   uf           String?
   categoria_id Int?
-  ativa        Boolean  @default(true)
+  ativo        Boolean  @default(true)
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  contatos            Contato[]
-  unidades_condominio Unidade[]
-  tipos               PessoasHasTipos[]
-  unidades            PessoasHasUnidades[]
-  usuarios_empresa    EmpresasHasUsuarios[]
-  permissoes_cargos   CargosHasPermissoes[]
-  permissoes_usuarios UsuarioHasPermissoes[]
-  departamentos       Departamento[]
-  notificacoes        Notificacao[]
-  layouts_notificacao LayoutsNotificacao[]
+  contatos                 Contato[]
+  unidades_condominio      Unidade[]
+  tipos                    PessoasHasTipos[]
+  unidades                 PessoasHasUnidades[]
+  usuarios_empresa         EmpresasHasUsuarios[]
+  permissoes_cargos        CargosHasPermissoes[]
+  permissoes_usuarios      UsuarioHasPermissoes[]
+  departamentos            Departamento[]
+  notificacoes             Notificacao[]
+  departamentos_condominio CondominioHasDepartamentos[]
+  empresas_pessoa          EmpresaHasPessoas[]          @relation("EmpresaEmpresaPessoa")
+  pessoas_empresa          EmpresaHasPessoas[]          @relation("PessoaEmpresaPessoa")
+  LayoutsNotificacao       LayoutsNotificacao[]
 
   @@map("pessoas")
 }
@@ -65,7 +69,7 @@ model Cargo {
 model PessoasHasTipos {
   id                 Int      @id @default(autoincrement())
   pessoa_id          Int
-  original_pessoa_id Int?
+  original_pessoa_id String?
   tipo_id            Int
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt
@@ -77,18 +81,20 @@ model PessoasHasTipos {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  email      String   @unique
-  nome       String
-  username   String   @unique
-  password   String
-  secret     String   @default(uuid())
-  ativo      Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id                         Int      @id @default(autoincrement())
+  email                      String   @unique
+  nome                       String
+  username                   String   @unique
+  password                   String
+  secret                     String   @default(uuid())
+  ativo                      Boolean  @default(true)
+  acessa_todos_departamentos Boolean  @default(false)
+  created_at                 DateTime @default(now())
+  updated_at                 DateTime @updatedAt
 
-  empresas   EmpresasHasUsuarios[]
-  permissoes UsuarioHasPermissoes[]
+  empresas      EmpresasHasUsuarios[]
+  permissoes    UsuarioHasPermissoes[]
+  departamentos UsuarioHasDepartamentos[]
 
   @@map("usuarios")
 }
@@ -237,12 +243,14 @@ model Arquivo {
 }
 
 model Contato {
-  id        Int     @id @default(autoincrement())
-  contato   String  @unique
-  descricao String  @unique
-  ativo     Boolean @default(true)
-  tipo      Int     @default(1)
-  pessoa_id Int
+  id         Int      @id @default(autoincrement())
+  contato    String   @unique
+  descricao  String   @unique
+  ativo      Boolean  @default(true)
+  tipo       Int      @default(1)
+  pessoa_id  Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   pessoa Pessoa @relation(fields: [pessoa_id], references: [id])
 
@@ -250,14 +258,16 @@ model Contato {
 }
 
 model Menu {
-  id           Int     @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   label        String
-  url          String? @unique
+  url          String?  @unique
   permissao_id Int?
   icon         String
-  target       String  @default("_self")
+  target       String   @default("_self")
   menu_id      Int?
-  ativo        Boolean @default(true)
+  ativo        Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   menu  Menu?  @relation("Menus", fields: [menu_id], references: [id])
   items Menu[] @relation("Menus")
@@ -268,14 +278,19 @@ model Menu {
 }
 
 model Departamento {
-  id         Int     @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   nome       String
   empresa_id Int
-  nac        Boolean @default(false)
-  ativo      Boolean @default(true)
-  excluido   Boolean @default(false)
+  nac        Boolean  @default(false)
+  ativo      Boolean  @default(true)
+  excluido   Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  usuarios    UsuarioHasDepartamentos[]
+  condominios CondominioHasDepartamentos[]
 
   @@map("departamentos")
 }
@@ -293,4 +308,43 @@ model LayoutsNotificacao {
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
 
   @@map("layouts_notificacao")
+}
+
+model UsuarioHasDepartamentos {
+  usuario_id      Int
+  departamento_id Int
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  usuario      User         @relation(fields: [usuario_id], references: [id])
+  departamento Departamento @relation(fields: [departamento_id], references: [id])
+
+  @@id([usuario_id, departamento_id])
+  @@map("usuario_has_departamentos")
+}
+
+model CondominioHasDepartamentos {
+  condominio_id   Int
+  departamento_id Int
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  condominio   Pessoa       @relation(fields: [condominio_id], references: [id])
+  departamento Departamento @relation(fields: [departamento_id], references: [id])
+
+  @@id([condominio_id, departamento_id])
+  @@map("condominio_has_departamentos")
+}
+
+model EmpresaHasPessoas {
+  empresa_id Int
+  pessoa_id  Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa @relation(name: "EmpresaEmpresaPessoa", fields: [empresa_id], references: [id])
+  pessoa  Pessoa @relation(name: "PessoaEmpresaPessoa", fields: [pessoa_id], references: [id])
+
+  @@id([empresa_id, pessoa_id])
+  @@map("empresa_has_pessoas")
 }

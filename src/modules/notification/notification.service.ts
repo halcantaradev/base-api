@@ -13,11 +13,11 @@ export class NotificationService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async create(createNotificationDto: CreateNotificationDto) {
-		let codigo: any =
+		let codigo: string = (
 			(await this.findQtdByResidence(createNotificationDto.unidade_id)) +
-			1;
-
-		codigo = codigo.toString().padStart(2, '0');
+			1
+		).toString();
+		codigo = codigo.padStart(2, '0');
 
 		await this.prisma.notificacao.create({
 			data: {
@@ -39,6 +39,145 @@ export class NotificationService {
 		});
 
 		return { success: true, message: 'Notificação criada com sucesso.' };
+	}
+
+	async findBy(filtro?: FilterNotificationDto) {
+		const notifications = await this.prisma.pessoa.findMany({
+			select: {
+				id: true,
+				nome: true,
+				endereco: true,
+				unidades_condominio: {
+					select: {
+						codigo: true,
+						notificacoes: {
+							select: {
+								id: true,
+								data_emissao: true,
+								data_infracao: true,
+								tipo_registro: true,
+								tipo_infracao_id: true,
+								valor_multa: true,
+								observacoes: true,
+								detalhes_infracao: true,
+								tipo_infracao: {
+									select: {
+										descricao: true,
+									},
+								},
+								pessoa: {
+									select: {
+										nome: true,
+									},
+								},
+								unidade: {
+									select: {
+										condominos: {
+											select: {
+												condomino: {
+													select: { nome: true },
+												},
+												tipo: {
+													select: { nome: true },
+												},
+											},
+										},
+									},
+								},
+							},
+							where: filtro
+								? {
+										tipo_registro: filtro.tipo_notificacao
+											? filtro.tipo_notificacao
+											: undefined,
+										tipo_infracao_id:
+											filtro.tipo_infracao_id
+												? filtro.tipo_infracao_id
+												: undefined,
+										OR: filtro.tipo_data_filtro
+											? [
+													filtro.tipo_data_filtro == 1
+														? {
+																data_emissao: {
+																	gte: filtro.data_inicial,
+																	lte: filtro.data_final,
+																},
+														  }
+														: {
+																data_infracao: {
+																	gte: filtro.data_inicial,
+																	lte: filtro.data_final,
+																},
+														  },
+											  ]
+											: undefined,
+								  }
+								: undefined,
+						},
+					},
+					where: filtro
+						? {
+								id: filtro.unidades_ids
+									? {
+											in: filtro.unidades_ids,
+									  }
+									: undefined,
+								notificacoes: {
+									some: {
+										tipo_registro: filtro.tipo_notificacao
+											? filtro.tipo_notificacao
+											: undefined,
+										tipo_infracao_id:
+											filtro.tipo_infracao_id
+												? filtro.tipo_infracao_id
+												: undefined,
+										OR: filtro.tipo_data_filtro
+											? [
+													filtro.tipo_data_filtro == 1
+														? {
+																data_emissao: {
+																	gte: filtro.data_inicial,
+																	lte: filtro.data_final,
+																},
+														  }
+														: {
+																data_infracao: {
+																	gte: filtro.data_inicial,
+																	lte: filtro.data_final,
+																},
+														  },
+											  ]
+											: undefined,
+									},
+								},
+						  }
+						: {},
+				},
+			},
+			where: {
+				tipos: {
+					every: {
+						tipo: {
+							nome: 'condominio',
+						},
+					},
+				},
+				id: filtro.condominios_ids
+					? { in: filtro.condominios_ids }
+					: undefined,
+			},
+		});
+
+		if (!notifications) {
+			throw new NotFoundException(
+				'Dados não encontrados, por favor verifique os filtros!',
+			);
+		}
+
+		return {
+			success: true,
+			data: notifications,
+		};
 	}
 
 	async reportByCondominium(filtro: FilterNotificationDto) {
@@ -68,8 +207,10 @@ export class NotificationService {
 					},
 					where: {
 						id: { in: filtro.unidades_ids },
-						condominio_id: {
-							in: filtro.condominos_ids,
+						condominos: {
+							every: {
+								pessoa_id: { in: filtro.condominos_ids },
+							},
 						},
 						notificacoes: {
 							every: {
@@ -79,22 +220,14 @@ export class NotificationService {
 									filtro.tipo_data_filtro == 1
 										? {
 												data_emissao: {
-													gte: new Date(
-														filtro.data_inicial,
-													),
-													lte: new Date(
-														filtro.data_final,
-													),
+													gte: filtro.data_inicial,
+													lte: filtro.data_final,
 												},
 										  }
 										: {
 												data_infracao: {
-													gte: new Date(
-														filtro.data_inicial,
-													),
-													lte: new Date(
-														filtro.data_final,
-													),
+													gte: filtro.data_inicial,
+													lte: filtro.data_final,
 												},
 										  },
 								],
@@ -135,6 +268,7 @@ export class NotificationService {
 			data: await this.prisma.notificacao.findMany({
 				select: {
 					id: true,
+					codigo: true,
 					unidade: { select: { codigo: true } },
 					tipo_infracao: {
 						select: { descricao: true },
@@ -142,7 +276,7 @@ export class NotificationService {
 					tipo_registro: true,
 					data_emissao: true,
 					data_infracao: true,
-					codigo: true,
+					unidade_id: true,
 					detalhes_infracao: true,
 					fundamentacao_legal: true,
 					observacoes: true,

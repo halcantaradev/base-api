@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
 import { ReturnUserEntity } from './entities/return-user.entity';
 import { ReturnUserListEntity } from './entities/return-user-list.entity';
+import { ListUserDto } from './dto/list-user.dto';
 
 @Injectable()
 export class UserService {
@@ -23,13 +24,27 @@ export class UserService {
 						empresa_id,
 					},
 				},
+				departamentos: createUserDto.departamentos
+					? {
+							createMany: {
+								data: createUserDto.departamentos.map(
+									(departamento) => ({
+										departamento_id: departamento,
+									}),
+								),
+							},
+					  }
+					: undefined,
 			},
 		});
 
 		return { success: true, message: 'Usuário criado com sucesso.' };
 	}
 
-	async findAll(empresa_id: number): Promise<ReturnUserListEntity> {
+	async findAll(
+		empresa_id: number,
+		filtros: ListUserDto = {},
+	): Promise<ReturnUserListEntity> {
 		return {
 			success: true,
 			data: await this.prisma.user.findMany({
@@ -45,16 +60,52 @@ export class UserService {
 							empresa_id: true,
 							cargo: {
 								select: {
+									id: true,
 									nome: true,
 								},
 							},
 						},
 					},
+					departamentos: {
+						select: {
+							departamento_id: true,
+							departamento: {
+								select: { nome: true },
+							},
+						},
+					},
 				},
 				where: {
+					OR: filtros.busca
+						? [
+								{
+									id: !Number.isNaN(+filtros.busca)
+										? +filtros.busca
+										: undefined,
+								},
+								{
+									nome: {
+										contains: filtros.busca,
+										mode: 'insensitive',
+									},
+								},
+								{
+									email: {
+										contains: filtros.busca,
+										mode: 'insensitive',
+									},
+								},
+						  ]
+						: undefined,
 					empresas: {
 						every: {
 							empresa_id: empresa_id,
+							cargo_id:
+								filtros.cargos && filtros.cargos.length
+									? {
+											in: filtros.cargos,
+									  }
+									: undefined,
 						},
 					},
 				},
@@ -81,8 +132,17 @@ export class UserService {
 							empresa_id: true,
 							cargo: {
 								select: {
+									id: true,
 									nome: true,
 								},
+							},
+						},
+					},
+					departamentos: {
+						select: {
+							departamento_id: true,
+							departamento: {
+								select: { nome: true },
 							},
 						},
 					},
@@ -116,8 +176,17 @@ export class UserService {
 						empresa_id: true,
 						cargo: {
 							select: {
+								id: true,
 								nome: true,
 							},
+						},
+					},
+				},
+				departamentos: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: { nome: true },
 						},
 					},
 				},
@@ -127,7 +196,8 @@ export class UserService {
 			},
 		});
 
-		if (user == null) throw new NotFoundException('Usuário não encontrado');
+		if (user == null)
+			throw new BadRequestException('Usuário não encontrado');
 
 		return {
 			success: true,
@@ -143,7 +213,35 @@ export class UserService {
 	): Promise<ReturnUserEntity> {
 		const user = await this.prisma.user.findUnique({ where: { id } });
 
-		if (user == null) throw new NotFoundException('Usuário não encontrado');
+		if (!user) throw new BadRequestException('Usuário não encontrado');
+
+		if (updateUserDto.username) {
+			const userWithUsername = await this.prisma.user.findFirst({
+				where: {
+					username: updateUserDto.username,
+					id: {
+						not: id,
+					},
+				},
+			});
+
+			if (userWithUsername)
+				throw new BadRequestException('Usuário não pode ser utilizado');
+		}
+
+		if (updateUserDto.email) {
+			const userWithEmail = await this.prisma.user.findFirst({
+				where: {
+					email: updateUserDto.email,
+					id: {
+						not: id,
+					},
+				},
+			});
+
+			if (userWithEmail)
+				throw new BadRequestException('Email não pode ser utilizado');
+		}
 
 		return {
 			success: true,
@@ -161,8 +259,17 @@ export class UserService {
 							empresa_id: true,
 							cargo: {
 								select: {
+									id: true,
 									nome: true,
 								},
+							},
+						},
+					},
+					departamentos: {
+						select: {
+							departamento_id: true,
+							departamento: {
+								select: { nome: true },
 							},
 						},
 					},
@@ -173,7 +280,10 @@ export class UserService {
 						? PasswordHelper.create(updateUserDto.password)
 						: undefined,
 					email: updateUserDto.email,
-					ativo: updateUserDto.ativo,
+					ativo:
+						updateUserDto.ativo != null
+							? updateUserDto.ativo
+							: undefined,
 					empresas: {
 						updateMany: {
 							data: {
@@ -185,6 +295,20 @@ export class UserService {
 							},
 						},
 					},
+					departamentos: updateUserDto.departamentos
+						? {
+								deleteMany: {
+									usuario_id: id,
+								},
+								createMany: {
+									data: updateUserDto.departamentos.map(
+										(departamento) => ({
+											departamento_id: departamento,
+										}),
+									),
+								},
+						  }
+						: undefined,
 				},
 				where: {
 					id,

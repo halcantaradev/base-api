@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
@@ -26,7 +26,7 @@ export class OcupationsController {
 		type: ReturnEntity.error('Erro ao listar os cargos'),
 	})
 	@Get('active')
-	findAllActive() {
-		return this.ocupationsService.findAllActive();
+	findAllActive(@Query('busca') busca?: string) {
+		return this.ocupationsService.findAllActive(busca);
 	}
 }

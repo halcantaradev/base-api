@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PersonService } from '../person/person.service';
 import { Condominium } from './entities/condominium.entity';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { Residence } from './entities/residence.entity';
-import { FiltersCondominiumDto } from './dto/filters.dto';
+import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { FiltersResidenceDto } from './dto/filters-residence.dto';
 
 @Injectable()
 export class CondominiumService {
@@ -12,7 +14,10 @@ export class CondominiumService {
 		private readonly prisma: PrismaService,
 	) {}
 
-	async findAll(filters: FiltersCondominiumDto): Promise<Condominium[]> {
+	async findAll(
+		filters: FiltersCondominiumDto,
+		user: UserAuth,
+	): Promise<Condominium[]> {
 		const filtersSelected: Array<any> = [
 			filters.categoria_id && !Number.isNaN(+filters.categoria_id)
 				? {
@@ -87,21 +92,106 @@ export class CondominiumService {
 
 		return this.pessoaService.findAll(
 			'condominio',
-			{},
 			{
+				departamentos_condominio: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: { nome: true },
+						},
+					},
+				},
+			},
+			{
+				ativo: filters.ativo != null ? filters.ativo : undefined,
+				empresa_id: user.empresa_id,
+				departamentos_condominio: !user.acessa_todos_departamentos
+					? {
+							some: {
+								departamento_id: {
+									in: user.departamentos_ids,
+								},
+							},
+					  }
+					: undefined,
 				OR: filtersSelected.length ? filtersSelected : undefined,
 			},
 		);
 	}
 
-	async findOne(id: number): Promise<Condominium> {
-		return this.pessoaService.findOneById(id, 'condominio');
+	async findOne(id: number, user: UserAuth): Promise<Condominium> {
+		return this.pessoaService.findOneById(
+			id,
+			'condominio',
+			{
+				departamentos_condominio: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: { nome: true },
+						},
+					},
+				},
+			},
+			{
+				empresa_id: user.empresa_id,
+				departamentos_condominio: !user.acessa_todos_departamentos
+					? {
+							some: {
+								departamento_id: {
+									in: user.departamentos_ids,
+								},
+							},
+					  }
+					: undefined,
+			},
+		);
+	}
+
+	async linkDepartament(
+		condominio_id: number,
+		departamento_id: number,
+		user: UserAuth,
+	) {
+		let condominio = await this.findOne(condominio_id, user);
+
+		if (!condominio)
+			throw new BadRequestException(
+				'Ocorreu um erro ao vincular um departamento',
+			);
+
+		if (condominio.departamentos_condominio.length) {
+			await this.prisma.condominioHasDepartamentos.deleteMany({
+				where: {
+					condominio_id,
+				},
+			});
+		}
+
+		await this.prisma.condominioHasDepartamentos.create({
+			data: {
+				condominio_id,
+				departamento_id,
+			},
+		});
+
+		condominio = await this.findOne(condominio_id, user);
+
+		return condominio;
 	}
 
 	async findAllResidences(
 		id_condominium: number,
-		busca?: string,
+		body: FiltersResidenceDto,
+		user: UserAuth,
 	): Promise<Residence[]> {
+		const condominio = await this.findOne(id_condominium, user);
+
+		if (!condominio)
+			throw new BadRequestException(
+				'Ocorreu um erro ao vincular um departamento',
+			);
+
 		return this.prisma.unidade.findMany({
 			select: {
 				id: true,
@@ -116,14 +206,15 @@ export class CondominiumService {
 			},
 			where: {
 				condominio_id: id_condominium,
+				ativo: body.ativo != null ? body.ativo : undefined,
 				OR: [
 					{
 						condominos: {
 							some: {
-								condomino: busca
+								condomino: body.busca
 									? {
 											nome: {
-												contains: busca
+												contains: body.busca
 													.toString()
 													.normalize('NFD')
 													.replace(
@@ -139,7 +230,7 @@ export class CondominiumService {
 					},
 					{
 						codigo: {
-							contains: (busca || '')
+							contains: (body.busca || '')
 								.toString()
 								.normalize('NFD')
 								.replace(/[\u0300-\u036f]/g, ''),
@@ -154,7 +245,15 @@ export class CondominiumService {
 	async findOneResidence(
 		id_condominium: number,
 		id: number,
+		user: UserAuth,
 	): Promise<Residence> {
+		const condominio = await this.findOne(id_condominium, user);
+
+		if (!condominio)
+			throw new BadRequestException(
+				'Ocorreu um erro ao vincular um departamento',
+			);
+
 		return this.prisma.unidade.findFirst({
 			select: {
 				id: true,

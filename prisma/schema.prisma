@@ -22,18 +22,19 @@ model Pessoa {
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  contatos                 Contato[]
-  unidades_condominio      Unidade[]
-  tipos                    PessoasHasTipos[]
-  unidades                 PessoasHasUnidades[]
-  usuarios_empresa         EmpresasHasUsuarios[]
-  permissoes_cargos        CargosHasPermissoes[]
-  permissoes_usuarios      UsuarioHasPermissoes[]
-  departamentos            Departamento[]
-  notificacoes             Notificacao[]
-  departamentos_condominio CondominioHasDepartamentos[]
-  empresas_pessoa        EmpresaHasPessoas[] @relation("EmpresaEmpresaPessoa")
-  pessoas_empresa        EmpresaHasPessoas[] @relation("PessoaEmpresaPessoa")
+  contatos                      Contato[]
+  unidades_condominio           Unidade[]
+  tipos                         PessoasHasTipos[]
+  unidades                      PessoasHasUnidades[]
+  usuarios_empresa              EmpresasHasUsuarios[]
+  permissoes_cargos             CargosHasPermissoes[]
+  permissoes_usuarios           UsuarioHasPermissoes[]
+  departamentos                 Departamento[]
+  notificacoes                  Notificacao[]
+  departamentos_condominio      CondominioHasDepartamentos[]
+  empresas_pessoa               EmpresaHasPessoas[]          @relation("EmpresaEmpresaPessoa")
+  pessoas_empresa               EmpresaHasPessoas[]          @relation("PessoaEmpresaPessoa")
+  setup_condominio_notificacoes NotificacaoSetup?
 
   @@map("pessoas")
 }
@@ -331,4 +332,30 @@ model EmpresaHasPessoas {
 
   @@id([empresa_id, pessoa_id])
   @@map("empresa_has_pessoas")
+}
+
+model SistemaSetup {
+  id                  Int      @id @default(autoincrement())
+  salario_minimo_base Float
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  @@map("sistema_setup")
+}
+
+model NotificacaoSetup {
+  condominio_id                              Int      @unique
+  primeira_reincidencia                      Boolean  @default(false)
+  primeira_reincidencia_base_pagamento       Int?
+  primeira_reincidencia_percentual_pagamento Float?
+  segunda_reincidencia                       Boolean  @default(false)
+  segunda_reincidencia_base_pagamento        Int?
+  prazo_interpor_recurso                     Int?
+  observacoes                                String?
+  created_at                                 DateTime @default(now())
+  updated_at                                 DateTime @updatedAt
+
+  condominio Pessoa @relation(fields: [condominio_id], references: [id])
+
+  @@map("notificacoes_setup")
 }

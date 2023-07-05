@@ -1,0 +1,81 @@
+<style>
+    th {
+        border: solid 1px;
+        text-align: left;
+    }
+
+    td {
+        border: solid 1px;
+    }
+</style>
+
+<div style="width: 100%;">
+    <div style="text-align: right;">
+        <p><strong>[NOME_CONDOMINIO]</strong><br
+            ><em>[ENDERECO_CONDOMINIO]</em></p>
+    </div>
+    <div style="text-align: center;">
+        <h2>NOTIFICAÇÃO DE [TIPO_NOTIFICACAO]</h2>
+    </div>
+    <div>
+        <table style="width: 100%;" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Unidade</th>
+                    <th>Notificação Nº</th>
+                    <th>Data e hora da infração</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>[CODIGO_UNIDADE]</td>
+                    <td>[NUMERO_NOTIFICACAO]</td>
+                    <td>[DATA_HORA_INFRACAO]</td>
+                </tr>
+                <tr>
+                    <th colspan="3" ng-reflect-colspan="3">[TIPO_RESPONSAVEL_NOTIFICADO]
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="3">[RESPONSAVEL_NOTIFICADO]</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+        <p>[TEXTO_PADRAO_NOTIFICACAO]</p>
+    </div>
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+        <h4 style="text-align: center; border-bottom: solid 1px;">Infração</h4>
+        <p>[DETALHES_INFRACAO]</p>
+    </div>
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+        <h4 style="text-align: center; border-bottom: solid 1px;">Fundamentação Legal</h4>
+        <p>[FUNDAMENTACAO_LEGAL]</p>
+    </div>
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+        <h4 style="text-align: center; border-bottom: solid 1px;">Sanção</h4>
+        <p>[SANCAO_PADRAO_NOTIFICACAO_CONDOMINIO]</p>
+    </div>
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+        <h4 style="text-align: center; border-bottom: solid 1px;">Observações</h4>
+        <p>[OBSERVACOES_NOTIFICACAO]</p>
+    </div>
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+        <p>[OBSERVACAO_PADRAO_NOTIFICACAO_CONDOMINIO]</p>
+    </div>
+    <div style="margin-top: 100px;">
+        <p>[CIDADE_CONDOMINIO], [DATA_ATUAL_EXTENSO]</p>
+        <p style="margin-top: 30px; border-top: solid 1px;"><strong
+            >[NOME_CONDOMINIO]</strong><br> [NOME_SINDICO]
+            <br> Síndico(a) </p>
+    </div>
+    <div
+        style="margin-top: 20px; width: 100%; border: solid 1px; padding: 0px 2px;">
+        <p><strong>Data do recebimento:</strong> ____ / ____ /
+            ________</p>
+        <p><strong>Recebido por:</strong>
+            _________________________________________, <strong>RG:</strong>
+            __________________________ </p>
+    </div>
+</div>

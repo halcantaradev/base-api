@@ -3,7 +3,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
-import { Ocupation } from './entities/ocupation.entity';
+import { OcupationListReturn } from './entities/ocupation-list-return.entity';
 import { OcupationsService } from './ocupations.service';
 
 @ApiTags('Cargos')
@@ -17,7 +17,7 @@ export class OcupationsController {
 	@ApiResponse({
 		description: 'Cargos listados',
 		status: HttpStatus.OK,
-		type: Ocupation,
+		type: OcupationListReturn,
 		isArray: true,
 	})
 	@ApiResponse({

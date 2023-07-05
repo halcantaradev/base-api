@@ -6,6 +6,7 @@ import { ReturnNotificationEntity } from './entities/return-notification.entity'
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
+import { NotificationEntity } from './entities/notification.entity';
 
 @Injectable()
 export class NotificationService {
@@ -176,7 +177,20 @@ export class NotificationService {
 	async findOneById(id: number): Promise<ReturnNotificationEntity> {
 		const notification = await this.prisma.notificacao.findFirst({
 			include: {
-				unidade: { select: { codigo: true } },
+				unidade: {
+					select: {
+						codigo: true,
+						condominos: {
+							select: {
+								condomino: { select: { id: true, nome: true } },
+								tipo: {
+									select: { nome: true, descricao: true },
+								},
+							},
+						},
+						condominio: true,
+					},
+				},
 				tipo_infracao: {
 					select: { descricao: true },
 				},
@@ -243,5 +257,45 @@ export class NotificationService {
 				where: { id },
 			}),
 		};
+	}
+
+	async dataToHandle(id: number) {
+		const data: NotificationEntity = (await this.findOneById(id)).data;
+		const dataToPrint: {
+			[key: string]: number | string | Date | undefined;
+		} = {};
+
+		dataToPrint.data_atual = new Intl.DateTimeFormat('pt-BR', {
+			dateStyle: 'short',
+		}).format(new Date());
+		dataToPrint.data_atual_extenso = new Intl.DateTimeFormat('pt-BR', {
+			dateStyle: 'long',
+		}).format(new Date());
+		dataToPrint.nome_condominio = (data as any).unidade.condominio.nome;
+		dataToPrint.cidade_condominio = (data as any).unidade.condominio.cidade;
+		dataToPrint.cnpj_condominio = (data as any).unidade.condominio.cnpj;
+		dataToPrint.cidade_condominio = (data as any).unidade.condominio.cep;
+		dataToPrint.endereco_condominio = (data as any).unidade.condominio.uf;
+		dataToPrint.bairro_condominio = (data as any).unidade.condominio.bairro;
+		dataToPrint.codigo_unidade = data.unidade.codigo;
+		dataToPrint.tipo_notificacao =
+			data.tipo_registro == 1 ? 'INFRAÇÃO' : 'MULTA';
+		dataToPrint.numero_notificacao = data.codigo;
+		dataToPrint.data_infracao = new Intl.DateTimeFormat('pt-BR', {
+			dateStyle: 'short',
+			timeStyle: 'short',
+		}).format(data.data_infracao);
+		dataToPrint.detalhes_infracao = data.detalhes_infracao;
+		dataToPrint.fundamentacao_legal = data.fundamentacao_legal;
+		dataToPrint.observacoes_notificacao = data.observacoes;
+
+		const condominio = (data as any).unidade.condominos.filter(
+			(item) => item.condomino.id == data.pessoa_id,
+		)[0];
+
+		dataToPrint.tipo_responsavel_notificado = condominio.tipo.descricao;
+		dataToPrint.responsavel_notificado = condominio.condomino.nome;
+
+		return dataToPrint;
 	}
 }

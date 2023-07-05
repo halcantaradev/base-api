@@ -30,6 +30,7 @@ model Pessoa {
   permissoes_usuarios UsuarioHasPermissoes[]
   departamentos       Departamento[]
   notificacoes        Notificacao[]
+  layouts_notificacao LayoutsNotificacao[]
 
   @@map("pessoas")
 }
@@ -254,7 +255,7 @@ model Menu {
   url          String? @unique
   permissao_id Int?
   icon         String
-  target       String
+  target       String  @default("_self")
   menu_id      Int?
   ativo        Boolean @default(true)
 
@@ -277,4 +278,19 @@ model Departamento {
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
 
   @@map("departamentos")
+}
+
+model LayoutsNotificacao {
+  id         Int      @id @default(autoincrement())
+  empresa_id Int
+  nome       String
+  modelo     String   @db.Text
+  padrao     Boolean  @default(false)
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("layouts_notificacao")
 }

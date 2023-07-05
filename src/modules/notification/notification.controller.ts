@@ -11,24 +11,31 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
+import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { HandlebarsService } from 'src/shared/services/handlebars.service';
+import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { NotificationService } from './notification.service';
-import { FilterNotificationDto } from './dto/filter-notification.dto';
-import { Role } from 'src/shared/decorators/role.decorator';
-import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
-
 @ApiTags('Notifications')
 @Controller('notifications')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 export class NotificationController {
-	constructor(private readonly notificationService: NotificationService) {}
+	constructor(
+		private readonly notificationService: NotificationService,
+		private readonly layoutService: LayoutConstsService,
+		private readonly handleBarService: HandlebarsService,
+	) {}
 
 	@Post()
 	@Role('notificacoes-cadastrar')
@@ -154,5 +161,30 @@ export class NotificationController {
 		@Body() updateNotificationDto: UpdateNotificationDto,
 	) {
 		return this.notificationService.update(+id, updateNotificationDto);
+	}
+
+	@Get('print/:id')
+	@Role('notificacoes-exibir-dados')
+	@ApiOperation({ summary: 'Imprimir os dados de uma notficação' })
+	@ApiResponse({
+		description: 'Notificação impressa com sucesso',
+		status: HttpStatus.OK,
+		type: () => ReturnNotificationEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao imprimir os dados da notificação',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findOnePrint(@Param('id') id: string) {
+		const html = readFileSync(
+			resolve('./src/shared/layouts/notification.html'),
+		);
+
+		const layout = this.layoutService.replaceLayoutVars(html.toString());
+
+		const dataToPrint = await this.notificationService.dataToHandle(+id);
+
+		return this.handleBarService.compile(layout, dataToPrint);
 	}
 }

@@ -83,4 +83,24 @@ export const permissionslist: Array<{
 		key: 'departamentos-desativar',
 		message: 'Sem permissão para desativar os departamentos',
 	},
+	{
+		label: 'Cadastrar modelos de notificações',
+		key: 'layouts-notificacao-cadastrar',
+		message: 'Sem permissão para cadastrar modelo',
+	},
+	{
+		label: 'Listar todos modelos de notificações',
+		key: 'layouts-notificacao-listar',
+		message: 'Sem permissão para listar os modelos',
+	},
+	{
+		label: 'Exibidar dados de um modelos de notificações',
+		key: 'layouts-notificacao-exibir-dados',
+		message: 'Sem permissão para exibir dados do modelo',
+	},
+	{
+		label: 'Listar variáveis de layouts',
+		key: 'layouts-notificacao-listar-constantes',
+		message: 'Sem permissão para listar as variáveis',
+	},
 ];

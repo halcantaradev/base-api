@@ -10,6 +10,10 @@ import { CondominiumModule } from './modules/condominium/condominium.module';
 import { PersonModule } from './modules/person/person.module';
 import { MenuModule } from './modules/public/menu/menu.module';
 import { DepartmentModule } from './modules/department/department.module';
+import { OcupationsModule } from './modules/ocupations/ocupations.module';
+import { LayoutsNotificationModule } from './modules/layouts-notification/layouts-notification.module';
+import { LayoutConstsService } from './shared/services/layout-consts.service';
+import { HandlebarsService } from './shared/services/handlebars.service';
 
 @Module({
 	imports: [
@@ -22,8 +26,10 @@ import { DepartmentModule } from './modules/department/department.module';
 		PersonModule,
 		MenuModule,
 		DepartmentModule,
+		OcupationsModule,
+		LayoutsNotificationModule,
 	],
 	controllers: [AppController],
-	providers: [AppService],
+	providers: [AppService, LayoutConstsService, HandlebarsService],
 })
 export class AppModule {}

@@ -58,7 +58,7 @@ export class AuthController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	getProfile(@CurrentUser() user: UserAuth) {
-		return { nome: user.nome };
+	async getProfile(@CurrentUser() user: UserAuth) {
+		return { success: true, data: await this.authService.getProfile(user) };
 	}
 }

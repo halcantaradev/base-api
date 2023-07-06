@@ -63,6 +63,7 @@ export class SetupController {
 	) {
 		return {
 			success: true,
+			message: 'Configurações atualizadas com sucesso!',
 			data: await this.setupService.updateSetupNotification(
 				+id,
 				updateSetupNotificationDto,
@@ -109,6 +110,7 @@ export class SetupController {
 	) {
 		return {
 			success: true,
+			message: 'Configurações atualizadas com sucesso!',
 			data: await this.setupService.updateSetupSystem(
 				+id,
 				updateSetupSystemDto,

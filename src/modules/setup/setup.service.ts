@@ -75,13 +75,21 @@ export class SetupService {
 		});
 	}
 
-	async findSetupSystem() {
-		return this.prisma.sistemaSetup.findFirst();
+	async findSetupSystem(id: number) {
+		return this.prisma.sistemaSetup.findFirst({
+			where: {
+				empresa_id: id,
+			},
+		});
 	}
 
-	async updateSetupSystem(updateSetupSystemDto: UpdateSetupSystemDto) {
+	async updateSetupSystem(
+		id: number,
+		updateSetupSystemDto: UpdateSetupSystemDto,
+	) {
 		return this.prisma.sistemaSetup.upsert({
 			create: {
+				empresa_id: id,
 				salario_minimo_base:
 					updateSetupSystemDto.salario_minimo_base != null
 						? updateSetupSystemDto.salario_minimo_base
@@ -110,7 +118,7 @@ export class SetupService {
 						: undefined,
 			},
 			where: {
-				id: 1,
+				empresa_id: id,
 			},
 		});
 	}

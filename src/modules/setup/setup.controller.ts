@@ -70,7 +70,7 @@ export class SetupController {
 		};
 	}
 
-	@Get('system')
+	@Get('system/:id')
 	@Role('setup-sistema-listar')
 	@ApiOperation({ summary: 'Lista os dados de setup de sistema' })
 	@ApiResponse({
@@ -83,14 +83,14 @@ export class SetupController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async getSetupSystem() {
+	async getSetupSystem(@Param('id') id: number) {
 		return {
 			success: true,
-			data: await this.setupService.findSetupSystem(),
+			data: await this.setupService.findSetupSystem(+id),
 		};
 	}
 
-	@Patch('system')
+	@Patch('system/:id')
 	@Role('setup-sistema-atualizar')
 	@ApiOperation({ summary: 'Atualiza os dados de setup de sistema' })
 	@ApiResponse({
@@ -104,11 +104,13 @@ export class SetupController {
 		type: ReturnEntity.error(),
 	})
 	async updateSetupSystem(
+		@Param('id') id: number,
 		@Body() updateSetupSystemDto: UpdateSetupSystemDto,
 	) {
 		return {
 			success: true,
 			data: await this.setupService.updateSetupSystem(
+				+id,
 				updateSetupSystemDto,
 			),
 		};

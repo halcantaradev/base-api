@@ -14,6 +14,7 @@ import { UploadFileModule } from './modules/upload-file/upload-file.module';
 import { UserModule } from './modules/user/user.module';
 import { HandlebarsService } from './shared/services/handlebars.service';
 import { LayoutConstsService } from './shared/services/layout-consts.service';
+import { PdfService } from './shared/services/pdf.service';
 
 @Module({
 	imports: [
@@ -30,6 +31,6 @@ import { LayoutConstsService } from './shared/services/layout-consts.service';
 		LayoutsNotificationModule,
 	],
 	controllers: [AppController],
-	providers: [AppService, LayoutConstsService, HandlebarsService],
+	providers: [AppService, LayoutConstsService, HandlebarsService, PdfService],
 })
 export class AppModule {}

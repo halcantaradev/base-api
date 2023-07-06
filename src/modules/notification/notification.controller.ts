@@ -8,6 +8,8 @@ import {
 	Patch,
 	Post,
 	Query,
+	Res,
+	StreamableFile,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -26,15 +28,18 @@ import { ReturnInfractionListEntity } from './entities/return-infraction-list.en
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { NotificationService } from './notification.service';
+import { PdfService } from 'src/shared/services/pdf.service';
+import { Response } from 'express';
 @ApiTags('Notifications')
 @Controller('notifications')
-@UseGuards(PermissionGuard)
-@UseGuards(JwtAuthGuard)
+// @UseGuards(PermissionGuard)
+// @UseGuards(JwtAuthGuard)
 export class NotificationController {
 	constructor(
 		private readonly notificationService: NotificationService,
 		private readonly layoutService: LayoutConstsService,
 		private readonly handleBarService: HandlebarsService,
+		private readonly pdfService: PdfService,
 	) {}
 
 	@Post()
@@ -197,15 +202,26 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findOnePrint(@Param('id') id: string) {
-		const html = readFileSync(
+	async findOnePrint(@Param('id') id: string, @Query('pdf') pdf?: number) {
+		let html: Buffer | string = readFileSync(
 			resolve('./src/shared/layouts/notification.html'),
 		);
 
 		const layout = this.layoutService.replaceLayoutVars(html.toString());
 
-		const dataToPrint = await this.notificationService.dataToHandle(+id);
+		const data = await this.notificationService.dataToHandle(+id);
+		html = this.handleBarService.compile(layout, data.dataToPrint);
+		const file = await this.pdfService.getPDF(html);
+		if (pdf) {
+			return {
+				success: true,
+				data: file,
+			};
+		}
 
-		return this.handleBarService.compile(layout, dataToPrint);
+		return {
+			success: true,
+			data: html,
+		};
 	}
 }

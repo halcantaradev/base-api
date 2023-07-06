@@ -430,6 +430,9 @@ export class NotificationService {
 		dataToPrint.tipo_responsavel_notificado = condominio.tipo.descricao;
 		dataToPrint.responsavel_notificado = condominio.condomino.nome;
 
-		return dataToPrint;
+		return {
+			dataToPrint,
+			numero: data.codigo,
+		};
 	}
 }

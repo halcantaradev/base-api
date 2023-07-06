@@ -126,7 +126,8 @@ model Unidade {
   condominos   PessoasHasUnidades[]
   notificacoes Notificacao[]
 
-  condominio Pessoa @relation(fields: [condominio_id], references: [id])
+  condominio      Pessoa            @relation(fields: [condominio_id], references: [id])
+  UnidadeHasTaxas UnidadeHasTaxas[]
 
   @@map("unidades")
 }
@@ -335,10 +336,12 @@ model EmpresaHasPessoas {
 }
 
 model SistemaSetup {
-  id                  Int      @id @default(autoincrement())
-  salario_minimo_base Float
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
+  id                       Int      @id @default(autoincrement())
+  salario_minimo_base      Float
+  sancao                   String   @db.Text
+  texto_padrao_notificacao String   @db.Text
+  created_at               DateTime @default(now())
+  updated_at               DateTime @updatedAt
 
   @@map("sistema_setup")
 }
@@ -358,4 +361,31 @@ model NotificacaoSetup {
   condominio Pessoa @relation(fields: [condominio_id], references: [id])
 
   @@map("notificacoes_setup")
+}
+
+model Taxa {
+  id         Int      @id @default(autoincrement())
+  descricao  String   @unique
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  unidades UnidadeHasTaxas[]
+
+  @@map("taxas")
+}
+
+model UnidadeHasTaxas {
+  unidade_id Int
+  taxa_id    Int
+  valor      Float
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  unidade Unidade @relation(fields: [unidade_id], references: [id])
+  taxa    Taxa    @relation(fields: [taxa_id], references: [id])
+
+  @@id([unidade_id, taxa_id])
+  @@map("unidades_has_taxas")
 }

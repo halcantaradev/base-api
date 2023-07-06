@@ -1,3 +1,4 @@
+import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
@@ -6,6 +7,7 @@ import { ReturnNotificationEntity } from './entities/return-notification.entity'
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
+import { ValidatedNotification } from './entities/validated-notification.entity';
 
 @Injectable()
 export class NotificationService {
@@ -155,7 +157,7 @@ export class NotificationService {
 			},
 			where: {
 				tipos: {
-					every: {
+					some: {
 						tipo: {
 							nome: 'condominio',
 						},
@@ -177,6 +179,132 @@ export class NotificationService {
 			success: true,
 			data: notifications,
 		};
+	}
+
+	async validateNotification(
+		validateNotificationDto: ValidateNotificationDto,
+	): Promise<ValidatedNotification | null> {
+		const setup = await this.prisma.notificacaoSetup.findFirst({
+			where: {
+				condominio: {
+					unidades_condominio: {
+						some: {
+							id: validateNotificationDto.unidade_id,
+						},
+					},
+				},
+			},
+		});
+
+		if (!setup) return null;
+
+		if (setup.primeira_reincidencia) {
+			const notificacoes = await this.prisma.notificacao.findMany({
+				where: {
+					unidade_id: validateNotificationDto.unidade_id,
+					tipo_infracao_id: validateNotificationDto.tipo_infracao_id,
+					data_infracao: {
+						gte: new Date(
+							new Date(
+								validateNotificationDto.data_infracao,
+							).setMonth(
+								validateNotificationDto.data_infracao.getMonth() -
+									12,
+							),
+						),
+						lte: validateNotificationDto.data_infracao,
+					},
+				},
+				orderBy: {
+					data_infracao: 'desc',
+				},
+			});
+
+			if (notificacoes.length == 1) {
+				let valor_multa = 0;
+				let taxaUnidade = null;
+
+				switch (setup.primeira_reincidencia_base_pagamento) {
+					case 1: // Taxa de condomínio
+						taxaUnidade =
+							await this.prisma.unidadeHasTaxas.findFirst({
+								where: {
+									unidade_id:
+										validateNotificationDto.unidade_id,
+									taxa: {
+										descricao: 'Taxa de Condomínio',
+									},
+								},
+							});
+
+						valor_multa = taxaUnidade.valor;
+
+						break;
+					case 2: // Salário mínimo
+						const setupSistema =
+							await this.prisma.sistemaSetup.findFirst();
+
+						valor_multa = setupSistema.salario_minimo_base;
+						break;
+					case 3: // Menor Taxa de condomínio
+						taxaUnidade =
+							await this.prisma.unidadeHasTaxas.findFirst({
+								where: {
+									unidade_id:
+										validateNotificationDto.unidade_id,
+									taxa: {
+										descricao: 'Taxa de Condomínio',
+									},
+								},
+							});
+
+						valor_multa = taxaUnidade.valor;
+
+						break;
+				}
+
+				return {
+					valor_multa:
+						valor_multa *
+						(setup.primeira_reincidencia_percentual_pagamento /
+							100),
+					tipo_registro: 2,
+				};
+			}
+
+			if (notificacoes.length > 1) {
+				if (setup.segunda_reincidencia) {
+					let valor_multa = 0;
+
+					switch (setup.segunda_reincidencia_base_pagamento) {
+						case 1: // Dobrar valor da última multa
+							valor_multa = notificacoes.at(0).valor_multa * 2;
+
+							break;
+						case 2: // Dobrar valor da primeira multa
+							valor_multa = notificacoes.at(-1).valor_multa * 2;
+
+							break;
+						case 3: // Repetir valor da última multa
+							valor_multa = notificacoes.at(0).valor_multa;
+
+							break;
+					}
+
+					return {
+						valor_multa,
+						tipo_registro: 2,
+					};
+				}
+
+				return {
+					valor_multa: 0,
+					tipo_registro: 2,
+				};
+			}
+		}
+
+		return { valor_multa: null, tipo_registro: 1 };
 	}
 
 	async reportByCondominium(filtro: FilterNotificationDto) {

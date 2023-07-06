@@ -86,11 +86,27 @@ export class SetupService {
 					updateSetupSystemDto.salario_minimo_base != null
 						? updateSetupSystemDto.salario_minimo_base
 						: 0,
+				sancao:
+					updateSetupSystemDto.sancao != null
+						? updateSetupSystemDto.sancao
+						: '',
+				texto_padrao_notificacao:
+					updateSetupSystemDto.texto_padrao_notificacao != null
+						? updateSetupSystemDto.texto_padrao_notificacao
+						: '',
 			},
 			update: {
 				salario_minimo_base:
 					updateSetupSystemDto.salario_minimo_base != null
 						? updateSetupSystemDto.salario_minimo_base
+						: 0,
+				sancao:
+					updateSetupSystemDto.sancao != null
+						? updateSetupSystemDto.sancao
+						: undefined,
+				texto_padrao_notificacao:
+					updateSetupSystemDto.texto_padrao_notificacao != null
+						? updateSetupSystemDto.texto_padrao_notificacao
 						: undefined,
 			},
 			where: {

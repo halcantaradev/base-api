@@ -212,7 +212,7 @@ export class CondominiumService {
 										mode: 'insensitive',
 									},
 							  }
-							: {},
+							: undefined,
 					},
 				},
 				ativo: true,

@@ -32,8 +32,9 @@ model Pessoa {
   departamentos            Departamento[]
   notificacoes             Notificacao[]
   departamentos_condominio CondominioHasDepartamentos[]
-  empresas_pessoa        EmpresaHasPessoas[] @relation("EmpresaEmpresaPessoa")
-  pessoas_empresa        EmpresaHasPessoas[] @relation("PessoaEmpresaPessoa")
+  empresas_pessoa          EmpresaHasPessoas[]          @relation("EmpresaEmpresaPessoa")
+  pessoas_empresa          EmpresaHasPessoas[]          @relation("PessoaEmpresaPessoa")
+  usuarios_condominio      UsuarioHasCondominios[]
 
   @@map("pessoas")
 }
@@ -94,6 +95,7 @@ model User {
   empresas      EmpresasHasUsuarios[]
   permissoes    UsuarioHasPermissoes[]
   departamentos UsuarioHasDepartamentos[]
+  condominios   UsuarioHasCondominios[]
 
   @@map("usuarios")
 }
@@ -318,6 +320,19 @@ model CondominioHasDepartamentos {
 
   @@id([condominio_id, departamento_id])
   @@map("condominio_has_departamentos")
+}
+
+model UsuarioHasCondominios {
+  usuario_id    Int
+  condominio_id Int
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  usuario    User   @relation(fields: [usuario_id], references: [id])
+  condominio Pessoa @relation(fields: [condominio_id], references: [id])
+
+  @@id([usuario_id, condominio_id])
+  @@map("usuario_has_condominios")
 }
 
 model EmpresaHasPessoas {

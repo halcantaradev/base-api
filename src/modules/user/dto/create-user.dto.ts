@@ -101,7 +101,23 @@ export class CreateUserDto {
 	})
 	@IsNotEmpty({
 		message:
-			'O campo departamento é obrigatório. Por favor, forneça um departamento.',
+			'O campo departamentos é obrigatório. Por favor, forneça um departamento.',
 	})
 	departamentos: number[];
+
+	@ApiProperty({
+		description: 'Condomínios do usuário',
+		example: [1, 2],
+		required: false,
+	})
+	@IsInt({
+		message:
+			'O campo de condomínios informado não é válido. Por favor, forneça um condomínio válido.',
+		each: true,
+	})
+	@IsNotEmpty({
+		message:
+			'O campo de condomínios é obrigatório. Por favor, forneça um condomínio.',
+	})
+	condominios: number[];
 }

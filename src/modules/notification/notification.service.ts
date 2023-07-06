@@ -250,11 +250,22 @@ export class NotificationService {
 						taxaUnidade =
 							await this.prisma.unidadeHasTaxas.findFirst({
 								where: {
-									unidade_id:
-										validateNotificationDto.unidade_id,
+									unidade: {
+										condominio: {
+											unidades: {
+												some: {
+													unidade_id:
+														validateNotificationDto.unidade_id,
+												},
+											},
+										},
+									},
 									taxa: {
 										descricao: 'Taxa de Condomínio',
 									},
+								},
+								orderBy: {
+									valor: 'desc',
 								},
 							});
 

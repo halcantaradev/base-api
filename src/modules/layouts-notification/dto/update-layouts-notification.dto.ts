@@ -10,7 +10,4 @@ export class UpdateLayoutsNotificationDto extends PartialType(
 
 	@IsOptional()
 	modelo?: string;
-
-	@IsOptional()
-	ativo?: boolean;
 }

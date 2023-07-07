@@ -2,6 +2,7 @@ import {
 	Body,
 	Controller,
 	Get,
+	HttpCode,
 	HttpStatus,
 	Param,
 	Patch,
@@ -9,6 +10,7 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { layoutConst } from 'src/shared/consts/layout.const';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
@@ -23,7 +25,6 @@ import {
 	LayoutsNotificationReturn,
 } from './entities/layouts-notification-return.entity';
 import { LayoutsNotificationService } from './layouts-notification.service';
-import { layoutConst } from 'src/shared/consts/layout.const';
 
 @ApiTags('Modelos notificação')
 @UseGuards(PermissionGuard)
@@ -52,6 +53,7 @@ export class LayoutsNotificationController {
 		type: ReturnEntity.error('Erro ao cadastrar modelo'),
 	})
 	@Role('layouts-notificacao-cadastrar')
+	@HttpCode(HttpStatus.OK)
 	@Post()
 	async create(
 		@Body() createLayoutsNotificationDto: CreateLayoutsNotificationDto,

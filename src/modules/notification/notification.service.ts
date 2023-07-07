@@ -591,9 +591,21 @@ export class NotificationService {
 		const dataToPrint: {
 			[key: string]: number | string | Date | undefined;
 		} = {};
-		const data: NotificationEntity = (await this.findOneById(id)).data;
+		const data = await this.prisma.notificacao.findFirst({
+			include: {
+				unidade: {
+					include: {
+						condominio: true,
+						condominos: {
+							include: { condomino: true, tipo: true },
+						},
+					},
+				},
+			},
+			where: { id },
+		});
 		const condominio: Condominium = await this.condomonioService.findOne(
-			(data as any).unidade.condominio.id,
+			data.unidade.condominio_id,
 			user,
 		);
 		const setupSistema = await this.setupService.findSetupSystem(
@@ -621,12 +633,12 @@ export class NotificationService {
 		dataToPrint.data_atual_extenso = new Intl.DateTimeFormat('pt-BR', {
 			dateStyle: 'long',
 		}).format(new Date());
-		dataToPrint.nome_condominio = (data as any).unidade.condominio.nome;
-		dataToPrint.cidade_condominio = (data as any).unidade.condominio.cidade;
-		dataToPrint.cnpj_condominio = (data as any).unidade.condominio.cnpj;
-		dataToPrint.cep_condominio = (data as any).unidade.condominio.cep;
-		dataToPrint.uf_condominio = (data as any).unidade.condominio.uf;
-		dataToPrint.bairro_condominio = (data as any).unidade.condominio.bairro;
+		dataToPrint.nome_condominio = data.unidade.condominio.nome;
+		dataToPrint.cidade_condominio = data.unidade.condominio.cidade;
+		dataToPrint.cnpj_condominio = data.unidade.condominio.cnpj;
+		dataToPrint.cep_condominio = data.unidade.condominio.cep;
+		dataToPrint.uf_condominio = data.unidade.condominio.uf;
+		dataToPrint.bairro_condominio = data.unidade.condominio.bairro;
 		dataToPrint.numero_condominio =
 			(data as any).unidade.condominio.numero || '';
 		dataToPrint.endereco_condominio = (
@@ -646,7 +658,7 @@ export class NotificationService {
 		dataToPrint.fundamentacao_legal = data.fundamentacao_legal;
 		dataToPrint.observacoes_notificacao = data.observacoes;
 
-		const condomino = (data as any).unidade.condominos.filter(
+		const condomino = data.unidade.condominos.filter(
 			(item) => item.condomino.id == data.pessoa_id,
 		)[0];
 

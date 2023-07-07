@@ -51,7 +51,46 @@ export class NotificationService {
 		return { success: true, message: 'Notificação criada com sucesso.' };
 	}
 
-	async findBy(filtro?: FilterNotificationDto) {
+	async findBy(user: UserAuth, filtro?: FilterNotificationDto) {
+		let idsConsultores: number[] | null = null;
+
+		if (
+			filtro.consultores_ids?.length &&
+			!user.acessa_todos_departamentos
+		) {
+			const consultoresDepartamentos =
+				await this.prisma.usuarioHasDepartamentos.findMany({
+					where: {
+						departamento_id: {
+							in: user.departamentos_ids,
+						},
+						usuario_id: {
+							in: [...filtro.consultores_ids, user.id],
+						},
+					},
+				});
+
+			idsConsultores = consultoresDepartamentos.map(
+				(consultor) => consultor.usuario_id,
+			);
+		} else if (filtro.consultores_ids?.length) {
+			idsConsultores = filtro.consultores_ids;
+		} else if (!user.acessa_todos_departamentos) {
+			const consultoresDepartamentos =
+				await this.prisma.usuarioHasDepartamentos.findMany({
+					where: {
+						departamento_id: {
+							in: user.departamentos_ids,
+						},
+						usuario_id: user.id,
+					},
+				});
+
+			idsConsultores = consultoresDepartamentos.map(
+				(consultor) => consultor.usuario_id,
+			);
+		}
+
 		const notifications = await this.prisma.pessoa.findMany({
 			select: {
 				id: true,
@@ -161,7 +200,7 @@ export class NotificationService {
 									},
 								},
 						  }
-						: {},
+						: undefined,
 				},
 			},
 			where: {
@@ -174,6 +213,24 @@ export class NotificationService {
 				},
 				id: filtro.condominios_ids
 					? { in: filtro.condominios_ids }
+					: undefined,
+				departamentos_condominio: !user.acessa_todos_departamentos
+					? {
+							some: {
+								departamento_id: {
+									in: user.departamentos_ids,
+								},
+							},
+					  }
+					: undefined,
+				usuarios_condominio: idsConsultores
+					? {
+							some: {
+								usuario_id: {
+									in: idsConsultores,
+								},
+							},
+					  }
 					: undefined,
 			},
 		});
@@ -389,6 +446,12 @@ export class NotificationService {
 					: undefined,
 			},
 		});
+
+		if (!report) {
+			throw new BadRequestException(
+				'Dados não encontrados, por favor verifique os filtros!',
+			);
+		}
 
 		return {
 			success: true,

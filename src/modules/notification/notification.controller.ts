@@ -101,8 +101,11 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnNotificationListEntity,
 	})
-	search(@Body() filtros: FilterNotificationDto) {
-		return this.notificationService.findBy(filtros);
+	search(
+		@CurrentUser() user: UserAuth,
+		@Body() filtros: FilterNotificationDto,
+	) {
+		return this.notificationService.findBy(user, filtros);
 	}
 
 	@Post('validate')
@@ -149,11 +152,12 @@ export class NotificationController {
 		type: ReturnEntity.error(),
 	})
 	report(
+		@CurrentUser() user: UserAuth,
 		@Body() filtros: FilterNotificationDto,
 		@Query('tipo') tipo: string,
 	) {
 		if (+tipo === 2) {
-			return this.notificationService.findBy(filtros);
+			return this.notificationService.findBy(user, filtros);
 		}
 	}
 

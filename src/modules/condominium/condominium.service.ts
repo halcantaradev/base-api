@@ -115,6 +115,13 @@ export class CondominiumService {
 							},
 					  }
 					: undefined,
+				usuarios_condominio: !user.acessa_todos_departamentos
+					? {
+							some: {
+								usuario_id: user.id,
+							},
+					  }
+					: undefined,
 				OR: filtersSelected.length ? filtersSelected : undefined,
 			},
 		);
@@ -163,6 +170,13 @@ export class CondominiumService {
 							},
 					  }
 					: undefined,
+				usuarios_condominio: !user.acessa_todos_departamentos
+					? {
+							some: {
+								usuario_id: user.id,
+							},
+					  }
+					: undefined,
 			},
 		);
 	}
@@ -195,6 +209,13 @@ export class CondominiumService {
 								departamento_id: {
 									in: user.departamentos_ids,
 								},
+							},
+					  }
+					: undefined,
+				usuarios_condominio: !user.acessa_todos_departamentos
+					? {
+							some: {
+								usuario_id: user.id,
 							},
 					  }
 					: undefined,

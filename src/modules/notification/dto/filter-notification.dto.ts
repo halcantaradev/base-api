@@ -51,14 +51,15 @@ export class FilterNotificationDto {
 	tipo_notificacao: number;
 
 	@ApiProperty({
-		description: 'Id do consultor',
+		description: 'Id dos consultores',
 		example: 1,
 	})
 	@IsOptional()
 	@IsInt({
 		message: 'Por favor forneça um consultor válido',
+		each: true,
 	})
-	consultor_id: number;
+	consultores_ids: number[];
 
 	@ApiProperty({
 		description: 'Id do tipo de infração',

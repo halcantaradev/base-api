@@ -6,12 +6,13 @@ import { PasswordHelper } from 'src/shared/helpers/password.helper';
 import { ReturnUserEntity } from './entities/return-user.entity';
 import { ReturnUserListEntity } from './entities/return-user-list.entity';
 import { ListUserDto } from './dto/list-user.dto';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 
 @Injectable()
 export class UserService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async create(createUserDto: CreateUserDto, empresa_id: number) {
+	async create(createUserDto: CreateUserDto, user: UserAuth) {
 		await this.prisma.user.create({
 			data: {
 				nome: createUserDto.nome,
@@ -21,7 +22,7 @@ export class UserService {
 				empresas: {
 					create: {
 						cargo_id: createUserDto.cargo_id,
-						empresa_id,
+						empresa_id: user.empresa_id,
 					},
 				},
 				departamentos: createUserDto.departamentos
@@ -173,8 +174,8 @@ export class UserService {
 		};
 	}
 
-	async findOneById(id: number): Promise<ReturnUserEntity> {
-		const user = await this.prisma.user.findFirst({
+	async findOneById(id: number, user: UserAuth): Promise<ReturnUserEntity> {
+		const userSaved = await this.prisma.user.findFirst({
 			select: {
 				id: true,
 				nome: true,
@@ -182,6 +183,7 @@ export class UserService {
 				email: true,
 				ativo: true,
 				updated_at: true,
+				acessa_todos_departamentos: user.acessa_todos_departamentos,
 				empresas: {
 					select: {
 						empresa_id: true,
@@ -215,24 +217,24 @@ export class UserService {
 			},
 		});
 
-		if (user == null)
+		if (userSaved == null)
 			throw new BadRequestException('Usuário não encontrado');
 
 		return {
 			success: true,
 			message: 'Usuário listado com sucesso.',
-			data: user,
+			data: userSaved,
 		};
 	}
 
 	async update(
 		id: number,
-		empresa_id: number,
+		user: UserAuth,
 		updateUserDto: UpdateUserDto,
 	): Promise<ReturnUserEntity> {
-		const user = await this.prisma.user.findUnique({ where: { id } });
+		const userSaved = await this.prisma.user.findUnique({ where: { id } });
 
-		if (!user) throw new BadRequestException('Usuário não encontrado');
+		if (!userSaved) throw new BadRequestException('Usuário não encontrado');
 
 		if (updateUserDto.username) {
 			const userWithUsername = await this.prisma.user.findFirst({
@@ -262,6 +264,15 @@ export class UserService {
 				throw new BadRequestException('Email não pode ser utilizado');
 		}
 
+		let userAccessAllDepartments = false;
+
+		if (
+			updateUserDto.acessa_todos_departamentos &&
+			user.acessa_todos_departamentos
+		) {
+			userAccessAllDepartments = true;
+		}
+
 		return {
 			success: true,
 			message: 'Usuário atualizado com sucesso.',
@@ -273,6 +284,7 @@ export class UserService {
 					email: true,
 					ativo: true,
 					updated_at: true,
+					acessa_todos_departamentos: user.acessa_todos_departamentos,
 					empresas: {
 						select: {
 							empresa_id: true,
@@ -306,18 +318,20 @@ export class UserService {
 					password: updateUserDto.password
 						? PasswordHelper.create(updateUserDto.password)
 						: undefined,
+					username: updateUserDto.username,
 					email: updateUserDto.email,
 					ativo:
 						updateUserDto.ativo != null
 							? updateUserDto.ativo
 							: undefined,
+					acessa_todos_departamentos: userAccessAllDepartments,
 					empresas: {
 						updateMany: {
 							data: {
 								cargo_id: updateUserDto.cargo_id,
 							},
 							where: {
-								empresa_id,
+								empresa_id: user.empresa_id,
 								usuario_id: id,
 							},
 						},

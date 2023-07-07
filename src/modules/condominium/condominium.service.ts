@@ -180,6 +180,12 @@ export class CondominiumService {
 						},
 					},
 				},
+				condominio_administracao: {
+					select: {
+						nome: true,
+						cargo: { select: { nome: true, sindico: true } },
+					},
+				},
 			},
 			{
 				empresa_id: user.empresa_id,

@@ -34,6 +34,7 @@ model Pessoa {
   departamentos_condominio      CondominioHasDepartamentos[]
   empresas_pessoa               EmpresaHasPessoas[]          @relation("EmpresaEmpresaPessoa")
   pessoas_empresa               EmpresaHasPessoas[]          @relation("PessoaEmpresaPessoa")
+  condominio_administracao      CondomimioAdministracao[]
   usuarios_condominio           UsuarioHasCondominios[]
   setup_condominio_notificacoes NotificacaoSetup?
   setup_empresa_sistema         SistemaSetup[]
@@ -349,6 +350,31 @@ model EmpresaHasPessoas {
 
   @@id([empresa_id, pessoa_id])
   @@map("empresa_has_pessoas")
+}
+
+model CargosCondominio {
+  id                       Int                       @id @default(autoincrement())
+  nome                     String
+  sindico                  Boolean                   @default(false)
+  createdAt                DateTime                  @default(now())
+  updated_at               DateTime                  @updatedAt
+  condominio_administracao CondomimioAdministracao[]
+
+  @@map("cargos_condominio")
+}
+
+model CondomimioAdministracao {
+  id            Int      @id @default(autoincrement())
+  condominio_id Int
+  cargo_id      Int
+  nome          String
+  createdAt     DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  condominio Pessoa           @relation(fields: [condominio_id], references: [id])
+  cargo      CargosCondominio @relation(fields: [cargo_id], references: [id])
+
+  @@map("condominio_administracao")
 }
 
 model SistemaSetup {

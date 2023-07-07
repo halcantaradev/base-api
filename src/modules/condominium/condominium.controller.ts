@@ -102,7 +102,7 @@ export class CondominiumController {
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados do condomínio',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		type: ReturnEntity.error(),
+		type: ReturnEntity.error('Erro ao exibir dados do condominio'),
 	})
 	async findOne(@CurrentUser() user: UserAuth, @Param('id') id: string) {
 		return {

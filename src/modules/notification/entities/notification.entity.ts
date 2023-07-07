@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 
 export class NotificationEntity {
 	@ApiProperty({
@@ -91,4 +92,11 @@ export class NotificationEntity {
 		required: false,
 	})
 	vencimento_multa?: Date;
+
+	@ApiProperty({
+		description: 'Id da pessoa responsável',
+		example: 1,
+		required: false,
+	})
+	pessoa_id?: number;
 }

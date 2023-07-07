@@ -1,18 +1,26 @@
-import { ValidateNotificationDto } from './dto/validate-notification.dto';
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
-import { PrismaService } from 'src/shared/services/prisma.service';
-import { ReturnNotificationEntity } from './entities/return-notification.entity';
-import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
-import { FilterNotificationDto } from './dto/filter-notification.dto';
-import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
-import { ValidatedNotification } from './entities/validated-notification.entity';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { PrismaService } from 'src/shared/services/prisma.service';
+import { CondominiumService } from '../condominium/condominium.service';
+import { Condominium } from '../condominium/entities/condominium.entity';
+import { SetupService } from '../setup/setup.service';
+import { CreateNotificationDto } from './dto/create-notification.dto';
+import { FilterNotificationDto } from './dto/filter-notification.dto';
+import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { ValidateNotificationDto } from './dto/validate-notification.dto';
+import { NotificationEntity } from './entities/notification.entity';
+import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
+import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
+import { ReturnNotificationEntity } from './entities/return-notification.entity';
+import { ValidatedNotification } from './entities/validated-notification.entity';
 
 @Injectable()
 export class NotificationService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly condomonioService: CondominiumService,
+		private readonly setupService: SetupService,
+	) {}
 
 	async create(createNotificationDto: CreateNotificationDto) {
 		let codigo: string = (
@@ -226,13 +234,6 @@ export class NotificationService {
 					: undefined,
 			},
 		});
-
-		if (!notifications) {
-			throw new BadRequestException(
-				'Dados não encontrados, por favor verifique os filtros!',
-			);
-		}
-
 		return {
 			success: true,
 			data: notifications,
@@ -507,7 +508,20 @@ export class NotificationService {
 	async findOneById(id: number): Promise<ReturnNotificationEntity> {
 		const notification = await this.prisma.notificacao.findFirst({
 			include: {
-				unidade: { select: { codigo: true } },
+				unidade: {
+					select: {
+						codigo: true,
+						condominos: {
+							select: {
+								condomino: { select: { id: true, nome: true } },
+								tipo: {
+									select: { nome: true, descricao: true },
+								},
+							},
+						},
+						condominio: true,
+					},
+				},
 				tipo_infracao: {
 					select: { descricao: true },
 				},
@@ -516,9 +530,6 @@ export class NotificationService {
 				id,
 			},
 		});
-
-		if (notification == null)
-			throw new BadRequestException('Notificação não encontrada');
 
 		return {
 			success: true,
@@ -574,5 +585,86 @@ export class NotificationService {
 				where: { id },
 			}),
 		};
+	}
+
+	async dataToHandle(id: number, user: UserAuth) {
+		const dataToPrint: {
+			[key: string]: number | string | Date | undefined;
+		} = {};
+		const data = await this.prisma.notificacao.findFirst({
+			include: {
+				unidade: {
+					include: {
+						condominio: true,
+						condominos: {
+							include: { condomino: true, tipo: true },
+						},
+					},
+				},
+			},
+			where: { id },
+		});
+		const condominio: Condominium = await this.condomonioService.findOne(
+			data.unidade.condominio_id,
+			user,
+		);
+		const setupSistema = await this.setupService.findSetupSystem(
+			user.empresa_id,
+		);
+		const setupNotificacao = await this.setupService.findSetupNotification(
+			condominio.id,
+		);
+		const sindico = condominio.condominio_administracao.filter(
+			(item) => item.cargo.sindico,
+		);
+
+		dataToPrint.nome_sindico = sindico.length ? sindico[0].nome : '';
+		dataToPrint.sancao_padrao = setupSistema ? setupSistema.sancao : '';
+		dataToPrint.texto_padrao_notificacao = setupSistema
+			? setupSistema.texto_padrao_notificacao
+			: '';
+		dataToPrint.observacao_padrao_notificacao_condominio = setupNotificacao
+			? setupNotificacao.observacoes
+			: '';
+
+		dataToPrint.data_atual = new Intl.DateTimeFormat('pt-BR', {
+			dateStyle: 'short',
+		}).format(new Date());
+		dataToPrint.data_atual_extenso = new Intl.DateTimeFormat('pt-BR', {
+			dateStyle: 'long',
+		}).format(new Date());
+		dataToPrint.nome_condominio = data.unidade.condominio.nome;
+		dataToPrint.cidade_condominio = data.unidade.condominio.cidade;
+		dataToPrint.cnpj_condominio = data.unidade.condominio.cnpj;
+		dataToPrint.cep_condominio = data.unidade.condominio.cep;
+		dataToPrint.uf_condominio = data.unidade.condominio.uf;
+		dataToPrint.bairro_condominio = data.unidade.condominio.bairro;
+		dataToPrint.numero_condominio =
+			(data as any).unidade.condominio.numero || '';
+		dataToPrint.endereco_condominio = (
+			data as any
+		).unidade.condominio.endereco;
+		dataToPrint.endereco_completo_condominio = `${dataToPrint.endereco_condominio}, ${dataToPrint.numero_condominio} - ${dataToPrint.bairro_condominio}`;
+
+		dataToPrint.codigo_unidade = data.unidade.codigo;
+		dataToPrint.tipo_notificacao =
+			data.tipo_registro == 1 ? 'INFRAÇÃO' : 'MULTA';
+		dataToPrint.numero_notificacao = data.codigo;
+		dataToPrint.data_infracao = new Intl.DateTimeFormat('pt-BR', {
+			dateStyle: 'short',
+			timeStyle: 'short',
+		}).format(data.data_infracao);
+		dataToPrint.detalhes_infracao = data.detalhes_infracao;
+		dataToPrint.fundamentacao_legal = data.fundamentacao_legal;
+		dataToPrint.observacoes_notificacao = data.observacoes;
+
+		const condomino = data.unidade.condominos.filter(
+			(item) => item.condomino.id == data.pessoa_id,
+		)[0];
+
+		dataToPrint.tipo_responsavel_notificado = condomino.tipo.descricao;
+		dataToPrint.responsavel_notificado = condomino.condomino.nome;
+
+		return dataToPrint;
 	}
 }

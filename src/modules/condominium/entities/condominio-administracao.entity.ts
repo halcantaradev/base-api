@@ -1,5 +1,3 @@
-import { Prisma } from '@prisma/client';
-import { Condominium } from './condominium.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { CargoCondominio } from './cargos-condominio.entity';
 

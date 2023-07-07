@@ -11,19 +11,24 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
+import { HandlebarsService } from 'src/shared/services/handlebars.service';
+import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
+import { PdfService } from 'src/shared/services/pdf.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { ValidateNotificationDto } from './dto/validate-notification.dto';
+import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
-import { NotificationService } from './notification.service';
-import { FilterNotificationDto } from './dto/filter-notification.dto';
-import { Role } from 'src/shared/decorators/role.decorator';
-import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
-import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
+import { NotificationService } from './notification.service';
+import { PermissionGuard } from '../public/auth/guards/permission.guard';
+import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 
@@ -32,7 +37,12 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 export class NotificationController {
-	constructor(private readonly notificationService: NotificationService) {}
+	constructor(
+		private readonly notificationService: NotificationService,
+		private readonly layoutService: LayoutConstsService,
+		private readonly handleBarService: HandlebarsService,
+		private readonly pdfService: PdfService,
+	) {}
 
 	@Post()
 	@Role('notificacoes-cadastrar')
@@ -208,5 +218,49 @@ export class NotificationController {
 		@Body() updateNotificationDto: UpdateNotificationDto,
 	) {
 		return this.notificationService.update(+id, updateNotificationDto);
+	}
+
+	@Get('print/:id')
+	@Role('notificacoes-exibir-dados')
+	@ApiOperation({ summary: 'Imprimir os dados de uma notficação' })
+	@ApiResponse({
+		description: 'Notificação impressa com sucesso',
+		status: HttpStatus.OK,
+		type: () => ReturnNotificationEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao imprimir os dados da notificação',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findOnePrint(
+		@Param('id') id: string,
+		@Query('pdf') pdf?: number,
+		@CurrentUser() user?: UserAuth,
+	) {
+		let html: Buffer | string = readFileSync(
+			resolve('./src/shared/layouts/notification.html'),
+		);
+
+		const layout = this.layoutService.replaceLayoutVars(html.toString());
+
+		const dataToPrint = await this.notificationService.dataToHandle(
+			+id,
+			user,
+		);
+		html = this.handleBarService.compile(layout, dataToPrint);
+
+		if (pdf) {
+			const file = await this.pdfService.getPDF(html);
+			return {
+				success: true,
+				data: file,
+			};
+		}
+
+		return {
+			success: true,
+			data: html,
+		};
 	}
 }

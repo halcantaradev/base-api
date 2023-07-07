@@ -43,8 +43,11 @@ export class UserController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	create(@CurrentUser() req: UserAuth, @Body() createUserDto: CreateUserDto) {
-		return this.userService.create(createUserDto, req.empresa_id);
+	create(
+		@CurrentUser() user: UserAuth,
+		@Body() createUserDto: CreateUserDto,
+	) {
+		return this.userService.create(createUserDto, user);
 	}
 
 	@Post('list')
@@ -95,8 +98,8 @@ export class UserController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	findOne(@Param('id') id: string) {
-		return this.userService.findOneById(+id);
+	findOne(@Param('id') id: string, @CurrentUser() user: UserAuth) {
+		return this.userService.findOneById(+id, user);
 	}
 
 	@Patch(':id')
@@ -113,9 +116,9 @@ export class UserController {
 	})
 	update(
 		@Param('id') id: string,
-		@CurrentUser() req: UserAuth,
+		@CurrentUser() user: UserAuth,
 		@Body() updateUserDto: UpdateUserDto,
 	) {
-		return this.userService.update(+id, req.empresa_id, updateUserDto);
+		return this.userService.update(+id, user, updateUserDto);
 	}
 }

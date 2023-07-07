@@ -11,6 +11,7 @@ import { PersonModule } from './modules/person/person.module';
 import { MenuModule } from './modules/public/menu/menu.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { OcupationsModule } from './modules/ocupations/ocupations.module';
+import { SetupModule } from './modules/setup/setup.module';
 
 @Module({
 	imports: [
@@ -24,6 +25,7 @@ import { OcupationsModule } from './modules/ocupations/ocupations.module';
 		MenuModule,
 		DepartmentModule,
 		OcupationsModule,
+		SetupModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

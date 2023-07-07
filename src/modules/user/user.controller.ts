@@ -2,6 +2,7 @@ import {
 	Body,
 	Controller,
 	Get,
+	HttpCode,
 	HttpStatus,
 	Param,
 	Patch,
@@ -30,6 +31,7 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Post()
+	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Cria um novo usuário' })
 	@ApiResponse({
 		description: 'Usuário criado com sucesso',
@@ -46,6 +48,7 @@ export class UserController {
 	}
 
 	@Post('list')
+	@HttpCode(HttpStatus.OK)
 	@Role('usuarios-listar-todos')
 	@ApiOperation({ summary: 'Lista todos os usuários' })
 	@ApiResponse({

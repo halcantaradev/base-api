@@ -6,6 +6,7 @@ import { Residence } from './entities/residence.entity';
 import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
+import { FiltersCondominiumActiveDto } from './dto/filters-condominium-active.dto';
 
 @Injectable()
 export class CondominiumService {
@@ -119,6 +120,53 @@ export class CondominiumService {
 		);
 	}
 
+	async findAllActive(
+		filters: FiltersCondominiumActiveDto,
+		user: UserAuth,
+	): Promise<Condominium[]> {
+		let departamentos = null;
+
+		if (filters.departamentos?.length && !user.acessa_todos_departamentos) {
+			departamentos = filters.departamentos.filter((departamento) =>
+				user.departamentos_ids.includes(departamento),
+			);
+		} else if (
+			filters.departamentos?.length &&
+			user.acessa_todos_departamentos
+		) {
+			departamentos = filters.departamentos;
+		} else if (!user.acessa_todos_departamentos) {
+			departamentos = user.departamentos_ids;
+		}
+
+		return this.pessoaService.findAll(
+			'condominio',
+			{
+				departamentos_condominio: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: { nome: true },
+						},
+					},
+				},
+			},
+			{
+				ativo: true,
+				empresa_id: user.empresa_id,
+				departamentos_condominio: departamentos
+					? {
+							some: {
+								departamento_id: {
+									in: departamentos,
+								},
+							},
+					  }
+					: undefined,
+			},
+		);
+	}
+
 	async findOne(id: number, user: UserAuth): Promise<Condominium> {
 		return this.pessoaService.findOneById(
 			id,
@@ -130,6 +178,12 @@ export class CondominiumService {
 						departamento: {
 							select: { nome: true },
 						},
+					},
+				},
+				condominio_administracao: {
+					select: {
+						nome: true,
+						cargo: { select: { nome: true, sindico: true } },
 					},
 				},
 			},
@@ -200,6 +254,19 @@ export class CondominiumService {
 					select: {
 						condomino: { select: { nome: true, id: true } },
 						tipo: { select: { descricao: true } },
+					},
+					where: {
+						condomino: body.busca
+							? {
+									nome: {
+										contains: body.busca
+											.toString()
+											.normalize('NFD')
+											.replace(/[\u0300-\u036f]/g, ''),
+										mode: 'insensitive',
+									},
+							  }
+							: undefined,
 					},
 				},
 				ativo: true,

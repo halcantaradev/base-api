@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Person } from 'src/modules/person/entities/person.entity';
 import { CondominioHasDepartamento } from './condominio-has-departamento.entity';
+import { CondominioAdministracao } from './condominio-administracao.entity';
 
 export class Condominium extends Person {
 	@ApiProperty({
@@ -10,4 +11,12 @@ export class Condominium extends Person {
 		required: false,
 	})
 	departamentos_condominio: CondominioHasDepartamento[];
+
+	@ApiProperty({
+		description: 'Dados da administração do condominio',
+		type: CondominioAdministracao,
+		isArray: true,
+		required: false,
+	})
+	condomimio_administracao: CondominioAdministracao[];
 }

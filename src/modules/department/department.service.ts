@@ -1,8 +1,9 @@
 import { FiltersDepartmentDto } from './dto/filters-department.dto';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { PrismaService } from 'src/shared/services/prisma.service';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 
 @Injectable()
 export class DepartmentService {
@@ -18,7 +19,7 @@ export class DepartmentService {
 		});
 	}
 
-	async findAll(empresa_id: number, filters: FiltersDepartmentDto) {
+	async findAll(user: UserAuth, filters: FiltersDepartmentDto) {
 		return this.prisma.departamento.findMany({
 			select: {
 				id: true,
@@ -27,7 +28,12 @@ export class DepartmentService {
 				ativo: true,
 			},
 			where: {
-				empresa_id,
+				id: !user.acessa_todos_departamentos
+					? {
+							in: [...user.departamentos_ids],
+					  }
+					: undefined,
+				empresa_id: user.empresa_id,
 				OR: filters.busca
 					? [
 							{
@@ -53,7 +59,9 @@ export class DepartmentService {
 		});
 	}
 
-	async findOne(id: number, empresa_id: number) {
+	async findOne(id: number, user: UserAuth) {
+		if (!user.departamentos_ids.includes(id)) return null;
+
 		return this.prisma.departamento.findFirst({
 			select: {
 				id: true,
@@ -63,7 +71,7 @@ export class DepartmentService {
 			},
 			where: {
 				id,
-				empresa_id,
+				empresa_id: user.empresa_id,
 				ativo: true,
 				excluido: false,
 			},
@@ -72,19 +80,22 @@ export class DepartmentService {
 
 	async update(
 		id: number,
-		empresa_id: number,
+		user: UserAuth,
 		updateDepartmentDto: UpdateDepartmentDto,
 	) {
+		if (!user.departamentos_ids.includes(id))
+			throw new BadRequestException('Departamento não encontrado');
+
 		const department = await this.prisma.departamento.findFirst({
 			where: {
 				id,
-				empresa_id,
+				empresa_id: user.empresa_id,
 				excluido: false,
 			},
 		});
 
 		if (!department)
-			throw new NotFoundException('Departamento não encontrado');
+			throw new BadRequestException('Departamento não encontrado');
 
 		return this.prisma.departamento.update({
 			select: {
@@ -104,17 +115,20 @@ export class DepartmentService {
 		});
 	}
 
-	async delete(id: number, empresa_id: number) {
+	async delete(id: number, user: UserAuth) {
+		if (!user.departamentos_ids.includes(id))
+			throw new BadRequestException('Departamento não encontrado');
+
 		const department = await this.prisma.departamento.findFirst({
 			where: {
 				id,
-				empresa_id,
+				empresa_id: user.empresa_id,
 				excluido: false,
 			},
 		});
 
 		if (!department)
-			throw new NotFoundException('Departamento não encontrado');
+			throw new BadRequestException('Departamento não encontrado');
 
 		return this.prisma.departamento.update({
 			data: {

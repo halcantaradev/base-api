@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { CondominiumService } from './condominium.service';
-import { CondominiumController } from './condominium.controller';
-import { PersonModule } from '../person/person.module';
 import { PrismaService } from 'src/shared/services/prisma.service';
+import { PersonModule } from '../person/person.module';
+import { CondominiumController } from './condominium.controller';
+import { CondominiumService } from './condominium.service';
 import { DepartmentExists } from './validators';
 
 @Module({

@@ -10,6 +10,7 @@ import { PersonModule } from './modules/person/person.module';
 import { AuthModule } from './modules/public/auth/auth.module';
 import { MenuModule } from './modules/public/menu/menu.module';
 import { PermissionsModule } from './modules/public/permissions/permissions.module';
+import { SetupModule } from './modules/setup/setup.module';
 import { UploadFileModule } from './modules/upload-file/upload-file.module';
 import { UserModule } from './modules/user/user.module';
 import { HandlebarsService } from './shared/services/handlebars.service';
@@ -29,6 +30,7 @@ import { PdfService } from './shared/services/pdf.service';
 		DepartmentModule,
 		OcupationsModule,
 		LayoutsNotificationModule,
+		SetupModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, LayoutConstsService, HandlebarsService, PdfService],

@@ -24,4 +24,7 @@ export class UpdateUserDto extends CreateUserDto {
 
 	@IsOptional()
 	departamentos: number[];
+
+	@IsOptional()
+	condominios: number[];
 }

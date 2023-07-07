@@ -8,32 +8,32 @@ import {
 	Patch,
 	Post,
 	Query,
-	Res,
-	StreamableFile,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
-import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
+import { PdfService } from 'src/shared/services/pdf.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
+import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
+import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
 import { NotificationService } from './notification.service';
-import { PdfService } from 'src/shared/services/pdf.service';
-import { Response } from 'express';
+import { PermissionGuard } from '../public/auth/guards/permission.guard';
+import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
+
 @ApiTags('Notifications')
 @Controller('notifications')
-// @UseGuards(PermissionGuard)
-// @UseGuards(JwtAuthGuard)
+@UseGuards(PermissionGuard)
+@UseGuards(JwtAuthGuard)
 export class NotificationController {
 	constructor(
 		private readonly notificationService: NotificationService,
@@ -101,6 +101,31 @@ export class NotificationController {
 	})
 	search(@Body() filtros: FilterNotificationDto) {
 		return this.notificationService.findBy(filtros);
+	}
+
+	@Post('validate')
+	@Role('notificacoes-cadastrar')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({
+		summary:
+			'Valida as informações da notificação baseado nos dados enviados',
+	})
+	@ApiResponse({
+		description: 'Notificação validada com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnValidatedNotificationEntity,
+	})
+	@ApiResponse({
+		description:
+			'Ocorreu um erro ao validar a notificação, por favor verifique o campos preenchidos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnNotificationListEntity,
+	})
+	async validate(@Body() dados: ValidateNotificationDto) {
+		return {
+			success: true,
+			data: await this.notificationService.validateNotification(dados),
+		};
 	}
 
 	@Post('reports')

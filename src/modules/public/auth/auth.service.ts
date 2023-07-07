@@ -33,6 +33,21 @@ export class AuthService {
 		};
 	}
 
+	async getProfile(user: UserAuth) {
+		const profile = await this.prisma.pessoa.findUnique({
+			select: {
+				nome: true,
+			},
+			where: {
+				id: user.empresa_id,
+			},
+		});
+
+		return {
+			nome: user.nome,
+		};
+	}
+
 	async validateUser(username: string, password?: string) {
 		const user = await this.prisma.user.findFirst({
 			include: {

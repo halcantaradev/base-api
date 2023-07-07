@@ -1,4 +1,10 @@
-import { Pessoa, PrismaClient, Taxa, Unidade } from '@prisma/client';
+import {
+	Pessoa,
+	PrismaClient,
+	Taxa,
+	TiposPessoa,
+	Unidade,
+} from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
@@ -192,11 +198,7 @@ async function createUnidade(condominio: Pessoa) {
 	return unidade;
 }
 
-async function createCondominos(unidade: Unidade) {
-	let proprietario = await prisma.pessoa.findUnique({
-		where: { nome: `Francisco do apartamento ${unidade.codigo}` },
-	});
-
+async function createTipoCondomino() {
 	let tipoProrietario = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'proprietario' },
 	});
@@ -206,6 +208,31 @@ async function createCondominos(unidade: Unidade) {
 			data: { nome: 'proprietario', descricao: 'Proprietário' },
 		});
 	}
+
+	let tipoInquilino = await prisma.tiposPessoa.findUnique({
+		where: { nome: 'inquilino' },
+	});
+
+	if (!tipoInquilino) {
+		tipoInquilino = await prisma.tiposPessoa.create({
+			data: { nome: 'inquilino', descricao: 'Inquilino' },
+		});
+	}
+
+	return {
+		tipoProrietario,
+		tipoInquilino,
+	};
+}
+
+async function createCondominos(
+	unidade: Unidade,
+	tipoProrietario: TiposPessoa,
+	tipoInquilino: TiposPessoa,
+) {
+	let proprietario = await prisma.pessoa.findUnique({
+		where: { nome: `Francisco do apartamento ${unidade.codigo}` },
+	});
 
 	if (!proprietario) {
 		proprietario = await prisma.pessoa.create({
@@ -227,16 +254,6 @@ async function createCondominos(unidade: Unidade) {
 	let inquilino = await prisma.pessoa.findUnique({
 		where: { nome: `Antônio morador do apartamento ${unidade.codigo}` },
 	});
-
-	let tipoInquilino = await prisma.tiposPessoa.findUnique({
-		where: { nome: 'inquilino' },
-	});
-
-	if (!tipoInquilino) {
-		tipoInquilino = await prisma.tiposPessoa.create({
-			data: { nome: 'inquilino', descricao: 'Inquilino' },
-		});
-	}
 
 	if (!inquilino) {
 		inquilino = await prisma.pessoa.create({
@@ -383,13 +400,18 @@ async function main() {
 	});
 
 	await createTipoInfracao();
+	const tipos = await createTipoCondomino();
 
 	await Promise.all([
 		condominios.map(async (condominio) => {
 			await createContato(condominio);
 
 			const unidade = await createUnidade(condominio);
-			await createCondominos(unidade);
+			await createCondominos(
+				unidade,
+				tipos.tipoProrietario,
+				tipos.tipoInquilino,
+			);
 			const taxa = await createTaxa();
 			await createTaxaUnidade(taxa, unidade);
 		}),

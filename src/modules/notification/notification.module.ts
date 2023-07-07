@@ -5,6 +5,9 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { PdfService } from 'src/shared/services/pdf.service';
+import { CondominiumService } from '../condominium/condominium.service';
+import { PersonService } from '../person/person.service';
+import { SetupService } from '../setup/setup.service';
 
 @Module({
 	controllers: [NotificationController],
@@ -14,6 +17,9 @@ import { PdfService } from 'src/shared/services/pdf.service';
 		LayoutConstsService,
 		HandlebarsService,
 		PdfService,
+		CondominiumService,
+		PersonService,
+		SetupService,
 	],
 })
 export class NotificationModule {}

@@ -18,5 +18,5 @@ export class Condominium extends Person {
 		isArray: true,
 		required: false,
 	})
-	condomimio_administracao: CondominioAdministracao[];
+	condominio_administracao: CondominioAdministracao[];
 }

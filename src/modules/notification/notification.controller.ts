@@ -29,6 +29,8 @@ import { ReturnValidatedNotificationEntity } from './entities/return-validated-n
 import { NotificationService } from './notification.service';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -227,17 +229,25 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findOnePrint(@Param('id') id: string, @Query('pdf') pdf?: number) {
+	async findOnePrint(
+		@Param('id') id: string,
+		@Query('pdf') pdf?: number,
+		@CurrentUser() user?: UserAuth,
+	) {
 		let html: Buffer | string = readFileSync(
 			resolve('./src/shared/layouts/notification.html'),
 		);
 
 		const layout = this.layoutService.replaceLayoutVars(html.toString());
 
-		const data = await this.notificationService.dataToHandle(+id);
-		html = this.handleBarService.compile(layout, data.dataToPrint);
-		const file = await this.pdfService.getPDF(html);
+		const dataToPrint = await this.notificationService.dataToHandle(
+			+id,
+			user,
+		);
+		html = this.handleBarService.compile(layout, dataToPrint);
+
 		if (pdf) {
+			const file = await this.pdfService.getPDF(html);
 			return {
 				success: true,
 				data: file,

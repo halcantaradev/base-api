@@ -1,4 +1,8 @@
 <style>
+    *{
+        font-family: sans-serif, Helvetica;
+        box-sizing: border-box;
+    }
     th {
         border: solid 1px;
         text-align: left;
@@ -7,13 +11,21 @@
     td {
         border: solid 1px;
     }
+    p{
+        margin: 0;
+    }
+    h1,h2,h3,h4,h5,h6{
+        margin-top: 0;
+        margin-bottom: 2px;
+    }
 </style>
 
 <div style="width: 100%;">
     <div style="text-align: right;">
-        <p><strong>[NOME_CONDOMINIO]</strong><br
-            ><em>[ENDERECO_CONDOMINIO]</em></p>
+        <p><strong>[NOME_CONDOMINIO]</strong>
+            <br><em>[ENDERECO_COMPLETO_CONDOMINIO]</em></p>
     </div>
+    <hr>
     <div style="text-align: center;">
         <h2>NOTIFICAÇÃO DE [TIPO_NOTIFICACAO]</h2>
     </div>
@@ -42,40 +54,42 @@
             </tbody>
         </table>
     </div>
-    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 4px;">
         <p>[TEXTO_PADRAO_NOTIFICACAO]</p>
     </div>
-    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 4px;">
         <h4 style="text-align: center; border-bottom: solid 1px;">Infração</h4>
         <p>[DETALHES_INFRACAO]</p>
     </div>
-    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 4px;">
         <h4 style="text-align: center; border-bottom: solid 1px;">Fundamentação Legal</h4>
         <p>[FUNDAMENTACAO_LEGAL]</p>
     </div>
-    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 4px;">
         <h4 style="text-align: center; border-bottom: solid 1px;">Sanção</h4>
         <p>[SANCAO_PADRAO]</p>
     </div>
-    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 4px;">
         <h4 style="text-align: center; border-bottom: solid 1px;">Observações</h4>
         <p>[OBSERVACOES_NOTIFICACAO]</p>
     </div>
-    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 2px;">
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 4px;">
         <p>[OBSERVACAO_PADRAO_NOTIFICACAO_CONDOMINIO]</p>
     </div>
-    <div style="margin-top: 100px;">
+    <div style="margin-top: 80px;">
         <p>[CIDADE_CONDOMINIO], [DATA_ATUAL_EXTENSO]</p>
-        <p style="margin-top: 30px; border-top: solid 1px;"><strong
-            >[NOME_CONDOMINIO]</strong><br> [NOME_SINDICO]
-            <br> Síndico(a) </p>
+        <p style="margin-top: 30px;">___________________________________________</p>
+        <p>
+            <strong>[NOME_CONDOMINIO]</strong>
+            <br>[NOME_SINDICO]
+            <br>Síndico(a)</p>
     </div>
     <div
-        style="margin-top: 20px; width: 100%; border: solid 1px; padding: 0px 2px;">
+        style="margin-top: 20px; width: 100%; padding: 4px;">
         <p><strong>Data do recebimento:</strong> ____ / ____ /
             ________</p>
         <p><strong>Recebido por:</strong>
-            _________________________________________, <strong>RG:</strong>
+            _______________________________________, <strong>RG:</strong>
             __________________________ </p>
     </div>
 </div>

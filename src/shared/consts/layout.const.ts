@@ -34,9 +34,24 @@ export const layoutConst: Array<{
 		field: '{{endereco_condominio}}',
 	},
 	{
+		label: 'Número do condomínio',
+		const: '[NUMERO_CONDOMINIO]',
+		field: '{{numero_condominio}}',
+	},
+	{
+		label: 'Endereço do condomínio completo',
+		const: '[ENDERECO_COMPLETO_CONDOMINIO]',
+		field: '{{endereco_completo_condominio}}',
+	},
+	{
 		label: 'Bairro do condomínio',
 		const: '[BAIRRO_CONDOMINIO]',
 		field: '{{bairro_condominio}}',
+	},
+	{
+		label: 'CEP do condomínio',
+		const: '[CEP_CONDOMINIO]',
+		field: '{{cep_condominio}}',
 	},
 	{
 		label: 'Nome do síndico',

@@ -24,6 +24,8 @@ import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -89,8 +91,11 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnNotificationListEntity,
 	})
-	search(@Body() filtros: FilterNotificationDto) {
-		return this.notificationService.findBy(filtros);
+	search(
+		@CurrentUser() user: UserAuth,
+		@Body() filtros: FilterNotificationDto,
+	) {
+		return this.notificationService.findBy(user, filtros);
 	}
 
 	@Post('validate')
@@ -137,11 +142,12 @@ export class NotificationController {
 		type: ReturnEntity.error(),
 	})
 	report(
+		@CurrentUser() user: UserAuth,
 		@Body() filtros: FilterNotificationDto,
 		@Query('tipo') tipo: string,
 	) {
 		if (+tipo === 2) {
-			return this.notificationService.findBy(filtros);
+			return this.notificationService.findBy(user, filtros);
 		}
 	}
 

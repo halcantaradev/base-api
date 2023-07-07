@@ -1,5 +1,5 @@
 import { ValidateNotificationDto } from './dto/validate-notification.dto';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { PrismaService } from 'src/shared/services/prisma.service';
@@ -8,6 +8,7 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 
 @Injectable()
 export class NotificationService {
@@ -42,7 +43,46 @@ export class NotificationService {
 		return { success: true, message: 'Notificação criada com sucesso.' };
 	}
 
-	async findBy(filtro?: FilterNotificationDto) {
+	async findBy(user: UserAuth, filtro?: FilterNotificationDto) {
+		let idsConsultores: number[] | null = null;
+
+		if (
+			filtro.consultores_ids?.length &&
+			!user.acessa_todos_departamentos
+		) {
+			const consultoresDepartamentos =
+				await this.prisma.usuarioHasDepartamentos.findMany({
+					where: {
+						departamento_id: {
+							in: user.departamentos_ids,
+						},
+						usuario_id: {
+							in: [...filtro.consultores_ids, user.id],
+						},
+					},
+				});
+
+			idsConsultores = consultoresDepartamentos.map(
+				(consultor) => consultor.usuario_id,
+			);
+		} else if (filtro.consultores_ids?.length) {
+			idsConsultores = filtro.consultores_ids;
+		} else if (!user.acessa_todos_departamentos) {
+			const consultoresDepartamentos =
+				await this.prisma.usuarioHasDepartamentos.findMany({
+					where: {
+						departamento_id: {
+							in: user.departamentos_ids,
+						},
+						usuario_id: user.id,
+					},
+				});
+
+			idsConsultores = consultoresDepartamentos.map(
+				(consultor) => consultor.usuario_id,
+			);
+		}
+
 		const notifications = await this.prisma.pessoa.findMany({
 			select: {
 				id: true,
@@ -152,7 +192,7 @@ export class NotificationService {
 									},
 								},
 						  }
-						: {},
+						: undefined,
 				},
 			},
 			where: {
@@ -166,11 +206,29 @@ export class NotificationService {
 				id: filtro.condominios_ids
 					? { in: filtro.condominios_ids }
 					: undefined,
+				departamentos_condominio: !user.acessa_todos_departamentos
+					? {
+							some: {
+								departamento_id: {
+									in: user.departamentos_ids,
+								},
+							},
+					  }
+					: undefined,
+				usuarios_condominio: idsConsultores
+					? {
+							some: {
+								usuario_id: {
+									in: idsConsultores,
+								},
+							},
+					  }
+					: undefined,
 			},
 		});
 
 		if (!notifications) {
-			throw new NotFoundException(
+			throw new BadRequestException(
 				'Dados não encontrados, por favor verifique os filtros!',
 			);
 		}
@@ -389,7 +447,7 @@ export class NotificationService {
 		});
 
 		if (!report) {
-			throw new NotFoundException(
+			throw new BadRequestException(
 				'Dados não encontrados, por favor verifique os filtros!',
 			);
 		}
@@ -460,7 +518,7 @@ export class NotificationService {
 		});
 
 		if (notification == null)
-			throw new NotFoundException('Notificação não encontrada');
+			throw new BadRequestException('Notificação não encontrada');
 
 		return {
 			success: true,
@@ -478,7 +536,7 @@ export class NotificationService {
 		});
 
 		if (notification == null)
-			throw new NotFoundException('Notificação não encontrada');
+			throw new BadRequestException('Notificação não encontrada');
 
 		return {
 			success: true,

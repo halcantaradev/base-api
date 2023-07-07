@@ -71,8 +71,8 @@ async function createUser(empresa: Pessoa) {
 			},
 		});
 
-		return user;
 		console.log('Usuário criado');
+		return user;
 	} else {
 		console.log('Usuário já cadastrado');
 	}
@@ -327,6 +327,30 @@ async function createMenu() {
 	}
 }
 
+async function createTaxa(unidade: Unidade) {
+	let taxa = await prisma.taxa.findUnique({
+		where: {
+			descricao: 'Taxa de Condomínio',
+		},
+	});
+
+	if (!taxa) {
+		taxa = await prisma.taxa.create({
+			data: {
+				descricao: 'Taxa de Condomínio',
+			},
+		});
+
+		await prisma.unidadeHasTaxas.create({
+			data: {
+				unidade_id: unidade.id,
+				valor: 2500,
+				taxa_id: taxa.id,
+			},
+		});
+	}
+}
+
 async function main() {
 	const empresa = await createEmpresa();
 	const user = await createUser(empresa);
@@ -339,6 +363,7 @@ async function main() {
 	const unidade = await createUnidade(condominio);
 	await createCondominos(unidade);
 	await createTipoInfracao();
+	await createTaxa(unidade);
 
 	await createMenu();
 

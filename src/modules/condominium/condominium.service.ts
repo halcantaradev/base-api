@@ -201,6 +201,19 @@ export class CondominiumService {
 						condomino: { select: { nome: true, id: true } },
 						tipo: { select: { descricao: true } },
 					},
+					where: {
+						condomino: body.busca
+							? {
+									nome: {
+										contains: body.busca
+											.toString()
+											.normalize('NFD')
+											.replace(/[\u0300-\u036f]/g, ''),
+										mode: 'insensitive',
+									},
+							  }
+							: undefined,
+					},
 				},
 				ativo: true,
 			},

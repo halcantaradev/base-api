@@ -63,6 +63,7 @@ export class DepartmentController {
 	}
 
 	@Post('list')
+	@HttpCode(HttpStatus.OK)
 	@Role('departamentos-listar')
 	@ApiOperation({ summary: 'Lista todos os departamentos' })
 	@ApiResponse({

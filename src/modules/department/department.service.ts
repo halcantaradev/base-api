@@ -13,7 +13,7 @@ export class DepartmentService {
 		return this.prisma.departamento.create({
 			data: {
 				nome: createDepartmentDto.nome,
-				nac: createDepartmentDto.nac,
+				nac: createDepartmentDto.nac || false,
 				empresa_id,
 			},
 		});
@@ -52,7 +52,7 @@ export class DepartmentService {
 							},
 					  ]
 					: undefined,
-				nac: filters.nac != null ? filters.nac : true,
+				nac: filters.nac != null ? filters.nac : undefined,
 				ativo: filters.ativo != null ? filters.ativo : true,
 				excluido: false,
 			},

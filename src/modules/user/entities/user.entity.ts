@@ -56,7 +56,7 @@ export class UserEntity {
 		description: 'Dados da Empresa do usuário',
 		type: EmpresaHasUsuarioEntity,
 		isArray: true,
-		required: false,
+		required: true,
 	})
 	empresas: EmpresaHasUsuarioEntity[];
 
@@ -64,7 +64,14 @@ export class UserEntity {
 		description: 'Dados dos departamentos do usuário',
 		type: UsuarioHasDepartamento,
 		isArray: true,
-		required: false,
+		required: true,
 	})
 	departamentos: UsuarioHasDepartamento[];
+
+	@ApiProperty({
+		description: 'Status do usuário',
+		example: true,
+		required: false,
+	})
+	acessa_todos_departamentos?: boolean;
 }

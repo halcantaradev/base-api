@@ -249,8 +249,8 @@ model Arquivo {
 
 model Contato {
   id         Int      @id @default(autoincrement())
-  contato    String   @unique
-  descricao  String   @unique
+  contato    String
+  descricao  String
   ativo      Boolean  @default(true)
   tipo       Int      @default(1)
   pessoa_id  Int

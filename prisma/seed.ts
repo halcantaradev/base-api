@@ -1,4 +1,10 @@
-import { Pessoa, PrismaClient, Unidade } from '@prisma/client';
+import {
+	Pessoa,
+	PrismaClient,
+	Taxa,
+	TiposPessoa,
+	Unidade,
+} from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
@@ -115,8 +121,13 @@ async function createCondominio(empresa: Pessoa) {
 		where: { nome: 'condominio' },
 	});
 
-	let condominio = await prisma.pessoa.findUnique({
-		where: { nome: 'Condominio' },
+	let condominio = await prisma.pessoa.findFirst({
+		where: {
+			nome: {
+				contains: 'Condominio',
+				mode: 'insensitive',
+			},
+		},
 	});
 
 	if (!tipoCondominio && !condominio) {
@@ -124,27 +135,29 @@ async function createCondominio(empresa: Pessoa) {
 			data: { nome: 'condominio', descricao: 'Condomínio' },
 		});
 
-		condominio = await prisma.pessoa.create({
-			data: {
-				nome: 'Condominio',
-				cnpj: '999999999999',
-				empresa_id: empresa.id,
-			},
-		});
+		for (let cont = 1; cont <= 3; cont++) {
+			condominio = await prisma.pessoa.create({
+				data: {
+					nome: `Condominio ${cont}`,
+					cnpj: `99999999999${cont}`,
+					empresa_id: empresa.id,
+				},
+			});
 
-		await prisma.pessoasHasTipos.create({
-			data: {
-				pessoa_id: condominio.id,
-				tipo_id: tipoCondominio.id,
-			},
-		});
+			await prisma.pessoasHasTipos.create({
+				data: {
+					pessoa_id: condominio.id,
+					tipo_id: tipoCondominio.id,
+				},
+			});
 
-		await prisma.empresaHasPessoas.create({
-			data: {
-				empresa_id: empresa.id,
-				pessoa_id: condominio.id,
-			},
-		});
+			await prisma.empresaHasPessoas.create({
+				data: {
+					empresa_id: empresa.id,
+					pessoa_id: condominio.id,
+				},
+			});
+		}
 	}
 
 	return condominio;
@@ -159,7 +172,7 @@ async function createContato(condominio: Pessoa) {
 		await prisma.contato.create({
 			data: {
 				descricao: 'Síndico',
-				contato: 'exemplo@gmail.com',
+				contato: `exemplo${condominio.id}@gmail.com`,
 				pessoa_id: condominio.id,
 			},
 		});
@@ -169,14 +182,14 @@ async function createContato(condominio: Pessoa) {
 async function createUnidade(condominio: Pessoa) {
 	let unidade = await prisma.unidade.findUnique({
 		where: {
-			codigo: '001',
+			codigo: `00${condominio.id}`,
 		},
 	});
 
 	if (!unidade) {
 		unidade = await prisma.unidade.create({
 			data: {
-				codigo: '001',
+				codigo: `00${condominio.id}`,
 				condominio_id: condominio.id,
 			},
 		});
@@ -185,11 +198,7 @@ async function createUnidade(condominio: Pessoa) {
 	return unidade;
 }
 
-async function createCondominos(unidade: Unidade) {
-	let proprietario = await prisma.pessoa.findUnique({
-		where: { nome: 'Francisco' },
-	});
-
+async function createTipoCondomino() {
 	let tipoProrietario = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'proprietario' },
 	});
@@ -200,11 +209,36 @@ async function createCondominos(unidade: Unidade) {
 		});
 	}
 
+	let tipoInquilino = await prisma.tiposPessoa.findUnique({
+		where: { nome: 'inquilino' },
+	});
+
+	if (!tipoInquilino) {
+		tipoInquilino = await prisma.tiposPessoa.create({
+			data: { nome: 'inquilino', descricao: 'Inquilino' },
+		});
+	}
+
+	return {
+		tipoProrietario,
+		tipoInquilino,
+	};
+}
+
+async function createCondominos(
+	unidade: Unidade,
+	tipoProrietario: TiposPessoa,
+	tipoInquilino: TiposPessoa,
+) {
+	let proprietario = await prisma.pessoa.findUnique({
+		where: { nome: `Francisco do apartamento ${unidade.codigo}` },
+	});
+
 	if (!proprietario) {
 		proprietario = await prisma.pessoa.create({
 			data: {
-				nome: 'Francisco',
-				cnpj: '9999999999999',
+				nome: `Francisco do apartamento ${unidade.codigo}`,
+				cnpj: `8888888${unidade.codigo}`,
 			},
 		});
 
@@ -218,24 +252,14 @@ async function createCondominos(unidade: Unidade) {
 	}
 
 	let inquilino = await prisma.pessoa.findUnique({
-		where: { nome: 'Antônio' },
+		where: { nome: `Antônio morador do apartamento ${unidade.codigo}` },
 	});
-
-	let tipoInquilino = await prisma.tiposPessoa.findUnique({
-		where: { nome: 'inquilino' },
-	});
-
-	if (!tipoInquilino) {
-		tipoInquilino = await prisma.tiposPessoa.create({
-			data: { nome: 'inquilino', descricao: 'Inquilino' },
-		});
-	}
 
 	if (!inquilino) {
 		inquilino = await prisma.pessoa.create({
 			data: {
-				nome: 'Antônio',
-				cnpj: '8888888888888',
+				nome: `Antônio morador do apartamento ${unidade.codigo}`,
+				cnpj: `7777777${unidade.codigo}`,
 			},
 		});
 
@@ -327,7 +351,7 @@ async function createMenu() {
 	}
 }
 
-async function createTaxa(unidade: Unidade) {
+async function createTaxa() {
 	let taxa = await prisma.taxa.findUnique({
 		where: {
 			descricao: 'Taxa de Condomínio',
@@ -340,15 +364,19 @@ async function createTaxa(unidade: Unidade) {
 				descricao: 'Taxa de Condomínio',
 			},
 		});
-
-		await prisma.unidadeHasTaxas.create({
-			data: {
-				unidade_id: unidade.id,
-				valor: 2500,
-				taxa_id: taxa.id,
-			},
-		});
 	}
+
+	return taxa;
+}
+
+async function createTaxaUnidade(taxa: Taxa, unidade: Unidade) {
+	await prisma.unidadeHasTaxas.create({
+		data: {
+			unidade_id: unidade.id,
+			valor: 2500,
+			taxa_id: taxa.id,
+		},
+	});
 }
 
 async function main() {
@@ -357,13 +385,37 @@ async function main() {
 	await createPermissoesList();
 	await createPermissionToUser(user.id, empresa.id);
 
-	const condominio = await createCondominio(empresa);
-	await createContato(condominio);
+	await createCondominio(empresa);
 
-	const unidade = await createUnidade(condominio);
-	await createCondominos(unidade);
+	const condominios = await prisma.pessoa.findMany({
+		where: {
+			tipos: {
+				some: {
+					tipo: {
+						nome: 'condominio',
+					},
+				},
+			},
+		},
+	});
+
 	await createTipoInfracao();
-	await createTaxa(unidade);
+	const tipos = await createTipoCondomino();
+
+	await Promise.all([
+		condominios.map(async (condominio) => {
+			await createContato(condominio);
+
+			const unidade = await createUnidade(condominio);
+			await createCondominos(
+				unidade,
+				tipos.tipoProrietario,
+				tipos.tipoInquilino,
+			);
+			const taxa = await createTaxa();
+			await createTaxaUnidade(taxa, unidade);
+		}),
+	]);
 
 	await createMenu();
 

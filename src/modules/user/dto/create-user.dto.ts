@@ -3,11 +3,14 @@ import {
 	IsEmail,
 	IsInt,
 	IsNotEmpty,
+	IsOptional,
 	IsString,
 	Validate,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { UsernameNotExists, EmailNotExists, CargoExists } from '../validators';
+import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
+import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class CreateUserDto {
 	@ApiProperty({
@@ -88,6 +91,19 @@ export class CreateUserDto {
 	@Type(() => Number)
 	@Validate(CargoExists)
 	cargo_id: number;
+
+	@ApiProperty({
+		description: 'Status do usuário',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo status informado não é válido. Por favor, forneça um status válido.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	acessa_todos_departamentos: boolean;
 
 	@ApiProperty({
 		description: 'Departamentos do usuário',

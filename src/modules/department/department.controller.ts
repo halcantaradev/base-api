@@ -82,10 +82,7 @@ export class DepartmentController {
 	) {
 		return {
 			success: true,
-			data: await this.departmentService.findAll(
-				user.empresa_id,
-				filters,
-			),
+			data: await this.departmentService.findAll(user, filters),
 		};
 	}
 
@@ -105,7 +102,7 @@ export class DepartmentController {
 	async findAllActive(@CurrentUser() user: UserAuth) {
 		return {
 			success: true,
-			data: await this.departmentService.findAll(user.empresa_id, {
+			data: await this.departmentService.findAll(user, {
 				ativo: true,
 			}),
 		};
@@ -127,7 +124,7 @@ export class DepartmentController {
 	async findOne(@CurrentUser() user: UserAuth, @Param('id') id: string) {
 		return {
 			success: true,
-			data: await this.departmentService.findOne(+id, user.empresa_id),
+			data: await this.departmentService.findOne(+id, user),
 		};
 	}
 
@@ -159,7 +156,7 @@ export class DepartmentController {
 			message: 'Departamento atualizado com sucesso',
 			data: await this.departmentService.update(
 				+id,
-				user.empresa_id,
+				user,
 				updateDepartmentDto,
 			),
 		};
@@ -179,7 +176,7 @@ export class DepartmentController {
 		type: ReturnEntity.error(),
 	})
 	async delete(@Param('id') id: string, @CurrentUser() user: UserAuth) {
-		await this.departmentService.delete(+id, user.empresa_id);
+		await this.departmentService.delete(+id, user);
 
 		return {
 			success: true,

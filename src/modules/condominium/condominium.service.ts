@@ -6,6 +6,7 @@ import { Residence } from './entities/residence.entity';
 import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
+import { FiltersCondominiumActiveDto } from './dto/filters-condominium-active.dto';
 
 @Injectable()
 export class CondominiumService {
@@ -115,6 +116,53 @@ export class CondominiumService {
 					  }
 					: undefined,
 				OR: filtersSelected.length ? filtersSelected : undefined,
+			},
+		);
+	}
+
+	async findAllActive(
+		filters: FiltersCondominiumActiveDto,
+		user: UserAuth,
+	): Promise<Condominium[]> {
+		let departamentos = null;
+
+		if (filters.departamentos?.length && !user.acessa_todos_departamentos) {
+			departamentos = filters.departamentos.filter((departamento) =>
+				user.departamentos_ids.includes(departamento),
+			);
+		} else if (
+			filters.departamentos?.length &&
+			user.acessa_todos_departamentos
+		) {
+			departamentos = filters.departamentos;
+		} else if (!user.acessa_todos_departamentos) {
+			departamentos = user.departamentos_ids;
+		}
+
+		return this.pessoaService.findAll(
+			'condominio',
+			{
+				departamentos_condominio: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: { nome: true },
+						},
+					},
+				},
+			},
+			{
+				ativo: true,
+				empresa_id: user.empresa_id,
+				departamentos_condominio: departamentos
+					? {
+							some: {
+								departamento_id: {
+									in: departamentos,
+								},
+							},
+					  }
+					: undefined,
 			},
 		);
 	}

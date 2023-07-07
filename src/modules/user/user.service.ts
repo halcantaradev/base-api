@@ -35,6 +35,17 @@ export class UserService {
 							},
 					  }
 					: undefined,
+				condominios: createUserDto.condominios
+					? {
+							createMany: {
+								data: createUserDto.condominios.map(
+									(departamento) => ({
+										condominio_id: departamento,
+									}),
+								),
+							},
+					  }
+					: undefined,
 			},
 		});
 
@@ -190,6 +201,14 @@ export class UserService {
 						},
 					},
 				},
+				condominios: {
+					select: {
+						condominio_id: true,
+						condominio: {
+							select: { nome: true },
+						},
+					},
+				},
 			},
 			where: {
 				id,
@@ -273,6 +292,14 @@ export class UserService {
 							},
 						},
 					},
+					condominios: {
+						select: {
+							condominio_id: true,
+							condominio: {
+								select: { nome: true },
+							},
+						},
+					},
 				},
 				data: {
 					nome: updateUserDto.nome,
@@ -304,6 +331,20 @@ export class UserService {
 									data: updateUserDto.departamentos.map(
 										(departamento) => ({
 											departamento_id: departamento,
+										}),
+									),
+								},
+						  }
+						: undefined,
+					condominios: updateUserDto.condominios
+						? {
+								deleteMany: {
+									usuario_id: id,
+								},
+								createMany: {
+									data: updateUserDto.condominios.map(
+										(departamento) => ({
+											condominio_id: departamento,
 										}),
 									),
 								},

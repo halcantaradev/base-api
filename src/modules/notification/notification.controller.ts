@@ -22,6 +22,8 @@ import { NotificationService } from './notification.service';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
+import { ValidateNotificationDto } from './dto/validate-notification.dto';
+import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -89,6 +91,31 @@ export class NotificationController {
 	})
 	search(@Body() filtros: FilterNotificationDto) {
 		return this.notificationService.findBy(filtros);
+	}
+
+	@Post('validate')
+	@Role('notificacoes-cadastrar')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({
+		summary:
+			'Valida as informações da notificação baseado nos dados enviados',
+	})
+	@ApiResponse({
+		description: 'Notificação validada com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnValidatedNotificationEntity,
+	})
+	@ApiResponse({
+		description:
+			'Ocorreu um erro ao validar a notificação, por favor verifique o campos preenchidos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnNotificationListEntity,
+	})
+	async validate(@Body() dados: ValidateNotificationDto) {
+		return {
+			success: true,
+			data: await this.notificationService.validateNotification(dados),
+		};
 	}
 
 	@Post('reports')

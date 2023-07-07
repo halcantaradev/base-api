@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString, Validate } from 'class-validator';
 import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
+import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class CreateDepartmentDto {
 	@ApiProperty({
@@ -28,10 +29,6 @@ export class CreateDepartmentDto {
 		message:
 			'O campo NAC informado não é válido. Por favor, forneça uma indicação válida.',
 	})
-	@Transform(({ value }) => {
-		if (value === null) return null;
-
-		return ['true', '1', true, 1].includes(value);
-	})
+	@Transform(BooleanTransformHelper)
 	nac: boolean;
 }

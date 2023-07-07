@@ -118,4 +118,28 @@ export const permissionslist: Array<{
 		key: 'departamentos-desativar',
 		message: 'Sem permissão para desativar os departamentos',
 	},
+	{
+		label: 'Listar dados de setup de notificações',
+		key: 'setup-notificacoes-listar',
+		message:
+			'Sem permissão para listar os dados de configurações de notificações',
+	},
+	{
+		label: 'Atualizar dados de setup de notificações',
+		key: 'setup-notificacoes-atualizar',
+		message:
+			'Sem permissão para atualizar os dados de configurações de notificações',
+	},
+	{
+		label: 'Listar dados de setup do sistema',
+		key: 'setup-sistema-listar',
+		message:
+			'Sem permissão para listar os dados de configurações do sistema',
+	},
+	{
+		label: 'Atualizar dados de setup do sistema',
+		key: 'setup-sistema-atualizar',
+		message:
+			'Sem permissão para atualizar os dados de configurações do sistema',
+	},
 ];

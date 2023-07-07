@@ -25,6 +25,7 @@ import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
+import { FiltersCondominiumActiveDto } from './dto/filters-condominium-active.dto';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -62,9 +63,8 @@ export class CondominiumController {
 		};
 	}
 
-	@Get('active')
+	@Post('active')
 	@Role('condominios-listar-ativos')
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Lista todos os condomínios ativos' })
 	@ApiResponse({
 		description: 'Condomínios listados com sucesso',
@@ -81,10 +81,13 @@ export class CondominiumController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllActive(@CurrentUser() user: UserAuth) {
+	async findAllActive(
+		@CurrentUser() user: UserAuth,
+		@Body() filters: FiltersCondominiumActiveDto,
+	) {
 		return {
 			success: true,
-			data: await this.condominioService.findAll({ ativo: true }, user),
+			data: await this.condominioService.findAllActive(filters, user),
 		};
 	}
 
@@ -143,6 +146,7 @@ export class CondominiumController {
 	}
 
 	@Post(':id_condominium/residences')
+	@HttpCode(HttpStatus.OK)
 	@Role('unidades-listar')
 	@ApiOperation({ summary: 'Lista todos as unidades' })
 	@ApiResponse({

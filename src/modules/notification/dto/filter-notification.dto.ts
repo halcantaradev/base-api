@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsInt, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsDate, IsInt, IsOptional } from 'class-validator';
 
 export class FilterNotificationDto {
 	@ApiProperty({
@@ -8,10 +8,7 @@ export class FilterNotificationDto {
 		isArray: true,
 		required: true,
 	})
-	@IsNotEmpty({
-		message:
-			'O campo condomínio é obrigatório. Por favor, selecione um condomínio válido.',
-	})
+	@IsOptional()
 	@IsInt({
 		each: true,
 		message:

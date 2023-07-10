@@ -205,7 +205,15 @@ export class NotificationService {
 				},
 			},
 			where: {
-				ativo: true,
+				unidades_condominio: {
+					some: {
+						notificacoes: {
+							some: {
+								ativo: true,
+							},
+						},
+					},
+				},
 				tipos: {
 					some: {
 						tipo: {
@@ -236,6 +244,7 @@ export class NotificationService {
 					: undefined,
 			},
 		});
+
 		return {
 			success: true,
 			data: notifications,

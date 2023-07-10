@@ -120,6 +120,16 @@ export class UserService {
 									: undefined,
 						},
 					},
+					departamentos:
+						filtros.departamentos && filtros.departamentos.length
+							? {
+									some: {
+										departamento_id: {
+											in: filtros.departamentos,
+										},
+									},
+							  }
+							: undefined,
 				},
 				orderBy: {
 					nome: 'asc',

@@ -135,34 +135,41 @@ export class NotificationService {
 								},
 								ativo: true,
 							},
-							where: filtro
-								? {
-										tipo_registro: filtro.tipo_notificacao
-											? filtro.tipo_notificacao
-											: undefined,
-										tipo_infracao_id:
-											filtro.tipo_infracao_id
-												? filtro.tipo_infracao_id
+							where: {
+								ativo: true,
+								...(filtro
+									? {
+											tipo_registro:
+												filtro.tipo_notificacao
+													? filtro.tipo_notificacao
+													: undefined,
+											tipo_infracao_id:
+												filtro.tipo_infracao_id
+													? filtro.tipo_infracao_id
+													: undefined,
+											OR: filtro.tipo_data_filtro
+												? [
+														filtro.tipo_data_filtro ==
+														1
+															? {
+																	data_emissao:
+																		{
+																			gte: filtro.data_inicial,
+																			lte: filtro.data_final,
+																		},
+															  }
+															: {
+																	data_infracao:
+																		{
+																			gte: filtro.data_inicial,
+																			lte: filtro.data_final,
+																		},
+															  },
+												  ]
 												: undefined,
-										OR: filtro.tipo_data_filtro
-											? [
-													filtro.tipo_data_filtro == 1
-														? {
-																data_emissao: {
-																	gte: filtro.data_inicial,
-																	lte: filtro.data_final,
-																},
-														  }
-														: {
-																data_infracao: {
-																	gte: filtro.data_inicial,
-																	lte: filtro.data_final,
-																},
-														  },
-											  ]
-											: undefined,
-								  }
-								: undefined,
+									  }
+									: undefined),
+							},
 						},
 					},
 					where: filtro
@@ -205,15 +212,6 @@ export class NotificationService {
 				},
 			},
 			where: {
-				unidades_condominio: {
-					some: {
-						notificacoes: {
-							some: {
-								ativo: true,
-							},
-						},
-					},
-				},
 				tipos: {
 					some: {
 						tipo: {

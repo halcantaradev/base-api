@@ -205,6 +205,7 @@ export class NotificationService {
 				},
 			},
 			where: {
+				ativo: true,
 				tipos: {
 					some: {
 						tipo: {

@@ -26,6 +26,7 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
 import { FiltersCondominiumActiveDto } from './dto/filters-condominium-active.dto';
+import { FiltersResidenceActiveDto } from './dto/filters-residence-active.dto';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -145,7 +146,7 @@ export class CondominiumController {
 		};
 	}
 
-	@Post(':id_condominium/residences')
+	@Post('residences')
 	@HttpCode(HttpStatus.OK)
 	@Role('unidades-listar')
 	@ApiOperation({ summary: 'Lista todos as unidades' })
@@ -161,20 +162,16 @@ export class CondominiumController {
 	})
 	async findAllResidences(
 		@CurrentUser() user: UserAuth,
-		@Param('id_condominium') id_condominium: string,
 		@Body() body: FiltersResidenceDto,
 	) {
 		return {
 			success: true,
-			data: await this.condominioService.findAllResidences(
-				+id_condominium,
-				body,
-				user,
-			),
+			data: await this.condominioService.findAllResidences(body, user),
 		};
 	}
 
-	@Get(':id_condominium/residences/active')
+	@Post('residences/active')
+	@HttpCode(HttpStatus.OK)
 	@Role('unidades-listar-ativos')
 	@ApiOperation({ summary: 'Lista todos as unidades ativas' })
 	@ApiResponse({
@@ -189,20 +186,18 @@ export class CondominiumController {
 	})
 	async findAllResidencesActive(
 		@CurrentUser() user: UserAuth,
-		@Param('id_condominium') id_condominium: string,
-		@Query('busca') busca?: string,
+		@Body() body: FiltersResidenceActiveDto,
 	) {
 		return {
 			success: true,
 			data: await this.condominioService.findAllResidences(
-				+id_condominium,
-				{ busca, ativo: true },
+				{ ...body, ativo: true },
 				user,
 			),
 		};
 	}
 
-	@Get(':id_condominium/residences/:id')
+	@Get('residences/:id')
 	@Role('unidades-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados de uma unidade' })
 	@ApiResponse({
@@ -217,7 +212,7 @@ export class CondominiumController {
 	})
 	async findOneResidence(
 		@CurrentUser() user: UserAuth,
-		@Param('id_condominium') id_condominium: string,
+		@Query('id_condominium') id_condominium: string,
 		@Param('id') id: string,
 	) {
 		return {

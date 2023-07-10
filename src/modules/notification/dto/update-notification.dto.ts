@@ -10,13 +10,16 @@ export class UpdateNotificationDto extends CreateNotificationDto {
 	unidade_id: number;
 
 	@IsOptional()
-	infracao_id: number;
+	pessoa_id: number;
+
+	@IsOptional()
+	tipo_infracao_id: number;
 
 	@IsOptional()
 	data_emissao: Date;
 
 	@IsOptional()
-	data_infração: Date;
+	data_infracao: Date;
 
 	@IsOptional()
 	detalhes_infracao: string;

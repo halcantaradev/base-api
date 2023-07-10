@@ -533,7 +533,6 @@ export class NotificationService {
 
 		return {
 			success: true,
-			message: 'Notificação listada com sucesso.',
 			data: notification,
 		};
 	}

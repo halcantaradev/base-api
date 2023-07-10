@@ -370,13 +370,17 @@ async function createTaxa() {
 }
 
 async function createTaxaUnidade(taxa: Taxa, unidade: Unidade) {
-	await prisma.unidadeHasTaxas.create({
-		data: {
-			unidade_id: unidade.id,
-			valor: 2500,
-			taxa_id: taxa.id,
-		},
+	const taxaExists = await prisma.unidadeHasTaxas.findFirst({
+		where: { unidade_id: unidade.id },
 	});
+	if (!taxaExists)
+		await prisma.unidadeHasTaxas.create({
+			data: {
+				unidade_id: unidade.id,
+				valor: 2500,
+				taxa_id: taxa.id,
+			},
+		});
 }
 
 async function main() {

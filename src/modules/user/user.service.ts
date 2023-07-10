@@ -222,7 +222,6 @@ export class UserService {
 
 		return {
 			success: true,
-			message: 'Usuário listado com sucesso.',
 			data: userSaved,
 		};
 	}

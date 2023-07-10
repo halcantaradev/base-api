@@ -8,7 +8,6 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { ValidateNotificationDto } from './dto/validate-notification.dto';
-import { NotificationEntity } from './entities/notification.entity';
 import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
@@ -594,6 +593,7 @@ export class NotificationService {
 					valor_multa: updateNotificationDto.valor_multa,
 					vencimento_multa: updateNotificationDto.vencimento_multa,
 					unir_taxa: updateNotificationDto.unir_taxa,
+					observacoes: updateNotificationDto.observacoes,
 				},
 				where: { id },
 			}),

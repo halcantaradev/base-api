@@ -53,7 +53,7 @@ export class DepartmentService {
 					  ]
 					: undefined,
 				nac: filters.nac != null ? filters.nac : undefined,
-				ativo: filters.ativo != null ? filters.ativo : true,
+				ativo: filters.ativo != null ? filters.ativo : undefined,
 				excluido: false,
 			},
 		});
@@ -83,7 +83,10 @@ export class DepartmentService {
 		user: UserAuth,
 		updateDepartmentDto: UpdateDepartmentDto,
 	) {
-		if (!user.departamentos_ids.includes(id))
+		if (
+			!user.departamentos_ids.includes(id) &&
+			!user.acessa_todos_departamentos
+		)
 			throw new BadRequestException('Departamento não encontrado');
 
 		const department = await this.prisma.departamento.findFirst({
@@ -116,7 +119,10 @@ export class DepartmentService {
 	}
 
 	async delete(id: number, user: UserAuth) {
-		if (!user.departamentos_ids.includes(id))
+		if (
+			!user.departamentos_ids.includes(id) &&
+			!user.acessa_todos_departamentos
+		)
 			throw new BadRequestException('Departamento não encontrado');
 
 		const department = await this.prisma.departamento.findFirst({

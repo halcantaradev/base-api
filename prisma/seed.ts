@@ -405,6 +405,7 @@ async function main() {
 
 	await createTipoInfracao();
 	const tipos = await createTipoCondomino();
+	const taxa = await createTaxa();
 
 	await Promise.all([
 		condominios.map(async (condominio) => {
@@ -416,7 +417,6 @@ async function main() {
 				tipos.tipoProrietario,
 				tipos.tipoInquilino,
 			);
-			const taxa = await createTaxa();
 			await createTaxaUnidade(taxa, unidade);
 		}),
 	]);

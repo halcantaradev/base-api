@@ -31,7 +31,7 @@ export class UpdateNotificationDto extends CreateNotificationDto {
 	fundamentacao_legal: string;
 
 	@IsOptional()
-	observacao: string;
+	observacoes: string;
 
 	@ApiProperty({
 		description: 'Situação atual da notificação',

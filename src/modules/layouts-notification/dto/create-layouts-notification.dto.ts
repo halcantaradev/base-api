@@ -1,10 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, Validate } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { LayoutsNotification } from '../entities/layouts-notification.entity';
-import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
-import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
-import { Transform } from 'class-transformer';
 
 export class CreateLayoutsNotificationDto extends PartialType(
 	LayoutsNotification,
@@ -32,17 +29,4 @@ export class CreateLayoutsNotificationDto extends PartialType(
 			'O campo nome informado não é válido. Por favor, forneça um nome válido.',
 	})
 	modelo: string;
-
-	@ApiProperty({
-		description: 'Status do modelo',
-		example: true,
-		required: true,
-	})
-	@Validate(IsBooleanType, {
-		message:
-			'O campo status informado não é válido. Por favor, forneça um status válido.',
-	})
-	@Transform(BooleanTransformHelper)
-	@IsOptional()
-	ativo?: boolean;
 }

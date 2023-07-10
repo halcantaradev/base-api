@@ -133,6 +133,7 @@ export class NotificationService {
 										},
 									},
 								},
+								ativo: true,
 							},
 							where: filtro
 								? {
@@ -510,6 +511,7 @@ export class NotificationService {
 			include: {
 				unidade: {
 					select: {
+						id: true,
 						codigo: true,
 						condominos: {
 							select: {

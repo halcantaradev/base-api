@@ -12,6 +12,7 @@ model Pessoa {
   nome         String   @unique
   cnpj         String   @unique
   empresa_id   Int?
+  numero       String?
   endereco     String?
   cep          String?
   bairro       String?
@@ -22,19 +23,19 @@ model Pessoa {
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  contatos                 Contato[]
-  unidades_condominio      Unidade[]
-  tipos                    PessoasHasTipos[]
-  unidades                 PessoasHasUnidades[]
-  usuarios_empresa         EmpresasHasUsuarios[]
-  permissoes_cargos        CargosHasPermissoes[]
-  permissoes_usuarios      UsuarioHasPermissoes[]
-  departamentos            Departamento[]
-  notificacoes             Notificacao[]
-  departamentos_condominio CondominioHasDepartamentos[]
-  empresas_pessoa          EmpresaHasPessoas[]          @relation("EmpresaEmpresaPessoa")
-  pessoas_empresa          EmpresaHasPessoas[]          @relation("PessoaEmpresaPessoa")
-  LayoutsNotificacao       LayoutsNotificacao[]
+  contatos                      Contato[]
+  unidades_condominio           Unidade[]
+  tipos                         PessoasHasTipos[]
+  unidades                      PessoasHasUnidades[]
+  usuarios_empresa              EmpresasHasUsuarios[]
+  permissoes_cargos             CargosHasPermissoes[]
+  permissoes_usuarios           UsuarioHasPermissoes[]
+  departamentos                 Departamento[]
+  notificacoes                  Notificacao[]
+  departamentos_condominio      CondominioHasDepartamentos[]
+  empresas_pessoa               EmpresaHasPessoas[]          @relation("EmpresaEmpresaPessoa")
+  pessoas_empresa               EmpresaHasPessoas[]          @relation("PessoaEmpresaPessoa")
+  LayoutsNotificacao            LayoutsNotificacao[]
   condominio_administracao      CondomimioAdministracao[]
   usuarios_condominio           UsuarioHasCondominios[]
   setup_condominio_notificacoes NotificacaoSetup?
@@ -90,6 +91,8 @@ model User {
   nome                       String
   username                   String   @unique
   password                   String
+  telefone                   String?
+  ramal                      String?
   secret                     String   @default(uuid())
   ativo                      Boolean  @default(true)
   acessa_todos_departamentos Boolean  @default(false)

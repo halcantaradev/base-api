@@ -31,7 +31,11 @@
 <div style="width: 100%;">
     <div style="text-align: right;">
         <p><strong>[NOME_CONDOMINIO]</strong>
-            <br><em>[ENDERECO_COMPLETO_CONDOMINIO]</em>
+            <br>
+            <em>[ENDERECO_CONDOMINIO]
+                {{#if numero_condominio}}<span >, [NUMERO_CONDOMINIO]</span>{{/if}}
+                {{#if bairro_condominio}}<span > - [BAIRRO_CONDOMINIO]</span>{{/if}}
+            </em>
         </p>
     </div>
     <hr>

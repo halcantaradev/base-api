@@ -81,10 +81,7 @@ export class CreateUserDto {
 		example: '(85) 4002-8966',
 		required: true,
 	})
-	@IsNotEmpty({
-		message:
-			'O campo telefone é obrigatório. Por favor, forneça um telefone.',
-	})
+	@IsOptional()
 	@IsString({
 		message:
 			'O campo telefone informado não é válido. Por favor, forneça um telefone válido',
@@ -96,10 +93,7 @@ export class CreateUserDto {
 		example: '456',
 		required: true,
 	})
-	@IsNotEmpty({
-		message: 'O campo ramal é obrigatório. Por favor, forneça um ramal.',
-	})
-	@IsString({
+	@IsOptional({
 		message:
 			'O campo ramal informado não é válido. Por favor, forneça um ramal válido',
 	})

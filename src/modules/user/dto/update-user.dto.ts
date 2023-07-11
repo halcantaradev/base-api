@@ -21,6 +21,12 @@ export class UpdateUserDto extends CreateUserDto {
 	password: string;
 
 	@IsOptional()
+	telefone: string;
+
+	@IsOptional()
+	ramal: string;
+
+	@IsOptional()
 	cargo_id: number;
 
 	@ApiProperty({

@@ -77,6 +77,35 @@ export class CreateUserDto {
 	password: string;
 
 	@ApiProperty({
+		description: 'Telefone do usuário',
+		example: '(85) 4002-8966',
+		required: true,
+	})
+	@IsNotEmpty({
+		message:
+			'O campo telefone é obrigatório. Por favor, forneça um telefone.',
+	})
+	@IsString({
+		message:
+			'O campo telefone informado não é válido. Por favor, forneça um telefone válido',
+	})
+	telefone: string;
+
+	@ApiProperty({
+		description: 'Ramal do usuário',
+		example: '456',
+		required: true,
+	})
+	@IsNotEmpty({
+		message: 'O campo ramal é obrigatório. Por favor, forneça um ramal.',
+	})
+	@IsString({
+		message:
+			'O campo ramal informado não é válido. Por favor, forneça um ramal válido',
+	})
+	ramal: string;
+
+	@ApiProperty({
 		description: 'Cargo do usuário',
 		example: 1,
 		required: true,

@@ -19,6 +19,8 @@ export class UserService {
 				username: createUserDto.username,
 				password: PasswordHelper.create(createUserDto.password),
 				email: createUserDto.email,
+				telefone: createUserDto.telefone,
+				ramal: createUserDto.ramal,
 				empresas: {
 					create: {
 						cargo_id: createUserDto.cargo_id,
@@ -191,6 +193,8 @@ export class UserService {
 				nome: true,
 				username: true,
 				email: true,
+				telefone: true,
+				ramal: true,
 				ativo: true,
 				updated_at: true,
 				acessa_todos_departamentos: user.acessa_todos_departamentos,
@@ -291,6 +295,8 @@ export class UserService {
 					nome: true,
 					username: true,
 					email: true,
+					telefone: true,
+					ramal: true,
 					ativo: true,
 					updated_at: true,
 					acessa_todos_departamentos: user.acessa_todos_departamentos,
@@ -329,6 +335,8 @@ export class UserService {
 						: undefined,
 					username: updateUserDto.username,
 					email: updateUserDto.email,
+					telefone: updateUserDto.telefone,
+					ramal: updateUserDto.ramal,
 					ativo:
 						updateUserDto.ativo != null
 							? updateUserDto.ativo

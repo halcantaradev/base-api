@@ -181,7 +181,7 @@ export class CondominiumService {
 		);
 	}
 
-	async findOne(id: number, user: UserAuth): Promise<Condominium> {
+	async findOne(id: number | number[], user: UserAuth): Promise<Condominium> {
 		return this.pessoaService.findOneById(
 			id,
 			'condominio',
@@ -256,15 +256,17 @@ export class CondominiumService {
 	}
 
 	async findAllResidences(
-		id_condominium: number,
 		body: FiltersResidenceDto,
 		user: UserAuth,
 	): Promise<Residence[]> {
-		const condominio = await this.findOne(id_condominium, user);
+		if (!body.condominios_ids.length)
+			throw new BadRequestException('Selecione um condomínio válido');
+
+		const condominio = await this.findOne(body.condominios_ids, user);
 
 		if (!condominio)
 			throw new BadRequestException(
-				'Ocorreu um erro ao vincular um departamento',
+				'Ocorreu um erro ao listar as unidades',
 			);
 
 		return this.prisma.unidade.findMany({
@@ -293,7 +295,11 @@ export class CondominiumService {
 				ativo: true,
 			},
 			where: {
-				condominio_id: id_condominium,
+				condominio_id: body.condominios_ids?.length
+					? {
+							in: body.condominios_ids,
+					  }
+					: undefined,
 				ativo: body.ativo != null ? body.ativo : undefined,
 				OR: [
 					{
@@ -339,7 +345,7 @@ export class CondominiumService {
 
 		if (!condominio)
 			throw new BadRequestException(
-				'Ocorreu um erro ao vincular um departamento',
+				'Ocorreu um erro ao listar a unidade',
 			);
 
 		return this.prisma.unidade.findFirst({

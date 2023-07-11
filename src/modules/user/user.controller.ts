@@ -22,6 +22,7 @@ import { ReturnUserEntity } from './entities/return-user.entity';
 import { UserService } from './user.service';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { ListUserDto } from './dto/list-user.dto';
+import { ListUserActiveDto } from './dto/list-user-active.dto';
 
 @ApiTags('User')
 @Controller('users')
@@ -68,7 +69,8 @@ export class UserController {
 		return this.userService.findAll(user.empresa_id, filtros);
 	}
 
-	@Get('active')
+	@Post('active')
+	@HttpCode(HttpStatus.OK)
 	@Role('usuarios-listar-ativos')
 	@ApiOperation({ summary: 'Lista usuários ativos' })
 	@ApiResponse({
@@ -81,8 +83,14 @@ export class UserController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	findAllActive(@CurrentUser() user: UserAuth) {
-		return this.userService.findAll(user.empresa_id, { ativo: true });
+	findAllActive(
+		@CurrentUser() user: UserAuth,
+		@Body() filters: ListUserActiveDto,
+	) {
+		return this.userService.findAll(user.empresa_id, {
+			...filters,
+			ativo: true,
+		});
 	}
 
 	@Get(':id')

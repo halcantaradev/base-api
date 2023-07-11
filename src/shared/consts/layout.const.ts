@@ -91,7 +91,7 @@ export const layoutConst: Array<{
 	{
 		label: 'Observação padrão para notificação do condomínio',
 		const: '[OBSERVACAO_PADRAO_NOTIFICACAO_CONDOMINIO]',
-		field: '{{observacao_padrao_notificacao_condominio}}',
+		field: '{{{observacao_padrao_notificacao_condominio}}}',
 	},
 	{
 		label: 'Sanção padrão',

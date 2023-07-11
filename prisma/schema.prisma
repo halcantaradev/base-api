@@ -12,6 +12,7 @@ model Pessoa {
   nome         String   @unique
   cnpj         String   @unique
   empresa_id   Int?
+  numero       String?
   endereco     String?
   cep          String?
   bairro       String?

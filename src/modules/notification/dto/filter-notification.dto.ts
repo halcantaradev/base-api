@@ -46,9 +46,9 @@ export class FilterNotificationDto {
 	@IsOptional()
 	@IsInt({
 		message:
-			'O campo condômino informado não é válido. Por favor, selecione uma unidade válida',
+			'O campo tipo de notificação não é válido. Por favor, selecione um tipo válido',
 	})
-	tipo_notificacao: number;
+	tipo_registro: number;
 
 	@ApiProperty({
 		description: 'Id dos consultores',

@@ -98,6 +98,7 @@ export class NotificationService {
 				unidades_condominio: {
 					select: {
 						codigo: true,
+						condominos: { select: { condomino: true, tipo: true } },
 						notificacoes: {
 							select: {
 								id: true,
@@ -138,10 +139,9 @@ export class NotificationService {
 								ativo: true,
 								...(filtro
 									? {
-											tipo_registro:
-												filtro.tipo_notificacao
-													? filtro.tipo_notificacao
-													: undefined,
+											tipo_registro: filtro.tipo_registro
+												? filtro.tipo_registro
+												: undefined,
 											tipo_infracao_id:
 												filtro.tipo_infracao_id
 													? filtro.tipo_infracao_id
@@ -180,8 +180,8 @@ export class NotificationService {
 									: undefined,
 								notificacoes: {
 									some: {
-										tipo_registro: filtro.tipo_notificacao
-											? filtro.tipo_notificacao
+										tipo_registro: filtro.tipo_registro
+											? filtro.tipo_registro
 											: undefined,
 										tipo_infracao_id:
 											filtro.tipo_infracao_id
@@ -419,7 +419,7 @@ export class NotificationService {
 						},
 						notificacoes: {
 							every: {
-								tipo_registro: filtro.tipo_notificacao,
+								tipo_registro: filtro.tipo_registro,
 								tipo_infracao_id: filtro.tipo_infracao_id,
 								OR: [
 									filtro.tipo_data_filtro == 1

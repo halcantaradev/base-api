@@ -657,7 +657,11 @@ export class NotificationService {
 		dataToPrint.endereco_condominio = (
 			data as any
 		).unidade.condominio.endereco;
-		dataToPrint.endereco_completo_condominio = `${dataToPrint.endereco_condominio}, ${dataToPrint.numero_condominio} - ${dataToPrint.bairro_condominio}`;
+		dataToPrint.endereco_completo_condominio = `${
+			dataToPrint.endereco_condominio || ''
+		}, ${dataToPrint.numero_condominio || ''} - ${
+			dataToPrint.bairro_condominio || ''
+		}`;
 
 		dataToPrint.codigo_unidade = data.unidade.codigo;
 		dataToPrint.tipo_notificacao =

@@ -12,6 +12,7 @@ import { ReturnInfractionListEntity } from './entities/return-infraction-list.en
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
+import { format } from 'src/shared/helpers/currency.helper';
 
 @Injectable()
 export class NotificationService {
@@ -311,7 +312,7 @@ export class NotificationService {
 						const setupSistema =
 							await this.prisma.sistemaSetup.findFirst();
 
-						valor_multa = setupSistema.salario_minimo_base;
+						valor_multa = setupSistema?.salario_minimo_base || 0;
 						break;
 					case 3: // Menor Taxa de condomínio
 						taxaUnidade =
@@ -342,10 +343,11 @@ export class NotificationService {
 				}
 
 				return {
-					valor_multa:
+					valor_multa: format(
 						valor_multa *
-						(setup.primeira_reincidencia_percentual_pagamento /
-							100),
+							(setup.primeira_reincidencia_percentual_pagamento /
+								100),
+					),
 					tipo_registro: 2,
 				};
 			}
@@ -370,7 +372,7 @@ export class NotificationService {
 					}
 
 					return {
-						valor_multa,
+						valor_multa: format(valor_multa),
 						tipo_registro: 2,
 					};
 				}

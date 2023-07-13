@@ -3,25 +3,72 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
 import { permissionslist } from '../src/modules/public/permissions/permissions-list';
+import { menulist } from '../src/modules/public/menu/menus-list';
+
+async function createTipoCondomino() {
+	let tipoPessoa = await prisma.tiposPessoa.findUnique({
+		where: { nome: 'proprietario' },
+	});
+
+	if (!tipoPessoa) {
+		await prisma.tiposPessoa.create({
+			data: { nome: 'proprietario', descricao: 'Proprietário' },
+		});
+	}
+
+	tipoPessoa = await prisma.tiposPessoa.findUnique({
+		where: { nome: 'inquilino' },
+	});
+
+	if (!tipoPessoa) {
+		await prisma.tiposPessoa.create({
+			data: { nome: 'inquilino', descricao: 'Inquilino' },
+		});
+	}
+
+	tipoPessoa = await prisma.tiposPessoa.findUnique({
+		where: { nome: 'empresa' },
+	});
+
+	if (!tipoPessoa) {
+		await prisma.tiposPessoa.create({
+			data: { nome: 'empresa', descricao: 'Empresa' },
+		});
+	}
+
+	tipoPessoa = await prisma.tiposPessoa.findUnique({
+		where: { nome: 'condominio' },
+	});
+
+	if (!tipoPessoa) {
+		await prisma.tiposPessoa.create({
+			data: { nome: 'condominio', descricao: 'Condomínio' },
+		});
+	}
+
+	console.log('Tipos de pessoas criados!');
+}
 
 async function createEmpresa() {
-	let tipoEmpresa = await prisma.tiposPessoa.findUnique({
+	const tipoEmpresa = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'empresa' },
 	});
 
 	let empresa = await prisma.pessoa.findUnique({
-		where: { nome: 'Gestart' },
+		where: { nome: 'Empresa Teste' },
 	});
 
-	if (!tipoEmpresa && !empresa) {
-		tipoEmpresa = await prisma.tiposPessoa.create({
-			data: { nome: 'empresa', descricao: 'Empresa' },
-		});
-
+	if (!empresa) {
 		empresa = await prisma.pessoa.create({
 			data: {
-				nome: 'Gestart',
-				cnpj: '88888888888',
+				nome: 'Empresa Teste',
+				cnpj: '82.186.418/0001-08',
+				endereco: 'Rua A',
+				numero: '2541',
+				bairro: 'Aldeota',
+				cep: '60521-052',
+				cidade: 'Fortaleza',
+				uf: 'CE',
 			},
 		});
 
@@ -112,11 +159,118 @@ async function cretePermissionToUser(usuario_id: number, empresa_id: number) {
 	console.log('Permissões consedidas ao usuário Admin');
 }
 
+async function createMenu() {
+	for await (const menu of menulist) {
+		let menuSaved = await prisma.menu.findFirst({
+			where: { label: menu.label, url: menu.url },
+		});
+
+		if (!menuSaved) {
+			const permission = menu.permission_key
+				? await prisma.permissoes.findFirst({
+						where: {
+							key: menu.permission_key,
+						},
+				  })
+				: null;
+
+			menuSaved = await prisma.menu.create({
+				data: {
+					permissao_id: permission?.id,
+					label: menu.label,
+					url: menu.url,
+					icon: menu.icon,
+					target: menu.target,
+				},
+			});
+		}
+
+		if (
+			menulist.findIndex((item) => menu.id_relation == item.relation) !=
+			-1
+		) {
+			await Promise.all(
+				menulist
+					.filter((item) => item.relation == menu.id_relation)
+					.map(async (item) => {
+						const menuSavedNested = await prisma.menu.findFirst({
+							where: { url: item.url },
+						});
+
+						if (!menuSavedNested) {
+							const permission = item.permission_key
+								? await prisma.permissoes.findFirst({
+										where: {
+											key: item.permission_key,
+										},
+								  })
+								: null;
+
+							return prisma.menu.create({
+								data: {
+									menu_id: menuSaved.id,
+									permissao_id: permission?.id,
+									label: item.label,
+									url: item.url,
+									icon: item.icon,
+									target: item.target,
+								},
+							});
+						}
+
+						return null;
+					}),
+			);
+		}
+	}
+	console.log('Menus gerados com sucesso!');
+}
+
+async function creatSetupSistena(empresa_id: number) {
+	const setup = await prisma.sistemaSetup.findFirst();
+
+	if (!setup) {
+		await prisma.sistemaSetup.create({
+			data: {
+				salario_minimo_base: 1320,
+				sancao: `Nos Termos da Lei nº 4.591/64 e Lei 10406/02, vimos notificá-lo da infração cometida, que de acordo com
+					código civil, convenção e/ou regimento interno do seu condomínio, é de responsabilidade do proprietário
+					acima identificado.`,
+				texto_padrao_notificacao: `De acordo com determinação da Convenção e Regimento Interno, fica o(a) proprietário(a)
+					notificado(a) da infração e aplicada a advertência escrita, ficando ainda notificado (a) de que será
+					aplicada multa pecuniária no valor abaixo, sem prejuízo das ações cíveis de reparação de danos
+					que lhe poderão ser propostas pelo condomínio.`,
+				empresa_id,
+			},
+		});
+	}
+}
+
+async function createTipoInfracao() {
+	const tipo = await prisma.tipoInfracao.findFirst();
+
+	if (!tipo) {
+		await prisma.tipoInfracao.createMany({
+			data: [
+				{ descricao: 'Animal' },
+				{ descricao: 'Barulho' },
+				{ descricao: 'Garagem' },
+				{ descricao: 'Vazamento' },
+				{ descricao: 'Alteração da fachada' },
+			],
+		});
+	}
+}
+
 async function main() {
+	await createTipoCondomino();
+	await createTipoInfracao();
 	await createPermissoesList();
 	const empresa = await createEmpresa();
 	const user = await createUser(empresa);
+	await creatSetupSistena(empresa.id);
 	await cretePermissionToUser(user.id, empresa.id);
+	await createMenu();
 
 	console.log('Seeds de produção executadas');
 }

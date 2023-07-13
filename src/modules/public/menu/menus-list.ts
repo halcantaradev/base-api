@@ -3,7 +3,7 @@ export const menulist: Array<{
 	relation?: number;
 	permission_key?: string;
 	label: string;
-	url: string;
+	url: string | null;
 	icon: string;
 	target: string;
 }> = [
@@ -58,10 +58,27 @@ export const menulist: Array<{
 	},
 	{
 		id_relation: 7,
-		permission_key: 'condominios-listar',
 		label: 'Condominios',
-		url: 'condominios',
+		url: null,
 		icon: 'shop',
+		target: '_self',
+	},
+	{
+		id_relation: 8,
+		permission_key: 'condominios-listar',
+		relation: 7,
+		label: 'Busca',
+		url: 'condominios',
+		icon: 'unordered_list_outline',
+		target: '_self',
+	},
+	{
+		id_relation: 9,
+		permission_key: 'condominio-acessar-configuracoes',
+		relation: 7,
+		label: 'Configurações',
+		url: 'condominios/configuracoes',
+		icon: 'setting',
 		target: '_self',
 	},
 	{

@@ -53,7 +53,6 @@ export class NotificationService {
 
 	async findBy(user: UserAuth, filtro?: FilterNotificationDto) {
 		let idsConsultores: number[] | null = null;
-		console.log({ filtro });
 
 		if (
 			filtro.consultores_ids?.length &&
@@ -111,6 +110,7 @@ export class NotificationService {
 								tipo_registro: true,
 								tipo_infracao_id: true,
 								valor_multa: true,
+								pessoa_id: true,
 								observacoes: true,
 								detalhes_infracao: true,
 								tipo_infracao: {
@@ -120,6 +120,7 @@ export class NotificationService {
 								},
 								pessoa: {
 									select: {
+										id: true,
 										nome: true,
 									},
 								},

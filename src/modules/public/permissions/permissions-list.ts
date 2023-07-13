@@ -75,6 +75,11 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar condomínios',
 	},
 	{
+		label: 'Acessar configurações do condomínio',
+		key: 'condominio-acessar-configuracoes',
+		message: 'Sem permissão para acessar configurações do condomínio',
+	},
+	{
 		label: 'Listar todos os condomínios ativos',
 		key: 'condominios-listar-ativos',
 		message: 'Sem permissão para listar condomínios ativos',
@@ -155,13 +160,13 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar as variáveis',
 	},
 	{
-		label: 'Listar dados de setup de notificações',
+		label: 'Exibir dados de configuração de notificação',
 		key: 'setup-notificacoes-listar',
 		message:
 			'Sem permissão para listar os dados de configurações de notificações',
 	},
 	{
-		label: 'Atualizar dados de setup de notificações',
+		label: 'Atualizar dados de configuração de notificação',
 		key: 'setup-notificacoes-atualizar',
 		message:
 			'Sem permissão para atualizar os dados de configurações de notificações',

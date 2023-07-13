@@ -99,7 +99,9 @@ export class NotificationService {
 				unidades_condominio: {
 					select: {
 						codigo: true,
-						condominos: { select: { condomino: true, tipo: true } },
+						condominos: {
+							select: { condomino: true, tipo: true },
+						},
 						notificacoes: {
 							select: {
 								id: true,
@@ -108,6 +110,7 @@ export class NotificationService {
 								tipo_registro: true,
 								tipo_infracao_id: true,
 								valor_multa: true,
+								pessoa_id: true,
 								observacoes: true,
 								detalhes_infracao: true,
 								tipo_infracao: {
@@ -117,6 +120,7 @@ export class NotificationService {
 								},
 								pessoa: {
 									select: {
+										id: true,
 										nome: true,
 									},
 								},
@@ -153,16 +157,27 @@ export class NotificationService {
 														1
 															? {
 																	data_emissao:
-																		{
-																			gte: filtro.data_inicial,
-																			lte: filtro.data_final,
-																		},
+																		filtro.data_inicial ||
+																		filtro.data_final
+																			? {
+																					gte: filtro.data_inicial
+																						? filtro.data_inicial
+																						: undefined,
+																					lte: filtro.data_final
+																						? filtro.data_final
+																						: undefined,
+																			  }
+																			: undefined,
 															  }
 															: {
 																	data_infracao:
 																		{
-																			gte: filtro.data_inicial,
-																			lte: filtro.data_final,
+																			gte: filtro.data_inicial
+																				? filtro.data_inicial
+																				: undefined,
+																			lte: filtro.data_final
+																				? filtro.data_final
+																				: undefined,
 																		},
 															  },
 												  ]
@@ -193,14 +208,22 @@ export class NotificationService {
 													filtro.tipo_data_filtro == 1
 														? {
 																data_emissao: {
-																	gte: filtro.data_inicial,
-																	lte: filtro.data_final,
+																	gte: filtro.data_inicial
+																		? filtro.data_inicial
+																		: undefined,
+																	lte: filtro.data_final
+																		? filtro.data_final
+																		: undefined,
 																},
 														  }
 														: {
 																data_infracao: {
-																	gte: filtro.data_inicial,
-																	lte: filtro.data_final,
+																	gte: filtro.data_inicial
+																		? filtro.data_inicial
+																		: undefined,
+																	lte: filtro.data_final
+																		? filtro.data_final
+																		: undefined,
 																},
 														  },
 											  ]
@@ -385,88 +408,6 @@ export class NotificationService {
 		}
 
 		return { valor_multa: null, tipo_registro: 1 };
-	}
-
-	async reportByCondominium(filtro: FilterNotificationDto) {
-		const report = await this.prisma.pessoa.findMany({
-			select: {
-				nome: true,
-				unidades_condominio: {
-					select: {
-						codigo: true,
-						_count: { select: { notificacoes: true } },
-						notificacoes: {
-							select: {
-								id: true,
-								data_emissao: true,
-								data_infracao: true,
-								tipo_registro: true,
-								tipo_infracao_id: true,
-								observacoes: true,
-								detalhes_infracao: true,
-								tipo_infracao: {
-									select: {
-										descricao: true,
-									},
-								},
-							},
-						},
-					},
-					where: {
-						id: { in: filtro.unidades_ids },
-						condominos: {
-							every: {
-								pessoa_id: { in: filtro.condominos_ids },
-							},
-						},
-						notificacoes: {
-							every: {
-								tipo_registro: filtro.tipo_registro,
-								tipo_infracao_id: filtro.tipo_infracao_id,
-								OR: [
-									filtro.tipo_data_filtro == 1
-										? {
-												data_emissao: {
-													gte: filtro.data_inicial,
-													lte: filtro.data_final,
-												},
-										  }
-										: {
-												data_infracao: {
-													gte: filtro.data_inicial,
-													lte: filtro.data_final,
-												},
-										  },
-								],
-							},
-						},
-					},
-				},
-			},
-			where: {
-				tipos: {
-					every: {
-						tipo: {
-							nome: 'condominio',
-						},
-					},
-				},
-				id: filtro.condominios_ids
-					? { in: filtro.condominios_ids }
-					: undefined,
-			},
-		});
-
-		if (!report) {
-			throw new BadRequestException(
-				'Dados não encontrados, por favor verifique os filtros!',
-			);
-		}
-
-		return {
-			success: true,
-			data: report,
-		};
 	}
 
 	async findAll(): Promise<ReturnNotificationListEntity> {

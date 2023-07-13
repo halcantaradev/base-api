@@ -257,15 +257,7 @@ export class CondominiumService {
 
 			await this.prisma.usuarioHasCondominios.deleteMany({
 				where: {
-					condominio: {
-						departamentos_condominio: {
-							some: {
-								departamento_id: {
-									not: departamento_id,
-								},
-							},
-						},
-					},
+					condominio_id,
 				},
 			});
 		}

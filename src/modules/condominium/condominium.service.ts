@@ -146,6 +146,7 @@ export class CondominiumService {
 			departamentos = user.departamentos_ids;
 		}
 
+		// TODO: Alterar listagem de condominios por usuário passado por parametro
 		const condominios = (
 			await this.prisma.usuarioHasCondominios.findMany({
 				where: {

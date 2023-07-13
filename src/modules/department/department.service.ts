@@ -24,6 +24,7 @@ export class DepartmentService {
 		filters: FiltersDepartmentDto,
 		usuario_id?: number,
 	) {
+		// FIXME: Alterar listagem de departamentos para validar usuário passado por parametro
 		const idUser =
 			!!usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
 

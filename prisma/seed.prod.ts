@@ -1,9 +1,9 @@
-import { Pessoa, PrismaClient, User } from '@prisma/client';
+import { Pessoa, PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { menulist } from '../src/modules/public/menu/menus-list';
+import { permissionslist } from '../src/modules/public/permissions/permissions-list';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
-import { permissionslist } from '../src/modules/public/permissions/permissions-list';
-import { menulist } from '../src/modules/public/menu/menus-list';
 
 async function createTipoCondomino() {
 	let tipoPessoa = await prisma.tiposPessoa.findUnique({

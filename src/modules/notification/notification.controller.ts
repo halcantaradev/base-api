@@ -154,11 +154,8 @@ export class NotificationController {
 	report(
 		@CurrentUser() user: UserAuth,
 		@Body() filtros: FilterNotificationDto,
-		@Query('tipo') tipo: string,
 	) {
-		if (+tipo === 2) {
-			return this.notificationService.findBy(user, filtros);
-		}
+		return this.notificationService.findBy(user, filtros);
 	}
 
 	@Get('infractions')

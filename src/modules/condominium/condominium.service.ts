@@ -146,6 +146,14 @@ export class CondominiumService {
 			departamentos = user.departamentos_ids;
 		}
 
+		const condominios = (
+			await this.prisma.usuarioHasCondominios.findMany({
+				where: {
+					usuario_id: user.id,
+				},
+			})
+		).map((condominio) => condominio.condominio_id);
+
 		return this.pessoaService.findAll(
 			'condominio',
 			{
@@ -161,6 +169,11 @@ export class CondominiumService {
 			{
 				ativo: true,
 				empresa_id: user.empresa_id,
+				id: condominios
+					? {
+							in: condominios,
+					  }
+					: undefined,
 				departamentos_condominio: departamentos
 					? {
 							some: {

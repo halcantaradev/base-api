@@ -16,6 +16,7 @@ export class PersonService {
 				id: true,
 				nome: true,
 				cnpj: true,
+				numero: true,
 				endereco: true,
 				cep: true,
 				bairro: true,
@@ -39,7 +40,7 @@ export class PersonService {
 	}
 
 	async findOneById(
-		id: number,
+		id: number | number[],
 		tipo: string,
 		select: Prisma.PessoaSelect = {},
 		where: Prisma.PessoaWhereInput = {},
@@ -49,6 +50,7 @@ export class PersonService {
 				id: true,
 				nome: true,
 				cnpj: true,
+				numero: true,
 				endereco: true,
 				cep: true,
 				bairro: true,
@@ -66,7 +68,7 @@ export class PersonService {
 			},
 			where: {
 				...where,
-				id,
+				id: Array.isArray(id) ? { in: id } : id,
 				tipos: { some: { tipo: { nome: tipo } } },
 			},
 		});

@@ -1,13 +1,18 @@
 FROM node:18-alpine
+LABEL Author="Gestart Team Dev" 
+ENV SERVER_HOME=/usr/src/server/
+WORKDIR $SERVER_HOME
+COPY ./package*.json $SERVER_HOME
 
-WORKDIR /api
+RUN npm install pm2 -g
 
-COPY package*.json ./
+RUN yarn
+COPY . $SERVER_HOME
+RUN yarn prisma generate
+RUN yarn migrate:deploy
+RUN yarn seed:prod
+RUN yarn build
 
-RUN npm install
+EXPOSE 8080
 
-COPY . .
-
-RUN npm run build
-
-CMD [ "npm", "run", "start:dev" ]
+CMD ["pm2-runtime","./dist/src/main.js","--no-autorestart"]

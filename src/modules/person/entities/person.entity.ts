@@ -23,6 +23,13 @@ export class Person {
 	cnpj: string;
 
 	@ApiProperty({
+		description: 'Numero de endereço do objeto referente',
+		example: '7150A',
+		readOnly: true,
+	})
+	numero?: string;
+
+	@ApiProperty({
 		description: 'Endereco do objeto referente',
 		example: 'Av. Teste',
 		readOnly: true,

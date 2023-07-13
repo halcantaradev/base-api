@@ -241,6 +241,20 @@ export class CondominiumService {
 					condominio_id,
 				},
 			});
+
+			await this.prisma.usuarioHasCondominios.deleteMany({
+				where: {
+					condominio: {
+						departamentos_condominio: {
+							some: {
+								departamento_id: {
+									not: departamento_id,
+								},
+							},
+						},
+					},
+				},
+			});
 		}
 
 		await this.prisma.condominioHasDepartamentos.create({

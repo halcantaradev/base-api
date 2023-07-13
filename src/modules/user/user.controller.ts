@@ -115,6 +115,7 @@ export class UserController {
 	}
 
 	@Patch(':id')
+	@Role('usuarios-atualizar-dados')
 	@ApiOperation({ summary: 'Atualiza os dados do usuário' })
 	@ApiResponse({
 		description: 'Dados do usuário atualizados com sucesso',
@@ -136,6 +137,7 @@ export class UserController {
 
 	@Post(':id/condominiums')
 	@HttpCode(HttpStatus.OK)
+	@Role('usuarios-listar-vinculos-condominios')
 	@ApiOperation({ summary: 'Lista os condominios vinculados do usuário' })
 	@ApiResponse({
 		description: 'Dados listados com sucesso',
@@ -163,6 +165,7 @@ export class UserController {
 	}
 
 	@Put(':id/condominiums')
+	@Role('usuarios-atualizar-vinculos-condominios')
 	@ApiOperation({ summary: 'Atualiza os condominios vinculados do usuário' })
 	@ApiResponse({
 		description: 'Dados atualizados com sucesso',

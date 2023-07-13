@@ -27,8 +27,6 @@ export class DepartmentService {
 		const idUser =
 			!!usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
 
-		console.log(usuario_id, !Number.isNaN(usuario_id));
-
 		const userData = await this.prisma.user.findFirst({
 			include: {
 				departamentos: {

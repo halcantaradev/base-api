@@ -9,6 +9,7 @@ import {
 	HttpStatus,
 	HttpCode,
 	Delete,
+	Query,
 } from '@nestjs/common';
 import { DepartmentService } from './department.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
@@ -99,12 +100,21 @@ export class DepartmentController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllActive(@CurrentUser() user: UserAuth) {
+	async findAllActive(
+		@CurrentUser() user: UserAuth,
+		@Query('usuario_id') usuario_id?: string,
+		@Query('busca') busca?: string,
+	) {
 		return {
 			success: true,
-			data: await this.departmentService.findAll(user, {
-				ativo: true,
-			}),
+			data: await this.departmentService.findAll(
+				user,
+				{
+					busca,
+					ativo: true,
+				},
+				+usuario_id,
+			),
 		};
 	}
 

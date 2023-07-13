@@ -19,7 +19,36 @@ export class DepartmentService {
 		});
 	}
 
-	async findAll(user: UserAuth, filters: FiltersDepartmentDto) {
+	async findAll(
+		user: UserAuth,
+		filters: FiltersDepartmentDto,
+		usuario_id?: number,
+	) {
+		const idUser =
+			!!usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
+
+		console.log(usuario_id, !Number.isNaN(usuario_id));
+
+		const userData = await this.prisma.user.findFirst({
+			include: {
+				departamentos: {
+					select: {
+						departamento_id: true,
+					},
+				},
+			},
+			where: {
+				id: idUser,
+			},
+		});
+
+		let departamentos = undefined;
+		if (!userData.acessa_todos_departamentos) {
+			departamentos = userData.departamentos.map(
+				(departamento) => departamento.departamento_id,
+			);
+		}
+
 		return this.prisma.departamento.findMany({
 			select: {
 				id: true,
@@ -28,9 +57,9 @@ export class DepartmentService {
 				ativo: true,
 			},
 			where: {
-				id: !user.acessa_todos_departamentos
+				id: departamentos
 					? {
-							in: [...user.departamentos_ids],
+							in: departamentos,
 					  }
 					: undefined,
 				empresa_id: user.empresa_id,

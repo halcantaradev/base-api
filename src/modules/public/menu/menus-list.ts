@@ -53,7 +53,7 @@ export const menulist: Array<{
 		label: 'Departamentos',
 		permission_key: 'departamentos-listar',
 		url: 'departamentos/buscar',
-		icon: 'usergroup-add',
+		icon: 'team',
 		target: '_self',
 	},
 	{
@@ -82,6 +82,15 @@ export const menulist: Array<{
 	},
 	{
 		id_relation: 99992,
+		relation: 99990,
+		permission_key: 'cargos-listar',
+		label: 'Cargos',
+		url: 'cargos',
+		icon: 'wallet',
+		target: '_self',
+	},
+	{
+		id_relation: 99993,
 		relation: 99990,
 		permission_key: 'permissions-cargos-listar',
 		label: 'Permissões',

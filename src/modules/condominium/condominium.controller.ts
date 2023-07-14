@@ -27,6 +27,7 @@ import { Role } from 'src/shared/decorators/role.decorator';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
 import { FiltersCondominiumActiveDto } from './dto/filters-condominium-active.dto';
 import { FiltersResidenceActiveDto } from './dto/filters-residence-active.dto';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -57,10 +58,17 @@ export class CondominiumController {
 	async findAll(
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersCondominiumDto,
+		@Query() pagination: Pagination,
 	) {
+		const dados = await this.condominioService.findAll(
+			filters,
+			user,
+			pagination,
+		);
+
 		return {
 			success: true,
-			data: await this.condominioService.findAll(filters, user),
+			...dados,
 		};
 	}
 
@@ -86,9 +94,11 @@ export class CondominiumController {
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersCondominiumActiveDto,
 	) {
+		const dados = await this.condominioService.findAllActive(filters, user);
+
 		return {
 			success: true,
-			data: await this.condominioService.findAllActive(filters, user),
+			...dados,
 		};
 	}
 

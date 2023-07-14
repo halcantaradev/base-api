@@ -20,7 +20,7 @@ export class CreateOcupationDto {
 	nome: string;
 
 	@ApiProperty({
-		description: 'Status do departamento',
+		description: 'Status do cargo',
 		example: true,
 		required: false,
 	})

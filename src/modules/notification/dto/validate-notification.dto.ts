@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsInt, IsNotEmpty } from 'class-validator';
+import { IsDate, IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class ValidateNotificationDto {
 	@ApiProperty({
@@ -32,6 +32,21 @@ export class ValidateNotificationDto {
 			'O campo infração informado não é válido. Por favor, forneça uma infração válida.',
 	})
 	tipo_infracao_id: number;
+
+	@ApiProperty({
+		description: 'Id to tipo de notificação',
+		example: 1,
+		required: true,
+	})
+	@IsNotEmpty({
+		message:
+			'O campo tipo de notificação é obrigatório. Por favor, forneça uma data de infração.',
+	})
+	@IsInt({
+		message:
+			'O campo tipo de notificação informado não é válido. Por favor, forneça um tipo de notificação válida.',
+	})
+	tipo_registro: number;
 
 	@ApiProperty({
 		description: 'Data da infração',

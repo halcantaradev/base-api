@@ -311,7 +311,10 @@ export class NotificationService {
 				},
 			});
 
-			if (notificacoes.length == 1) {
+			if (
+				notificacoes.length == 1 ||
+				validateNotificationDto.tipo_registro === 2
+			) {
 				let valor_multa = 0;
 				let taxaUnidade = null;
 
@@ -371,7 +374,11 @@ export class NotificationService {
 							(setup.primeira_reincidencia_percentual_pagamento /
 								100),
 					),
-					tipo_registro: 2,
+					tipo_registro:
+						validateNotificationDto.tipo_registro &&
+						!notificacoes.length
+							? validateNotificationDto.tipo_registro
+							: 2,
 				};
 			}
 

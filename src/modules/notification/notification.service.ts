@@ -242,6 +242,7 @@ export class NotificationService {
 						},
 					},
 				},
+				empresa_id: user.empresa_id,
 				id: filtro.condominios_ids
 					? { in: filtro.condominios_ids }
 					: undefined,
@@ -259,6 +260,53 @@ export class NotificationService {
 							some: {
 								usuario_id: {
 									in: idsConsultores,
+								},
+							},
+					  }
+					: undefined,
+				unidades_condominio: filtro
+					? {
+							some: {
+								id: filtro.unidades_ids
+									? {
+											in: filtro.unidades_ids,
+									  }
+									: undefined,
+								notificacoes: {
+									some: {
+										tipo_registro: filtro.tipo_registro
+											? filtro.tipo_registro
+											: undefined,
+										tipo_infracao_id:
+											filtro.tipo_infracao_id
+												? filtro.tipo_infracao_id
+												: undefined,
+										OR: filtro.tipo_data_filtro
+											? [
+													filtro.tipo_data_filtro == 1
+														? {
+																data_emissao: {
+																	gte: filtro.data_inicial
+																		? filtro.data_inicial
+																		: undefined,
+																	lte: filtro.data_final
+																		? filtro.data_final
+																		: undefined,
+																},
+														  }
+														: {
+																data_infracao: {
+																	gte: filtro.data_inicial
+																		? filtro.data_inicial
+																		: undefined,
+																	lte: filtro.data_final
+																		? filtro.data_final
+																		: undefined,
+																},
+														  },
+											  ]
+											: undefined,
+									},
 								},
 							},
 					  }

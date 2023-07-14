@@ -173,10 +173,17 @@ export class CondominiumController {
 	async findAllResidences(
 		@CurrentUser() user: UserAuth,
 		@Body() body: FiltersResidenceDto,
+		@Query() pagination: Pagination,
 	) {
+		const dados = await this.condominioService.findAllResidences(
+			{ ...body, ativo: true },
+			user,
+			pagination,
+		);
+
 		return {
 			success: true,
-			data: await this.condominioService.findAllResidences(body, user),
+			...dados,
 		};
 	}
 
@@ -198,12 +205,14 @@ export class CondominiumController {
 		@CurrentUser() user: UserAuth,
 		@Body() body: FiltersResidenceActiveDto,
 	) {
+		const dados = await this.condominioService.findAllResidences(
+			{ ...body, ativo: true },
+			user,
+		);
+
 		return {
 			success: true,
-			data: await this.condominioService.findAllResidences(
-				{ ...body, ativo: true },
-				user,
-			),
+			...dados,
 		};
 	}
 

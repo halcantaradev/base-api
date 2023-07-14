@@ -49,7 +49,9 @@ export class PersonService {
 					tipos: { some: { tipo: { nome: tipo } } },
 				},
 				take: pagination?.page ? 20 : 100,
-				skip: pagination?.page || undefined,
+				skip: pagination?.page
+					? (pagination?.page - 1) * 20
+					: undefined,
 			}),
 		};
 	}

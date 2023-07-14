@@ -258,7 +258,8 @@ export class CondominiumService {
 	async findAllResidences(
 		body: FiltersResidenceDto,
 		user: UserAuth,
-	): Promise<Residence[]> {
+		pagination?: Pagination,
+	) {
 		if (!body.condominios_ids.length)
 			throw new BadRequestException('Selecione um condomínio válido');
 
@@ -269,7 +270,7 @@ export class CondominiumService {
 				'Ocorreu um erro ao listar as unidades',
 			);
 
-		return this.prisma.unidade.findMany({
+		const unidades = await this.prisma.unidade.findMany({
 			select: {
 				id: true,
 				codigo: true,
@@ -333,7 +334,58 @@ export class CondominiumService {
 					},
 				],
 			},
+			take: pagination?.page ? 20 : 100,
+			skip: pagination?.page ? (pagination?.page - 1) * 20 : undefined,
 		});
+
+		const total_pages = Math.ceil(
+			(await this.prisma.unidade.count({
+				where: {
+					condominio_id: body.condominios_ids?.length
+						? {
+								in: body.condominios_ids,
+						  }
+						: undefined,
+					ativo: body.ativo != null ? body.ativo : undefined,
+					OR: [
+						{
+							condominos: {
+								some: {
+									condomino: body.busca
+										? {
+												nome: {
+													contains: body.busca
+														.toString()
+														.normalize('NFD')
+														.replace(
+															/[\u0300-\u036f]/g,
+															'',
+														),
+													mode: 'insensitive',
+												},
+										  }
+										: {},
+								},
+							},
+						},
+						{
+							codigo: {
+								contains: (body.busca || '')
+									.toString()
+									.normalize('NFD')
+									.replace(/[\u0300-\u036f]/g, ''),
+								mode: 'insensitive',
+							},
+						},
+					],
+				},
+			})) / (pagination?.page ? 20 : 100),
+		);
+
+		return {
+			data: unidades,
+			total_pages,
+		};
 	}
 
 	async findOneResidence(

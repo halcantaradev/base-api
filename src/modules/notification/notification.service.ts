@@ -13,6 +13,7 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
 import { format } from 'src/shared/helpers/currency.helper';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @Injectable()
 export class NotificationService {
@@ -51,7 +52,12 @@ export class NotificationService {
 		return { success: true, message: 'Notificação criada com sucesso.' };
 	}
 
-	async findBy(user: UserAuth, filtro?: FilterNotificationDto) {
+	async findBy(
+		user: UserAuth,
+		report: boolean,
+		filtro?: FilterNotificationDto,
+		pagination?: Pagination,
+	) {
 		let idsConsultores: number[] | null = null;
 
 		if (
@@ -264,59 +270,151 @@ export class NotificationService {
 							},
 					  }
 					: undefined,
-				unidades_condominio: filtro
-					? {
-							some: {
-								id: filtro.unidades_ids
-									? {
-											in: filtro.unidades_ids,
-									  }
-									: undefined,
-								notificacoes: {
-									some: {
-										tipo_registro: filtro.tipo_registro
-											? filtro.tipo_registro
-											: undefined,
-										tipo_infracao_id:
-											filtro.tipo_infracao_id
-												? filtro.tipo_infracao_id
-												: undefined,
-										OR: filtro.tipo_data_filtro
-											? [
-													filtro.tipo_data_filtro == 1
-														? {
-																data_emissao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  }
-														: {
-																data_infracao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  },
-											  ]
-											: undefined,
+				// unidades_condominio: filtro
+				// 	? {
+				// 			some: {
+				// 				id: filtro.unidades_ids
+				// 					? {
+				// 							in: filtro.unidades_ids,
+				// 					  }
+				// 					: undefined,
+				// 				notificacoes: {
+				// 					some: {
+				// 						tipo_registro: filtro.tipo_registro
+				// 							? filtro.tipo_registro
+				// 							: undefined,
+				// 						tipo_infracao_id:
+				// 							filtro.tipo_infracao_id
+				// 								? filtro.tipo_infracao_id
+				// 								: undefined,
+				// 						OR: filtro.tipo_data_filtro
+				// 							? [
+				// 									filtro.tipo_data_filtro == 1
+				// 										? {
+				// 												data_emissao: {
+				// 													gte: filtro.data_inicial
+				// 														? filtro.data_inicial
+				// 														: undefined,
+				// 													lte: filtro.data_final
+				// 														? filtro.data_final
+				// 														: undefined,
+				// 												},
+				// 										  }
+				// 										: {
+				// 												data_infracao: {
+				// 													gte: filtro.data_inicial
+				// 														? filtro.data_inicial
+				// 														: undefined,
+				// 													lte: filtro.data_final
+				// 														? filtro.data_final
+				// 														: undefined,
+				// 												},
+				// 										  },
+				// 							  ]
+				// 							: undefined,
+				// 					},
+				// 				},
+				// 			},
+				// 	  }
+				// 	: undefined,
+			},
+			take: !report && pagination?.page ? 20 : 100,
+			skip: !report && pagination?.page ? pagination?.page : undefined,
+		});
+
+		const total_pages = !report
+			? Math.ceil(
+					(await this.prisma.pessoa.count({
+						where: {
+							tipos: {
+								some: {
+									tipo: {
+										nome: 'condominio',
 									},
 								},
 							},
-					  }
-					: undefined,
-			},
-		});
+							empresa_id: user.empresa_id,
+							id: filtro.condominios_ids
+								? { in: filtro.condominios_ids }
+								: undefined,
+							departamentos_condominio:
+								!user.acessa_todos_departamentos
+									? {
+											some: {
+												departamento_id: {
+													in: user.departamentos_ids,
+												},
+											},
+									  }
+									: undefined,
+							usuarios_condominio: idsConsultores
+								? {
+										some: {
+											usuario_id: {
+												in: idsConsultores,
+											},
+										},
+								  }
+								: undefined,
+							unidades_condominio: filtro
+								? {
+										some: {
+											id: filtro.unidades_ids
+												? {
+														in: filtro.unidades_ids,
+												  }
+												: undefined,
+											notificacoes: {
+												some: {
+													tipo_registro:
+														filtro.tipo_registro
+															? filtro.tipo_registro
+															: undefined,
+													tipo_infracao_id:
+														filtro.tipo_infracao_id
+															? filtro.tipo_infracao_id
+															: undefined,
+													OR: filtro.tipo_data_filtro
+														? [
+																filtro.tipo_data_filtro ==
+																1
+																	? {
+																			data_emissao:
+																				{
+																					gte: filtro.data_inicial
+																						? filtro.data_inicial
+																						: undefined,
+																					lte: filtro.data_final
+																						? filtro.data_final
+																						: undefined,
+																				},
+																	  }
+																	: {
+																			data_infracao:
+																				{
+																					gte: filtro.data_inicial
+																						? filtro.data_inicial
+																						: undefined,
+																					lte: filtro.data_final
+																						? filtro.data_final
+																						: undefined,
+																				},
+																	  },
+														  ]
+														: undefined,
+												},
+											},
+										},
+								  }
+								: undefined,
+						},
+					})) / (pagination?.page ? 20 : 100),
+			  )
+			: undefined;
 
 		return {
-			success: true,
 			data: notifications,
+			total_pages,
 		};
 	}
 

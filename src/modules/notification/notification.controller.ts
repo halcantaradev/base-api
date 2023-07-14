@@ -31,6 +31,7 @@ import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -101,11 +102,22 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnNotificationListEntity,
 	})
-	search(
+	async search(
 		@CurrentUser() user: UserAuth,
 		@Body() filtros: FilterNotificationDto,
+		@Query() pagination: Pagination,
 	) {
-		return this.notificationService.findBy(user, filtros);
+		const dados = await this.notificationService.findBy(
+			user,
+			false,
+			filtros,
+			pagination,
+		);
+
+		return {
+			success: true,
+			...dados,
+		};
 	}
 
 	@Post('validate')
@@ -151,11 +163,20 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	report(
+	async report(
 		@CurrentUser() user: UserAuth,
 		@Body() filtros: FilterNotificationDto,
 	) {
-		return this.notificationService.findBy(user, filtros);
+		const dados = await this.notificationService.findBy(
+			user,
+			true,
+			filtros,
+		);
+
+		return {
+			success: true,
+			...dados,
+		};
 	}
 
 	@Get('infractions')

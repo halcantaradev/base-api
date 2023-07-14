@@ -61,7 +61,17 @@ export class AuthService {
 					},
 				},
 			},
-			where: { username },
+			where: {
+				username,
+				ativo: true,
+				empresas: {
+					some: {
+						cargo: {
+							ativo: true,
+						},
+					},
+				},
+			},
 		});
 
 		if (!user)

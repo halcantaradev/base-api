@@ -38,10 +38,7 @@ export class ValidateNotificationDto {
 		example: 1,
 		required: true,
 	})
-	@IsNotEmpty({
-		message:
-			'O campo tipo de notificação é obrigatório. Por favor, forneça uma data de infração.',
-	})
+	@IsOptional()
 	@IsInt({
 		message:
 			'O campo tipo de notificação informado não é válido. Por favor, forneça um tipo de notificação válida.',

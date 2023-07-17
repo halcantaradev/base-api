@@ -5,7 +5,7 @@ import { permissionslist } from '../src/modules/public/permissions/permissions-l
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
 
-async function createTipoCondomino() {
+async function createTiposPessoas() {
 	let tipoPessoa = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'proprietario' },
 	});
@@ -263,7 +263,7 @@ async function createTipoInfracao() {
 }
 
 async function main() {
-	await createTipoCondomino();
+	await createTiposPessoas();
 	await createTipoInfracao();
 	await createPermissoesList();
 	const empresa = await createEmpresa();

@@ -183,4 +183,24 @@ export const permissionslist: Array<{
 		message:
 			'Sem permissão para atualizar os dados de configurações do sistema',
 	},
+	{
+		label: 'Listar todos os cargos',
+		key: 'cargos-listar',
+		message: 'Sem permissão para listar os cargos',
+	},
+	{
+		label: 'Listar cargos ativos',
+		key: 'cargos-listar-ativos',
+		message: 'Sem permissão para listar os cargos',
+	},
+	{
+		label: 'Exibir dados do departamento',
+		key: 'cargos-exibir-dados',
+		message: 'Sem permissão para listar os dados dos cargos',
+	},
+	{
+		label: 'Atualizar dados do departamento',
+		key: 'cargos-atualizar-dados',
+		message: 'Sem permissão para atualizar os dados dos cargos',
+	},
 ];

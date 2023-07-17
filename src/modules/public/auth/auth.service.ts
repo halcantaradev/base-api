@@ -34,7 +34,7 @@ export class AuthService {
 	}
 
 	async getProfile(user: UserAuth) {
-		const profile = await this.prisma.pessoa.findUnique({
+		const empresa = await this.prisma.pessoa.findUnique({
 			select: {
 				nome: true,
 			},
@@ -45,6 +45,7 @@ export class AuthService {
 
 		return {
 			nome: user.nome,
+			empresa: empresa.nome,
 		};
 	}
 

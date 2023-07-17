@@ -24,6 +24,7 @@ export class NotificationService {
 	) {}
 
 	async create(createNotificationDto: CreateNotificationDto) {
+		createNotificationDto.unir_taxa = !!createNotificationDto.unir_taxa;
 		let codigo: string = (
 			(await this.findQtdByResidence(createNotificationDto.unidade_id)) +
 			1

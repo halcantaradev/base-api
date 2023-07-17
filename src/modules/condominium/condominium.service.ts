@@ -166,14 +166,6 @@ export class CondominiumService {
 				: null,
 		].filter((filter) => !!filter);
 
-		const dep: Prisma.PessoaWhereInput = {
-			ativo: filters.ativo != null ? filters.ativo : undefined,
-			empresa_id: user.empresa_id,
-			OR: filtersSelected.length ? filtersSelected : undefined,
-		};
-
-		console.log(dep);
-
 		return this.pessoaService.findAll(
 			'condominio',
 			{
@@ -186,7 +178,11 @@ export class CondominiumService {
 					},
 				},
 			},
-			dep,
+			{
+				ativo: filters.ativo != null ? filters.ativo : undefined,
+				empresa_id: user.empresa_id,
+				OR: filtersSelected.length ? filtersSelected : undefined,
+			},
 		);
 	}
 

@@ -24,9 +24,8 @@ export class DepartmentService {
 		filters: FiltersDepartmentDto,
 		usuario_id?: number,
 	) {
-		// FIXME: Alterar listagem de departamentos para validar usuário passado por parametro
 		const idUser =
-			!!usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
+			usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
 
 		const userData = await this.prisma.user.findFirst({
 			include: {
@@ -41,7 +40,8 @@ export class DepartmentService {
 			},
 		});
 
-		let departamentos = undefined;
+		let departamentos;
+
 		if (!userData.acessa_todos_departamentos) {
 			departamentos = userData.departamentos.map(
 				(departamento) => departamento.departamento_id,

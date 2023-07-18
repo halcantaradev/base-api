@@ -430,18 +430,15 @@ export class UserService {
 
 		if (!userSaved) throw new BadRequestException('Usuário não encontrado');
 
-		const departamentos = (
-			await this.prisma.usuarioHasDepartamentos.findMany({
+		const departamento =
+			await this.prisma.usuarioHasDepartamentos.findFirst({
 				where: {
 					usuario_id: id,
+					departamento_id: linkCondominiumsDto.departamento_id,
 				},
-			})
-		).map((departamento) => departamento.departamento_id);
+			});
 
-		if (
-			!departamentos.includes(linkCondominiumsDto.departamento_id) &&
-			!user.acessa_todos_departamentos
-		)
+		if (!departamento && !user.acessa_todos_departamentos)
 			throw new BadRequestException('Departamento não encontrado');
 
 		await this.prisma.usuarioHasCondominios.deleteMany({

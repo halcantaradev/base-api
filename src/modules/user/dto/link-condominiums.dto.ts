@@ -28,7 +28,7 @@ export class LinkCondominiumsDto {
 	})
 	@Validate(IsBooleanType, {
 		message:
-			'O campo status informado não é válido. Por favor, forneça um status válido.',
+			'O campo acessar todos os condominíos informado não é válido. Por favor, forneça um valor válido.',
 	})
 	@Transform(BooleanTransformHelper)
 	@IsNotEmpty({

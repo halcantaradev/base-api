@@ -22,9 +22,7 @@ export class PermissionGuard implements CanActivate {
 
 		const request = context.switchToHttp().getRequest();
 
-		let roleKeys = [];
-		if (Array.isArray(roles) && roles.length) roleKeys = roles;
-		else roleKeys = [roles];
+		const roleKeys = Array.isArray(roles) && roles.length ? roles : [roles];
 
 		await Promise.all(
 			roleKeys.map(async (role) => {

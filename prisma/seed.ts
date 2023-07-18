@@ -273,14 +273,18 @@ async function createCondominos(
 	}
 }
 
-async function createTipoInfracao() {
-	let tipoInfracao = await prisma.tipoInfracao.findUnique({
+async function createTipoInfracao(empresa: Pessoa) {
+	let tipoInfracao = await prisma.tipoInfracao.findFirst({
 		where: { descricao: 'Animais' },
 	});
 
 	if (!tipoInfracao) {
 		tipoInfracao = await prisma.tipoInfracao.create({
-			data: { descricao: 'Animais' },
+			data: {
+				descricao: 'Animais',
+				empresa_id: empresa.id,
+				fundamentacao_legal: 'É errado, então não faça mais isso',
+			},
 		});
 	}
 }
@@ -403,7 +407,7 @@ async function main() {
 		},
 	});
 
-	await createTipoInfracao();
+	await createTipoInfracao(empresa);
 	const tipos = await createTipoCondomino();
 	const taxa = await createTaxa();
 

@@ -8,9 +8,11 @@ import { PdfService } from 'src/shared/services/pdf.service';
 import { CondominiumService } from '../condominium/condominium.service';
 import { PersonService } from '../person/person.service';
 import { SetupService } from '../setup/setup.service';
+import { InfractionService } from './infraction/infraction.service';
+import { InfractionController } from './infraction/infraction.controller';
 
 @Module({
-	controllers: [NotificationController],
+	controllers: [NotificationController, InfractionController],
 	providers: [
 		NotificationService,
 		PrismaService,
@@ -20,6 +22,7 @@ import { SetupService } from '../setup/setup.service';
 		CondominiumService,
 		PersonService,
 		SetupService,
+		InfractionService,
 	],
 })
 export class NotificationModule {}

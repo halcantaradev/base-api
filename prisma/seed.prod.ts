@@ -246,17 +246,37 @@ async function creatSetupSistena(empresa_id: number) {
 	}
 }
 
-async function createTipoInfracao() {
+async function createTipoInfracao(empresa_id: number) {
 	const tipo = await prisma.tipoInfracao.findFirst();
 
 	if (!tipo) {
 		await prisma.tipoInfracao.createMany({
 			data: [
-				{ descricao: 'Animal' },
-				{ descricao: 'Barulho' },
-				{ descricao: 'Garagem' },
-				{ descricao: 'Vazamento' },
-				{ descricao: 'Alteração da fachada' },
+				{
+					descricao: 'Animal',
+					empresa_id,
+					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
+				},
+				{
+					descricao: 'Barulho',
+					empresa_id,
+					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
+				},
+				{
+					descricao: 'Garagem',
+					empresa_id,
+					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
+				},
+				{
+					descricao: 'Vazamento',
+					empresa_id,
+					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
+				},
+				{
+					descricao: 'Alteração da fachada',
+					empresa_id,
+					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
+				},
 			],
 		});
 	}
@@ -264,10 +284,10 @@ async function createTipoInfracao() {
 
 async function main() {
 	await createTiposPessoas();
-	await createTipoInfracao();
 	await createPermissoesList();
 	const empresa = await createEmpresa();
 	const user = await createUser(empresa);
+	await createTipoInfracao(empresa.id);
 	await creatSetupSistena(empresa.id);
 	await cretePermissionToUser(user.id, empresa.id);
 	await createMenu();

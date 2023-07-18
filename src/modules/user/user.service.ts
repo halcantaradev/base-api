@@ -468,13 +468,24 @@ export class UserService {
 			});
 		}
 
-		await this.prisma.usuarioHasDepartamentos.updateMany({
-			data: {
-				acessa_todos_condominios: userAccessAllCondominiums,
-			},
-			where: {
-				departamento_id: linkCondominiumsDto.departamento_id,
-			},
-		});
+		if (!departamento) {
+			await this.prisma.usuarioHasDepartamentos.createMany({
+				data: {
+					acessa_todos_condominios: userAccessAllCondominiums,
+					usuario_id: id,
+					departamento_id: linkCondominiumsDto.departamento_id,
+				},
+			});
+		} else {
+			await this.prisma.usuarioHasDepartamentos.updateMany({
+				data: {
+					acessa_todos_condominios: userAccessAllCondominiums,
+				},
+				where: {
+					departamento_id: linkCondominiumsDto.departamento_id,
+					usuario_id: id,
+				},
+			});
+		}
 	}
 }

@@ -141,17 +141,24 @@ export class CondominiumService {
 						].filter((filtro) => !!filtro),
 				  }
 				: null,
-			departamentos && !userData.acessa_todos_departamentos
+			departamentos || !usuario_id || Number.isNaN(usuario_id)
 				? {
 						OR: [
-							departamentos &&
-							!userData.acessa_todos_departamentos
+							departamentos
 								? {
 										departamentos_condominio: {
 											some: {
 												departamento_id: {
 													in: departamentos,
 												},
+											},
+										},
+								  }
+								: null,
+							!usuario_id || Number.isNaN(usuario_id)
+								? {
+										departamentos_condominio: {
+											some: {
 												departamento: {
 													usuarios: {
 														some: {
@@ -174,7 +181,8 @@ export class CondominiumService {
 										},
 								  }
 								: null,
-							userData.acessa_todos_departamentos
+							userData.acessa_todos_departamentos &&
+							!filters.departamentos?.length
 								? {
 										departamentos_condominio: {
 											none: {},

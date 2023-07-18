@@ -6,7 +6,6 @@ import { Residence } from './entities/residence.entity';
 import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
-import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CondominiumService {

@@ -54,6 +54,26 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para gerar relatórios de notificações',
 	},
 	{
+		label: 'Cadastrar notificação',
+		key: 'notificacoes-infracoes-cadastrar',
+		message: 'Sem permissão para cadastrar notificação',
+	},
+	{
+		label: 'Listar  notificações',
+		key: 'notificacoes-infracoes-listar',
+		message: 'Sem permissão para listar notificação',
+	},
+	{
+		label: 'Exibir dados de uma notificação',
+		key: 'notificacoes-infracoes-exibir-dados',
+		message: 'Sem permissão para exibir dados da notificação',
+	},
+	{
+		label: 'Atualizar dados da notificação',
+		key: 'notificacoes-infracoes-atualizar-dados',
+		message: 'Sem permissão para atualizar notificação',
+	},
+	{
 		label: 'Listar todos os condomínios',
 		key: 'condominios-listar',
 		message: 'Sem permissão para listar condomínios',

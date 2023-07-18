@@ -77,90 +77,118 @@ export class CondominiumService {
 				: null,
 			filters.condominio
 				? {
-						nome: {
-							contains: filters.condominio
-								.toString()
-								.normalize('NFD')
-								.replace(/[\u0300-\u036f]/g, ''),
-							mode: 'insensitive',
-						},
-				  }
-				: null,
-			filters.condominio && !Number.isNaN(+filters.condominio)
-				? {
-						id: +filters.condominio,
-				  }
-				: null,
-			filters.endereco
-				? {
-						bairro: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-				  }
-				: null,
-			filters.endereco
-				? {
-						endereco: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-				  }
-				: null,
-			filters.endereco
-				? {
-						cidade: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-				  }
-				: null,
-			filters.endereco
-				? {
-						uf: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-				  }
-				: null,
-			filters.endereco
-				? {
-						cep: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-				  }
-				: null,
-			{
-				departamentos_condominio: departamentos
-					? {
-							some: {
-								departamento_id: {
-									in: departamentos,
+						OR: [
+							{
+								nome: {
+									contains: filters.condominio
+										.toString()
+										.normalize('NFD')
+										.replace(/[\u0300-\u036f]/g, ''),
+									mode: 'insensitive',
 								},
-								departamento: {
-									usuarios: {
-										some: {
-											usuario_id: idUser,
-											acessa_todos_condominios:
-												!usuario_id ||
-												Number.isNaN(usuario_id)
-													? true
-													: undefined,
+							},
+							!Number.isNaN(+filters.condominio)
+								? {
+										id: +filters.condominio,
+								  }
+								: null,
+						].filter((filtro) => !!filtro),
+				  }
+				: null,
+			filters.endereco
+				? {
+						OR: [
+							filters.endereco
+								? {
+										bairro: {
+											contains: filters.endereco,
+											mode: 'insensitive',
 										},
-									},
-								},
-							},
-					  }
-					: null,
-			},
-			!usuario_id || Number.isNaN(usuario_id)
+								  }
+								: null,
+							filters.endereco
+								? {
+										endereco: {
+											contains: filters.endereco,
+											mode: 'insensitive',
+										},
+								  }
+								: null,
+							filters.endereco
+								? {
+										cidade: {
+											contains: filters.endereco,
+											mode: 'insensitive',
+										},
+								  }
+								: null,
+							filters.endereco
+								? {
+										uf: {
+											contains: filters.endereco,
+											mode: 'insensitive',
+										},
+								  }
+								: null,
+							filters.endereco
+								? {
+										cep: {
+											contains: filters.endereco,
+											mode: 'insensitive',
+										},
+								  }
+								: null,
+						].filter((filtro) => !!filtro),
+				  }
+				: null,
+			departamentos || !usuario_id || Number.isNaN(usuario_id)
 				? {
-						usuarios_condominio: {
-							some: {
-								usuario_id: idUser,
-							},
-						},
+						OR: [
+							departamentos
+								? {
+										departamentos_condominio: departamentos
+											? {
+													some: {
+														departamento_id: {
+															in: departamentos,
+														},
+														departamento: {
+															usuarios: {
+																some: {
+																	usuario_id:
+																		idUser,
+																	acessa_todos_condominios:
+																		!usuario_id ||
+																		Number.isNaN(
+																			usuario_id,
+																		)
+																			? true
+																			: undefined,
+																},
+															},
+														},
+													},
+											  }
+											: null,
+								  }
+								: null,
+							!usuario_id || Number.isNaN(usuario_id)
+								? {
+										usuarios_condominio: {
+											some: {
+												usuario_id: idUser,
+											},
+										},
+								  }
+								: null,
+							userData.acessa_todos_departamentos
+								? {
+										departamentos_condominio: {
+											none: {},
+										},
+								  }
+								: null,
+						].filter((filter) => !!filter),
 				  }
 				: null,
 		].filter((filter) => !!filter);
@@ -180,7 +208,7 @@ export class CondominiumService {
 			{
 				ativo: filters.ativo != null ? filters.ativo : undefined,
 				empresa_id: user.empresa_id,
-				OR: filtersSelected.length ? filtersSelected : undefined,
+				AND: filtersSelected.length ? filtersSelected : undefined,
 			},
 		);
 	}

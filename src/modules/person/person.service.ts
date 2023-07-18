@@ -15,14 +15,12 @@ export class PersonService {
 		pagination?: Pagination,
 	): Promise<PersonList> {
 		return {
-			total_pages: Math.ceil(
-				(await this.prisma.pessoa.count({
-					where: {
-						...where,
-						tipos: { some: { tipo: { nome: tipo } } },
-					},
-				})) / (pagination?.page ? 20 : 100),
-			),
+			total_pages: await this.prisma.pessoa.count({
+				where: {
+					...where,
+					tipos: { some: { tipo: { nome: tipo } } },
+				},
+			}),
 			data: await this.prisma.pessoa.findMany({
 				select: {
 					id: true,

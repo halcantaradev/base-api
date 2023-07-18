@@ -46,6 +46,7 @@ export class AuthService {
 		return {
 			nome: user.nome,
 			empresa: empresa.nome,
+			acessa_todos_departamentos: user.acessa_todos_departamentos,
 		};
 	}
 

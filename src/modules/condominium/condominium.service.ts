@@ -244,6 +244,14 @@ export class CondominiumService {
 						cargo: { select: { nome: true, sindico: true } },
 					},
 				},
+				tipo_contrato: {
+					select: {
+						id: true,
+						nome: true,
+						ativo: true,
+						created_at: true,
+					},
+				},
 			},
 			{
 				empresa_id: user.empresa_id,

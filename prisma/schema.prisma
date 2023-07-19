@@ -8,20 +8,21 @@ datasource db {
 }
 
 model Pessoa {
-  id           Int      @id @default(autoincrement())
-  nome         String   @unique
-  cnpj         String   @unique
-  empresa_id   Int?
-  numero       String?
-  endereco     String?
-  cep          String?
-  bairro       String?
-  cidade       String?
-  uf           String?
-  categoria_id Int?
-  ativo        Boolean  @default(true)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  nome             String   @unique
+  cnpj             String   @unique
+  empresa_id       Int?
+  numero           String?
+  endereco         String?
+  cep              String?
+  bairro           String?
+  cidade           String?
+  uf               String?
+  categoria_id     Int?
+  ativo            Boolean  @default(true)
+  tipo_contrato_id Int?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 
   contatos                      Contato[]
   unidades_condominio           Unidade[]
@@ -40,6 +41,7 @@ model Pessoa {
   usuarios_condominio           UsuarioHasCondominios[]
   setup_condominio_notificacoes NotificacaoSetup?
   setup_empresa_sistema         SistemaSetup[]
+  tipo_contrato                 TipoContratoCondominio?      @relation(fields: [tipo_contrato_id], references: [id])
   tipos_infracoes               TipoInfracao[]
 
   @@map("pessoas")
@@ -457,4 +459,15 @@ model UnidadeHasTaxas {
 
   @@id([unidade_id, taxa_id])
   @@map("unidades_has_taxas")
+}
+
+model TipoContratoCondominio {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  pessoa     Pessoa[]
+
+  @@map("tipos_contratos_condominio")
 }

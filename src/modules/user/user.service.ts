@@ -64,6 +64,7 @@ export class UserService {
 					email: true,
 					ativo: true,
 					updated_at: true,
+					acessa_todos_departamentos: true,
 					empresas: {
 						select: {
 							empresa_id: true,
@@ -192,7 +193,7 @@ export class UserService {
 				ramal: true,
 				ativo: true,
 				updated_at: true,
-				acessa_todos_departamentos: user.acessa_todos_departamentos,
+				acessa_todos_departamentos: true,
 				empresas: {
 					select: {
 						empresa_id: true,
@@ -416,7 +417,9 @@ export class UserService {
 			});
 
 		return {
-			condominios_ids: condominios.map((condominio) => condominio.id),
+			condominios_ids: condominios.data.map(
+				(condominio) => condominio.id,
+			),
 			acessa_todos_condominios: !!departamento?.acessa_todos_condominios,
 		};
 	}

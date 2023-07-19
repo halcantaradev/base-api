@@ -82,6 +82,15 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
+		id_relation: 10,
+		relation: 1,
+		label: 'Tipos de Infracao',
+		permission_key: 'notificacoes-infracoes-listar',
+		url: 'notificacoes/tipos-infracao',
+		icon: 'edit',
+		target: '_self',
+	},
+	{
 		id_relation: 99990,
 		label: 'Configurações',
 		url: null,

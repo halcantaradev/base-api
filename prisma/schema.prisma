@@ -42,6 +42,7 @@ model Pessoa {
   setup_condominio_notificacoes NotificacaoSetup?
   setup_empresa_sistema         SistemaSetup[]
   tipo_contrato                 TipoContratoCondominio?      @relation(fields: [tipo_contrato_id], references: [id])
+  tipos_infracoes               TipoInfracao[]
 
   @@map("pessoas")
 }
@@ -158,13 +159,17 @@ model PessoasHasUnidades {
 }
 
 model TipoInfracao {
-  id         Int      @id @default(autoincrement())
-  descricao  String   @unique
-  ativo      Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  empresa_id          Int
+  descricao           String
+  fundamentacao_legal String?   @db.Text
+  ativo               Boolean  @default(true)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
 
   notificacoes Notificacao[]
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
 
   @@map("tipos_infracao")
 }

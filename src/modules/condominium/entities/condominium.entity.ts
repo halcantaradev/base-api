@@ -3,6 +3,7 @@ import { Person } from 'src/modules/person/entities/person.entity';
 import { CondominioHasDepartamento } from './condominio-has-departamento.entity';
 import { CondominioAdministracao } from './condominio-administracao.entity';
 import { ContractsCondominiumType } from 'src/modules/condominium/entities/contracts-condominium-type.entity';
+import { UsuariosCondominio } from './usuarios-condominio.entity';
 
 export class Condominium extends Person {
 	@ApiProperty({
@@ -27,4 +28,11 @@ export class Condominium extends Person {
 		required: false,
 	})
 	tipo_contrato: ContractsCondominiumType;
+
+	@ApiProperty({
+		description: 'Dados dos responsáveis do condomínio',
+		type: UsuariosCondominio,
+		required: false,
+	})
+	usuarios_condominio?: UsuariosCondominio;
 }

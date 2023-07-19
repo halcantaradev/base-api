@@ -13,11 +13,16 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { Role } from 'src/shared/decorators/role.decorator';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { PdfService } from 'src/shared/services/pdf.service';
+import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
+import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
@@ -27,10 +32,6 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
 import { NotificationService } from './notification.service';
-import { PermissionGuard } from '../public/auth/guards/permission.guard';
-import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { UserAuth } from 'src/shared/entities/user-auth.entity';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -101,11 +102,22 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnNotificationListEntity,
 	})
-	search(
+	async search(
 		@CurrentUser() user: UserAuth,
 		@Body() filtros: FilterNotificationDto,
+		@Query() pagination: Pagination,
 	) {
-		return this.notificationService.findBy(user, filtros);
+		const dados = await this.notificationService.findBy(
+			user,
+			false,
+			filtros,
+			pagination,
+		);
+
+		return {
+			success: true,
+			...dados,
+		};
 	}
 
 	@Post('validate')
@@ -151,11 +163,20 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	report(
+	async report(
 		@CurrentUser() user: UserAuth,
 		@Body() filtros: FilterNotificationDto,
 	) {
-		return this.notificationService.findBy(user, filtros);
+		const dados = await this.notificationService.findBy(
+			user,
+			true,
+			filtros,
+		);
+
+		return {
+			success: true,
+			...dados,
+		};
 	}
 
 	@Get('infractions')
@@ -258,6 +279,34 @@ export class NotificationController {
 		return {
 			success: true,
 			data: html,
+		};
+	}
+
+	@Post('unidade/:id')
+	@Role('notificacoes-listar')
+	@ApiOperation({ summary: 'Buscar notificações por unidade' })
+	@ApiResponse({
+		description: 'Notificações listadas com sucesso',
+		status: HttpStatus.OK,
+		type: () => ReturnNotificationListEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar as notificações',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findbyUnidade(
+		@Body() notificationUnidadeDTO: FilterNotificationDto,
+		@Param('id') id: number,
+		@Query('page') page?: number,
+	) {
+		return {
+			success: true,
+			...(await this.notificationService.findByUnidade(
+				id,
+				notificationUnidadeDTO,
+				+page,
+			)),
 		};
 	}
 }

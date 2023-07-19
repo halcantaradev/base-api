@@ -27,6 +27,7 @@ import { Role } from 'src/shared/decorators/role.decorator';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
 import { FiltersCondominiumActiveDto } from './dto/filters-condominium-active.dto';
 import { FiltersResidenceActiveDto } from './dto/filters-residence-active.dto';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -57,10 +58,18 @@ export class CondominiumController {
 	async findAll(
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersCondominiumDto,
+		@Query() pagination: Pagination,
 	) {
+		const dados = await this.condominioService.findAll(
+			filters,
+			user,
+			null,
+			pagination,
+		);
+
 		return {
 			success: true,
-			data: await this.condominioService.findAll(filters, user),
+			...dados,
 		};
 	}
 
@@ -94,13 +103,15 @@ export class CondominiumController {
 		@Body() filters: FiltersCondominiumActiveDto,
 		@Query('usuario_id') usuario_id?: string,
 	) {
+		const dados = await this.condominioService.findAll(
+			{ ...filters, ativo: true },
+			user,
+			+usuario_id,
+		);
+
 		return {
 			success: true,
-			data: await this.condominioService.findAll(
-				{ ...filters, ativo: true },
-				user,
-				+usuario_id,
-			),
+			...dados,
 		};
 	}
 
@@ -175,10 +186,17 @@ export class CondominiumController {
 	async findAllResidences(
 		@CurrentUser() user: UserAuth,
 		@Body() body: FiltersResidenceDto,
+		@Query() pagination: Pagination,
 	) {
+		const dados = await this.condominioService.findAllResidences(
+			{ ...body, ativo: true },
+			user,
+			pagination,
+		);
+
 		return {
 			success: true,
-			data: await this.condominioService.findAllResidences(body, user),
+			...dados,
 		};
 	}
 
@@ -200,12 +218,14 @@ export class CondominiumController {
 		@CurrentUser() user: UserAuth,
 		@Body() body: FiltersResidenceActiveDto,
 	) {
+		const dados = await this.condominioService.findAllResidences(
+			{ ...body, ativo: true },
+			user,
+		);
+
 		return {
 			success: true,
-			data: await this.condominioService.findAllResidences(
-				{ ...body, ativo: true },
-				user,
-			),
+			...dados,
 		};
 	}
 

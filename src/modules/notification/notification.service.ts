@@ -1,5 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { format } from 'src/shared/helpers/currency.helper';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CondominiumService } from '../condominium/condominium.service';
 import { Condominium } from '../condominium/entities/condominium.entity';
@@ -12,7 +14,6 @@ import { ReturnInfractionListEntity } from './entities/return-infraction-list.en
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
-import { format } from 'src/shared/helpers/currency.helper';
 
 @Injectable()
 export class NotificationService {
@@ -52,7 +53,12 @@ export class NotificationService {
 		return { success: true, message: 'Notificação criada com sucesso.' };
 	}
 
-	async findBy(user: UserAuth, filtro?: FilterNotificationDto) {
+	async findBy(
+		user: UserAuth,
+		report: boolean,
+		filtro?: FilterNotificationDto,
+		pagination?: Pagination,
+	) {
 		let idsConsultores: number[] | null = null;
 
 		if (
@@ -99,93 +105,10 @@ export class NotificationService {
 				endereco: true,
 				unidades_condominio: {
 					select: {
+						id: true,
 						codigo: true,
 						condominos: {
 							select: { condomino: true, tipo: true },
-						},
-						notificacoes: {
-							select: {
-								id: true,
-								data_emissao: true,
-								data_infracao: true,
-								tipo_registro: true,
-								tipo_infracao_id: true,
-								valor_multa: true,
-								pessoa_id: true,
-								observacoes: true,
-								detalhes_infracao: true,
-								tipo_infracao: {
-									select: {
-										descricao: true,
-									},
-								},
-								pessoa: {
-									select: {
-										id: true,
-										nome: true,
-									},
-								},
-								unidade: {
-									select: {
-										condominos: {
-											select: {
-												condomino: {
-													select: { nome: true },
-												},
-												tipo: {
-													select: { nome: true },
-												},
-											},
-										},
-									},
-								},
-								ativo: true,
-							},
-							where: {
-								ativo: true,
-								...(filtro
-									? {
-											tipo_registro: filtro.tipo_registro
-												? filtro.tipo_registro
-												: undefined,
-											tipo_infracao_id:
-												filtro.tipo_infracao_id
-													? filtro.tipo_infracao_id
-													: undefined,
-											OR: filtro.tipo_data_filtro
-												? [
-														filtro.tipo_data_filtro ==
-														1
-															? {
-																	data_emissao:
-																		filtro.data_inicial ||
-																		filtro.data_final
-																			? {
-																					gte: filtro.data_inicial
-																						? filtro.data_inicial
-																						: undefined,
-																					lte: filtro.data_final
-																						? filtro.data_final
-																						: undefined,
-																			  }
-																			: undefined,
-															  }
-															: {
-																	data_infracao:
-																		{
-																			gte: filtro.data_inicial
-																				? filtro.data_inicial
-																				: undefined,
-																			lte: filtro.data_final
-																				? filtro.data_final
-																				: undefined,
-																		},
-															  },
-												  ]
-												: undefined,
-									  }
-									: undefined),
-							},
 						},
 					},
 					where: filtro
@@ -273,51 +196,108 @@ export class NotificationService {
 											in: filtro.unidades_ids,
 									  }
 									: undefined,
-								notificacoes: {
-									some: {
-										tipo_registro: filtro.tipo_registro
-											? filtro.tipo_registro
-											: undefined,
-										tipo_infracao_id:
-											filtro.tipo_infracao_id
-												? filtro.tipo_infracao_id
-												: undefined,
-										OR: filtro.tipo_data_filtro
-											? [
-													filtro.tipo_data_filtro == 1
-														? {
-																data_emissao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  }
-														: {
-																data_infracao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  },
-											  ]
-											: undefined,
-									},
-								},
 							},
 					  }
 					: undefined,
 			},
+			take: !report && pagination?.page ? 20 : 100,
+			skip:
+				!report && pagination?.page
+					? (pagination?.page - 1) * 20
+					: undefined,
 		});
 
+		const total_pages = !report
+			? await this.prisma.pessoa.count({
+					where: {
+						tipos: {
+							some: {
+								tipo: {
+									nome: 'condominio',
+								},
+							},
+						},
+						empresa_id: user.empresa_id,
+						id: filtro.condominios_ids
+							? { in: filtro.condominios_ids }
+							: undefined,
+						departamentos_condominio:
+							!user.acessa_todos_departamentos
+								? {
+										some: {
+											departamento_id: {
+												in: user.departamentos_ids,
+											},
+										},
+								  }
+								: undefined,
+						usuarios_condominio: idsConsultores
+							? {
+									some: {
+										usuario_id: {
+											in: idsConsultores,
+										},
+									},
+							  }
+							: undefined,
+						unidades_condominio: filtro
+							? {
+									some: {
+										id: filtro.unidades_ids
+											? {
+													in: filtro.unidades_ids,
+											  }
+											: undefined,
+										notificacoes: {
+											some: {
+												tipo_registro:
+													filtro.tipo_registro
+														? filtro.tipo_registro
+														: undefined,
+												tipo_infracao_id:
+													filtro.tipo_infracao_id
+														? filtro.tipo_infracao_id
+														: undefined,
+												OR: filtro.tipo_data_filtro
+													? [
+															filtro.tipo_data_filtro ==
+															1
+																? {
+																		data_emissao:
+																			{
+																				gte: filtro.data_inicial
+																					? filtro.data_inicial
+																					: undefined,
+																				lte: filtro.data_final
+																					? filtro.data_final
+																					: undefined,
+																			},
+																  }
+																: {
+																		data_infracao:
+																			{
+																				gte: filtro.data_inicial
+																					? filtro.data_inicial
+																					: undefined,
+																				lte: filtro.data_final
+																					? filtro.data_final
+																					: undefined,
+																			},
+																  },
+													  ]
+													: undefined,
+											},
+										},
+									},
+							  }
+							: undefined,
+					},
+			  })
+			: 0;
+
 		return {
-			success: true,
 			data: notifications,
+			total_pages,
 		};
 	}
 
@@ -682,5 +662,64 @@ export class NotificationService {
 		dataToPrint.responsavel_notificado = condomino.condomino.nome;
 
 		return dataToPrint;
+	}
+
+	async findByUnidade(
+		unidade_id: number,
+		notificationUnidadeDTO: FilterNotificationDto,
+		page?: number,
+	) {
+		const where = {
+			unidade_id,
+			unidade: {
+				condominio: {
+					id: { in: notificationUnidadeDTO.condominos_ids },
+				},
+			},
+			tipo_infracao_id: notificationUnidadeDTO.tipo_infracao_id
+				? notificationUnidadeDTO.tipo_infracao_id
+				: undefined,
+			tipo_registro: notificationUnidadeDTO.tipo_registro
+				? notificationUnidadeDTO.tipo_registro
+				: undefined,
+			OR: notificationUnidadeDTO.tipo_data_filtro
+				? [
+						notificationUnidadeDTO.tipo_data_filtro == 1
+							? {
+									data_emissao: {
+										gte: notificationUnidadeDTO.data_inicial
+											? notificationUnidadeDTO.data_inicial
+											: undefined,
+										lte: notificationUnidadeDTO.data_final
+											? notificationUnidadeDTO.data_final
+											: undefined,
+									},
+							  }
+							: {
+									data_infracao: {
+										gte: notificationUnidadeDTO.data_inicial
+											? notificationUnidadeDTO.data_inicial
+											: undefined,
+										lte: notificationUnidadeDTO.data_final
+											? notificationUnidadeDTO.data_final
+											: undefined,
+									},
+							  },
+				  ]
+				: undefined,
+		};
+
+		const total_pages = await this.prisma.notificacao.count({ where });
+
+		const data = await this.prisma.notificacao.findMany({
+			include: {
+				pessoa: { select: { nome: true } },
+				tipo_infracao: { select: { descricao: true } },
+			},
+			where,
+			skip: page ? (page - 1) * 10 : undefined,
+			take: 10,
+		});
+		return { total_pages, data };
 	}
 }

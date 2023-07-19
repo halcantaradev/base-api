@@ -20,6 +20,8 @@ export class ReturnEntity {
 			message?: string;
 
 			data: any;
+
+			total_pages?: number;
 		}
 
 		return ReturnSuccessObject;

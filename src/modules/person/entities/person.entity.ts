@@ -77,5 +77,5 @@ export class Person {
 		isArray: true,
 		readOnly: true,
 	})
-	contato: { contato: string; tipo: number; descricao: string }[];
+	contatos: { contato: string; tipo: number; descricao: string }[];
 }

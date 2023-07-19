@@ -81,6 +81,8 @@ export class InfractionService {
 			select: this.returnSelect,
 			data: {
 				descricao: updateInfractionDto.descricao || undefined,
+				fundamentacao_legal:
+					updateInfractionDto.fundamentacao_legal || undefined,
 				ativo:
 					updateInfractionDto.ativo != null
 						? updateInfractionDto.ativo

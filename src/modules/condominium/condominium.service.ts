@@ -182,10 +182,18 @@ export class CondominiumService {
 								  }
 								: null,
 							userData.acessa_todos_departamentos &&
-							!filters.departamentos?.length
+							!filters.departamentos?.length &&
+							!filters.ativo
 								? {
 										departamentos_condominio: {
 											none: {},
+										},
+								  }
+								: null,
+							userData.acessa_todos_departamentos
+								? {
+										departamentos_condominio: {
+											some: {},
 										},
 								  }
 								: null,

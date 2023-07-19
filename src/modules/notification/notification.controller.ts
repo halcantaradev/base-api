@@ -27,7 +27,6 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { ValidateNotificationDto } from './dto/validate-notification.dto';
-import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
@@ -177,23 +176,6 @@ export class NotificationController {
 			success: true,
 			...dados,
 		};
-	}
-
-	@Get('infractions')
-	@ApiOperation({ summary: 'Lista as infrações de notificação disponíveis' })
-	@ApiResponse({
-		description: 'Infrações listadas com sucesso',
-		status: HttpStatus.OK,
-		type: ReturnInfractionListEntity,
-		isArray: true,
-	})
-	@ApiResponse({
-		description: 'Ocorreu um erro ao listar os infrações',
-		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		type: ReturnEntity.error(),
-	})
-	findAllInfraction() {
-		return this.notificationService.findAllInfraction();
 	}
 
 	@Get(':id')

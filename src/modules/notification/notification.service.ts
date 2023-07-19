@@ -10,7 +10,6 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { ValidateNotificationDto } from './dto/validate-notification.dto';
-import { ReturnInfractionListEntity } from './entities/return-infraction-list.entity';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
@@ -475,21 +474,6 @@ export class NotificationService {
 				unidade_id,
 			},
 		});
-	}
-
-	async findAllInfraction(): Promise<ReturnInfractionListEntity> {
-		return {
-			success: true,
-			data: await this.prisma.tipoInfracao.findMany({
-				select: {
-					id: true,
-					descricao: true,
-				},
-				where: {
-					ativo: true,
-				},
-			}),
-		};
 	}
 
 	async findOneById(id: number): Promise<ReturnNotificationEntity> {

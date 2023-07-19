@@ -160,7 +160,7 @@ model TipoInfracao {
   id                  Int      @id @default(autoincrement())
   empresa_id          Int
   descricao           String
-  fundamentacao_legal String   @db.Text
+  fundamentacao_legal String?   @db.Text
   ativo               Boolean  @default(true)
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt

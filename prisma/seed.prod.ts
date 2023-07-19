@@ -255,27 +255,22 @@ async function createTipoInfracao(empresa_id: number) {
 				{
 					descricao: 'Animal',
 					empresa_id,
-					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
 				},
 				{
 					descricao: 'Barulho',
 					empresa_id,
-					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
 				},
 				{
 					descricao: 'Garagem',
 					empresa_id,
-					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
 				},
 				{
 					descricao: 'Vazamento',
 					empresa_id,
-					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
 				},
 				{
 					descricao: 'Alteração da fachada',
 					empresa_id,
-					fundamentacao_legal: 'LEI Nº 456.1681/3 DE 2022',
 				},
 			],
 		});

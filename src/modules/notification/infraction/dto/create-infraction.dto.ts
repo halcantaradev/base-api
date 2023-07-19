@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsString, Validate } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Validate } from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
 
@@ -25,15 +25,12 @@ export class CreateInfractionDto {
 		example: 'LEI DE TESTE DO ARTIGO TESTE N° TESTE',
 		required: true,
 	})
-	@IsNotEmpty({
-		message:
-			'O campo fundamentação legal é obrigatório. Por favor, forneça uma fundamentação legal.',
-	})
+	@IsOptional()
 	@IsString({
 		message:
 			'O campo fundamentação legal informado não é válido. Por favor, forneça uma fundamentação legal válida.',
 	})
-	fundamentacao_legal: string;
+	fundamentacao_legal?: string;
 
 	@ApiProperty({
 		description: 'Situação atual do tipo da notificação',

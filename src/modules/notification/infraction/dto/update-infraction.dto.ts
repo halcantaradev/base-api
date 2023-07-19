@@ -6,8 +6,5 @@ export class UpdateInfractionDto extends CreateInfractionDto {
 	descricao: string;
 
 	@IsOptional()
-	fundamentacao_legal: string;
-
-	@IsOptional()
 	ativo: boolean;
 }

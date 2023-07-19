@@ -23,7 +23,8 @@ export class InfractionService {
 			data: {
 				descricao: createInfractionDto.descricao,
 				empresa_id: user.empresa_id,
-				fundamentacao_legal: createInfractionDto.fundamentacao_legal,
+				fundamentacao_legal:
+					createInfractionDto?.fundamentacao_legal || undefined,
 				ativo: createInfractionDto.ativo,
 			},
 		});
@@ -82,7 +83,7 @@ export class InfractionService {
 			data: {
 				descricao: updateInfractionDto.descricao || undefined,
 				fundamentacao_legal:
-					updateInfractionDto.fundamentacao_legal || undefined,
+					updateInfractionDto?.fundamentacao_legal || undefined,
 				ativo:
 					updateInfractionDto.ativo != null
 						? updateInfractionDto.ativo

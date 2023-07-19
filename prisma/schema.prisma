@@ -9,8 +9,8 @@ datasource db {
 
 model Pessoa {
   id           Int      @id @default(autoincrement())
-  nome         String   @unique
-  cnpj         String   @unique
+  nome         String
+  cnpj         String
   empresa_id   Int?
   numero       String?
   endereco     String?
@@ -127,7 +127,7 @@ model Unidade {
   id                  Int      @id @default(autoincrement())
   original_unidade_id Int?
   condominio_id       Int
-  codigo              String   @unique
+  codigo              String
   ativo               Boolean  @default(true)
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
@@ -160,7 +160,7 @@ model TipoInfracao {
   id                  Int      @id @default(autoincrement())
   empresa_id          Int
   descricao           String
-  fundamentacao_legal String?   @db.Text
+  fundamentacao_legal String?  @db.Text
   ativo               Boolean  @default(true)
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt

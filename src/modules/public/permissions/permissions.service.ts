@@ -9,13 +9,17 @@ export class PermissionsService {
 	checkAcess(validPermission: {
 		user_id?: number;
 		cargo_id?: number;
+		empresa_id?: number;
 		action: string;
 	}) {
 		return this.prisma.permissoes.findFirst({
 			include: {
 				cargos: {
 					select: { cargo_id: true },
-					where: { cargo_id: validPermission.cargo_id || null },
+					where: {
+						cargo_id: validPermission.cargo_id || null,
+						empresa_id: validPermission.empresa_id,
+					},
 				},
 				usuarios: {
 					select: { usuario_id: true },

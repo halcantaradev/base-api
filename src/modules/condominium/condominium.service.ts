@@ -6,7 +6,6 @@ import { Residence } from './entities/residence.entity';
 import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
-import { FiltersCondominiumActiveDto } from './dto/filters-condominium-active.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @Injectable()
@@ -19,8 +18,51 @@ export class CondominiumService {
 	async findAll(
 		filters: FiltersCondominiumDto,
 		user: UserAuth,
+		usuario_id?: number,
 		pagination?: Pagination,
 	) {
+		const idUser =
+			usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
+
+		const userData = await this.prisma.user.findFirst({
+			include: {
+				departamentos: {
+					select: {
+						departamento_id: true,
+					},
+				},
+			},
+			where: {
+				id: idUser,
+			},
+		});
+
+		let listaDepartamentos;
+
+		if (!userData.acessa_todos_departamentos) {
+			listaDepartamentos = userData.departamentos.map(
+				(departamento) => departamento.departamento_id,
+			);
+		}
+
+		let departamentos;
+
+		if (
+			filters.departamentos?.length &&
+			!userData.acessa_todos_departamentos
+		) {
+			departamentos = filters.departamentos.filter((departamento) =>
+				listaDepartamentos.includes(departamento),
+			);
+		} else if (
+			filters.departamentos?.length &&
+			userData.acessa_todos_departamentos
+		) {
+			departamentos = filters.departamentos;
+		} else if (!userData.acessa_todos_departamentos) {
+			departamentos = listaDepartamentos;
+		}
+
 		const filtersSelected: Array<any> = [
 			filters.categoria_id && !Number.isNaN(+filters.categoria_id)
 				? {
@@ -37,58 +79,127 @@ export class CondominiumService {
 				: null,
 			filters.condominio
 				? {
-						nome: {
-							contains: filters.condominio
-								.toString()
-								.normalize('NFD')
-								.replace(/[\u0300-\u036f]/g, ''),
-							mode: 'insensitive',
-						},
-				  }
-				: null,
-			filters.condominio && !Number.isNaN(+filters.condominio)
-				? {
-						id: +filters.condominio,
-				  }
-				: null,
-			filters.endereco
-				? {
-						bairro: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
+						OR: [
+							{
+								nome: {
+									contains: filters.condominio
+										.toString()
+										.normalize('NFD')
+										.replace(/[\u0300-\u036f]/g, ''),
+									mode: 'insensitive',
+								},
+							},
+							!Number.isNaN(+filters.condominio)
+								? {
+										id: +filters.condominio,
+								  }
+								: null,
+						].filter((filtro) => !!filtro),
 				  }
 				: null,
 			filters.endereco
 				? {
-						endereco: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
+						OR: [
+							filters.endereco
+								? {
+										bairro: {
+											contains: filters.endereco,
+											mode: 'insensitive',
+										},
+								  }
+								: null,
+							filters.endereco
+								? {
+										endereco: {
+											contains: filters.endereco,
+											mode: 'insensitive',
+										},
+								  }
+								: null,
+							filters.endereco
+								? {
+										cidade: {
+											contains: filters.endereco,
+											mode: 'insensitive',
+										},
+								  }
+								: null,
+							filters.endereco
+								? {
+										uf: {
+											contains: filters.endereco,
+											mode: 'insensitive',
+										},
+								  }
+								: null,
+							filters.endereco
+								? {
+										cep: {
+											contains: filters.endereco,
+											mode: 'insensitive',
+										},
+								  }
+								: null,
+						].filter((filtro) => !!filtro),
 				  }
 				: null,
-			filters.endereco
+			departamentos || !usuario_id || Number.isNaN(usuario_id)
 				? {
-						cidade: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-				  }
-				: null,
-			filters.endereco
-				? {
-						uf: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
-				  }
-				: null,
-			filters.endereco
-				? {
-						cep: {
-							contains: filters.endereco,
-							mode: 'insensitive',
-						},
+						OR: [
+							departamentos
+								? {
+										departamentos_condominio: {
+											some: {
+												departamento_id: {
+													in: departamentos,
+												},
+											},
+										},
+								  }
+								: null,
+							!usuario_id || Number.isNaN(usuario_id)
+								? {
+										departamentos_condominio: {
+											some: {
+												departamento: {
+													usuarios: {
+														some: {
+															usuario_id: idUser,
+															acessa_todos_condominios:
+																true,
+														},
+													},
+												},
+											},
+										},
+								  }
+								: null,
+							!usuario_id || Number.isNaN(usuario_id)
+								? {
+										usuarios_condominio: {
+											some: {
+												usuario_id: idUser,
+											},
+										},
+								  }
+								: null,
+							userData.acessa_todos_departamentos &&
+							!filters.departamentos?.length &&
+							!filters.ativo
+								? {
+										departamentos_condominio: {
+											none: {},
+										},
+								  }
+								: null,
+							userData.acessa_todos_departamentos
+								? {
+										departamentos_condominio: {
+											some: {},
+										},
+								  }
+								: null,
+						].filter((filter) => !!filter),
 				  }
 				: null,
 		].filter((filter) => !!filter);
@@ -108,76 +219,9 @@ export class CondominiumService {
 			{
 				ativo: filters.ativo != null ? filters.ativo : undefined,
 				empresa_id: user.empresa_id,
-				departamentos_condominio: !user.acessa_todos_departamentos
-					? {
-							some: {
-								departamento_id: {
-									in: user.departamentos_ids,
-								},
-							},
-					  }
-					: undefined,
-				usuarios_condominio: !user.acessa_todos_departamentos
-					? {
-							some: {
-								usuario_id: user.id,
-							},
-					  }
-					: undefined,
-				OR: filtersSelected.length ? filtersSelected : undefined,
+				AND: filtersSelected.length ? filtersSelected : undefined,
 			},
 			pagination,
-		);
-	}
-
-	async findAllActive(filters: FiltersCondominiumActiveDto, user: UserAuth) {
-		let departamentos = null;
-
-		if (filters.departamentos?.length && !user.acessa_todos_departamentos) {
-			departamentos = filters.departamentos.filter((departamento) =>
-				user.departamentos_ids.includes(departamento),
-			);
-		} else if (
-			filters.departamentos?.length &&
-			user.acessa_todos_departamentos
-		) {
-			departamentos = filters.departamentos;
-		} else if (!user.acessa_todos_departamentos) {
-			departamentos = user.departamentos_ids;
-		}
-
-		return this.pessoaService.findAll(
-			'condominio',
-			{
-				departamentos_condominio: {
-					select: {
-						departamento_id: true,
-						departamento: {
-							select: { nome: true },
-						},
-					},
-				},
-			},
-			{
-				ativo: true,
-				empresa_id: user.empresa_id,
-				departamentos_condominio: departamentos
-					? {
-							some: {
-								departamento_id: {
-									in: departamentos,
-								},
-							},
-					  }
-					: undefined,
-				usuarios_condominio: !user.acessa_todos_departamentos
-					? {
-							some: {
-								usuario_id: user.id,
-							},
-					  }
-					: undefined,
-			},
 		);
 	}
 
@@ -237,6 +281,12 @@ export class CondominiumService {
 
 		if (condominio.departamentos_condominio.length) {
 			await this.prisma.condominioHasDepartamentos.deleteMany({
+				where: {
+					condominio_id,
+				},
+			});
+
+			await this.prisma.usuarioHasCondominios.deleteMany({
 				where: {
 					condominio_id,
 				},

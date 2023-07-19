@@ -63,6 +63,7 @@ export class CondominiumController {
 		const dados = await this.condominioService.findAll(
 			filters,
 			user,
+			null,
 			pagination,
 		);
 
@@ -73,7 +74,14 @@ export class CondominiumController {
 	}
 
 	@Post('active')
-	@Role('condominios-listar-ativos')
+	@Role([
+		'condominios-listar-ativos',
+		{
+			role: 'usuarios-atualizar-vinculos-condominios',
+			param: 'usuario_id',
+			param_type: 'query',
+		},
+	])
 	@ApiOperation({ summary: 'Lista todos os condomínios ativos' })
 	@ApiResponse({
 		description: 'Condomínios listados com sucesso',
@@ -93,8 +101,13 @@ export class CondominiumController {
 	async findAllActive(
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersCondominiumActiveDto,
+		@Query('usuario_id') usuario_id?: string,
 	) {
-		const dados = await this.condominioService.findAllActive(filters, user);
+		const dados = await this.condominioService.findAll(
+			{ ...filters, ativo: true },
+			user,
+			+usuario_id,
+		);
 
 		return {
 			success: true,

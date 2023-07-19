@@ -7,10 +7,16 @@ import { ReturnUserEntity } from './entities/return-user.entity';
 import { ReturnUserListEntity } from './entities/return-user-list.entity';
 import { ListUserDto } from './dto/list-user.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { LinkCondominiumsDto } from './dto/link-condominiums.dto';
+import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
+import { PersonService } from '../person/person.service';
 
 @Injectable()
 export class UserService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly pessoaService: PersonService,
+	) {}
 
 	async create(createUserDto: CreateUserDto, user: UserAuth) {
 		await this.prisma.user.create({
@@ -38,17 +44,6 @@ export class UserService {
 							},
 					  }
 					: undefined,
-				condominios: createUserDto.condominios
-					? {
-							createMany: {
-								data: createUserDto.condominios.map(
-									(departamento) => ({
-										condominio_id: departamento,
-									}),
-								),
-							},
-					  }
-					: undefined,
 			},
 		});
 
@@ -69,6 +64,7 @@ export class UserService {
 					email: true,
 					ativo: true,
 					updated_at: true,
+					acessa_todos_departamentos: true,
 					empresas: {
 						select: {
 							empresa_id: true,
@@ -197,7 +193,7 @@ export class UserService {
 				ramal: true,
 				ativo: true,
 				updated_at: true,
-				acessa_todos_departamentos: user.acessa_todos_departamentos,
+				acessa_todos_departamentos: true,
 				empresas: {
 					select: {
 						empresa_id: true,
@@ -367,25 +363,132 @@ export class UserService {
 								},
 						  }
 						: undefined,
-					condominios: updateUserDto.condominios
-						? {
-								deleteMany: {
-									usuario_id: id,
-								},
-								createMany: {
-									data: updateUserDto.condominios.map(
-										(departamento) => ({
-											condominio_id: departamento,
-										}),
-									),
-								},
-						  }
-						: undefined,
 				},
 				where: {
 					id,
 				},
 			}),
 		};
+	}
+
+	async getCondominiums(
+		id: number,
+		user: UserAuth,
+		filterUserCondominiumDto: FilterUserCondominiumDto,
+	) {
+		const departamentos = (
+			await this.prisma.usuarioHasDepartamentos.findMany({
+				where: {
+					usuario_id: id,
+				},
+			})
+		).map((departamento) => departamento.departamento_id);
+
+		if (
+			!departamentos.includes(filterUserCondominiumDto.departamento_id) &&
+			!user.acessa_todos_departamentos
+		)
+			throw new BadRequestException('Departamento não encontrado');
+
+		const condominios = await this.pessoaService.findAll(
+			'condominio',
+			null,
+			{
+				departamentos_condominio: {
+					some: {
+						departamento_id:
+							filterUserCondominiumDto.departamento_id,
+					},
+				},
+				usuarios_condominio: {
+					some: {
+						usuario_id: id,
+					},
+				},
+			},
+		);
+
+		const departamento =
+			await this.prisma.usuarioHasDepartamentos.findFirst({
+				where: {
+					departamento_id: filterUserCondominiumDto.departamento_id,
+					usuario_id: id,
+				},
+			});
+
+		return {
+			condominios_ids: condominios.data.map(
+				(condominio) => condominio.id,
+			),
+			acessa_todos_condominios: !!departamento?.acessa_todos_condominios,
+		};
+	}
+
+	async linkCondominiums(
+		id: number,
+		user: UserAuth,
+		linkCondominiumsDto: LinkCondominiumsDto,
+	) {
+		const userSaved = await this.prisma.user.findUnique({ where: { id } });
+
+		if (!userSaved) throw new BadRequestException('Usuário não encontrado');
+
+		const departamento =
+			await this.prisma.usuarioHasDepartamentos.findFirst({
+				where: {
+					usuario_id: id,
+					departamento_id: linkCondominiumsDto.departamento_id,
+				},
+			});
+
+		if (!departamento && !user.acessa_todos_departamentos)
+			throw new BadRequestException('Departamento não encontrado');
+
+		await this.prisma.usuarioHasCondominios.deleteMany({
+			where: {
+				usuario_id: id,
+				condominio: {
+					departamentos_condominio: {
+						some: {
+							departamento_id:
+								linkCondominiumsDto.departamento_id,
+						},
+					},
+				},
+			},
+		});
+
+		let userAccessAllCondominiums = false;
+
+		if (linkCondominiumsDto.acessa_todos_condominios) {
+			userAccessAllCondominiums = true;
+		} else {
+			await this.prisma.usuarioHasCondominios.createMany({
+				data: linkCondominiumsDto.condominios_ids.map((condominio) => ({
+					condominio_id: condominio,
+					usuario_id: id,
+				})),
+			});
+		}
+
+		if (!departamento) {
+			await this.prisma.usuarioHasDepartamentos.createMany({
+				data: {
+					acessa_todos_condominios: userAccessAllCondominiums,
+					usuario_id: id,
+					departamento_id: linkCondominiumsDto.departamento_id,
+				},
+			});
+		} else {
+			await this.prisma.usuarioHasDepartamentos.updateMany({
+				data: {
+					acessa_todos_condominios: userAccessAllCondominiums,
+				},
+				where: {
+					departamento_id: linkCondominiumsDto.departamento_id,
+					usuario_id: id,
+				},
+			});
+		}
 	}
 }

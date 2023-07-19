@@ -14,6 +14,22 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar dados do usuário',
 	},
 	{
+		label: 'Atualizar dados do usuário',
+		key: 'usuarios-atualizar-dados',
+		message: 'Sem permissão para atualizar dados do usuário',
+	},
+	{
+		label: 'Listar vínculos de condomínios do usuário',
+		key: 'usuarios-listar-vinculos-condominios',
+		message: 'Sem permissão para listar vínculos de condomínios do usuário',
+	},
+	{
+		label: 'Atualizar vínculos de condomínios do usuário',
+		key: 'usuarios-atualizar-vinculos-condominios',
+		message:
+			'Sem permissão para atualizar vínculos de condomínios do usuário',
+	},
+	{
 		label: 'Listar permissões do cargo',
 		key: 'permissions-cargos-listar',
 		message: 'Sem permissão para listar as permissões do cargo',

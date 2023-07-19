@@ -7,6 +7,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Put,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -23,6 +24,9 @@ import { UserService } from './user.service';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { ListUserDto } from './dto/list-user.dto';
 import { ListUserActiveDto } from './dto/list-user-active.dto';
+import { LinkCondominiumsDto } from './dto/link-condominiums.dto';
+import { ReturnUserCondominiums } from './entities/return-user-condominiums.entity';
+import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
 
 @ApiTags('User')
 @Controller('users')
@@ -111,6 +115,7 @@ export class UserController {
 	}
 
 	@Patch(':id')
+	@Role('usuarios-atualizar-dados')
 	@ApiOperation({ summary: 'Atualiza os dados do usuário' })
 	@ApiResponse({
 		description: 'Dados do usuário atualizados com sucesso',
@@ -128,5 +133,60 @@ export class UserController {
 		@Body() updateUserDto: UpdateUserDto,
 	) {
 		return this.userService.update(+id, user, updateUserDto);
+	}
+
+	@Post(':id/condominiums')
+	@HttpCode(HttpStatus.OK)
+	@Role('usuarios-listar-vinculos-condominios')
+	@ApiOperation({ summary: 'Lista os condominios vinculados do usuário' })
+	@ApiResponse({
+		description: 'Dados listados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnUserCondominiums,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async getCondominiums(
+		@Param('id') id: string,
+		@CurrentUser() user: UserAuth,
+		@Body() filterUserCondominiumDto: FilterUserCondominiumDto,
+	) {
+		return {
+			success: true,
+			data: await this.userService.getCondominiums(
+				+id,
+				user,
+				filterUserCondominiumDto,
+			),
+		};
+	}
+
+	@Put(':id/condominiums')
+	@Role('usuarios-atualizar-vinculos-condominios')
+	@ApiOperation({ summary: 'Atualiza os condominios vinculados do usuário' })
+	@ApiResponse({
+		description: 'Dados atualizados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async linkCondominiums(
+		@Param('id') id: string,
+		@CurrentUser() user: UserAuth,
+		@Body() linkCondominiumsDto: LinkCondominiumsDto,
+	) {
+		await this.userService.linkCondominiums(+id, user, linkCondominiumsDto);
+
+		return {
+			success: true,
+			message: 'Vínculo atualizado com sucesso.',
+		};
 	}
 }

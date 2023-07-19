@@ -3,8 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
+import { FiltersCondominiumActiveDto } from './filters-condominium-active.dto';
 
-export class FiltersCondominiumDto {
+export class FiltersCondominiumDto extends FiltersCondominiumActiveDto {
 	@ApiProperty({
 		description: 'Filtro por nome ou código do condomínio',
 		example: '001',

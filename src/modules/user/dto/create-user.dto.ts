@@ -116,13 +116,13 @@ export class CreateUserDto {
 	cargo_id: number;
 
 	@ApiProperty({
-		description: 'Status do usuário',
+		description: 'Status de acesso a todos os departamentos do usuário',
 		example: true,
 		required: false,
 	})
 	@Validate(IsBooleanType, {
 		message:
-			'O campo status informado não é válido. Por favor, forneça um status válido.',
+			'O campo acessar todos os departamentos é obrigatório. Por favor, forneça um valor.',
 	})
 	@Transform(BooleanTransformHelper)
 	@IsOptional()
@@ -143,20 +143,4 @@ export class CreateUserDto {
 			'O campo departamentos é obrigatório. Por favor, forneça um departamento.',
 	})
 	departamentos: number[];
-
-	@ApiProperty({
-		description: 'Condomínios do usuário',
-		example: [1, 2],
-		required: false,
-	})
-	@IsInt({
-		message:
-			'O campo de condomínios informado não é válido. Por favor, forneça um condomínio válido.',
-		each: true,
-	})
-	@IsNotEmpty({
-		message:
-			'O campo de condomínios é obrigatório. Por favor, forneça um condomínio.',
-	})
-	condominios: number[];
 }

@@ -261,6 +261,7 @@ export class CondominiumService {
 									select: {
 										cargo: {
 											select: {
+												id: true,
 												nome: true,
 											},
 										},

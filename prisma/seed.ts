@@ -16,7 +16,7 @@ async function createEmpresa() {
 		where: { nome: 'empresa' },
 	});
 
-	let empresa = await prisma.pessoa.findUnique({
+	let empresa = await prisma.pessoa.findFirst({
 		where: { nome: 'Gestart' },
 	});
 
@@ -180,7 +180,7 @@ async function createContato(condominio: Pessoa) {
 }
 
 async function createUnidade(condominio: Pessoa) {
-	let unidade = await prisma.unidade.findUnique({
+	let unidade = await prisma.unidade.findFirst({
 		where: {
 			codigo: `00${condominio.id}`,
 		},
@@ -230,7 +230,7 @@ async function createCondominos(
 	tipoProrietario: TiposPessoa,
 	tipoInquilino: TiposPessoa,
 ) {
-	let proprietario = await prisma.pessoa.findUnique({
+	let proprietario = await prisma.pessoa.findFirst({
 		where: { nome: `Francisco do apartamento ${unidade.codigo}` },
 	});
 
@@ -251,7 +251,7 @@ async function createCondominos(
 		});
 	}
 
-	let inquilino = await prisma.pessoa.findUnique({
+	let inquilino = await prisma.pessoa.findFirst({
 		where: { nome: `Antônio morador do apartamento ${unidade.codigo}` },
 	});
 

@@ -252,6 +252,25 @@ export class CondominiumService {
 						created_at: true,
 					},
 				},
+				usuarios_condominio: {
+					select: {
+						usuario: {
+							select: {
+								nome: true,
+								empresas: {
+									select: {
+										cargo: {
+											select: {
+												id: true,
+												nome: true,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			{
 				empresa_id: user.empresa_id,

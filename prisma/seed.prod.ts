@@ -54,7 +54,7 @@ async function createEmpresa() {
 		where: { nome: 'empresa' },
 	});
 
-	let empresa = await prisma.pessoa.findUnique({
+	let empresa = await prisma.pessoa.findFirst({
 		where: { nome: 'Empresa Teste' },
 	});
 

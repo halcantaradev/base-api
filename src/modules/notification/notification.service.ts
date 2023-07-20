@@ -119,6 +119,7 @@ export class NotificationService {
 									: undefined,
 								notificacoes: {
 									some: {
+										ativo: true,
 										tipo_registro: filtro.tipo_registro
 											? filtro.tipo_registro
 											: undefined,
@@ -660,6 +661,7 @@ export class NotificationService {
 					id: { in: notificationUnidadeDTO.condominos_ids },
 				},
 			},
+			ativo: true,
 			tipo_infracao_id: notificationUnidadeDTO.tipo_infracao_id
 				? notificationUnidadeDTO.tipo_infracao_id
 				: undefined,

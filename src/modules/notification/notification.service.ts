@@ -178,7 +178,9 @@ export class NotificationService {
 								},
 							},
 					  }
-					: undefined,
+					: {
+							some: {},
+					  },
 				usuarios_condominio: idsConsultores
 					? {
 							some: {
@@ -231,7 +233,9 @@ export class NotificationService {
 											},
 										},
 								  }
-								: undefined,
+								: {
+										some: {},
+								  },
 						usuarios_condominio: idsConsultores
 							? {
 									some: {

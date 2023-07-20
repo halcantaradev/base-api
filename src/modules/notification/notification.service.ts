@@ -196,6 +196,7 @@ export class NotificationService {
 											in: filtro.unidades_ids,
 									  }
 									: undefined,
+								notificacoes: { some: { ativo: true } },
 							},
 					  }
 					: undefined,

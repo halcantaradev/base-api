@@ -33,6 +33,7 @@ export class MenuService {
 						},
 						ativo: true,
 					},
+					orderBy: { id: 'asc' },
 				},
 			},
 			where: {
@@ -98,6 +99,7 @@ export class MenuService {
 					},
 				],
 			},
+			orderBy: { id: 'asc' },
 		});
 	}
 }

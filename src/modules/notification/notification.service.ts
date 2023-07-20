@@ -317,7 +317,19 @@ export class NotificationService {
 			},
 		});
 
-		if (!setup) return null;
+		const fundamentacao_legal = (
+			await this.prisma.tipoInfracao.findFirst({
+				where: {
+					id: validateNotificationDto.tipo_infracao_id,
+				},
+			})
+		)?.fundamentacao_legal;
+		if (!setup)
+			return {
+				tipo_registro: validateNotificationDto.tipo_registro,
+				valor_multa: null,
+				fundamentacao_legal,
+			};
 
 		if (setup.primeira_reincidencia) {
 			const notificacoes = await this.prisma.notificacao.findMany({
@@ -409,6 +421,7 @@ export class NotificationService {
 						!notificacoes.length
 							? validateNotificationDto.tipo_registro
 							: 2,
+					fundamentacao_legal,
 				};
 			}
 
@@ -434,17 +447,19 @@ export class NotificationService {
 					return {
 						valor_multa: format(valor_multa),
 						tipo_registro: 2,
+						fundamentacao_legal,
 					};
 				}
 
 				return {
 					valor_multa: 0,
 					tipo_registro: 2,
+					fundamentacao_legal,
 				};
 			}
 		}
 
-		return { valor_multa: null, tipo_registro: 1 };
+		return { valor_multa: null, tipo_registro: 1, fundamentacao_legal };
 	}
 
 	async findAll(): Promise<ReturnNotificationListEntity> {

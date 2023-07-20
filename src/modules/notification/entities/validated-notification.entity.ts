@@ -16,4 +16,12 @@ export class ValidatedNotification {
 		required: true,
 	})
 	valor_multa: number;
+
+	@ApiProperty({
+		description: 'Fundamentação legal',
+		example: 'Lei 00001',
+		readOnly: true,
+		required: false,
+	})
+	fundamentacao_legal?: string | null;
 }

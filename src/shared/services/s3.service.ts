@@ -9,7 +9,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()
 export class S3Service {
-	config;
+	config: S3Client;
 
 	constructor() {
 		this.config = new S3Client({
@@ -24,7 +24,7 @@ export class S3Service {
 	async upload(file: Buffer, name) {
 		try {
 			const params = {
-				Bucket: process.env.AWS_S3_BUCKET_KEY,
+				Bucket: process.env.AWS_S3_BUCKET_NAME,
 				Key: String(name),
 				Body: file,
 			};

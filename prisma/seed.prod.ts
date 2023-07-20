@@ -176,6 +176,7 @@ async function createMenu() {
 
 			menuSaved = await prisma.menu.create({
 				data: {
+					id: menu.id_relation,
 					permissao_id: permission?.id,
 					label: menu.label,
 					url: menu.url,
@@ -208,6 +209,7 @@ async function createMenu() {
 
 							return prisma.menu.create({
 								data: {
+									id: item.id_relation,
 									menu_id: menuSaved.id,
 									permissao_id: permission?.id,
 									label: item.label,

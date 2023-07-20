@@ -250,8 +250,10 @@ model UsuarioHasPermissoes {
 model Arquivo {
   id            Int      @id @default(autoincrement())
   url           String
+  nome          String
   origem        Int
   referencia_id Int
+  ativo         Boolean  @default(true)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 

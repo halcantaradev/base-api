@@ -9,6 +9,7 @@ import {
 	Post,
 	Query,
 	UseGuards,
+	UseInterceptors,
 } from '@nestjs/common';
 import { CondominiumService } from './condominium.service';
 import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
@@ -28,6 +29,8 @@ import { FiltersResidenceDto } from './dto/filters-residence.dto';
 import { FiltersCondominiumActiveDto } from './dto/filters-condominium-active.dto';
 import { FiltersResidenceActiveDto } from './dto/filters-residence-active.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
+import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -38,6 +41,7 @@ export class CondominiumController {
 
 	@Post()
 	@Role('condominios-listar')
+	@UseInterceptors(UserCondominiumsAccess)
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Lista todos os condomínios' })
 	@ApiResponse({
@@ -56,6 +60,7 @@ export class CondominiumController {
 		type: ReturnEntity.error(),
 	})
 	async findAll(
+		@CurrentUserCondominiums() condominiums: number[],
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersCondominiumDto,
 		@Query() pagination: Pagination,
@@ -63,6 +68,7 @@ export class CondominiumController {
 		const dados = await this.condominioService.findAll(
 			filters,
 			user,
+			condominiums,
 			null,
 			pagination,
 		);
@@ -82,6 +88,7 @@ export class CondominiumController {
 			param_type: 'query',
 		},
 	])
+	@UseInterceptors(UserCondominiumsAccess)
 	@ApiOperation({ summary: 'Lista todos os condomínios ativos' })
 	@ApiResponse({
 		description: 'Condomínios listados com sucesso',
@@ -99,6 +106,7 @@ export class CondominiumController {
 		type: ReturnEntity.error(),
 	})
 	async findAllActive(
+		@CurrentUserCondominiums() condominiums: number[],
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersCondominiumActiveDto,
 		@Query('usuario_id') usuario_id?: string,
@@ -106,6 +114,7 @@ export class CondominiumController {
 		const dados = await this.condominioService.findAll(
 			{ ...filters, ativo: true },
 			user,
+			condominiums,
 			+usuario_id,
 		);
 

@@ -102,8 +102,8 @@ export class NotificationEntity {
 	pessoa_id?: number;
 
 	@ApiProperty({
-		description: 'Id da pessoa responsável',
-		example: 1,
+		description: 'Ids dos arquivos que serão removidos da notificação',
+		example: [1, 2],
 		required: false,
 	})
 	arquivos?: Arquivo[];

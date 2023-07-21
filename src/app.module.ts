@@ -13,9 +13,10 @@ import { PermissionsModule } from './modules/public/permissions/permissions.modu
 import { SetupModule } from './modules/setup/setup.module';
 import { UploadFileModule } from './modules/upload-file/upload-file.module';
 import { UserModule } from './modules/user/user.module';
-import { HandlebarsService } from './shared/services/handlebars.service';
 import { LayoutConstsService } from './shared/services/layout-consts.service';
-import { PdfService } from './shared/services/pdf.service';
+import { ExternalAccessDocumentsModule } from './modules/external-access-documents/external-access-documents.module';
+import { ExternalJwtService } from './shared/services/external-jwt/external-jwt.service';
+import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.module';
 
 @Module({
 	imports: [
@@ -31,8 +32,10 @@ import { PdfService } from './shared/services/pdf.service';
 		OcupationsModule,
 		LayoutsNotificationModule,
 		SetupModule,
+		ExternalAccessDocumentsModule,
+		ExternalJwtModule,
 	],
 	controllers: [AppController],
-	providers: [AppService, LayoutConstsService, HandlebarsService, PdfService],
+	providers: [AppService, LayoutConstsService],
 })
 export class AppModule {}

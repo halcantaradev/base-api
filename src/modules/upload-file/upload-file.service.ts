@@ -41,6 +41,21 @@ export class UploadFileService {
 			);
 	}
 
+	async removeFiles(id: number[]) {
+		const result = await this.prisma.arquivo.updateMany({
+			data: {
+				ativo: false,
+			},
+			where: {
+				id: {
+					in: id,
+				},
+			},
+		});
+
+		return !!result;
+	}
+
 	async validateReference(
 		reference_id: number,
 		origin: number,

@@ -528,9 +528,16 @@ export class NotificationService {
 			},
 		});
 
+		const arquivos = await this.prisma.arquivo.findMany({
+			where: {
+				ativo: true,
+				referencia_id: id,
+			},
+		});
+
 		return {
 			success: true,
-			data: notification,
+			data: { ...notification, arquivos },
 		};
 	}
 

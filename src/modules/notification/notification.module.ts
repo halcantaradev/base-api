@@ -10,8 +10,10 @@ import { PersonService } from '../person/person.service';
 import { SetupService } from '../setup/setup.service';
 import { InfractionService } from './infraction/infraction.service';
 import { InfractionController } from './infraction/infraction.controller';
+import { UploadFileModule } from '../upload-file/upload-file.module';
 
 @Module({
+	imports: [UploadFileModule],
 	controllers: [NotificationController, InfractionController],
 	providers: [
 		NotificationService,

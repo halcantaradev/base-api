@@ -41,14 +41,14 @@ export class UploadFileService {
 			);
 	}
 
-	async removeFiles(id: number[]) {
+	async removeFiles(ids: number[]) {
 		const result = await this.prisma.arquivo.updateMany({
 			data: {
 				ativo: false,
 			},
 			where: {
 				id: {
-					in: id,
+					in: ids,
 				},
 			},
 		});

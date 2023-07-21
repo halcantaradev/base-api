@@ -16,22 +16,22 @@ import {
 	ApiResponse,
 } from '@nestjs/swagger';
 import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
-import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 
 @ApiTags('Upload File')
 @Controller('uploads')
 @UseGuards(PermissionGuard)
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtAuthGuard)
 export class UploadFileController {
 	constructor(private readonly uploadFileService: UploadFileService) {}
 
 	@Post()
 	@HttpCode(HttpStatus.OK)
 	@ApiConsumes('multipart/form-data')
-	@UseInterceptors(FilesInterceptor('files'))
+	@UseInterceptors(FilesInterceptor('files', 10))
 	@ApiOperation({ summary: 'Realiza o upload de arquivo' })
 	@ApiResponse({
 		description: 'Upload realizado com sucesso',

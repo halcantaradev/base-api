@@ -30,7 +30,7 @@ export class NotificationService {
 		).toString();
 		codigo = codigo.padStart(2, '0');
 
-		await this.prisma.notificacao.create({
+		const data = await this.prisma.notificacao.create({
 			data: {
 				unidade_id: createNotificationDto.unidade_id,
 				tipo_infracao_id: createNotificationDto.tipo_infracao_id,
@@ -49,7 +49,11 @@ export class NotificationService {
 			},
 		});
 
-		return { success: true, message: 'Notificação criada com sucesso.' };
+		return {
+			success: true,
+			message: 'Notificação criada com sucesso.',
+			data: { id: data.id },
+		};
 	}
 
 	async findBy(
@@ -178,7 +182,9 @@ export class NotificationService {
 								},
 							},
 					  }
-					: undefined,
+					: {
+							some: {},
+					  },
 				usuarios_condominio: idsConsultores
 					? {
 							some: {
@@ -231,7 +237,9 @@ export class NotificationService {
 											},
 										},
 								  }
-								: undefined,
+								: {
+										some: {},
+								  },
 						usuarios_condominio: idsConsultores
 							? {
 									some: {

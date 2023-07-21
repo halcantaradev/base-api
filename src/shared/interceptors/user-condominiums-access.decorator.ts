@@ -43,18 +43,16 @@ export class UserCondominiumsAccess implements NestInterceptor {
 				where: {
 					empresa_id: user.empresa_id,
 					tipos: { some: { tipo: { nome: 'condominio' } } },
-					OR: [
-						departamentos
-							? {
-									departamentos_condominio: {
-										some: {
-											departamento_id: {
-												in: departamentos,
-											},
-										},
+					departamentos_condominio: departamentos
+						? {
+								some: {
+									departamento_id: {
+										in: departamentos,
 									},
-							  }
-							: undefined,
+								},
+						  }
+						: undefined,
+					OR: [
 						!usuario_id || Number.isNaN(usuario_id)
 							? {
 									departamentos_condominio: {

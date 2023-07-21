@@ -9,6 +9,7 @@ import {
 	Post,
 	Put,
 	UseGuards,
+	UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
@@ -27,6 +28,8 @@ import { ListUserActiveDto } from './dto/list-user-active.dto';
 import { LinkCondominiumsDto } from './dto/link-condominiums.dto';
 import { ReturnUserCondominiums } from './entities/return-user-condominiums.entity';
 import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
+import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 
 @ApiTags('User')
 @Controller('users')
@@ -75,6 +78,7 @@ export class UserController {
 
 	@Post('active')
 	@HttpCode(HttpStatus.OK)
+	@UseInterceptors(UserCondominiumsAccess)
 	@Role('usuarios-listar-ativos')
 	@ApiOperation({ summary: 'Lista usuários ativos' })
 	@ApiResponse({
@@ -88,13 +92,18 @@ export class UserController {
 		type: ReturnEntity.error(),
 	})
 	findAllActive(
+		@CurrentUserCondominiums() condominiums: number[],
 		@CurrentUser() user: UserAuth,
 		@Body() filters: ListUserActiveDto,
 	) {
-		return this.userService.findAll(user.empresa_id, {
-			...filters,
-			ativo: true,
-		});
+		return this.userService.findAll(
+			user.empresa_id,
+			{
+				...filters,
+				ativo: true,
+			},
+			condominiums,
+		);
 	}
 
 	@Get(':id')

@@ -140,6 +140,13 @@ export class CondominiumService {
 										},
 								  }
 								: null,
+							userData.acessa_todos_departamentos
+								? {
+										departamentos_condominio: {
+											some: {},
+										},
+								  }
+								: null,
 						].filter((filter) => !!filter),
 				  }
 				: null,

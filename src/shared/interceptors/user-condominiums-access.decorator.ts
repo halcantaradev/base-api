@@ -4,7 +4,6 @@ import {
 	Injectable,
 	NestInterceptor,
 } from '@nestjs/common';
-import { tap } from 'rxjs';
 import { PrismaService } from '../services/prisma.service';
 import { UserAuth } from '../entities/user-auth.entity';
 
@@ -33,69 +32,64 @@ export class UserCondominiumsAccess implements NestInterceptor {
 			},
 		});
 
-		let departamentos;
-
-		if (!userData.acessa_todos_departamentos) {
-			departamentos = userData.departamentos.map(
+		if (userData.acessa_todos_departamentos) {
+			request.condominios;
+		} else {
+			const departamentos = userData.departamentos.map(
 				(departamento) => departamento.departamento_id,
 			);
-		}
 
-		const condominios = await this.prisma.pessoa.findMany({
-			where: {
-				empresa_id: user.empresa_id,
-				tipos: { some: { tipo: { nome: 'condominio' } } },
-				OR: [
-					departamentos
-						? {
-								departamentos_condominio: {
-									some: {
-										departamento_id: {
-											in: departamentos,
+			const condominios = await this.prisma.pessoa.findMany({
+				where: {
+					empresa_id: user.empresa_id,
+					tipos: { some: { tipo: { nome: 'condominio' } } },
+					OR: [
+						departamentos
+							? {
+									departamentos_condominio: {
+										some: {
+											departamento_id: {
+												in: departamentos,
+											},
 										},
 									},
-								},
-						  }
-						: {
-								departamentos_condominio: {
-									some: {},
-								},
-						  },
-					!usuario_id || Number.isNaN(usuario_id)
-						? {
-								departamentos_condominio: {
-									some: {
-										departamento: {
-											usuarios: {
-												some: {
-													usuario_id: idUser,
-													acessa_todos_condominios:
-														true,
+							  }
+							: undefined,
+						!usuario_id || Number.isNaN(usuario_id)
+							? {
+									departamentos_condominio: {
+										some: {
+											departamento: {
+												usuarios: {
+													some: {
+														usuario_id: idUser,
+														acessa_todos_condominios:
+															true,
+													},
 												},
 											},
 										},
 									},
-								},
-						  }
-						: null,
-					!usuario_id || Number.isNaN(usuario_id)
-						? {
-								usuarios_condominio: {
-									some: {
-										usuario_id: idUser,
+							  }
+							: null,
+						!usuario_id || Number.isNaN(usuario_id)
+							? {
+									usuarios_condominio: {
+										some: {
+											usuario_id: idUser,
+										},
 									},
-								},
-						  }
-						: null,
-				].filter((filter) => !!filter),
-			},
-		});
+							  }
+							: null,
+					].filter((filter) => !!filter),
+				},
+			});
 
-		request.condominios = condominios.map((condominio) => condominio.id);
+			request.condominios = condominios.map(
+				(condominio) => condominio.id,
+			);
+		}
 
-		const now = Date.now();
-		return next
-			.handle()
-			.pipe(tap(() => console.log(`Executado... ${Date.now() - now}ms`)));
+		return next.handle().pipe();
 	}
 }

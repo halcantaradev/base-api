@@ -9,6 +9,7 @@ import {
 	Post,
 	Query,
 	UseGuards,
+	UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
@@ -31,6 +32,7 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
 import { NotificationService } from './notification.service';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -86,6 +88,7 @@ export class NotificationController {
 
 	@Post('search')
 	@Role('notificacoes-listar')
+	@UseInterceptors(UserCondominiumsAccess)
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({
 		summary: 'Busca as notificação baseado nos filtros enviados',
@@ -146,6 +149,7 @@ export class NotificationController {
 
 	@Post('reports')
 	@Role('notificacoes-relatorios-condominio')
+	@UseInterceptors(UserCondominiumsAccess)
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({
 		summary:

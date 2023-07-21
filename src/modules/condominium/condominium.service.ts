@@ -18,6 +18,7 @@ export class CondominiumService {
 	async findAll(
 		filters: FiltersCondominiumDto,
 		user: UserAuth,
+		condominiums: number[],
 		usuario_id?: number,
 		pagination?: Pagination,
 	) {
@@ -36,32 +37,6 @@ export class CondominiumService {
 				id: idUser,
 			},
 		});
-
-		let listaDepartamentos;
-
-		if (!userData.acessa_todos_departamentos) {
-			listaDepartamentos = userData.departamentos.map(
-				(departamento) => departamento.departamento_id,
-			);
-		}
-
-		let departamentos;
-
-		if (
-			filters.departamentos?.length &&
-			!userData.acessa_todos_departamentos
-		) {
-			departamentos = filters.departamentos.filter((departamento) =>
-				listaDepartamentos.includes(departamento),
-			);
-		} else if (
-			filters.departamentos?.length &&
-			userData.acessa_todos_departamentos
-		) {
-			departamentos = filters.departamentos;
-		} else if (!userData.acessa_todos_departamentos) {
-			departamentos = listaDepartamentos;
-		}
 
 		const filtersSelected: Array<any> = [
 			filters.categoria_id && !Number.isNaN(+filters.categoria_id)
@@ -143,59 +118,25 @@ export class CondominiumService {
 						].filter((filtro) => !!filtro),
 				  }
 				: null,
-			departamentos || !usuario_id || Number.isNaN(usuario_id)
+			userData.acessa_todos_departamentos || filters.departamentos?.length
 				? {
 						OR: [
-							departamentos
-								? {
-										departamentos_condominio: {
-											some: {
-												departamento_id: {
-													in: departamentos,
-												},
-											},
-										},
-								  }
-								: null,
-							!usuario_id || Number.isNaN(usuario_id)
-								? {
-										departamentos_condominio: {
-											some: {
-												departamento: {
-													usuarios: {
-														some: {
-															usuario_id: idUser,
-															acessa_todos_condominios:
-																true,
-														},
-													},
-												},
-											},
-										},
-								  }
-								: null,
-							!usuario_id || Number.isNaN(usuario_id)
-								? {
-										usuarios_condominio: {
-											some: {
-												usuario_id: idUser,
-											},
-										},
-								  }
-								: null,
+							{ id: { in: condominiums } },
 							userData.acessa_todos_departamentos &&
 							!filters.departamentos?.length &&
 							!filters.ativo
 								? {
-										departamentos_condominio: {
-											none: {},
-										},
+										departamentos_condominio: { none: {} },
 								  }
 								: null,
-							userData.acessa_todos_departamentos
+							filters.departamentos?.length
 								? {
 										departamentos_condominio: {
-											some: {},
+											some: {
+												departamento_id: {
+													in: filters.departamentos,
+												},
+											},
 										},
 								  }
 								: null,

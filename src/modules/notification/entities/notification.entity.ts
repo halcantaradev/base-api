@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Arquivo } from '@prisma/client';
 import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 
 export class NotificationEntity {
@@ -99,4 +100,11 @@ export class NotificationEntity {
 		required: false,
 	})
 	pessoa_id?: number;
+
+	@ApiProperty({
+		description: 'Ids dos arquivos que serão removidos da notificação',
+		example: [1, 2],
+		required: false,
+	})
+	arquivos?: Arquivo[];
 }

@@ -13,6 +13,7 @@ import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
+import { UploadFileService } from '../upload-file/upload-file.service';
 
 @Injectable()
 export class NotificationService {
@@ -20,6 +21,7 @@ export class NotificationService {
 		private readonly prisma: PrismaService,
 		private readonly condomonioService: CondominiumService,
 		private readonly setupService: SetupService,
+		private readonly arquivoService: UploadFileService,
 	) {}
 
 	async create(createNotificationDto: CreateNotificationDto) {
@@ -528,9 +530,17 @@ export class NotificationService {
 			},
 		});
 
+		const arquivos = await this.prisma.arquivo.findMany({
+			where: {
+				ativo: true,
+				origem: 1,
+				referencia_id: id,
+			},
+		});
+
 		return {
 			success: true,
-			data: notification,
+			data: { ...notification, arquivos },
 		};
 	}
 
@@ -545,46 +555,53 @@ export class NotificationService {
 		if (notification == null)
 			throw new BadRequestException('Notificação não encontrada');
 
+		const notificacaoResult = await this.prisma.notificacao.update({
+			select: {
+				id: true,
+				unidade: { select: { codigo: true } },
+				tipo_infracao: {
+					select: { descricao: true },
+				},
+				tipo_registro: true,
+				data_emissao: true,
+				data_infracao: true,
+				codigo: true,
+				detalhes_infracao: true,
+				fundamentacao_legal: true,
+				observacoes: true,
+				valor_multa: true,
+				competencia_multa: true,
+				unir_taxa: true,
+				vencimento_multa: true,
+			},
+			data: {
+				unidade_id: updateNotificationDto.unidade_id,
+				tipo_infracao_id: updateNotificationDto.tipo_infracao_id,
+				tipo_registro: updateNotificationDto.tipo_registro,
+				data_emissao: updateNotificationDto.data_emissao,
+				data_infracao: updateNotificationDto.data_infracao,
+				fundamentacao_legal: updateNotificationDto.fundamentacao_legal,
+				detalhes_infracao: updateNotificationDto.detalhes_infracao,
+				ativo: updateNotificationDto.ativo,
+				competencia_multa: updateNotificationDto.competencia_multa,
+				valor_multa: updateNotificationDto.valor_multa,
+				vencimento_multa: updateNotificationDto.vencimento_multa,
+				unir_taxa: updateNotificationDto.unir_taxa,
+				observacoes: updateNotificationDto.observacoes,
+			},
+			where: { id },
+		});
+
+		if (updateNotificationDto.arquivos_ids?.length) {
+			await this.arquivoService.removeFiles(
+				updateNotificationDto.arquivos_ids,
+			);
+		}
+
 		return {
 			success: true,
 			message: 'Notificação atualizada com sucesso.',
-			data: await this.prisma.notificacao.update({
-				select: {
-					id: true,
-					unidade: { select: { codigo: true } },
-					tipo_infracao: {
-						select: { descricao: true },
-					},
-					tipo_registro: true,
-					data_emissao: true,
-					data_infracao: true,
-					codigo: true,
-					detalhes_infracao: true,
-					fundamentacao_legal: true,
-					observacoes: true,
-					valor_multa: true,
-					competencia_multa: true,
-					unir_taxa: true,
-					vencimento_multa: true,
-				},
-				data: {
-					unidade_id: updateNotificationDto.unidade_id,
-					tipo_infracao_id: updateNotificationDto.tipo_infracao_id,
-					tipo_registro: updateNotificationDto.tipo_registro,
-					data_emissao: updateNotificationDto.data_emissao,
-					data_infracao: updateNotificationDto.data_infracao,
-					fundamentacao_legal:
-						updateNotificationDto.fundamentacao_legal,
-					detalhes_infracao: updateNotificationDto.detalhes_infracao,
-					ativo: updateNotificationDto.ativo,
-					competencia_multa: updateNotificationDto.competencia_multa,
-					valor_multa: updateNotificationDto.valor_multa,
-					vencimento_multa: updateNotificationDto.vencimento_multa,
-					unir_taxa: updateNotificationDto.unir_taxa,
-					observacoes: updateNotificationDto.observacoes,
-				},
-				where: { id },
-			}),
+			data: { ...notificacaoResult },
 		};
 	}
 

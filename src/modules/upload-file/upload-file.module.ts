@@ -7,5 +7,6 @@ import { S3Service } from 'src/shared/services/s3.service';
 @Module({
 	controllers: [UploadFileController],
 	providers: [UploadFileService, PrismaService, S3Service],
+	exports: [UploadFileService],
 })
 export class UploadFileModule {}

@@ -3,6 +3,7 @@ import {
 	Controller,
 	HttpCode,
 	HttpStatus,
+	Patch,
 	Post,
 	UploadedFiles,
 	UseGuards,
@@ -20,6 +21,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
+import { RemoveFileDto } from './dto/remove-file.dto';
 
 @ApiTags('Upload File')
 @Controller('uploads')
@@ -54,5 +56,24 @@ export class UploadFileController {
 		);
 
 		return { success: true, message: 'Arquivos enviados com sucesso' };
+	}
+
+	@Patch()
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ summary: 'Realiza a remoção dos arquivos' })
+	@ApiResponse({
+		description: 'Arquivos removidos com sucesso!',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao remover os arquivos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async removeFiles(@Body() body: RemoveFileDto) {
+		const result = await this.uploadFileService.removeFiles(body.ids);
+
+		return { success: true, message: 'Os arquivos foram removidos' };
 	}
 }

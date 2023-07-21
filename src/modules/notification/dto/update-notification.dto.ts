@@ -45,4 +45,7 @@ export class UpdateNotificationDto extends CreateNotificationDto {
 	})
 	@Transform(BooleanTransformHelper)
 	ativo: boolean;
+
+	@IsOptional()
+	arquivos_ids: number[];
 }

@@ -118,7 +118,9 @@ export class CondominiumService {
 						].filter((filtro) => !!filtro),
 				  }
 				: null,
-			userData.acessa_todos_departamentos || filters.departamentos?.length
+			condominiums ||
+			userData.acessa_todos_departamentos ||
+			filters.departamentos?.length
 				? {
 						OR: [
 							{ id: { in: condominiums } },

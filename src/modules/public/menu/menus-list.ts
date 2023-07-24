@@ -78,7 +78,7 @@ export const menulist: Array<{
 		id_relation: 11,
 		permission_key: 'filiais-listar',
 		label: 'Filiais',
-		url: 'filiais/',
+		url: 'filiais/buscar',
 		icon: 'shop',
 		target: '_self',
 	},

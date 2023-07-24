@@ -263,6 +263,9 @@ export class CondominiumService {
 						},
 					},
 				},
+				telefone: true,
+				whatsapp: true,
+				email: true,
 				ramal: true,
 			},
 			where: {

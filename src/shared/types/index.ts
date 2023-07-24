@@ -17,3 +17,10 @@ export class LayoutConst {
 	})
 	const: string;
 }
+
+export type Email = {
+	from: string;
+	to: string;
+	subject: string;
+	html: string;
+};

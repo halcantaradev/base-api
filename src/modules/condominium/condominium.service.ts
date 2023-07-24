@@ -445,4 +445,8 @@ export class CondominiumService {
 			},
 		});
 	}
+
+	findOnById(id: number) {
+		return this.pessoaService.findOneById(id, 'condominio');
+	}
 }

@@ -1,7 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Filas } from 'src/shared/consts/filas.const';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { format } from 'src/shared/helpers/currency.helper';
+import { EmailService } from 'src/shared/services/email.service';
+import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CondominiumService } from '../condominium/condominium.service';
 import { Condominium } from '../condominium/entities/condominium.entity';
@@ -22,9 +25,11 @@ export class NotificationService {
 		private readonly condomonioService: CondominiumService,
 		private readonly setupService: SetupService,
 		private readonly arquivoService: UploadFileService,
+		private readonly emailService: EmailService,
+		private readonly externalJtwService: ExternalJwtService,
 	) {}
 
-	async create(createNotificationDto: CreateNotificationDto) {
+	async create(createNotificationDto: CreateNotificationDto, user: UserAuth) {
 		createNotificationDto.unir_taxa = !!createNotificationDto.unir_taxa;
 		let codigo: string = (
 			(await this.findQtdByResidence(createNotificationDto.unidade_id)) +
@@ -49,6 +54,27 @@ export class NotificationService {
 				observacoes: createNotificationDto.observacoes,
 				pessoa_id: createNotificationDto.pessoa_id,
 			},
+		});
+
+		const userLogado = await this.prisma.user.findUnique({
+			where: { id: user.id },
+		});
+
+		const condomino = await this.prisma.pessoa.findUnique({
+			where: { id: data.pessoa_id },
+		});
+
+		const url = this.externalJtwService.generateURLExternal({
+			origin: 'notificacoes',
+			data: { id: data.id },
+		});
+
+		await this.emailService.send(Filas.EMAIL, {
+			from: process.env.EMAIL_SEND_PROVIDER,
+			html: `<p>Notificação criada para o condomino: ${condomino.nome} <br>
+			Clique no link para acessar clique: <a href="${url}">${url}</a></p>`,
+			subject: 'Notificação criada',
+			to: userLogado.email,
 		});
 
 		return {
@@ -930,7 +956,7 @@ export class NotificationService {
 		};
 	}
 
-	async dataToHandle(id: number, user: UserAuth) {
+	async dataToHandle(id: number) {
 		const dataToPrint: {
 			[key: string]: number | string | Date | undefined;
 		} = {};
@@ -947,21 +973,20 @@ export class NotificationService {
 			},
 			where: { id },
 		});
-		const condominio: Condominium = await this.condomonioService.findOne(
+		const condominio: Condominium = await this.condomonioService.findOnById(
 			data.unidade.condominio_id,
-			user,
 		);
 		const setupSistema = await this.setupService.findSetupSystem(
-			user.empresa_id,
+			data.unidade.condominio.empresa_id,
 		);
 		const setupNotificacao = await this.setupService.findSetupNotification(
 			condominio.id,
 		);
-		const sindico = condominio.condominio_administracao.filter(
+		const sindico = condominio.condominio_administracao?.filter(
 			(item) => item.cargo.sindico,
 		);
 
-		dataToPrint.nome_sindico = sindico.length ? sindico[0].nome : '';
+		dataToPrint.nome_sindico = sindico?.length ? sindico[0].nome : '';
 		dataToPrint.sancao_padrao = setupSistema ? setupSistema.sancao : '';
 		dataToPrint.texto_padrao_notificacao = setupSistema
 			? setupSistema.texto_padrao_notificacao

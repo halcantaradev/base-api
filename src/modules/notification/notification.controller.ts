@@ -65,8 +65,11 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	create(@Body() createNotificationDto: CreateNotificationDto) {
-		return this.notificationService.create(createNotificationDto);
+	create(
+		@Body() createNotificationDto: CreateNotificationDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		return this.notificationService.create(createNotificationDto, user);
 	}
 
 	@Get()
@@ -237,25 +240,18 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findOnePrint(
-		@Param('id') id: string,
-		@Query('pdf') pdf?: number,
-		@CurrentUser() user?: UserAuth,
-	) {
+	async findOnePrint(@Param('id') id: string, @Query('pdf') pdf?: number) {
 		let html: Buffer | string = readFileSync(
 			resolve('./src/shared/layouts/notification.html'),
 		);
 
 		const layout = this.layoutService.replaceLayoutVars(html.toString());
 
-		const dataToPrint = await this.notificationService.dataToHandle(
-			+id,
-			user,
-		);
+		const dataToPrint = await this.notificationService.dataToHandle(+id);
 		html = this.handleBarService.compile(layout, dataToPrint);
 
 		if (pdf) {
-			const file = await this.pdfService.getPDF(html);
+			const file = await this.pdfService.getPDFBuffer(html);
 			return {
 				success: true,
 				data: file,

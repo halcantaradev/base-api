@@ -7,6 +7,7 @@ import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
+import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
 
 @Injectable()
 export class CondominiumService {
@@ -242,6 +243,75 @@ export class CondominiumService {
 					: undefined,
 			},
 		);
+	}
+
+	async findResponsible(
+		id: number,
+		user: UserAuth,
+	): Promise<UsuariosCondominio[]> {
+		return this.prisma.user.findMany({
+			select: {
+				id: true,
+				nome: true,
+				empresas: {
+					select: {
+						cargo: {
+							select: {
+								id: true,
+								nome: true,
+							},
+						},
+					},
+				},
+				ramal: true,
+			},
+			where: {
+				OR: [
+					{
+						condominios: {
+							some: {
+								condominio_id: id,
+								condominio: {
+									empresa_id: user.empresa_id,
+									departamentos_condominio:
+										!user.acessa_todos_departamentos
+											? {
+													some: {
+														departamento_id: {
+															in: user.departamentos_ids,
+														},
+													},
+											  }
+											: undefined,
+									usuarios_condominio:
+										!user.acessa_todos_departamentos
+											? {
+													some: {
+														usuario_id: user.id,
+													},
+											  }
+											: undefined,
+								},
+							},
+						},
+					},
+					{
+						departamentos: {
+							some: {
+								acessa_todos_condominios: false,
+								departamento: {
+									condominios: {
+										some: {
+											condominio_id: id,
+										},
+									},
+								},
+							},
+						},
+					},
+				],
+			},
+		});
 	}
 
 	async linkDepartament(

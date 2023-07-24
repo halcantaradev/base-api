@@ -3,6 +3,13 @@ import { Ocupation } from 'src/modules/ocupations/entities/ocupation.entity';
 
 export class UsuariosCondominio {
 	@ApiProperty({
+		description: 'Id do responsável',
+		example: 1,
+		required: false,
+	})
+	id: number;
+
+	@ApiProperty({
 		description: 'Nome do responsável',
 		type: String,
 		example: 'Francisco',
@@ -16,4 +23,11 @@ export class UsuariosCondominio {
 		required: false,
 	})
 	cargo?: Ocupation;
+
+	@ApiProperty({
+		description: 'Ramal do responsável',
+		example: '45103',
+		required: false,
+	})
+	ramal: string;
 }

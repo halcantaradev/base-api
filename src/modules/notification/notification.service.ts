@@ -72,7 +72,7 @@ export class NotificationService {
 		await this.emailService.send(Filas.EMAIL, {
 			from: process.env.EMAIL_SEND_PROVIDER,
 			html: `<p>Notificação criada para o condomino: ${condomino.nome} <br>
-			Clique no link para acessar clique: <a href="${url}">aqui</a></p>`,
+			Clique no link para acessar clique: <a href="${url}">${url}</a></p>`,
 			subject: 'Notificação criada',
 			to: userLogado.email,
 		});

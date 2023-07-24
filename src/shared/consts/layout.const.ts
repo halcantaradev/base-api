@@ -118,4 +118,24 @@ export const layoutConst: Array<{
 		const: '[OBSERVACOES_NOTIFICACAO]',
 		field: '{{{observacoes_notificacao}}}',
 	},
+	{
+		label: 'Valor multa da notificação',
+		const: '[VALOR_MULTA_NOTIFICACAO]',
+		field: '{{{valor_multa_notificacao}}}',
+	},
+	{
+		label: 'Competência multa da notificação',
+		const: '[COMPETENCIA_MULTA_NOTIFICACAO]',
+		field: '{{{competencia_multa_notificacao}}}',
+	},
+	{
+		label: 'Unir a taxa de condomínio multa da notificação',
+		const: '[UNIR_TAXA_MULTA_NOTIFICACAO]',
+		field: '{{{unir_taxa_multa_notificacao}}}',
+	},
+	{
+		label: 'Vencimento multa da notificação',
+		const: '[VENCIMENTO_MULTA_NOTIFICACAO]',
+		field: '{{{vencimento_multa_notificacao}}}',
+	},
 ];

@@ -9,6 +9,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { CondominiumService } from '../condominium/condominium.service';
 import { Condominium } from '../condominium/entities/condominium.entity';
 import { SetupService } from '../setup/setup.service';
+import { UploadFileService } from '../upload-file/upload-file.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { FilterNotificationDto } from './dto/filter-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
@@ -16,7 +17,6 @@ import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
-import { UploadFileService } from '../upload-file/upload-file.service';
 
 @Injectable()
 export class NotificationService {
@@ -958,7 +958,7 @@ export class NotificationService {
 
 	async dataToHandle(id: number) {
 		const dataToPrint: {
-			[key: string]: number | string | Date | undefined;
+			[key: string]: number | string | Date | Array<any> | undefined;
 		} = {};
 		const data = await this.prisma.notificacao.findFirst({
 			include: {
@@ -973,6 +973,16 @@ export class NotificationService {
 			},
 			where: { id },
 		});
+		const files = await this.prisma.arquivo.findMany({
+			where: {
+				referencia_id: data.id,
+				origem: 1,
+				nome: { not: { contains: 'pdf' } },
+			},
+		});
+
+		dataToPrint.anexos = files.length ? files : null;
+
 		const condominio: Condominium = await this.condomonioService.findOnById(
 			data.unidade.condominio_id,
 		);
@@ -1029,6 +1039,19 @@ export class NotificationService {
 		dataToPrint.detalhes_infracao = data.detalhes_infracao;
 		dataToPrint.fundamentacao_legal = data.fundamentacao_legal;
 		dataToPrint.observacoes_notificacao = data.observacoes;
+		dataToPrint.valor_multa_notificacao = new Intl.NumberFormat('pt-BR', {
+			currency: 'BRL',
+			minimumFractionDigits: 2,
+		}).format(data.valor_multa);
+		dataToPrint.competencia_multa_notificacao = data.competencia_multa;
+		dataToPrint.unir_taxa_multa_notificacao = data.unir_taxa
+			? 'Sim'
+			: 'Não';
+		dataToPrint.vencimento_multa_notificacao = data.vencimento_multa
+			? new Intl.DateTimeFormat('pt-BR', {
+					dateStyle: 'short',
+			  }).format(data.vencimento_multa)
+			: 'Unido a taxa de condomínio';
 
 		const condomino = data.unidade.condominos.filter(
 			(item) => item.condomino.id == data.pessoa_id,

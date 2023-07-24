@@ -133,7 +133,8 @@ export class CondominiumService {
 										departamentos_condominio: { none: {} },
 								  }
 								: null,
-							usuario_id && !Number.isNaN(usuario_id)
+							userData.acessa_todos_departamentos ||
+							(usuario_id && !Number.isNaN(usuario_id))
 								? {
 										departamentos_condominio: {
 											some: {},

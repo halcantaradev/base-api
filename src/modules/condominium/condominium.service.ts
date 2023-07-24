@@ -268,6 +268,7 @@ export class CondominiumService {
 				ramal: true,
 			},
 			where: {
+				acessa_todos_departamentos: false,
 				OR: [
 					{
 						condominios: {
@@ -300,7 +301,6 @@ export class CondominiumService {
 					{
 						departamentos: {
 							some: {
-								acessa_todos_condominios: false,
 								departamento: {
 									condominios: {
 										some: {

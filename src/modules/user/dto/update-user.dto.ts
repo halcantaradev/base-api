@@ -12,6 +12,10 @@ export class UpdateUserDto extends CreateUserDto {
 
 	@Validate(null)
 	@IsOptional()
+	whatsapp: string;
+
+	@Validate(null)
+	@IsOptional()
 	username: string;
 
 	@IsOptional()

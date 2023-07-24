@@ -31,6 +31,7 @@ import { FiltersResidenceActiveDto } from './dto/filters-residence-active.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
 import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
+import { UsersCondominiumReturn } from './entities/users-condominium-return.entity';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -141,6 +142,31 @@ export class CondominiumController {
 		return {
 			success: true,
 			data: await this.condominioService.findOne(+id, user),
+		};
+	}
+
+	@Get(':id/responsibles')
+	@Role('condominios-exibir-dados')
+	@ApiOperation({ summary: 'Lista os responsáveis de um condomínio' })
+	@ApiResponse({
+		description: 'Responsáveis listados com sucesso',
+		status: HttpStatus.OK,
+		type: UsersCondominiumReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os responsáveis do condomínio',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(
+			'Erro ao exibir os responsáveis do condomínio',
+		),
+	})
+	async findResponsible(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+	) {
+		return {
+			success: true,
+			data: await this.condominioService.findResponsible(+id, user),
 		};
 	}
 

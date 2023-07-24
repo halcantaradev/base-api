@@ -75,6 +75,14 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
+		id_relation: 11,
+		permission_key: 'filiais-listar',
+		label: 'Filiais',
+		url: 'filiais/',
+		icon: 'shop',
+		target: '_self',
+	},
+	{
 		id_relation: 99990,
 		label: 'Configurações',
 		url: null,

@@ -11,10 +11,11 @@ export class UserCondominiums {
 	condominios_ids: number[];
 
 	@ApiProperty({
-		description: 'Status de acesso a todos os condominios do departamento',
+		description:
+			'Status de restrição de acesso aos condominios do departamento',
 		example: true,
 		required: true,
 		readOnly: true,
 	})
-	acessa_todos_condominios?: boolean;
+	restringir_acesso?: boolean;
 }

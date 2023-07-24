@@ -233,6 +233,11 @@ export class UserService {
 			},
 			where: {
 				id,
+				empresas: {
+					every: {
+						empresa_id: user.empresa_id,
+					},
+				},
 			},
 		});
 
@@ -289,6 +294,32 @@ export class UserService {
 			user.acessa_todos_departamentos
 		) {
 			userAccessAllDepartments = true;
+		}
+
+		let departments = [];
+		if (updateUserDto.departamentos) {
+			const savedDepartaments = (
+				await this.prisma.usuarioHasDepartamentos.findMany({
+					where: {
+						usuario_id: id,
+					},
+				})
+			).map((department) => department.departamento_id);
+
+			departments = updateUserDto.departamentos.filter(
+				(departament) => !savedDepartaments.includes(departament),
+			);
+
+			await this.prisma.usuarioHasDepartamentos.deleteMany({
+				where: {
+					usuario_id: id,
+					departamento_id: {
+						notIn: savedDepartaments.filter((departament) =>
+							updateUserDto.departamentos.includes(departament),
+						),
+					},
+				},
+			});
 		}
 
 		return {
@@ -358,17 +389,12 @@ export class UserService {
 							},
 						},
 					},
-					departamentos: updateUserDto.departamentos
+					departamentos: departments
 						? {
-								deleteMany: {
-									usuario_id: id,
-								},
 								createMany: {
-									data: updateUserDto.departamentos.map(
-										(departamento) => ({
-											departamento_id: departamento,
-										}),
-									),
+									data: departments.map((departamento) => ({
+										departamento_id: departamento,
+									})),
 								},
 						  }
 						: undefined,
@@ -429,7 +455,7 @@ export class UserService {
 			condominios_ids: condominios.data.map(
 				(condominio) => condominio.id,
 			),
-			acessa_todos_condominios: !!departamento?.acessa_todos_condominios,
+			restringir_acesso: !!departamento?.restringir_acesso,
 		};
 	}
 
@@ -467,11 +493,11 @@ export class UserService {
 			},
 		});
 
-		let userAccessAllCondominiums = false;
+		let restrictUserAccess = false;
 
-		if (linkCondominiumsDto.acessa_todos_condominios) {
-			userAccessAllCondominiums = true;
-		} else {
+		if (linkCondominiumsDto.restringir_acesso) {
+			restrictUserAccess = true;
+
 			await this.prisma.usuarioHasCondominios.createMany({
 				data: linkCondominiumsDto.condominios_ids.map((condominio) => ({
 					condominio_id: condominio,
@@ -483,7 +509,7 @@ export class UserService {
 		if (!departamento) {
 			await this.prisma.usuarioHasDepartamentos.createMany({
 				data: {
-					acessa_todos_condominios: userAccessAllCondominiums,
+					restringir_acesso: restrictUserAccess,
 					usuario_id: id,
 					departamento_id: linkCondominiumsDto.departamento_id,
 				},
@@ -491,7 +517,7 @@ export class UserService {
 		} else {
 			await this.prisma.usuarioHasDepartamentos.updateMany({
 				data: {
-					acessa_todos_condominios: userAccessAllCondominiums,
+					restringir_acesso: restrictUserAccess,
 				},
 				where: {
 					departamento_id: linkCondominiumsDto.departamento_id,

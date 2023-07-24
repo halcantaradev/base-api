@@ -28,14 +28,14 @@ export class LinkCondominiumsDto {
 	})
 	@Validate(IsBooleanType, {
 		message:
-			'O campo acessar todos os condominíos informado não é válido. Por favor, forneça um valor válido.',
+			'O campo de restringir acesso a condominios informado não é válido. Por favor, forneça um valor válido.',
 	})
 	@Transform(BooleanTransformHelper)
 	@IsNotEmpty({
 		message:
-			'O campo de acessar todos os condominíos é obrigatório. Por favor, forneça um valor.',
+			'O campo de restringir acesso a condominios é obrigatório. Por favor, forneça um valor.',
 	})
-	acessa_todos_condominios: boolean;
+	restringir_acesso: boolean;
 
 	@ApiProperty({
 		description: 'Condomínios do usuário',

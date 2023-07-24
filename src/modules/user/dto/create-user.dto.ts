@@ -89,6 +89,18 @@ export class CreateUserDto {
 	telefone: string;
 
 	@ApiProperty({
+		description: 'WhatsApp do usuário',
+		example: '(85) 99999-9999',
+		required: true,
+	})
+	@IsOptional()
+	@IsString({
+		message:
+			'O campo whatsapp informado não é válido. Por favor, forneça um numero de telefone válido',
+	})
+	whatsapp: string;
+
+	@ApiProperty({
 		description: 'Ramal do usuário',
 		example: '456',
 		required: true,

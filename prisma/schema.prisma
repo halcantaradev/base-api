@@ -95,6 +95,7 @@ model User {
   username                   String   @unique
   password                   String
   telefone                   String?
+  whatsapp                   String?  
   ramal                      String?
   secret                     String   @default(uuid())
   ativo                      Boolean  @default(true)

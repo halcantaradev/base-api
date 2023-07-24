@@ -330,11 +330,11 @@ model LayoutsNotificacao {
 }
 
 model UsuarioHasDepartamentos {
-  usuario_id               Int
-  departamento_id          Int
-  acessa_todos_condominios Boolean  @default(false)
-  created_at               DateTime @default(now())
-  updated_at               DateTime @updatedAt
+  usuario_id        Int
+  departamento_id   Int
+  restringir_acesso Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 
   usuario      User         @relation(fields: [usuario_id], references: [id])
   departamento Departamento @relation(fields: [departamento_id], references: [id])

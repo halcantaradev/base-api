@@ -32,61 +32,54 @@ export class UserCondominiumsAccess implements NestInterceptor {
 			},
 		});
 
-		if (userData.acessa_todos_departamentos) {
-			request.condominios;
-		} else {
-			const departamentos = userData.departamentos.map(
-				(departamento) => departamento.departamento_id,
-			);
+		const departamentos = userData.departamentos.map(
+			(departamento) => departamento.departamento_id,
+		);
 
-			const condominios = await this.prisma.pessoa.findMany({
-				where: {
-					empresa_id: user.empresa_id,
-					tipos: { some: { tipo: { nome: 'condominio' } } },
-					departamentos_condominio: departamentos
-						? {
-								some: {
-									departamento_id: {
-										in: departamentos,
-									},
+		const condominios = await this.prisma.pessoa.findMany({
+			where: {
+				empresa_id: user.empresa_id,
+				tipos: { some: { tipo: { nome: 'condominio' } } },
+				departamentos_condominio: departamentos
+					? {
+							some: {
+								departamento_id: {
+									in: departamentos,
 								},
-						  }
-						: undefined,
-					OR: [
-						!usuario_id || Number.isNaN(usuario_id)
-							? {
-									departamentos_condominio: {
-										some: {
-											departamento: {
-												usuarios: {
-													some: {
-														usuario_id: idUser,
-														acessa_todos_condominios:
-															true,
-													},
+							},
+					  }
+					: undefined,
+				OR: [
+					!usuario_id || Number.isNaN(usuario_id)
+						? {
+								departamentos_condominio: {
+									some: {
+										departamento: {
+											usuarios: {
+												some: {
+													usuario_id: idUser,
+													restringir_acesso: false,
 												},
 											},
 										},
 									},
-							  }
-							: null,
-						!usuario_id || Number.isNaN(usuario_id)
-							? {
-									usuarios_condominio: {
-										some: {
-											usuario_id: idUser,
-										},
+								},
+						  }
+						: null,
+					!usuario_id || Number.isNaN(usuario_id)
+						? {
+								usuarios_condominio: {
+									some: {
+										usuario_id: idUser,
 									},
-							  }
-							: null,
-					].filter((filter) => !!filter),
-				},
-			});
+								},
+						  }
+						: null,
+				].filter((filter) => !!filter),
+			},
+		});
 
-			request.condominios = condominios.map(
-				(condominio) => condominio.id,
-			);
-		}
+		request.condominios = condominios.map((condominio) => condominio.id);
 
 		return next.handle().pipe();
 	}

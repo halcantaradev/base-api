@@ -121,7 +121,8 @@ export class CondominiumService {
 				: null,
 			condominiums ||
 			userData.acessa_todos_departamentos ||
-			filters.departamentos?.length
+			filters.departamentos?.length ||
+			(usuario_id && !Number.isNaN(usuario_id))
 				? {
 						OR: [
 							{ id: { in: condominiums } },
@@ -132,18 +133,7 @@ export class CondominiumService {
 										departamentos_condominio: { none: {} },
 								  }
 								: null,
-							filters.departamentos?.length
-								? {
-										departamentos_condominio: {
-											some: {
-												departamento_id: {
-													in: filters.departamentos,
-												},
-											},
-										},
-								  }
-								: null,
-							userData.acessa_todos_departamentos
+							usuario_id && !Number.isNaN(usuario_id)
 								? {
 										departamentos_condominio: {
 											some: {},
@@ -170,6 +160,15 @@ export class CondominiumService {
 			{
 				ativo: filters.ativo != null ? filters.ativo : undefined,
 				empresa_id: user.empresa_id,
+				departamentos_condominio: filters.departamentos?.length
+					? {
+							some: {
+								departamento_id: {
+									in: filters.departamentos,
+								},
+							},
+					  }
+					: undefined,
 				AND: filtersSelected.length ? filtersSelected : undefined,
 			},
 			pagination,

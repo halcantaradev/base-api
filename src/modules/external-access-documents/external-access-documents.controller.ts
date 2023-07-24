@@ -15,7 +15,7 @@ export class ExternalAccessDocumentsController {
 	) {
 		res.set({
 			'Content-Type': 'application/pdf',
-			'Content-Disposition': 'inline; filename="Notificação.pdf"',
+			'Content-Disposition': 'inline;',
 		});
 		return new StreamableFile(
 			await this.externalAccessDocumentsService.getDocByToken(token),

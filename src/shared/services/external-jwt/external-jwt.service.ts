@@ -16,6 +16,6 @@ export class ExternalJwtService {
 	}
 	generateURLExternal(payload: { origin: string; data: any }) {
 		const token = this.generateToken(payload);
-		return process.env.EXTERNAL_ACCESS_URL + '/access-docs/' + token;
+		return process.env.EXTERNAL_ACCESS_URL + '/access-docs?doc=' + token;
 	}
 }

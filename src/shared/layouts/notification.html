@@ -26,15 +26,21 @@
         margin-top: 0;
         margin-bottom: 2px;
     }
+
+    .page {
+        margin-bottom: 2em;
+        width: 100%;
+        page-break-after: always;
+    }
 </style>
 
-<div style="width: 100%;">
+<div class="page" style="width: 100%;">
     <div style="text-align: right;">
         <p><strong>[NOME_CONDOMINIO]</strong>
             <br>
             <em>[ENDERECO_CONDOMINIO]
-                {{#if numero_condominio}}<span >, [NUMERO_CONDOMINIO]</span>{{/if}}
-                {{#if bairro_condominio}}<span > - [BAIRRO_CONDOMINIO]</span>{{/if}}
+                {{#if numero_condominio}}<span>, [NUMERO_CONDOMINIO]</span>{{/if}}
+                {{#if bairro_condominio}}<span> - [BAIRRO_CONDOMINIO]</span>{{/if}}
             </em>
         </p>
     </div>
@@ -91,6 +97,17 @@
     <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 4px;">
         <p>[OBSERVACAO_PADRAO_NOTIFICACAO_CONDOMINIO]</p>
     </div>
+    {{#ifEquals tipo_notificacao "MULTA"}}
+    <div style="width: 100%; border: solid 1px; margin-top: 10px; padding: 4px;">
+        <h4 style="text-align: center; border-bottom: solid 1px;">Dados de pagamento</h4>
+        <div style="display: flex; justify-content: space-around;">
+            <span><strong>Valor: </strong>[VALOR_MULTA_NOTIFICACAO]</span>
+            <span><strong>Competência: </strong>[COMPETENCIA_MULTA_NOTIFICACAO]</span>
+            <span><strong>Unir a taxa condomínio: </strong>[UNIR_TAXA_MULTA_NOTIFICACAO]</span>
+            <span><strong>Vencimento: </strong>[VENCIMENTO_MULTA_NOTIFICACAO]</span>
+        </div>
+    </div>
+    {{/ifEquals}}
     <div style="margin-top: 80px;">
         <p>[CIDADE_CONDOMINIO], [DATA_ATUAL_EXTENSO]</p>
         <p style="margin-top: 30px;">___________________________________________</p>
@@ -106,4 +123,18 @@
             _____________________________________, <strong>RG:</strong>
             __________________________ </p>
     </div>
+</div>
+
+<div class="page">
+    <div style="text-align: center;">
+        <h2>Anexos</h2>
+    </div>
+    
+    <div style="display: flex; justify-content: center; width: 100%;">
+    {{#each anexos}}
+        <div style="width: 260px; margin: 1em .2em;">
+            <img src="{{this.url}}" style=" width: 100%;">
+        </div>
+    {{/each}}
+</div>
 </div>

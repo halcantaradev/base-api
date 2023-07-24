@@ -337,6 +337,331 @@ export class NotificationService {
 			total_pages,
 		};
 	}
+	async generateReport(
+		user: UserAuth,
+		report: boolean,
+		filtro?: FilterNotificationDto,
+		pagination?: Pagination,
+	) {
+		let idsConsultores: number[] | null = null;
+
+		if (
+			filtro.consultores_ids?.length &&
+			!user.acessa_todos_departamentos
+		) {
+			const consultoresDepartamentos =
+				await this.prisma.usuarioHasDepartamentos.findMany({
+					where: {
+						departamento_id: {
+							in: user.departamentos_ids,
+						},
+						usuario_id: {
+							in: [...filtro.consultores_ids, user.id],
+						},
+					},
+				});
+
+			idsConsultores = consultoresDepartamentos.map(
+				(consultor) => consultor.usuario_id,
+			);
+		} else if (filtro.consultores_ids?.length) {
+			idsConsultores = filtro.consultores_ids;
+		} else if (!user.acessa_todos_departamentos) {
+			const consultoresDepartamentos =
+				await this.prisma.usuarioHasDepartamentos.findMany({
+					where: {
+						departamento_id: {
+							in: user.departamentos_ids,
+						},
+						usuario_id: user.id,
+					},
+				});
+
+			idsConsultores = consultoresDepartamentos.map(
+				(consultor) => consultor.usuario_id,
+			);
+		}
+
+		const notifications = await this.prisma.pessoa.findMany({
+			select: {
+				id: true,
+				nome: true,
+				endereco: true,
+				unidades_condominio: {
+					select: {
+						id: true,
+						codigo: true,
+						notificacoes: {
+							select: {
+								tipo_registro: true,
+								tipo_infracao_id: true,
+								ativo: true,
+								codigo: true,
+								observacoes: true,
+								pessoa_id: true,
+								detalhes_infracao: true,
+								vencimento_multa: true,
+								competencia_multa: true,
+								created_at: true,
+								data_emissao: true,
+								data_infracao: true,
+								fundamentacao_legal: true,
+								id: true,
+								unidade_id: true,
+								unir_taxa: true,
+								updated_at: true,
+								valor_multa: true,
+								tipo_infracao: {
+									select: { id: true, descricao: true },
+								},
+							},
+							where: filtro
+								? {
+										id: filtro.unidades_ids
+											? {
+													in: filtro.unidades_ids,
+											  }
+											: undefined,
+										OR: {
+											ativo: true,
+											tipo_registro: filtro.tipo_registro
+												? filtro.tipo_registro
+												: undefined,
+											tipo_infracao_id:
+												filtro.tipo_infracao_id
+													? filtro.tipo_infracao_id
+													: undefined,
+											OR: filtro.tipo_data_filtro
+												? [
+														filtro.tipo_data_filtro ==
+														1
+															? {
+																	data_emissao:
+																		{
+																			gte: filtro.data_inicial
+																				? filtro.data_inicial
+																				: undefined,
+																			lte: filtro.data_final
+																				? filtro.data_final
+																				: undefined,
+																		},
+															  }
+															: {
+																	data_infracao:
+																		{
+																			gte: filtro.data_inicial
+																				? filtro.data_inicial
+																				: undefined,
+																			lte: filtro.data_final
+																				? filtro.data_final
+																				: undefined,
+																		},
+															  },
+												  ]
+												: undefined,
+										},
+								  }
+								: undefined,
+						},
+						condominos: {
+							select: { condomino: true, tipo: true },
+						},
+					},
+					where: filtro
+						? {
+								id: filtro.unidades_ids
+									? {
+											in: filtro.unidades_ids,
+									  }
+									: undefined,
+								notificacoes: {
+									some: {
+										ativo: true,
+										tipo_registro: filtro.tipo_registro
+											? filtro.tipo_registro
+											: undefined,
+										tipo_infracao_id:
+											filtro.tipo_infracao_id
+												? filtro.tipo_infracao_id
+												: undefined,
+										OR: filtro.tipo_data_filtro
+											? [
+													filtro.tipo_data_filtro == 1
+														? {
+																data_emissao: {
+																	gte: filtro.data_inicial
+																		? filtro.data_inicial
+																		: undefined,
+																	lte: filtro.data_final
+																		? filtro.data_final
+																		: undefined,
+																},
+														  }
+														: {
+																data_infracao: {
+																	gte: filtro.data_inicial
+																		? filtro.data_inicial
+																		: undefined,
+																	lte: filtro.data_final
+																		? filtro.data_final
+																		: undefined,
+																},
+														  },
+											  ]
+											: undefined,
+									},
+								},
+						  }
+						: undefined,
+				},
+			},
+			where: {
+				tipos: {
+					some: {
+						tipo: {
+							nome: 'condominio',
+						},
+					},
+				},
+				empresa_id: user.empresa_id,
+				id: filtro.condominios_ids
+					? { in: filtro.condominios_ids }
+					: undefined,
+				departamentos_condominio: !user.acessa_todos_departamentos
+					? {
+							some: {
+								departamento_id: {
+									in: user.departamentos_ids,
+								},
+							},
+					  }
+					: {
+							some: {},
+					  },
+				usuarios_condominio: idsConsultores
+					? {
+							some: {
+								usuario_id: {
+									in: idsConsultores,
+								},
+							},
+					  }
+					: undefined,
+				unidades_condominio: filtro
+					? {
+							some: {
+								id: filtro.unidades_ids
+									? {
+											in: filtro.unidades_ids,
+									  }
+									: undefined,
+								notificacoes: { some: { ativo: true } },
+							},
+					  }
+					: undefined,
+			},
+			take: !report && pagination?.page ? 20 : 100,
+			skip:
+				!report && pagination?.page
+					? (pagination?.page - 1) * 20
+					: undefined,
+		});
+
+		const total_pages = !report
+			? await this.prisma.pessoa.count({
+					where: {
+						tipos: {
+							some: {
+								tipo: {
+									nome: 'condominio',
+								},
+							},
+						},
+						empresa_id: user.empresa_id,
+						id: filtro.condominios_ids
+							? { in: filtro.condominios_ids }
+							: undefined,
+						departamentos_condominio:
+							!user.acessa_todos_departamentos
+								? {
+										some: {
+											departamento_id: {
+												in: user.departamentos_ids,
+											},
+										},
+								  }
+								: {
+										some: {},
+								  },
+						usuarios_condominio: idsConsultores
+							? {
+									some: {
+										usuario_id: {
+											in: idsConsultores,
+										},
+									},
+							  }
+							: undefined,
+						unidades_condominio: filtro
+							? {
+									some: {
+										id: filtro.unidades_ids
+											? {
+													in: filtro.unidades_ids,
+											  }
+											: undefined,
+										notificacoes: {
+											some: {
+												tipo_registro:
+													filtro.tipo_registro
+														? filtro.tipo_registro
+														: undefined,
+												tipo_infracao_id:
+													filtro.tipo_infracao_id
+														? filtro.tipo_infracao_id
+														: undefined,
+												OR: filtro.tipo_data_filtro
+													? [
+															filtro.tipo_data_filtro ==
+															1
+																? {
+																		data_emissao:
+																			{
+																				gte: filtro.data_inicial
+																					? filtro.data_inicial
+																					: undefined,
+																				lte: filtro.data_final
+																					? filtro.data_final
+																					: undefined,
+																			},
+																  }
+																: {
+																		data_infracao:
+																			{
+																				gte: filtro.data_inicial
+																					? filtro.data_inicial
+																					: undefined,
+																				lte: filtro.data_final
+																					? filtro.data_final
+																					: undefined,
+																			},
+																  },
+													  ]
+													: undefined,
+											},
+										},
+									},
+							  }
+							: undefined,
+					},
+			  })
+			: 0;
+
+		return {
+			data: notifications,
+			total_pages,
+		};
+	}
 
 	async validateNotification(
 		validateNotificationDto: ValidateNotificationDto,

@@ -53,6 +53,7 @@ export class UserService {
 	async findAll(
 		empresa_id: number,
 		filtros: ListUserDto = {},
+		condominiums?: number[],
 	): Promise<ReturnUserListEntity> {
 		return {
 			success: true,
@@ -125,6 +126,14 @@ export class UserService {
 										departamento_id: {
 											in: filtros.departamentos,
 										},
+									},
+							  }
+							: undefined,
+					condominios:
+						condominiums != null
+							? {
+									some: {
+										condominio_id: { in: condominiums },
 									},
 							  }
 							: undefined,

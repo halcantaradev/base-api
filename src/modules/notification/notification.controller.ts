@@ -169,11 +169,11 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async report(
+	async generateReport(
 		@CurrentUser() user: UserAuth,
 		@Body() filtros: FilterNotificationDto,
 	) {
-		const dados = await this.notificationService.findBy(
+		const dados = await this.notificationService.generateReport(
 			user,
 			true,
 			filtros,

@@ -12,7 +12,12 @@ export class DepartmentService {
 
 	select: Prisma.DepartamentoSelect = {
 		id: true,
-		filial_id: true,
+		filial: {
+			select: {
+				id: true,
+				nome: true,
+			},
+		},
 		nome: true,
 		nac: true,
 		ativo: true,

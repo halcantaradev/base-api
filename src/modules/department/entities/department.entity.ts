@@ -10,10 +10,10 @@ export class Department {
 
 	@ApiProperty({
 		description: 'Id da filial do departamento',
-		example: 1,
+		example: { id: 1, nome: 'FILIAL TESTE' },
 		readOnly: true,
 	})
-	filial_id: number;
+	filial: { id: number; nome: string };
 
 	@ApiProperty({
 		description: 'Nome do departamento',

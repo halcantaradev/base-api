@@ -9,6 +9,9 @@ export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {
 	@IsOptional()
 	nome?: string;
 
+	@IsOptional()
+	filial_id?: number;
+
 	@ApiProperty({
 		description: 'Status do departamento',
 		example: true,

@@ -9,14 +9,14 @@ import { Prisma } from '@prisma/client';
 export class SubsidiaryService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	select: Prisma.FiliaisSelect = {
+	select: Prisma.FilialSelect = {
 		id: true,
 		nome: true,
 		ativo: true,
 	};
 
 	create(empresa_id: number, createSubsidiaryDto: CreateSubsidiaryDto) {
-		return this.prisma.filiais.create({
+		return this.prisma.filial.create({
 			select: this.select,
 			data: {
 				nome: createSubsidiaryDto.nome,
@@ -30,7 +30,7 @@ export class SubsidiaryService {
 	}
 
 	findAll(empresa_id: number, filtersSubsidiaryDto: FiltersSubsidiaryDto) {
-		return this.prisma.filiais.findMany({
+		return this.prisma.filial.findMany({
 			select: this.select,
 			where: {
 				empresa_id,
@@ -57,7 +57,7 @@ export class SubsidiaryService {
 	}
 
 	findOne(id: number, empresa_id: number) {
-		return this.prisma.filiais.findFirst({
+		return this.prisma.filial.findFirst({
 			select: this.select,
 			where: {
 				id,
@@ -73,9 +73,12 @@ export class SubsidiaryService {
 	) {
 		const filial = await this.findOne(id, empresa_id);
 
-		if (!filial) throw new BadRequestException('Filial não encontrada');
+		if (!filial)
+			throw new BadRequestException(
+				'Ocorreu um erro ao atualizar os dados',
+			);
 
-		return this.prisma.filiais.update({
+		return this.prisma.filial.update({
 			select: this.select,
 			data: {
 				nome: updateSubsidiaryDto.nome,

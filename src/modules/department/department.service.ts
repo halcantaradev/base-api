@@ -4,10 +4,24 @@ import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class DepartmentService {
 	constructor(private readonly prisma: PrismaService) {}
+
+	select: Prisma.DepartamentoSelect = {
+		id: true,
+		filial: {
+			select: {
+				id: true,
+				nome: true,
+			},
+		},
+		nome: true,
+		nac: true,
+		ativo: true,
+	};
 
 	async create(empresa_id: number, createDepartmentDto: CreateDepartmentDto) {
 		return this.prisma.departamento.create({
@@ -15,6 +29,7 @@ export class DepartmentService {
 				nome: createDepartmentDto.nome,
 				nac: createDepartmentDto.nac || false,
 				empresa_id,
+				filial_id: createDepartmentDto.filial_id,
 			},
 		});
 	}
@@ -49,12 +64,7 @@ export class DepartmentService {
 		}
 
 		return this.prisma.departamento.findMany({
-			select: {
-				id: true,
-				nome: true,
-				nac: true,
-				ativo: true,
-			},
+			select: this.select,
 			where: {
 				id: departamentos
 					? {
@@ -66,10 +76,7 @@ export class DepartmentService {
 					? [
 							{
 								nome: {
-									contains: filters.busca
-										.toString()
-										.normalize('NFD')
-										.replace(/[\u0300-\u036f]/g, ''),
+									contains: filters.busca,
 									mode: 'insensitive',
 								},
 							},
@@ -88,15 +95,14 @@ export class DepartmentService {
 	}
 
 	async findOne(id: number, user: UserAuth) {
-		if (!user.departamentos_ids.includes(id)) return null;
+		if (
+			!user.departamentos_ids.includes(id) &&
+			!user.acessa_todos_departamentos
+		)
+			return null;
 
 		return this.prisma.departamento.findFirst({
-			select: {
-				id: true,
-				nome: true,
-				nac: true,
-				ativo: true,
-			},
+			select: this.select,
 			where: {
 				id,
 				empresa_id: user.empresa_id,
@@ -129,16 +135,12 @@ export class DepartmentService {
 			throw new BadRequestException('Departamento não encontrado');
 
 		return this.prisma.departamento.update({
-			select: {
-				id: true,
-				nome: true,
-				nac: true,
-				ativo: true,
-			},
+			select: this.select,
 			data: {
 				nac: updateDepartmentDto.nac,
 				nome: updateDepartmentDto.nome,
 				ativo: updateDepartmentDto.ativo,
+				filial_id: updateDepartmentDto.filial_id,
 			},
 			where: {
 				id,

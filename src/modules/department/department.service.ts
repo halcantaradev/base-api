@@ -95,7 +95,11 @@ export class DepartmentService {
 	}
 
 	async findOne(id: number, user: UserAuth) {
-		if (!user.departamentos_ids.includes(id)) return null;
+		if (
+			!user.departamentos_ids.includes(id) &&
+			!user.acessa_todos_departamentos
+		)
+			return null;
 
 		return this.prisma.departamento.findFirst({
 			select: this.select,

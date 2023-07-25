@@ -57,15 +57,13 @@ export class SubsidiaryService {
 	}
 
 	findOne(id: number, empresa_id: number) {
-		const filial = this.prisma.filial.findFirst({
+		return this.prisma.filial.findFirst({
 			select: this.select,
 			where: {
 				id,
 				empresa_id,
 			},
 		});
-
-		if (!filial) throw new BadRequestException('Filial não encontrada');
 	}
 
 	async update(
@@ -73,7 +71,12 @@ export class SubsidiaryService {
 		empresa_id: number,
 		updateSubsidiaryDto: UpdateSubsidiaryDto,
 	) {
-		await this.findOne(id, empresa_id);
+		const filial = await this.findOne(id, empresa_id);
+
+		if (!filial)
+			throw new BadRequestException(
+				'Ocorreu um erro ao atualizar os dados',
+			);
 
 		return this.prisma.filial.update({
 			select: this.select,

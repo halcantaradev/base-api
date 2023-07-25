@@ -43,7 +43,7 @@ model Pessoa {
   setup_empresa_sistema         SistemaSetup[]
   tipo_contrato                 TipoContratoCondominio?      @relation(fields: [tipo_contrato_id], references: [id])
   tipos_infracoes               TipoInfracao[]
-  filiais                       Filiais[]
+  filiais                       Filial[]
 
   @@map("pessoas")
 }
@@ -301,6 +301,7 @@ model Departamento {
   id         Int      @id @default(autoincrement())
   nome       String
   empresa_id Int
+  filial_id  Int
   nac        Boolean  @default(false)
   ativo      Boolean  @default(true)
   excluido   Boolean  @default(false)
@@ -308,6 +309,7 @@ model Departamento {
   updated_at DateTime @updatedAt
 
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  filial  Filial @relation(fields: [filial_id], references: [id])
 
   usuarios    UsuarioHasDepartamentos[]
   condominios CondominioHasDepartamentos[]
@@ -476,7 +478,7 @@ model TipoContratoCondominio {
   @@map("tipos_contratos_condominio")
 }
 
-model Filiais {
+model Filial {
   id         Int      @id @default(autoincrement())
   nome       String
   empresa_id Int
@@ -484,7 +486,8 @@ model Filiais {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  empresa       Pessoa         @relation(fields: [empresa_id], references: [id])
+  departamentos Departamento[]
 
   @@map("filiais")
 }

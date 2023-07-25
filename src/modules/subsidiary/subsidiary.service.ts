@@ -1,3 +1,4 @@
+import { FiltersSubsidiaryDto } from './dto/filters-subsidiary.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { UpdateSubsidiaryDto } from './dto/update-subsidiary.dto';
@@ -28,11 +29,29 @@ export class SubsidiaryService {
 		});
 	}
 
-	findAll(empresa_id: number) {
+	findAll(empresa_id: number, filtersSubsidiaryDto: FiltersSubsidiaryDto) {
 		return this.prisma.filiais.findMany({
 			select: this.select,
 			where: {
 				empresa_id,
+				OR: filtersSubsidiaryDto.busca
+					? [
+							{
+								nome: {
+									contains: filtersSubsidiaryDto.busca,
+								},
+							},
+							!Number.isNaN(+filtersSubsidiaryDto.busca)
+								? {
+										id: +filtersSubsidiaryDto.busca,
+								  }
+								: null,
+					  ].filter((filtro) => !!filtro)
+					: undefined,
+				ativo:
+					filtersSubsidiaryDto.ativo != null
+						? filtersSubsidiaryDto.ativo
+						: undefined,
 			},
 		});
 	}

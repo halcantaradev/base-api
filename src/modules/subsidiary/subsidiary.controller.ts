@@ -21,6 +21,7 @@ import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { SubsidiaryListReturn } from './entities/subsidiary-list-return.entity';
 import { SubsidiaryReturn } from './entities/subsidiary-return.entity';
+import { FiltersSubsidiaryDto } from './dto/filters-subsidiary.dto';
 
 @ApiTags('Subsidiaries')
 @UseGuards(PermissionGuard)
@@ -74,10 +75,43 @@ export class SubsidiaryController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAll(@CurrentUser() user: UserAuth) {
+	async findAll(
+		@CurrentUser() user: UserAuth,
+		@Body() filtersSubsidiaryDto: FiltersSubsidiaryDto,
+	) {
 		return {
 			success: true,
-			data: await this.subsidiaryService.findAll(user.empresa_id),
+			data: await this.subsidiaryService.findAll(
+				user.empresa_id,
+				filtersSubsidiaryDto,
+			),
+		};
+	}
+
+	@Post('active')
+	@HttpCode(HttpStatus.OK)
+	@Role('filiais-listar-ativos')
+	@ApiOperation({ summary: 'Lista todas as filiais ativas' })
+	@ApiResponse({
+		description: 'Filiais ativas listadas com sucesso',
+		status: HttpStatus.OK,
+		type: SubsidiaryListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar as filiais',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllActive(
+		@CurrentUser() user: UserAuth,
+		@Body() filtersSubsidiaryDto: FiltersSubsidiaryDto,
+	) {
+		return {
+			success: true,
+			data: await this.subsidiaryService.findAll(user.empresa_id, {
+				...filtersSubsidiaryDto,
+				ativo: true,
+			}),
 		};
 	}
 

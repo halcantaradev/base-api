@@ -229,6 +229,11 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar as filiais',
 	},
 	{
+		label: 'Listar todas as filiais ativas',
+		key: 'filiais-listar-ativas',
+		message: 'Sem permissão para listar as filiais ativas',
+	},
+	{
 		label: 'Exibir dados da filial',
 		key: 'filiais-exibir-dados',
 		message: 'Sem permissão para listar os dados da filial',

@@ -19,6 +19,7 @@ export class ExternalAccessDocumentsService {
 
 	async getDocByToken(token: string): Promise<Buffer | null> {
 		const data = this.externalJwtService._validateToken(token);
+
 		if (data.origin == 'notificacoes') {
 			let html: Buffer | string = readFileSync(
 				resolve('./src/shared/layouts/notification.html'),
@@ -29,11 +30,18 @@ export class ExternalAccessDocumentsService {
 			);
 
 			const dataToPrint = await this.notificationService.dataToHandle(
-				data.id,
+				data.data.id,
 			);
 
 			html = this.handleBarService.compile(layout, dataToPrint);
-			return await this.pdfService.getPDF(html);
+			const pdf = await this.pdfService.getPDF(html);
+			const pdfs = await this.notificationService.getPDFFiles(
+				data.data.id,
+			);
+			return await this.pdfService.mergePDFs(
+				[pdf, ...pdfs],
+				'Notificação',
+			);
 		}
 		return null;
 	}

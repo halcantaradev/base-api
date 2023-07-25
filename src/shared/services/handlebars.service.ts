@@ -10,6 +10,28 @@ export class HandlebarsService {
 				return arg1 == arg2 ? options.fn(this) : options.inverse(this);
 			},
 		);
+		Handlebars.registerHelper(
+			'notEmpty',
+			function (arg: Array<any> | object | null | undefined, options) {
+				return !!arg &&
+					Array.isArray(arg) &&
+					!!arg.length &&
+					!!Object.keys(arg).length
+					? options.fn(this)
+					: options.inverse(this);
+			},
+		);
+		Handlebars.registerHelper(
+			'isEmpty',
+			function (arg: Array<any> | object | null | undefined, options) {
+				return !arg ||
+					(Array.isArray(arg) &&
+						!arg.length &&
+						!Object.keys(arg).length)
+					? options.fn(this)
+					: options.inverse(this);
+			},
+		);
 	}
 	compile(layout: string, data: any) {
 		return Handlebars.compile(layout)(data);

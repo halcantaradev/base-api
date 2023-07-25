@@ -2,6 +2,7 @@ import {
 	CompleteMultipartUploadCommand,
 	CreateMultipartUploadCommand,
 	PutObjectCommand,
+	GetObjectCommand,
 	S3Client,
 	UploadPartCommand,
 } from '@aws-sdk/client-s3';
@@ -60,7 +61,6 @@ export class S3Service {
 								}),
 							)
 							.then((d) => {
-								console.log('Part', i + 1, 'uploaded');
 								return d;
 							}),
 					);
@@ -89,5 +89,15 @@ export class S3Service {
 		} catch (err) {
 			throw new InternalServerErrorException(err.message);
 		}
+	}
+
+	async download(filename: string) {
+		const command = new GetObjectCommand({
+			Bucket: process.env.AWS_S3_BUCKET_NAME,
+			Key: filename,
+		});
+		return await (
+			await this.config.send(command)
+		).Body.transformToByteArray();
 	}
 }

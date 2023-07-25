@@ -17,6 +17,7 @@ import { LayoutConstsService } from './shared/services/layout-consts.service';
 import { ExternalAccessDocumentsModule } from './modules/external-access-documents/external-access-documents.module';
 import { ExternalJwtService } from './shared/services/external-jwt/external-jwt.service';
 import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.module';
+import { SubsidiaryModule } from './modules/subsidiary/subsidiary.module';
 
 @Module({
 	imports: [
@@ -34,6 +35,7 @@ import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.m
 		SetupModule,
 		ExternalAccessDocumentsModule,
 		ExternalJwtModule,
+		SubsidiaryModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, LayoutConstsService],

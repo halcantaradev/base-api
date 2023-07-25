@@ -117,4 +117,13 @@ export const menulist: Array<{
 		icon: 'team',
 		target: '_self',
 	},
+	{
+		id_relation: 99995,
+		relation: 99990,
+		label: 'Filiais',
+		permission_key: 'filiais-listar',
+		url: 'filiais/buscar',
+		icon: 'shop',
+		target: '_self',
+	},
 ];

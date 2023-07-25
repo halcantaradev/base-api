@@ -214,13 +214,33 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar os cargos',
 	},
 	{
-		label: 'Exibir dados do departamento',
+		label: 'Exibir dados do cargo',
 		key: 'cargos-exibir-dados',
 		message: 'Sem permissão para listar os dados dos cargos',
 	},
 	{
-		label: 'Atualizar dados do departamento',
+		label: 'Atualizar dados do cargo',
 		key: 'cargos-atualizar-dados',
 		message: 'Sem permissão para atualizar os dados dos cargos',
+	},
+	{
+		label: 'Listar todas as filiais',
+		key: 'filiais-listar',
+		message: 'Sem permissão para listar as filiais',
+	},
+	{
+		label: 'Listar todas as filiais ativas',
+		key: 'filiais-listar-ativas',
+		message: 'Sem permissão para listar as filiais ativas',
+	},
+	{
+		label: 'Exibir dados da filial',
+		key: 'filiais-exibir-dados',
+		message: 'Sem permissão para listar os dados da filial',
+	},
+	{
+		label: 'Atualizar dados da filial',
+		key: 'filiais-atualizar-dados',
+		message: 'Sem permissão para atualizar os dados da filial',
 	},
 ];

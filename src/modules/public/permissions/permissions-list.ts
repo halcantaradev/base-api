@@ -224,7 +224,7 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para atualizar os dados dos cargos',
 	},
 	{
-		label: 'Listar todos as filiais',
+		label: 'Listar todas as filiais',
 		key: 'filiais-listar',
 		message: 'Sem permissão para listar as filiais',
 	},

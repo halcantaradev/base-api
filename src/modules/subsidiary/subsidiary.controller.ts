@@ -52,7 +52,10 @@ export class SubsidiaryController {
 		@CurrentUser() user: UserAuth,
 		@Body() createSubsidiaryDto: CreateSubsidiaryDto,
 	) {
-		await this.subsidiaryService.create(user, createSubsidiaryDto);
+		await this.subsidiaryService.create(
+			user.empresa_id,
+			createSubsidiaryDto,
+		);
 
 		return { success: true, message: 'Filial criada com sucesso!' };
 	}
@@ -74,7 +77,7 @@ export class SubsidiaryController {
 	async findAll(@CurrentUser() user: UserAuth) {
 		return {
 			success: true,
-			data: await this.subsidiaryService.findAll(user),
+			data: await this.subsidiaryService.findAll(user.empresa_id),
 		};
 	}
 
@@ -94,7 +97,7 @@ export class SubsidiaryController {
 	async findOne(@Param('id') id: string, @CurrentUser() user: UserAuth) {
 		return {
 			success: true,
-			data: await this.subsidiaryService.findOne(+id, user),
+			data: await this.subsidiaryService.findOne(+id, user.empresa_id),
 		};
 	}
 
@@ -126,7 +129,7 @@ export class SubsidiaryController {
 			message: 'Filial atualizada com sucesso!',
 			data: await this.subsidiaryService.update(
 				+id,
-				user,
+				user.empresa_id,
 				updateSubsidiaryDto,
 			),
 		};

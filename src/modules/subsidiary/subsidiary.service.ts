@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { UpdateSubsidiaryDto } from './dto/update-subsidiary.dto';
 import { PrismaService } from 'src/shared/services/prisma.service';
-import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -15,7 +14,7 @@ export class SubsidiaryService {
 		ativo: true,
 	};
 
-	create(user: UserAuth, createSubsidiaryDto: CreateSubsidiaryDto) {
+	create(empresa_id: number, createSubsidiaryDto: CreateSubsidiaryDto) {
 		return this.prisma.filiais.create({
 			select: this.select,
 			data: {
@@ -24,39 +23,38 @@ export class SubsidiaryService {
 					createSubsidiaryDto.ativo != null
 						? createSubsidiaryDto.ativo
 						: true,
-				empresa_id: user.empresa_id,
+				empresa_id,
 			},
 		});
 	}
 
-	findAll(user: UserAuth) {
+	findAll(empresa_id: number) {
 		return this.prisma.filiais.findMany({
 			select: this.select,
 			where: {
-				empresa_id: user.empresa_id,
+				empresa_id,
 			},
 		});
 	}
 
-	findOne(id: number, user: UserAuth) {
+	findOne(id: number, empresa_id: number) {
 		return this.prisma.filiais.findFirst({
 			select: this.select,
 			where: {
 				id,
-				empresa_id: user.empresa_id,
+				empresa_id,
 			},
 		});
 	}
 
 	async update(
 		id: number,
-		user: UserAuth,
+		empresa_id: number,
 		updateSubsidiaryDto: UpdateSubsidiaryDto,
 	) {
-		const filial = await this.findOne(id, user);
+		const filial = await this.findOne(id, empresa_id);
 
-		if (!filial)
-			throw new BadRequestException('Departamento não encontrado');
+		if (!filial) throw new BadRequestException('Filial não encontrada');
 
 		return this.prisma.filiais.update({
 			select: this.select,
@@ -66,7 +64,7 @@ export class SubsidiaryService {
 					updateSubsidiaryDto.ativo != null
 						? updateSubsidiaryDto.ativo
 						: true,
-				empresa_id: user.empresa_id,
+				empresa_id,
 			},
 			where: {
 				id,

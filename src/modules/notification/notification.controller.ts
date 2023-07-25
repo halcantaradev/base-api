@@ -8,6 +8,8 @@ import {
 	Patch,
 	Post,
 	Query,
+	Res,
+	StreamableFile,
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
@@ -33,6 +35,7 @@ import { ReturnNotificationEntity } from './entities/return-notification.entity'
 import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
 import { NotificationService } from './notification.service';
 import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
+import { Response } from 'express';
 
 @ApiTags('Notifications')
 @Controller('notifications')
@@ -240,7 +243,10 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findOnePrint(@Param('id') id: string, @Query('pdf') pdf?: number) {
+	async findOnePrint(
+		@Param('id') id: string,
+		@Res({ passthrough: true }) res: Response,
+	) {
 		let html: Buffer | string = readFileSync(
 			resolve('./src/shared/layouts/notification.html'),
 		);
@@ -250,18 +256,14 @@ export class NotificationController {
 		const dataToPrint = await this.notificationService.dataToHandle(+id);
 		html = this.handleBarService.compile(layout, dataToPrint);
 
-		if (pdf) {
-			const file = await this.pdfService.getPDFBuffer(html);
-			return {
-				success: true,
-				data: file,
-			};
-		}
+		const pdf = await this.pdfService.getPDF(html);
+		const pdfs = await this.notificationService.getPDFFiles(+id);
 
-		return {
-			success: true,
-			data: html,
-		};
+		res.set({
+			'Content-Type': 'application/pdf',
+			'Content-Disposition': 'inline;',
+		});
+		return await this.pdfService.mergePDFs([pdf, ...pdfs], 'Notificação');
 	}
 
 	@Post('unidade/:id')

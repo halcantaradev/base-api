@@ -4,6 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { uploadFileOrigin } from './constants/upload-file-origin.constant';
 import { S3Service } from 'src/shared/services/s3.service';
+import { UploadFileDto } from './dto/upload-file.dto';
 
 @Injectable()
 export class UploadFileService {
@@ -12,25 +13,29 @@ export class UploadFileService {
 		private readonly s3Service: S3Service,
 	) {}
 
-	async saveFiles(
-		reference_id: number,
-		origin: number,
-		files: Express.Multer.File[],
-	) {
-		if (await this.validateReference(reference_id, origin))
+	async saveFiles(params: UploadFileDto, files: Express.Multer.File[]) {
+		if (await this.validateReference(params.reference_id, params.origin))
 			await Promise.all(
 				files.map(async (file) => {
+					const keyName = `${uuidv4()}${
+						path.parse(file.originalname).ext
+					}`;
 					const url = await this.s3Service.upload(
 						file.buffer,
-						`${uuidv4()}${path.parse(file.originalname).ext}`,
+						keyName,
 					);
 
 					await this.prisma.arquivo.create({
 						data: {
 							url,
 							nome: file.originalname,
-							origem: origin,
-							referencia_id: reference_id,
+							key: keyName,
+							origem: params.origin,
+							referencia_id: params.reference_id,
+							descricao: params.descricao,
+							tipo: path
+								.parse(file.originalname)
+								.ext.replace('.', ''),
 						},
 					});
 				}),

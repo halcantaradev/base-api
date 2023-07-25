@@ -95,7 +95,7 @@ model User {
   username                   String   @unique
   password                   String
   telefone                   String?
-  whatsapp                   String?  
+  whatsapp                   String?
   ramal                      String?
   secret                     String   @default(uuid())
   ativo                      Boolean  @default(true)
@@ -252,7 +252,10 @@ model Arquivo {
   id            Int      @id @default(autoincrement())
   url           String
   nome          String
+  key           String
   origem        Int
+  tipo          String
+  descricao     String?
   referencia_id Int
   ativo         Boolean  @default(true)
   created_at    DateTime @default(now())

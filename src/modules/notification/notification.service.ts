@@ -17,6 +17,7 @@ import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
+import { S3Service } from 'src/shared/services/s3.service';
 
 @Injectable()
 export class NotificationService {
@@ -27,6 +28,7 @@ export class NotificationService {
 		private readonly arquivoService: UploadFileService,
 		private readonly emailService: EmailService,
 		private readonly externalJtwService: ExternalJwtService,
+		private readonly s3Service: S3Service,
 	) {}
 
 	async create(createNotificationDto: CreateNotificationDto, user: UserAuth) {
@@ -975,14 +977,23 @@ export class NotificationService {
 		});
 		const files = await this.prisma.arquivo.findMany({
 			where: {
-				referencia_id: data.id,
+				referencia_id: id,
 				origem: 1,
-				nome: { not: { contains: 'pdf' } },
+				tipo: { not: { contains: 'pdf' } },
+			},
+		});
+
+		const hasPdf = await this.prisma.arquivo.findMany({
+			where: {
+				referencia_id: id,
+				origem: 1,
+				tipo: { contains: 'pdf' },
 			},
 		});
 
 		dataToPrint.anexos = files.length ? files : null;
-
+		dataToPrint.hasAnexos =
+			(hasPdf && hasPdf.length) || (!files && files.length) ? 1 : 0;
 		const condominio: Condominium = await this.condomonioService.findOnById(
 			data.unidade.condominio_id,
 		);
@@ -1061,6 +1072,27 @@ export class NotificationService {
 		dataToPrint.responsavel_notificado = condomino.condomino.nome;
 
 		return dataToPrint;
+	}
+
+	async getPDFFiles(id: number) {
+		const filesObj = await this.prisma.arquivo.findMany({
+			where: {
+				referencia_id: id,
+				origem: 1,
+				tipo: { contains: 'pdf' },
+			},
+		});
+
+		if (filesObj && filesObj.length) {
+			const files: Buffer[] = [];
+			for await (const file of filesObj) {
+				const fl = await this.s3Service.download(file.key);
+				files.push(Buffer.concat([fl]));
+			}
+
+			return files;
+		}
+		return [];
 	}
 
 	async findByUnidade(

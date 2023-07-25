@@ -1,6 +1,6 @@
-import { IsInt, IsNotEmpty } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UploadFileDto {
 	@ApiProperty({
@@ -43,4 +43,13 @@ export class UploadFileDto {
 		required: true,
 	})
 	files: Express.Multer.File[];
+
+	@ApiProperty({
+		description: 'Descrição para o arquivo',
+		type: 'string',
+		required: false,
+	})
+	@IsOptional()
+	@IsString({ message: 'Informe uma descrição válida' })
+	descricao: string;
 }

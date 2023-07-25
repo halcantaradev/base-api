@@ -49,11 +49,7 @@ export class UploadFileController {
 		@Body() body: UploadFileDto,
 		@UploadedFiles() files: Express.Multer.File[],
 	) {
-		await this.uploadFileService.saveFiles(
-			body.reference_id,
-			body.origin,
-			files,
-		);
+		await this.uploadFileService.saveFiles(body, files);
 
 		return { success: true, message: 'Arquivos enviados com sucesso' };
 	}
@@ -72,7 +68,7 @@ export class UploadFileController {
 		type: ReturnEntity.error(),
 	})
 	async removeFiles(@Body() body: RemoveFileDto) {
-		const result = await this.uploadFileService.removeFiles(body.ids);
+		await this.uploadFileService.removeFiles(body.ids);
 
 		return { success: true, message: 'Os arquivos foram removidos' };
 	}

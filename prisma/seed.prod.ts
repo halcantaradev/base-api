@@ -102,6 +102,7 @@ async function createUser(empresa: Pessoa) {
 				nome: 'Admin',
 				username: 'admin',
 				email: 'admin@admin.com',
+				acessa_todos_departamentos: true,
 				password: bcrypt.hashSync('123456', salt),
 			},
 		});

@@ -980,6 +980,7 @@ export class NotificationService {
 				referencia_id: id,
 				origem: 1,
 				tipo: { not: { contains: 'pdf' } },
+				ativo: true,
 			},
 		});
 
@@ -988,6 +989,7 @@ export class NotificationService {
 				referencia_id: id,
 				origem: 1,
 				tipo: { contains: 'pdf' },
+				ativo: true,
 			},
 		});
 
@@ -1080,6 +1082,7 @@ export class NotificationService {
 				referencia_id: id,
 				origem: 1,
 				tipo: { contains: 'pdf' },
+				ativo: true,
 			},
 		});
 

@@ -16,7 +16,7 @@ export class UploadFileService {
 	async saveFiles(params: UploadFileDto, files: Express.Multer.File[]) {
 		if (await this.validateReference(params.reference_id, params.origin))
 			await Promise.all(
-				files.map(async (file) => {
+				files.map(async (file, index) => {
 					const keyName = `${uuidv4()}${
 						path.parse(file.originalname).ext
 					}`;
@@ -28,11 +28,14 @@ export class UploadFileService {
 					await this.prisma.arquivo.create({
 						data: {
 							url,
-							nome: file.originalname,
+							nome: Buffer.from(
+								file.originalname,
+								'latin1',
+							).toString('utf8'),
 							key: keyName,
 							origem: params.origin,
 							referencia_id: params.reference_id,
-							descricao: params.descricao,
+							descricao: JSON.parse(params.descricao)[index],
 							tipo: path
 								.parse(file.originalname)
 								.ext.replace('.', ''),

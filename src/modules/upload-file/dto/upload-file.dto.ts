@@ -48,6 +48,8 @@ export class UploadFileDto {
 		description: 'Descrição para o arquivo',
 		type: 'string',
 		required: false,
+		isArray: true,
+		example: "['desc 1','desc 2']",
 	})
 	@IsOptional()
 	@IsString({ message: 'Informe uma descrição válida' })

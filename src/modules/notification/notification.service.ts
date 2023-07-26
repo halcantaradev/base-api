@@ -1157,4 +1157,11 @@ export class NotificationService {
 		});
 		return { total_pages, data };
 	}
+
+	async inativate(id: number) {
+		return this.prisma.notificacao.update({
+			data: { ativo: false },
+			where: { id },
+		});
+	}
 }

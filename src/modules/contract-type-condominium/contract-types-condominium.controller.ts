@@ -10,25 +10,25 @@ import {
 	UseGuards,
 	Query,
 } from '@nestjs/common';
-import { TiposContratoCondominioService } from './tipos-contrato-condominio.service';
-import { CreateTiposContratoCondominioDto } from './dto/create-tipos-contrato-condominio.dto';
-import { UpdateTiposContratoCondominioDto } from './dto/update-tipos-contrato-condominio.dto';
+import { ContractTypesCondominiumService } from './contract-types-condominium.service';
+import { CreateContractTypesCondominiumDto } from './dto/create-contract-types-condominium.dto';
+import { UpdateContractTypesCondominiumDto } from './dto/update-contract-types-condominium.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { JwtAuthGuard } from 'src/modules/public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
 import { Pagination } from 'src/shared/entities/pagination.entity';
-import { TiposContratoCondominioListReturn } from './dto/tipos-contrato-condominio-list-return.entity';
-import { TiposContratoCondominio } from './entities/tipos-contrato-condominio.entity';
+import { ContractTypesCondominiumListReturn } from './dto/contract-types-condominium.-list-return.entity';
+import { ContractTypesCondominium } from './entities/contract-types-condominium.entity';
 
 @ApiTags('Tipo de contrato')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('tipos-contrato-condominio')
-export class TiposContratoCondominioController {
+export class ContractTypesCondominiumController {
 	constructor(
-		private readonly tiposContratoCondominioService: TiposContratoCondominioService,
+		private readonly ContractTypesCondominiumService: ContractTypesCondominiumService,
 	) {}
 
 	@Post()
@@ -52,10 +52,10 @@ export class TiposContratoCondominioController {
 	})
 	async create(
 		@Body()
-		createTiposContratoCondominioDto: CreateTiposContratoCondominioDto,
+		createContractTypesCondominiumDto: CreateContractTypesCondominiumDto,
 	) {
-		await this.tiposContratoCondominioService.create(
-			createTiposContratoCondominioDto,
+		await this.ContractTypesCondominiumService.create(
+			createContractTypesCondominiumDto,
 		);
 
 		return {
@@ -71,7 +71,7 @@ export class TiposContratoCondominioController {
 	@ApiResponse({
 		description: 'Tipos de contratos listados com sucesso',
 		status: HttpStatus.OK,
-		type: TiposContratoCondominioListReturn,
+		type: ContractTypesCondominiumListReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os tipos de contratos',
@@ -79,7 +79,7 @@ export class TiposContratoCondominioController {
 		type: ReturnEntity.error(),
 	})
 	async findAll(@Query() pagination: Pagination) {
-		const dados = await this.tiposContratoCondominioService.findAll(
+		const dados = await this.ContractTypesCondominiumService.findAll(
 			pagination,
 		);
 
@@ -96,7 +96,7 @@ export class TiposContratoCondominioController {
 	@ApiResponse({
 		description: 'Tipo de contrato listado com sucesso',
 		status: HttpStatus.OK,
-		type: TiposContratoCondominio,
+		type: ContractTypesCondominium,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados do tipo de contrato',
@@ -104,7 +104,7 @@ export class TiposContratoCondominioController {
 		type: ReturnEntity.error('Erro ao exibir dados do tipo de contrato'),
 	})
 	findOne(@Param('id') id: string) {
-		return this.tiposContratoCondominioService.findOne(+id);
+		return this.ContractTypesCondominiumService.findOne(+id);
 	}
 
 	@Patch(':id')
@@ -129,11 +129,11 @@ export class TiposContratoCondominioController {
 	update(
 		@Param('id') id: string,
 		@Body()
-		updateTiposContratoCondominioDto: UpdateTiposContratoCondominioDto,
+		updateContractTypesCondominiumDto: UpdateContractTypesCondominiumDto,
 	) {
-		return this.tiposContratoCondominioService.update(
+		return this.ContractTypesCondominiumService.update(
 			+id,
-			updateTiposContratoCondominioDto,
+			updateContractTypesCondominiumDto,
 		);
 	}
 }

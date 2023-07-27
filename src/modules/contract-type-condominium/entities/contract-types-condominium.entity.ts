@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 
-export class TiposContratoCondominio {
+export class ContractTypesCondominium {
 	@ApiProperty({
 		description: 'Id do tipo de contrato',
 		example: 1,

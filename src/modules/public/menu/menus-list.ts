@@ -126,4 +126,13 @@ export const menulist: Array<{
 		icon: 'shop',
 		target: '_self',
 	},
+	{
+		id_relation: 99996,
+		relation: 99990,
+		label: 'Tipos de contratos',
+		permission_key: 'tipo-contrato-listar',
+		url: 'contratos/buscar',
+		icon: 'file-done',
+		target: '_self',
+	},
 ];

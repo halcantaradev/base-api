@@ -16,9 +16,12 @@ export class ContractTypesCondominiumService {
 		});
 	}
 
-	async findAll(pagination?: Pagination) {
+	async findAll(ativo?: boolean, pagination?: Pagination) {
 		const tiposContrato =
 			await this.prismaServices.tipoContratoCondominio.findMany({
+				where: {
+					ativo: ativo || undefined,
+				},
 				take: 20,
 				skip: pagination?.page
 					? (pagination?.page - 1) * 20
@@ -43,14 +46,14 @@ export class ContractTypesCondominiumService {
 		id: number,
 		updateContractTypesCondominiumDto: UpdateContractTypesCondominiumDto,
 	) {
-		const tipoControato =
+		const tipoContrato =
 			await this.prismaServices.tipoContratoCondominio.findFirst({
 				where: {
 					id,
 				},
 			});
 
-		if (!tipoControato)
+		if (!tipoContrato)
 			throw new BadRequestException('Tipo de contrato não encontrado');
 
 		return this.prismaServices.tipoContratoCondominio.update({

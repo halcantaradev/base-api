@@ -14,30 +14,50 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar dados do usuário',
 	},
 	{
+		label: 'Cadastrar usuários',
+		key: 'usuarios-cadastrar',
+		message: 'Sem permissão para cadastrar usuários',
+	},
+	{
 		label: 'Atualizar dados do usuário',
 		key: 'usuarios-atualizar-dados',
 		message: 'Sem permissão para atualizar dados do usuário',
 	},
 	{
-		label: 'Listar vínculos de condomínios do usuário',
-		key: 'usuarios-listar-vinculos-condominios',
-		message: 'Sem permissão para listar vínculos de condomínios do usuário',
+		label: 'Listar condomínios limitados ao usuário',
+		key: 'usuarios-listar-condominios-limitados',
+		message:
+			'Sem permissão para listar os condomínios limitados do usuário',
 	},
 	{
-		label: 'Atualizar vínculos de condomínios do usuário',
-		key: 'usuarios-atualizar-vinculos-condominios',
-		message:
-			'Sem permissão para atualizar vínculos de condomínios do usuário',
+		label: 'Limitar acesso do usuário aos condomínios',
+		key: 'usuarios-limitar-acesso-condominios',
+		message: 'Sem permissão para limitar acesso aos condomínios',
+	},
+	{
+		label: 'Listar permissões',
+		key: 'permissoes-listar',
+		message: 'Sem permissão para listar permissões',
 	},
 	{
 		label: 'Listar permissões do cargo',
-		key: 'permissions-cargos-listar',
+		key: 'permissoes-cargos-listar',
 		message: 'Sem permissão para listar as permissões do cargo',
 	},
 	{
 		label: 'Conceder permissões aos cargos',
 		key: 'permissoes-cargos-conceder',
 		message: 'Sem permissão para conceder permissão ao cargo',
+	},
+	{
+		label: 'Listar permissões do usuário',
+		key: 'permissoes-usuarios-listar',
+		message: 'Sem permissão para listar as permissões do usuário',
+	},
+	{
+		label: 'Conceder permissões aos usuários',
+		key: 'permissoes-usuarios-conceder',
+		message: 'Sem permissão para conceder permissão ao usuário',
 	},
 	{
 		label: 'Listar usuários ativos',
@@ -65,29 +85,34 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para atualizar notificação',
 	},
 	{
+		label: 'Excluir notificações',
+		key: 'notificacoes-remover',
+		message: 'Sem permissão para excluir a notificação',
+	},
+	{
 		label: 'Gerar relatórios de notificações',
 		key: 'notificacoes-relatorios-condominio',
 		message: 'Sem permissão para gerar relatórios de notificações',
 	},
 	{
-		label: 'Cadastrar notificação',
+		label: 'Cadastrar tipos de infrações',
 		key: 'notificacoes-infracoes-cadastrar',
-		message: 'Sem permissão para cadastrar notificação',
+		message: 'Sem permissão para cadastrar tipos de infrações',
 	},
 	{
-		label: 'Listar  notificações',
+		label: 'Listar tipos de infrações',
 		key: 'notificacoes-infracoes-listar',
-		message: 'Sem permissão para listar notificação',
+		message: 'Sem permissão para listar tipos de infrações',
 	},
 	{
-		label: 'Exibir dados de uma notificação',
+		label: 'Exibir dados do tipo de infração',
 		key: 'notificacoes-infracoes-exibir-dados',
-		message: 'Sem permissão para exibir dados da notificação',
+		message: 'Sem permissão para exibir dados do tipo de infração',
 	},
 	{
-		label: 'Atualizar dados da notificação',
+		label: 'Atualizar dados do tipo de infração',
 		key: 'notificacoes-infracoes-atualizar-dados',
-		message: 'Sem permissão para atualizar notificação',
+		message: 'Sem permissão para atualizar o tipo de infração',
 	},
 	{
 		label: 'Listar todos os condomínios',

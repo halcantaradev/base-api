@@ -19,18 +19,14 @@ export class TiposContratoCondominioService {
 	async findAll(pagination?: Pagination) {
 		const tiposContrato =
 			await this.prismaServices.tipoContratoCondominio.findMany({
-				orderBy: {
-					nome: 'asc',
-				},
 				take: 20,
 				skip: pagination?.page
 					? (pagination?.page - 1) * 20
 					: undefined,
 			});
 
-		const total_pages = Math.ceil(
-			(await this.prismaServices.tipoContratoCondominio.count()) / 20,
-		);
+		const total_pages =
+			await this.prismaServices.tipoContratoCondominio.count();
 
 		return { data: tiposContrato, total_pages };
 	}

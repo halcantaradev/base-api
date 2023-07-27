@@ -244,17 +244,17 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para atualizar os dados da filial',
 	},
 	{
-		label: 'Cadastrar dados de tipo de contrato',
+		label: 'Cadastrar tipos de contratos',
 		key: 'tipo-contrato-cadastrar',
 		message: 'Sem permissão para cadastrar os dados do tipo de contrato',
 	},
 	{
-		label: 'Atualizar dados de tipo de contrato',
+		label: 'Atualizar tipos de contratos',
 		key: 'tipo-contrato-atualizar',
 		message: 'Sem permissão para atualizar os dados do tipo de contrato',
 	},
 	{
-		label: 'Listar dados de tipo de contrato',
+		label: 'Listar tipos de contratos',
 		key: 'tipo-contrato-listar',
 		message: 'Sem permissão para listar os dados do tipo de contrato',
 	},

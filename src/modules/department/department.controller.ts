@@ -180,7 +180,7 @@ export class DepartmentController {
 	}
 
 	@Delete(':id')
-	@Role('departamentos-desativar')
+	@Role('departamentos-remover')
 	@ApiOperation({ summary: 'Desativa um departamento' })
 	@ApiResponse({
 		description: 'Departamento desativado com sucesso',

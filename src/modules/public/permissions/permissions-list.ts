@@ -180,9 +180,9 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para atualizar os dados dos departamentos',
 	},
 	{
-		label: 'Desativar os departamentos',
-		key: 'departamentos-desativar',
-		message: 'Sem permissão para desativar os departamentos',
+		label: 'Excluir departamentos',
+		key: 'departamentos-remover',
+		message: 'Sem permissão para excluir departamentos',
 	},
 	{
 		label: 'Cadastrar modelos de notificações',
@@ -247,6 +247,16 @@ export const permissionslist: Array<{
 		label: 'Atualizar dados do cargo',
 		key: 'cargos-atualizar-dados',
 		message: 'Sem permissão para atualizar os dados dos cargos',
+	},
+	{
+		label: 'Cadastrar cargos',
+		key: 'cargos-cadastrar',
+		message: 'Sem permissão para cadastrar cargos',
+	},
+	{
+		label: 'Cadastar filiais',
+		key: 'filiais-cadastrar',
+		message: 'Sem permissão para cadastrar filiais',
 	},
 	{
 		label: 'Listar todas as filiais',

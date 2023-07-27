@@ -131,6 +131,18 @@ export class NotificationService {
 			);
 		}
 
+		const fullAccess = !!(await this.prisma.user.findFirst({
+			where: {
+				id: {
+					in: filtro.consultores_ids,
+				},
+				acessa_todos_departamentos: true,
+				departamentos: {
+					none: {},
+				},
+			},
+		}));
+
 		const notifications = await this.prisma.pessoa.findMany({
 			select: {
 				id: true,
@@ -215,15 +227,37 @@ export class NotificationService {
 					: {
 							some: {},
 					  },
-				usuarios_condominio: idsConsultores
-					? {
-							some: {
-								usuario_id: {
-									in: idsConsultores,
+				OR:
+					idsConsultores && !fullAccess
+						? [
+								{
+									usuarios_condominio: {
+										some: {
+											usuario_id: {
+												in: idsConsultores,
+											},
+										},
+									},
 								},
-							},
-					  }
-					: undefined,
+								{
+									departamentos_condominio: {
+										some: {
+											departamento: {
+												usuarios: {
+													some: {
+														usuario_id: {
+															in: idsConsultores,
+														},
+														restringir_acesso:
+															false,
+													},
+												},
+											},
+										},
+									},
+								},
+						  ]
+						: undefined,
 				unidades_condominio: filtro
 					? {
 							some: {
@@ -339,6 +373,7 @@ export class NotificationService {
 			total_pages,
 		};
 	}
+
 	async generateReport(
 		user: UserAuth,
 		report: boolean,
@@ -1156,5 +1191,12 @@ export class NotificationService {
 			take: 10,
 		});
 		return { total_pages, data };
+	}
+
+	async inativate(id: number) {
+		return this.prisma.notificacao.update({
+			data: { ativo: false },
+			where: { id },
+		});
 	}
 }

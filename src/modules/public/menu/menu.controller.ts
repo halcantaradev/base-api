@@ -10,7 +10,6 @@ import { ReturnMenuList } from './entities/return-menu-list.entity';
 
 @ApiTags('Menus')
 @Controller('menus')
-@UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 export class MenuController {
 	constructor(private readonly menuService: MenuService) {}

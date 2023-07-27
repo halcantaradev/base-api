@@ -72,7 +72,7 @@ export class PermissionsController {
 		type: ReturnEntity.error('Erro ao listar permissões'),
 	})
 	@Get('cargo/:id')
-	@Role('permissions-cargos-listar')
+	@Role('permissoes-cargos-listar')
 	getPermissionsToOcupation(@Param('id') id: string) {
 		return this.permissionsService.getPermissionsToOcupation(+id);
 	}
@@ -122,12 +122,13 @@ export class PermissionsController {
 		type: ReturnEntity.error('Erro ao listar permissões'),
 	})
 	@Get('user/:id')
-	@Role('permissions-usuarios-listar')
+	@Role('permissoes-usuarios-listar')
 	getPermissionsToUser(@Param('id') id: string) {
 		return this.permissionsService.getPermissionsToUser(+id);
 	}
 
 	@Put('user/:id')
+	@Role('permissoes-usuarios-conceder')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Conceder permissões ao usuário' })
 	@ApiResponse({

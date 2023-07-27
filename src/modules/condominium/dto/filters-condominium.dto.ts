@@ -32,16 +32,17 @@ export class FiltersCondominiumDto extends FiltersCondominiumActiveDto {
 
 	@ApiProperty({
 		description: 'Filtro por consultor do condomínio',
-		example: 1,
+		example: [1, 2],
 		required: false,
 	})
 	@IsOptional()
 	@IsInt({
 		message:
 			'O campo consultor informado não é válido. Por favor, forneça um consultor válido.',
+		each: true,
 	})
 	@Type(() => Number)
-	consultor_id?: number;
+	consultores_ids?: number[];
 
 	@ApiProperty({
 		description: 'Filtro por tipo do condomínio',

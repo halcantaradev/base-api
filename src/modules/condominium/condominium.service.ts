@@ -437,6 +437,30 @@ export class CondominiumService {
 		return condominio;
 	}
 
+	async linkContract(
+		condominio_id: number,
+		tipo_contrato_id: number,
+		user: UserAuth,
+	) {
+		const condominio = await this.findOne(condominio_id, user);
+
+		if (!condominio)
+			throw new BadRequestException(
+				'Ocorreu um erro ao vincular o contrato',
+			);
+
+		await this.prisma.pessoa.update({
+			data: {
+				tipo_contrato_id,
+			},
+			where: {
+				id: condominio_id,
+			},
+		});
+
+		return;
+	}
+
 	async findAllResidences(
 		body: FiltersResidenceDto,
 		user: UserAuth,

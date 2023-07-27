@@ -5,8 +5,8 @@ import {
 	HttpCode,
 	HttpStatus,
 	Param,
-	Patch,
 	Post,
+	Put,
 	Query,
 	UseGuards,
 	UseInterceptors,
@@ -32,6 +32,7 @@ import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
 import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 import { UsersCondominiumReturn } from './entities/users-condominium-return.entity';
+import { LinkTypeContractDto } from './dto/link-type-contract.dto';
 
 @ApiTags('Condominium')
 @UseGuards(PermissionGuard)
@@ -170,7 +171,7 @@ export class CondominiumController {
 		};
 	}
 
-	@Patch(':id_condominium')
+	@Put(':id_condominium/department')
 	@Role('condominios-vincular')
 	@ApiOperation({ summary: 'Vincula um departamento a um condomínio' })
 	@ApiResponse({
@@ -201,6 +202,41 @@ export class CondominiumController {
 				body.departamento,
 				user,
 			),
+		};
+	}
+
+	@Put(':id_condominium/contract')
+	@Role('condominios-vincular')
+	@ApiOperation({ summary: 'Vincula um tipo de contrato a um condomínio' })
+	@ApiResponse({
+		description: 'Contrato vinculado com sucesso',
+		status: HttpStatus.OK,
+		type: CondominiumReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao vincular o contrato',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async linkContract(
+		@CurrentUser() user: UserAuth,
+		@Param('id_condominium') condominio_id: string,
+		@Body() body: LinkTypeContractDto,
+	) {
+		await this.condominioService.linkContract(
+			+condominio_id,
+			body.tipo_contrato_id,
+			user,
+		);
+
+		return {
+			success: true,
+			message: 'Contrato vinculado com sucesso!',
 		};
 	}
 

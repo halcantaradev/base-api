@@ -138,8 +138,14 @@ async function createPermissoesList() {
 
 		if (!p) {
 			await prisma.permissoes.create({ data: permission });
+		} else {
+			await prisma.permissoes.update({
+				data: permission,
+				where: { id: p.id },
+			});
 		}
 	}
+	console.log('Permissões criadas ou atualizadas!');
 }
 
 async function cretePermissionToUser(usuario_id: number, empresa_id: number) {

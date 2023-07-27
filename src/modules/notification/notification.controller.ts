@@ -10,7 +10,6 @@ import {
 	Post,
 	Query,
 	Res,
-	StreamableFile,
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';

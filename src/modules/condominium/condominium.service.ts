@@ -39,6 +39,57 @@ export class CondominiumService {
 			},
 		});
 
+		let idsConsultores: number[] | null = null;
+
+		if (
+			filters.consultores_ids?.length &&
+			!user.acessa_todos_departamentos
+		) {
+			const consultoresDepartamentos =
+				await this.prisma.usuarioHasDepartamentos.findMany({
+					where: {
+						departamento_id: {
+							in: user.departamentos_ids,
+						},
+						usuario_id: {
+							in: [...filters.consultores_ids, user.id],
+						},
+					},
+				});
+
+			idsConsultores = consultoresDepartamentos.map(
+				(consultor) => consultor.usuario_id,
+			);
+		} else if (filters.consultores_ids?.length) {
+			idsConsultores = filters.consultores_ids;
+		} else if (!user.acessa_todos_departamentos) {
+			const consultoresDepartamentos =
+				await this.prisma.usuarioHasDepartamentos.findMany({
+					where: {
+						departamento_id: {
+							in: user.departamentos_ids,
+						},
+						usuario_id: user.id,
+					},
+				});
+
+			idsConsultores = consultoresDepartamentos.map(
+				(consultor) => consultor.usuario_id,
+			);
+		}
+
+		const fullAccess = !!(await this.prisma.user.findFirst({
+			where: {
+				id: {
+					in: filters.consultores_ids,
+				},
+				acessa_todos_departamentos: true,
+				departamentos: {
+					none: {},
+				},
+			},
+		}));
+
 		const filtersSelected: Array<any> = [
 			filters.categoria_id && !Number.isNaN(+filters.categoria_id)
 				? {
@@ -142,6 +193,37 @@ export class CondominiumService {
 								  }
 								: null,
 						].filter((filter) => !!filter),
+				  }
+				: null,
+			idsConsultores && !fullAccess
+				? {
+						OR: [
+							{
+								usuarios_condominio: {
+									some: {
+										usuario_id: {
+											in: idsConsultores,
+										},
+									},
+								},
+							},
+							{
+								departamentos_condominio: {
+									some: {
+										departamento: {
+											usuarios: {
+												some: {
+													usuario_id: {
+														in: idsConsultores,
+													},
+													restringir_acesso: false,
+												},
+											},
+										},
+									},
+								},
+							},
+						],
 				  }
 				: null,
 		].filter((filter) => !!filter);

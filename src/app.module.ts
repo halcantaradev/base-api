@@ -18,6 +18,7 @@ import { ExternalAccessDocumentsModule } from './modules/external-access-documen
 import { ExternalJwtService } from './shared/services/external-jwt/external-jwt.service';
 import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.module';
 import { SubsidiaryModule } from './modules/subsidiary/subsidiary.module';
+import { ContractTypesCondominiumModule } from './modules/contract-type-condominium/contract-types-condominium.module';
 
 @Module({
 	imports: [
@@ -36,6 +37,7 @@ import { SubsidiaryModule } from './modules/subsidiary/subsidiary.module';
 		ExternalAccessDocumentsModule,
 		ExternalJwtModule,
 		SubsidiaryModule,
+		ContractTypesCondominiumModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, LayoutConstsService],

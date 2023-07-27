@@ -58,7 +58,7 @@ export class AuthService {
 				},
 				departamentos: {
 					include: {
-						departamento: true,
+						departamento: { select: { id: true } },
 					},
 				},
 			},

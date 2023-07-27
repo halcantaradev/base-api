@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpCode,
 	HttpStatus,
@@ -291,5 +292,22 @@ export class NotificationController {
 				+page,
 			)),
 		};
+	}
+
+	@Delete(':id')
+	@Role('notificacoes-remover')
+	@ApiOperation({ summary: 'Excluir uma notificação' })
+	@ApiResponse({
+		description: 'Ntificação excluida com sucesso',
+		status: HttpStatus.OK,
+		type: () => ReturnNotificationListEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao excluir a notificação',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async remove(@Param('id') id: number) {
+		return this.notificationService.inativate(+id);
 	}
 }

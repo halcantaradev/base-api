@@ -19,7 +19,7 @@ export const menulist: Array<{
 		relation: 1,
 		permission_key: 'notificacoes-listar',
 		label: 'Buscar',
-		url: 'notificacoes/',
+		url: 'notificacoes/busca',
 		icon: 'unordered_list_outline',
 		target: '_self',
 	},
@@ -102,7 +102,7 @@ export const menulist: Array<{
 	{
 		id_relation: 99993,
 		relation: 99990,
-		permission_key: 'permissions-cargos-listar',
+		permission_key: 'permissoes-listar',
 		label: 'Permissões',
 		url: 'permissoes',
 		icon: 'guard',

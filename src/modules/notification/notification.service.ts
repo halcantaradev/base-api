@@ -1015,6 +1015,7 @@ export class NotificationService {
 				referencia_id: id,
 				origem: 1,
 				tipo: { not: { contains: 'pdf' } },
+				ativo: true,
 			},
 		});
 
@@ -1023,6 +1024,7 @@ export class NotificationService {
 				referencia_id: id,
 				origem: 1,
 				tipo: { contains: 'pdf' },
+				ativo: true,
 			},
 		});
 
@@ -1115,6 +1117,7 @@ export class NotificationService {
 				referencia_id: id,
 				origem: 1,
 				tipo: { contains: 'pdf' },
+				ativo: true,
 			},
 		});
 
@@ -1188,5 +1191,12 @@ export class NotificationService {
 			take: 10,
 		});
 		return { total_pages, data };
+	}
+
+	async inativate(id: number) {
+		return this.prisma.notificacao.update({
+			data: { ativo: false },
+			where: { id },
+		});
 	}
 }

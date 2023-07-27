@@ -146,7 +146,7 @@ export class UserController {
 
 	@Post(':id/condominiums')
 	@HttpCode(HttpStatus.OK)
-	@Role('usuarios-listar-vinculos-condominios')
+	@Role('usuarios-listar-condominios-limitados')
 	@ApiOperation({ summary: 'Lista os condominios vinculados do usuário' })
 	@ApiResponse({
 		description: 'Dados listados com sucesso',
@@ -174,7 +174,7 @@ export class UserController {
 	}
 
 	@Put(':id/condominiums')
-	@Role('usuarios-atualizar-vinculos-condominios')
+	@Role('usuarios-limitar-acesso-condominios')
 	@ApiOperation({ summary: 'Atualiza os condominios vinculados do usuário' })
 	@ApiResponse({
 		description: 'Dados atualizados com sucesso',

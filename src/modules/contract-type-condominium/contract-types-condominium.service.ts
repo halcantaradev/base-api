@@ -1,18 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateTiposContratoCondominioDto } from './dto/create-tipos-contrato-condominio.dto';
-import { UpdateTiposContratoCondominioDto } from './dto/update-tipos-contrato-condominio.dto';
+import { CreateContractTypesCondominiumDto } from './dto/create-contract-types-condominium.dto';
+import { UpdateContractTypesCondominiumDto } from './dto/update-contract-types-condominium.dto';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @Injectable()
-export class TiposContratoCondominioService {
+export class ContractTypesCondominiumService {
 	constructor(private readonly prismaServices: PrismaService) {}
 
 	async create(
-		createTiposContratoCondominioDto: CreateTiposContratoCondominioDto,
+		createContractTypesCondominiumDto: CreateContractTypesCondominiumDto,
 	) {
 		return this.prismaServices.tipoContratoCondominio.create({
-			data: createTiposContratoCondominioDto,
+			data: createContractTypesCondominiumDto,
 		});
 	}
 
@@ -41,7 +41,7 @@ export class TiposContratoCondominioService {
 
 	async update(
 		id: number,
-		updateTiposContratoCondominioDto: UpdateTiposContratoCondominioDto,
+		updateContractTypesCondominiumDto: UpdateContractTypesCondominiumDto,
 	) {
 		const tipoControato =
 			await this.prismaServices.tipoContratoCondominio.findFirst({
@@ -54,7 +54,7 @@ export class TiposContratoCondominioService {
 			throw new BadRequestException('Tipo de contrato não encontrado');
 
 		return this.prismaServices.tipoContratoCondominio.update({
-			data: updateTiposContratoCondominioDto,
+			data: updateContractTypesCondominiumDto,
 			where: {
 				id,
 			},

@@ -4,7 +4,7 @@ import { IsNotEmpty, Validate } from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
 
-export class CreateTiposContratoCondominioDto {
+export class CreateContractTypesCondominiumDto {
 	@ApiProperty({
 		description: 'Nome do contrato',
 		example: 'Premium',

@@ -294,6 +294,12 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar os dados do tipo de contrato',
 	},
 	{
+		label: 'Listar tipos de contratos ativos',
+		key: 'tipo-contrato-listar-ativos',
+		message:
+			'Sem permissão para listar os dados do tipo de contrato ativos',
+	},
+	{
 		label: 'Visualizar dados de tipo de contrato',
 		key: 'tipo-contrato-exibir-dados',
 		message: 'Sem permissão para ver os dados do tipo de contrato',

@@ -20,12 +20,12 @@ import { JwtAuthGuard } from 'src/modules/public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { ContractTypesCondominiumListReturn } from './dto/contract-types-condominium.-list-return.entity';
-import { ContractTypesCondominium } from './entities/contract-types-condominium.entity';
+import { ContractTypesCondominiumReturn } from './entities/contract-types-condominium-return.entity';
 
 @ApiTags('Tipo de contrato')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
-@Controller('tipos-contrato-condominio')
+@Controller('contract-types-condominium')
 export class ContractTypesCondominiumController {
 	constructor(
 		private readonly ContractTypesCondominiumService: ContractTypesCondominiumService,
@@ -80,6 +80,33 @@ export class ContractTypesCondominiumController {
 	})
 	async findAll(@Query() pagination: Pagination) {
 		const dados = await this.ContractTypesCondominiumService.findAll(
+			false,
+			pagination,
+		);
+
+		return {
+			success: true,
+			...dados,
+		};
+	}
+
+	@Get('active')
+	@Role('tipo-contrato-listar-ativos')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ summary: 'Lista todos os tipos de contratos ativos' })
+	@ApiResponse({
+		description: 'Tipos de contratos listados com sucesso',
+		status: HttpStatus.OK,
+		type: ContractTypesCondominiumListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os tipos de contratos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllActive(@Query() pagination: Pagination) {
+		const dados = await this.ContractTypesCondominiumService.findAll(
+			true,
 			pagination,
 		);
 
@@ -96,15 +123,19 @@ export class ContractTypesCondominiumController {
 	@ApiResponse({
 		description: 'Tipo de contrato listado com sucesso',
 		status: HttpStatus.OK,
-		type: ContractTypesCondominium,
+		type: ContractTypesCondominiumReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados do tipo de contrato',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error('Erro ao exibir dados do tipo de contrato'),
 	})
-	findOne(@Param('id') id: string) {
-		return this.ContractTypesCondominiumService.findOne(+id);
+	async findOne(@Param('id') id: string) {
+		const data = await this.ContractTypesCondominiumService.findOne(+id);
+		return {
+			success: true,
+			data,
+		};
 	}
 
 	@Patch(':id')

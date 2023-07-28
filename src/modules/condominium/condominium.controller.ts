@@ -172,7 +172,7 @@ export class CondominiumController {
 	}
 
 	@Put(':id_condominium/department')
-	@Role('condominios-vincular')
+	@Role('condominios-vincular-departamento')
 	@ApiOperation({ summary: 'Vincula um departamento a um condomínio' })
 	@ApiResponse({
 		description: 'Condomínio vinculado com sucesso',
@@ -206,7 +206,7 @@ export class CondominiumController {
 	}
 
 	@Put(':id_condominium/contract-type')
-	@Role('condominios-vincular')
+	@Role('condominios-vincular-tipo-contrato')
 	@ApiOperation({ summary: 'Vincula um tipo de contrato a um condomínio' })
 	@ApiResponse({
 		description: 'Contrato vinculado com sucesso',

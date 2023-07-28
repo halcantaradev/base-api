@@ -239,6 +239,14 @@ export class CondominiumService {
 						},
 					},
 				},
+				tipo_contrato: {
+					select: {
+						id: true,
+						nome: true,
+						ativo: true,
+						created_at: true,
+					},
+				},
 			},
 			{
 				ativo: filters.ativo != null ? filters.ativo : undefined,

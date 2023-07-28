@@ -520,49 +520,47 @@ export class CondominiumService {
 			skip: pagination?.page ? (pagination?.page - 1) * 20 : undefined,
 		});
 
-		const total_pages = Math.ceil(
-			(await this.prisma.unidade.count({
-				where: {
-					condominio_id: body.condominios_ids?.length
-						? {
-								in: body.condominios_ids,
-						  }
-						: undefined,
-					ativo: body.ativo != null ? body.ativo : undefined,
-					OR: [
-						{
-							condominos: {
-								some: {
-									condomino: body.busca
-										? {
-												nome: {
-													contains: body.busca
-														.toString()
-														.normalize('NFD')
-														.replace(
-															/[\u0300-\u036f]/g,
-															'',
-														),
-													mode: 'insensitive',
-												},
-										  }
-										: {},
-								},
+		const total_pages = await this.prisma.unidade.count({
+			where: {
+				condominio_id: body.condominios_ids?.length
+					? {
+							in: body.condominios_ids,
+					  }
+					: undefined,
+				ativo: body.ativo != null ? body.ativo : undefined,
+				OR: [
+					{
+						condominos: {
+							some: {
+								condomino: body.busca
+									? {
+											nome: {
+												contains: body.busca
+													.toString()
+													.normalize('NFD')
+													.replace(
+														/[\u0300-\u036f]/g,
+														'',
+													),
+												mode: 'insensitive',
+											},
+									  }
+									: {},
 							},
 						},
-						{
-							codigo: {
-								contains: (body.busca || '')
-									.toString()
-									.normalize('NFD')
-									.replace(/[\u0300-\u036f]/g, ''),
-								mode: 'insensitive',
-							},
+					},
+					{
+						codigo: {
+							contains: (body.busca || '')
+								.toString()
+								.normalize('NFD')
+								.replace(/[\u0300-\u036f]/g, ''),
+							mode: 'insensitive',
 						},
-					],
-				},
-			})) / (pagination?.page ? 20 : 100),
-		);
+					},
+				],
+			},
+		});
 
 		return {
 			data: unidades,

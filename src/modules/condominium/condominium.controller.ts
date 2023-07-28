@@ -205,7 +205,7 @@ export class CondominiumController {
 		};
 	}
 
-	@Put(':id_condominium/contract')
+	@Put(':id_condominium/contract-type')
 	@Role('condominios-vincular')
 	@ApiOperation({ summary: 'Vincula um tipo de contrato a um condomínio' })
 	@ApiResponse({

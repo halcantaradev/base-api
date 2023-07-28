@@ -93,7 +93,7 @@ export class ContractTypesCondominiumController {
 	@Get('active')
 	@Role('tipo-contrato-listar-ativos')
 	@HttpCode(HttpStatus.OK)
-	@ApiOperation({ summary: 'Lista todos os tipos de contratos' })
+	@ApiOperation({ summary: 'Lista todos os tipos de contratos ativos' })
 	@ApiResponse({
 		description: 'Tipos de contratos listados com sucesso',
 		status: HttpStatus.OK,

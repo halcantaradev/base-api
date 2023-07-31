@@ -140,6 +140,12 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para vincular departamentos a um condomínio',
 	},
 	{
+		label: 'Vincular um tipo de contrato a um condomínio',
+		key: 'condominios-vincular-tipo-contrato',
+		message:
+			'Sem permissão para vincular tipos de contrato a um condomínio',
+	},
+	{
 		label: 'Listar todos as unidades',
 		key: 'unidades-listar',
 		message: 'Sem permissão para listar unidades',

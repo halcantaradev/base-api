@@ -34,7 +34,7 @@ import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-cond
 import { UsersCondominiumReturn } from './entities/users-condominium-return.entity';
 import { LinkTypeContractDto } from './dto/link-type-contract.dto';
 
-@ApiTags('Condominium')
+@ApiTags('Condomínios')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('condominiums')

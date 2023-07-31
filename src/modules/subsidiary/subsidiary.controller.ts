@@ -23,7 +23,7 @@ import { SubsidiaryListReturn } from './entities/subsidiary-list-return.entity';
 import { SubsidiaryReturn } from './entities/subsidiary-return.entity';
 import { FiltersSubsidiaryDto } from './dto/filters-subsidiary.dto';
 
-@ApiTags('Subsidiaries')
+@ApiTags('Filiais')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('subsidiaries')

@@ -25,7 +25,7 @@ import { DepartmentReturn } from './entities/department-return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { FiltersDepartmentDto } from './dto/filters-department.dto';
 
-@ApiTags('Departments')
+@ApiTags('Departamentos')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('departments')

@@ -2,7 +2,7 @@ import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('Service Status')
+@ApiTags('Status de Serviço')
 @Controller()
 export class AppController {
 	constructor(private readonly appService: AppService) {}

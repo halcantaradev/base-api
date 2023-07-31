@@ -26,7 +26,7 @@ import {
 } from './entities/layouts-notification-return.entity';
 import { LayoutsNotificationService } from './layouts-notification.service';
 
-@ApiTags('Modelos notificação')
+@ApiTags('Modelos de Impressão de Notificações')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('layouts-notification')

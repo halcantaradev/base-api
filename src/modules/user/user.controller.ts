@@ -31,7 +31,7 @@ import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
 import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
 import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 
-@ApiTags('User')
+@ApiTags('Usuários')
 @Controller('users')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)

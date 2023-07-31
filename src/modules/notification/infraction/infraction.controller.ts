@@ -24,7 +24,7 @@ import { UpdateInfractionDto } from './dto/update-infraction.dto';
 import { FilterInfractionDto } from './dto/filter-infraction.dto';
 import { FilterInfractionActiveDto } from './dto/filter-infraction-active.dto';
 
-@ApiTags('Infractions')
+@ApiTags('Infrações')
 @Controller('notifications/infractions')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)

@@ -37,7 +37,7 @@ import { NotificationService } from './notification.service';
 import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
 import { Response } from 'express';
 
-@ApiTags('Notifications')
+@ApiTags('Notificações')
 @Controller('notifications')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)

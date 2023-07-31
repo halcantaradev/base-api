@@ -22,13 +22,13 @@ import { Pagination } from 'src/shared/entities/pagination.entity';
 import { ContractTypesCondominiumListReturn } from './dto/contract-types-condominium.-list-return.entity';
 import { ContractTypesCondominiumReturn } from './entities/contract-types-condominium-return.entity';
 
-@ApiTags('Tipo de contrato')
+@ApiTags('Tipos de Contrato')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('contract-types-condominium')
 export class ContractTypesCondominiumController {
 	constructor(
-		private readonly ContractTypesCondominiumService: ContractTypesCondominiumService,
+		private readonly contractTypesCondominiumService: ContractTypesCondominiumService,
 	) {}
 
 	@Post()
@@ -54,7 +54,7 @@ export class ContractTypesCondominiumController {
 		@Body()
 		createContractTypesCondominiumDto: CreateContractTypesCondominiumDto,
 	) {
-		await this.ContractTypesCondominiumService.create(
+		await this.contractTypesCondominiumService.create(
 			createContractTypesCondominiumDto,
 		);
 
@@ -79,7 +79,7 @@ export class ContractTypesCondominiumController {
 		type: ReturnEntity.error(),
 	})
 	async findAll(@Query() pagination: Pagination) {
-		const dados = await this.ContractTypesCondominiumService.findAll(
+		const dados = await this.contractTypesCondominiumService.findAll(
 			false,
 			pagination,
 		);
@@ -105,7 +105,7 @@ export class ContractTypesCondominiumController {
 		type: ReturnEntity.error(),
 	})
 	async findAllActive(@Query() pagination: Pagination) {
-		const dados = await this.ContractTypesCondominiumService.findAll(
+		const dados = await this.contractTypesCondominiumService.findAll(
 			true,
 			pagination,
 		);
@@ -131,7 +131,7 @@ export class ContractTypesCondominiumController {
 		type: ReturnEntity.error('Erro ao exibir dados do tipo de contrato'),
 	})
 	async findOne(@Param('id') id: string) {
-		const data = await this.ContractTypesCondominiumService.findOne(+id);
+		const data = await this.contractTypesCondominiumService.findOne(+id);
 		return {
 			success: true,
 			data,
@@ -162,7 +162,7 @@ export class ContractTypesCondominiumController {
 		@Body()
 		updateContractTypesCondominiumDto: UpdateContractTypesCondominiumDto,
 	) {
-		return this.ContractTypesCondominiumService.update(
+		return this.contractTypesCondominiumService.update(
 			+id,
 			updateContractTypesCondominiumDto,
 		);

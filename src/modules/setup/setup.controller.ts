@@ -17,7 +17,7 @@ import { ReturnSetupNotificationEntity } from './entities/return-setup-notificat
 import { UpdateSetupNotificationDto } from './dto/update-setup-notification.dto';
 import { UpdateSetupSystemDto } from './dto/update-setup-system.dto';
 
-@ApiTags('Setup')
+@ApiTags('Módulo de Configurações')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('setup')

@@ -23,7 +23,7 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { RemoveFileDto } from './dto/remove-file.dto';
 
-@ApiTags('Upload File')
+@ApiTags('Envio de Arquivos')
 @Controller('uploads')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)

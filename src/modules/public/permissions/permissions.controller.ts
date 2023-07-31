@@ -23,7 +23,8 @@ import { PermissionsService } from './permissions.service';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { PermissionOcupationReturn } from './entities/permissions-ocupation-return';
 import { PermissionUserReturn } from './entities/permissions-user-return';
-@ApiTags('Permissions')
+
+@ApiTags('Permissões')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('permissions')

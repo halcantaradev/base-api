@@ -27,6 +27,7 @@ export class UserService {
 				email: createUserDto.email,
 				telefone: createUserDto.telefone,
 				ramal: createUserDto.ramal,
+				whatsapp: createUserDto.whatsapp,
 				acessa_todos_departamentos:
 					createUserDto.acessa_todos_departamentos,
 				empresas: {

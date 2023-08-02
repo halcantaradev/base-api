@@ -10,6 +10,8 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { LinkCondominiumsDto } from './dto/link-condominiums.dto';
 import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
 import { PersonService } from '../person/person.service';
+import { Prisma } from '@prisma/client';
+import { ReportUserDto } from './dto/report-user.dto';
 
 @Injectable()
 export class UserService {
@@ -17,6 +19,65 @@ export class UserService {
 		private readonly prisma: PrismaService,
 		private readonly pessoaService: PersonService,
 	) {}
+
+	private async getFilterList(
+		user: UserAuth,
+		filtros: ListUserDto = {},
+		condominiums?: number[],
+	): Promise<Prisma.UserWhereInput> {
+		return {
+			OR: filtros.busca
+				? [
+						{
+							id: !Number.isNaN(+filtros.busca)
+								? +filtros.busca
+								: undefined,
+						},
+						{
+							nome: {
+								contains: filtros.busca,
+								mode: 'insensitive',
+							},
+						},
+						{
+							email: {
+								contains: filtros.busca,
+								mode: 'insensitive',
+							},
+						},
+				  ]
+				: undefined,
+			empresas: {
+				some: {
+					empresa_id: user.empresa_id,
+					cargo_id:
+						filtros.cargos && filtros.cargos.length
+							? {
+									in: filtros.cargos,
+							  }
+							: undefined,
+				},
+			},
+			departamentos:
+				filtros.departamentos && filtros.departamentos.length
+					? {
+							some: {
+								departamento_id: {
+									in: filtros.departamentos,
+								},
+							},
+					  }
+					: undefined,
+			condominios:
+				condominiums != null && !user.acessa_todos_departamentos
+					? {
+							some: {
+								condominio_id: { in: condominiums },
+							},
+					  }
+					: undefined,
+		};
+	}
 
 	async create(createUserDto: CreateUserDto, user: UserAuth) {
 		await this.prisma.user.create({
@@ -90,58 +151,7 @@ export class UserService {
 						},
 					},
 				},
-				where: {
-					OR: filtros.busca
-						? [
-								{
-									id: !Number.isNaN(+filtros.busca)
-										? +filtros.busca
-										: undefined,
-								},
-								{
-									nome: {
-										contains: filtros.busca,
-										mode: 'insensitive',
-									},
-								},
-								{
-									email: {
-										contains: filtros.busca,
-										mode: 'insensitive',
-									},
-								},
-						  ]
-						: undefined,
-					empresas: {
-						some: {
-							empresa_id: user.empresa_id,
-							cargo_id:
-								filtros.cargos && filtros.cargos.length
-									? {
-											in: filtros.cargos,
-									  }
-									: undefined,
-						},
-					},
-					departamentos:
-						filtros.departamentos && filtros.departamentos.length
-							? {
-									some: {
-										departamento_id: {
-											in: filtros.departamentos,
-										},
-									},
-							  }
-							: undefined,
-					condominios:
-						condominiums != null && !user.acessa_todos_departamentos
-							? {
-									some: {
-										condominio_id: { in: condominiums },
-									},
-							  }
-							: undefined,
-				},
+				where: await this.getFilterList(user, filtros, condominiums),
 				orderBy: {
 					nome: 'asc',
 				},
@@ -149,51 +159,79 @@ export class UserService {
 		};
 	}
 
-	async findAllActive(empresa_id: number): Promise<ReturnUserListEntity> {
-		return {
-			success: true,
-			data: await this.prisma.user.findMany({
-				select: {
-					id: true,
-					nome: true,
-					username: true,
-					email: true,
-					whatsapp: true,
-					ativo: true,
-					updated_at: true,
-					empresas: {
-						select: {
-							empresa_id: true,
-							cargo: {
-								select: {
-									id: true,
-									nome: true,
-								},
-							},
-						},
-					},
-					departamentos: {
-						select: {
-							departamento_id: true,
-							departamento: {
-								select: { nome: true },
+	async report(
+		report: ReportUserDto,
+		user: UserAuth,
+		condominiums: number[],
+	) {
+		const condominiumsSaved = await this.prisma.user.findMany({
+			select: {
+				id: true,
+				nome: true,
+				username: true,
+				email: true,
+				whatsapp: true,
+				ativo: true,
+				updated_at: true,
+				acessa_todos_departamentos: true,
+				empresas: {
+					select: {
+						empresa_id: true,
+						cargo: {
+							select: {
+								id: true,
+								nome: true,
 							},
 						},
 					},
 				},
-				where: {
-					empresas: {
-						some: {
-							empresa_id: empresa_id,
+				departamentos: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: { nome: true },
 						},
 					},
-					ativo: true,
 				},
-				orderBy: {
-					nome: 'asc',
-				},
-			}),
-		};
+			},
+			where: await this.getFilterList(user, report.filtros, condominiums),
+			orderBy: {
+				nome: 'asc',
+			},
+		});
+
+		const response = condominiumsSaved.reduce(
+			(list: Array<any>, currentValue) => {
+				let grupos: { id: number; descricao: string }[] = [];
+
+				grupos = currentValue.departamentos.map((item) => ({
+					id: item.departamento_id,
+					descricao: item.departamento.nome,
+				}));
+
+				if (!grupos.length) return list;
+
+				grupos.forEach((grupo) => {
+					let index = list.findIndex((item) => item.id == grupo.id);
+
+					if (index === -1) {
+						list.push({
+							...grupo,
+							data: [],
+						});
+
+						index = list.length - 1;
+					}
+
+					list[index].data.push(currentValue);
+				});
+
+				return list;
+			},
+			[],
+		);
+
+		return response;
 	}
 
 	async findOneById(id: number, user: UserAuth): Promise<ReturnUserEntity> {

@@ -7,24 +7,6 @@ export class MenuService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async findAll(user: UserAuth) {
-		const userData = await this.prisma.user.findFirst({
-			include: {
-				empresas: {
-					select: {
-						cargo_id: true,
-					},
-				},
-			},
-			where: {
-				id: user.id,
-				empresas: {
-					some: {
-						empresa_id: user.empresa_id,
-					},
-				},
-			},
-		});
-
 		return this.prisma.menu.findMany({
 			include: {
 				items: {
@@ -76,10 +58,16 @@ export class MenuService {
 										{
 											cargos: {
 												some: {
-													cargo_id:
-														userData.empresas[0]
-															.cargo_id,
-													empresa_id: user.empresa_id,
+													cargo: {
+														usuarios: {
+															some: {
+																empresa_id:
+																	user.empresa_id,
+																usuario_id:
+																	user.id,
+															},
+														},
+													},
 												},
 											},
 										},

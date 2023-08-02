@@ -58,8 +58,16 @@ export class MenuService {
 										{
 											cargos: {
 												some: {
-													cargo_id: user.cargo_id,
-													empresa_id: user.empresa_id,
+													cargo: {
+														usuarios: {
+															some: {
+																empresa_id:
+																	user.empresa_id,
+																usuario_id:
+																	user.id,
+															},
+														},
+													},
 												},
 											},
 										},

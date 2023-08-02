@@ -6,7 +6,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 export class MenuService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async findAll(user: UserAuth) {
+	findAll(user: UserAuth) {
 		return this.prisma.menu.findMany({
 			include: {
 				items: {

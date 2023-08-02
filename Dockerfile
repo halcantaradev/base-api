@@ -9,8 +9,6 @@ RUN npm install pm2 -g
 RUN yarn
 COPY . $SERVER_HOME
 RUN yarn prisma generate
-RUN yarn migrate:deploy
-RUN yarn seed:prod
 RUN yarn build
 
 EXPOSE 8080

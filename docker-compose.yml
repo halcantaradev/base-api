@@ -1,19 +1,6 @@
 version: '3.5'
 
 services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: gestao_api
-    ports:
-      - "8080:${PORT}"
-    volumes:
-      - .:/api
-    environment:
-      - NODE_ENV=development
-      - PORT=3002
-      - DATABASE_URL="postgresql://dev:gestao*dev@localhost:5432/gestao_web_db?schema=gestao"
   database:
     container_name: database
     image: postgres:15.3-alpine
@@ -21,3 +8,14 @@ services:
       - .env
     ports:
       - '5432:5432'
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gestao_api
+    ports:
+      - "8080:${PORT}"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production

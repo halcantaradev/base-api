@@ -8,85 +8,506 @@ datasource db {
 }
 
 model Pessoa {
-  id                Int                   @id @default(autoincrement())
-  nome              String                @unique
-  cnpj              String                @unique
-  endereco          String?
-  cep               String?
-  bairro            String?
-  cidade            String?
-  uf                String?
-  ativa             Boolean               @default(true)
-  created_at        DateTime              @default(now())
-  updateda_at       DateTime              @updatedAt
-  PessoaHasUsuarios EmpresasHasUsuarios[]
-  PessoasHasTipos   PessoasHasTipos[]
+  id               Int      @id @default(autoincrement())
+  nome             String
+  cnpj             String
+  empresa_id       Int?
+  numero           String?
+  endereco         String?
+  cep              String?
+  bairro           String?
+  cidade           String?
+  uf               String?
+  categoria_id     Int?
+  tipo_contrato_id Int?
+  ativo            Boolean  @default(true)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  contatos                      Contato[]
+  unidades_condominio           Unidade[]
+  tipos                         PessoasHasTipos[]
+  unidades                      PessoasHasUnidades[]
+  usuarios_empresa              EmpresasHasUsuarios[]
+  permissoes_cargos             CargosHasPermissoes[]
+  permissoes_usuarios           UsuarioHasPermissoes[]
+  departamentos                 Departamento[]
+  notificacoes                  Notificacao[]
+  departamentos_condominio      CondominioHasDepartamentos[]
+  empresas_pessoa               EmpresaHasPessoas[]          @relation("EmpresaEmpresaPessoa")
+  pessoas_empresa               EmpresaHasPessoas[]          @relation("PessoaEmpresaPessoa")
+  LayoutsNotificacao            LayoutsNotificacao[]
+  condominio_administracao      CondomimioAdministracao[]
+  usuarios_condominio           UsuarioHasCondominios[]
+  setup_condominio_notificacoes NotificacaoSetup?
+  setup_empresa_sistema         SistemaSetup[]
+  tipo_contrato                 TipoContratoCondominio?      @relation(fields: [tipo_contrato_id], references: [id])
+  tipos_infracoes               TipoInfracao[]
+  filiais                       Filial[]
+  temas                         Tema[]
 
   @@map("pessoas")
 }
 
 model TiposPessoa {
-  id              Int               @id @default(autoincrement())
-  nome            String            @unique
-  ativo           Boolean           @default(true)
-  created_at      DateTime          @default(now())
-  updateda_at     DateTime          @updatedAt
-  PessoasHasTipos PessoasHasTipos[]
+  id         Int      @id @default(autoincrement())
+  nome       String   @unique
+  descricao  String   @unique
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  pessoas  PessoasHasTipos[]
+  unidades PessoasHasUnidades[]
 
   @@map("tipos_pessoas")
 }
 
 model Cargo {
-  id                  Int                   @id @default(autoincrement())
-  nome                String                @unique
-  ativo               Boolean               @default(true)
-  created_at          DateTime              @default(now())
-  updateda_at         DateTime              @updatedAt
-  EmpresasHasUsuarios EmpresasHasUsuarios[]
+  id         Int      @id @default(autoincrement())
+  nome       String   @unique
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  usuarios   EmpresasHasUsuarios[]
+  permissoes CargosHasPermissoes[]
 
   @@map("cargos")
 }
 
 model PessoasHasTipos {
-  id        Int         @id @default(autoincrement())
-  pessoa_id Int
-  tipo_id   Int
-  pessoa    Pessoa      @relation(fields: [pessoa_id], references: [id])
-  tipo      TiposPessoa @relation(fields: [tipo_id], references: [id])
+  id                 Int      @id @default(autoincrement())
+  pessoa_id          Int
+  original_pessoa_id String?
+  tipo_id            Int
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
 
-  createdAt   DateTime @default(now())
-  updateda_at DateTime @updatedAt
+  pessoa Pessoa      @relation(fields: [pessoa_id], references: [id])
+  tipo   TiposPessoa @relation(fields: [tipo_id], references: [id])
 
   @@map("pessoas_has_tipo")
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  nome        String
-  username    String   @unique
-  password    String
-  secret      String   @default(uuid())
-  ativo       Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updateda_at DateTime @updatedAt
+  id                         Int      @id @default(autoincrement())
+  email                      String   @unique
+  nome                       String
+  username                   String   @unique
+  password                   String
+  telefone                   String?
+  whatsapp                   String?
+  ramal                      String?
+  secret                     String   @default(uuid())
+  ativo                      Boolean  @default(true)
+  acessa_todos_departamentos Boolean  @default(false)
+  created_at                 DateTime @default(now())
+  updated_at                 DateTime @updatedAt
 
-  PessoaHasUsuarios EmpresasHasUsuarios[]
+  empresas      EmpresasHasUsuarios[]
+  permissoes    UsuarioHasPermissoes[]
+  departamentos UsuarioHasDepartamentos[]
+  condominios   UsuarioHasCondominios[]
 
   @@map("usuarios")
 }
 
 model EmpresasHasUsuarios {
-  id          Int      @id @default(autoincrement())
-  usuario_id  Int
-  empresa_id  Int
-  cargo_id    Int
-  createdAt   DateTime @default(now())
-  updateda_at DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  usuario_id Int
+  empresa_id Int
+  cargo_id   Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  user   User   @relation(fields: [usuario_id], references: [id])
-  pessoa Pessoa @relation(fields: [empresa_id], references: [id])
-  cargo  Cargo  @relation(fields: [cargo_id], references: [id])
+  usuario User   @relation(fields: [usuario_id], references: [id])
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  cargo   Cargo  @relation(fields: [cargo_id], references: [id])
 
   @@map("empresas_has_usuarios")
 }
+
+model Unidade {
+  id                  Int      @id @default(autoincrement())
+  original_unidade_id Int?
+  condominio_id       Int
+  codigo              String
+  ativo               Boolean  @default(true)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  condominos   PessoasHasUnidades[]
+  notificacoes Notificacao[]
+
+  condominio      Pessoa            @relation(fields: [condominio_id], references: [id])
+  UnidadeHasTaxas UnidadeHasTaxas[]
+
+  @@map("unidades")
+}
+
+model PessoasHasUnidades {
+  id             Int      @id @default(autoincrement())
+  unidade_id     Int
+  pessoa_id      Int
+  pessoa_tipo_id Int
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  condomino Pessoa      @relation(fields: [pessoa_id], references: [id])
+  unidade   Unidade     @relation(fields: [unidade_id], references: [id])
+  tipo      TiposPessoa @relation(fields: [pessoa_tipo_id], references: [id])
+
+  @@map("pessoas_has_unidades")
+}
+
+model TipoInfracao {
+  id                  Int      @id @default(autoincrement())
+  empresa_id          Int
+  descricao           String
+  fundamentacao_legal String?  @db.Text
+  ativo               Boolean  @default(true)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  notificacoes Notificacao[]
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("tipos_infracao")
+}
+
+model Notificacao {
+  id                  Int       @id @default(autoincrement())
+  unidade_id          Int
+  pessoa_id           Int
+  tipo_infracao_id    Int
+  tipo_registro       Int       @default(1)
+  data_emissao        DateTime  @default(now())
+  data_infracao       DateTime  @default(now())
+  codigo              String
+  detalhes_infracao   String
+  fundamentacao_legal String    @db.Text
+  observacoes         String?   @db.Text
+  valor_multa         Float?
+  competencia_multa   String?
+  unir_taxa           Boolean   @default(false)
+  vencimento_multa    DateTime?
+  ativo               Boolean   @default(true)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  unidade       Unidade      @relation(fields: [unidade_id], references: [id])
+  pessoa        Pessoa       @relation(fields: [pessoa_id], references: [id])
+  tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])
+
+  @@map("notificacoes")
+}
+
+model Permissoes {
+  id         Int      @id @default(autoincrement())
+  label      String
+  key        String
+  message    String
+  active     Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  cargos   CargosHasPermissoes[]
+  usuarios UsuarioHasPermissoes[]
+  menus    Menu[]
+
+  @@map("permissoes")
+}
+
+model CargosHasPermissoes {
+  cargo_id     Int
+  permissao_id Int
+  empresa_id   Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  cargo     Cargo      @relation(fields: [cargo_id], references: [id])
+  empresa   Pessoa     @relation(fields: [empresa_id], references: [id])
+  permissao Permissoes @relation(fields: [permissao_id], references: [id])
+
+  @@id([cargo_id, permissao_id, empresa_id])
+  @@map("cargos_has_permissoes")
+}
+
+model UsuarioHasPermissoes {
+  usuario_id   Int
+  permissao_id Int
+  empresa_id   Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  usuario   User       @relation(fields: [usuario_id], references: [id])
+  empresa   Pessoa     @relation(fields: [empresa_id], references: [id])
+  permissao Permissoes @relation(fields: [permissao_id], references: [id])
+
+  @@id([usuario_id, permissao_id, empresa_id])
+  @@map("usuario_has_permissoes")
+}
+
+model Arquivo {
+  id            Int      @id @default(autoincrement())
+  url           String
+  nome          String
+  key           String
+  origem        Int
+  tipo          String
+  descricao     String?
+  referencia_id Int
+  ativo         Boolean  @default(true)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("arquivos")
+}
+
+model Contato {
+  id         Int      @id @default(autoincrement())
+  contato    String
+  descricao  String
+  ativo      Boolean  @default(true)
+  tipo       Int      @default(1)
+  pessoa_id  Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  pessoa Pessoa @relation(fields: [pessoa_id], references: [id])
+
+  @@map("contatos")
+}
+
+model Menu {
+  id           Int      @id @default(autoincrement())
+  label        String
+  url          String?  @unique
+  permissao_id Int?
+  icon         String
+  target       String   @default("_self")
+  menu_id      Int?
+  ativo        Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  menu  Menu?  @relation("Menus", fields: [menu_id], references: [id])
+  items Menu[] @relation("Menus")
+
+  permissao Permissoes? @relation(fields: [permissao_id], references: [id])
+
+  @@map("menus")
+}
+
+model Departamento {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  empresa_id Int
+  filial_id  Int
+  nac        Boolean  @default(false)
+  ativo      Boolean  @default(true)
+  excluido   Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  filial  Filial @relation(fields: [filial_id], references: [id])
+
+  usuarios    UsuarioHasDepartamentos[]
+  condominios CondominioHasDepartamentos[]
+
+  @@map("departamentos")
+}
+
+model LayoutsNotificacao {
+  id         Int      @id @default(autoincrement())
+  empresa_id Int
+  nome       String
+  modelo     String   @db.Text
+  padrao     Boolean  @default(false)
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("layouts_notificacao")
+}
+
+model UsuarioHasDepartamentos {
+  usuario_id        Int
+  departamento_id   Int
+  restringir_acesso Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  usuario      User         @relation(fields: [usuario_id], references: [id])
+  departamento Departamento @relation(fields: [departamento_id], references: [id])
+
+  @@id([usuario_id, departamento_id])
+  @@map("usuario_has_departamentos")
+}
+
+model CondominioHasDepartamentos {
+  condominio_id   Int
+  departamento_id Int
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  condominio   Pessoa       @relation(fields: [condominio_id], references: [id])
+  departamento Departamento @relation(fields: [departamento_id], references: [id])
+
+  @@id([condominio_id, departamento_id])
+  @@map("condominio_has_departamentos")
+}
+
+model UsuarioHasCondominios {
+  usuario_id    Int
+  condominio_id Int
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  usuario    User   @relation(fields: [usuario_id], references: [id])
+  condominio Pessoa @relation(fields: [condominio_id], references: [id])
+
+  @@id([usuario_id, condominio_id])
+  @@map("usuario_has_condominios")
+}
+
+model EmpresaHasPessoas {
+  empresa_id Int
+  pessoa_id  Int
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa @relation(name: "EmpresaEmpresaPessoa", fields: [empresa_id], references: [id])
+  pessoa  Pessoa @relation(name: "PessoaEmpresaPessoa", fields: [pessoa_id], references: [id])
+
+  @@id([empresa_id, pessoa_id])
+  @@map("empresa_has_pessoas")
+}
+
+model CargosCondominio {
+  id                       Int                       @id @default(autoincrement())
+  nome                     String
+  sindico                  Boolean                   @default(false)
+  createdAt                DateTime                  @default(now())
+  updated_at               DateTime                  @updatedAt
+  condominio_administracao CondomimioAdministracao[]
+
+  @@map("cargos_condominio")
+}
+
+model CondomimioAdministracao {
+  id            Int      @id @default(autoincrement())
+  condominio_id Int
+  cargo_id      Int
+  nome          String
+  createdAt     DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  condominio Pessoa           @relation(fields: [condominio_id], references: [id])
+  cargo      CargosCondominio @relation(fields: [cargo_id], references: [id])
+
+  @@map("condominio_administracao")
+}
+
+model SistemaSetup {
+  empresa_id               Int      @unique
+  salario_minimo_base      Float
+  sancao                   String   @db.Text
+  texto_padrao_notificacao String   @db.Text
+  created_at               DateTime @default(now())
+  updated_at               DateTime @updatedAt
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("sistema_setup")
+}
+
+model NotificacaoSetup {
+  condominio_id                              Int      @unique
+  primeira_reincidencia                      Boolean  @default(false)
+  primeira_reincidencia_base_pagamento       Int?
+  primeira_reincidencia_percentual_pagamento Float?
+  segunda_reincidencia                       Boolean  @default(false)
+  segunda_reincidencia_base_pagamento        Int?
+  prazo_interpor_recurso                     Int?
+  observacoes                                String?
+  created_at                                 DateTime @default(now())
+  updated_at                                 DateTime @updatedAt
+
+  condominio Pessoa @relation(fields: [condominio_id], references: [id])
+
+  @@map("notificacoes_setup")
+}
+
+model Taxa {
+  id         Int      @id @default(autoincrement())
+  descricao  String   @unique
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  unidades UnidadeHasTaxas[]
+
+  @@map("taxas")
+}
+
+model UnidadeHasTaxas {
+  unidade_id Int
+  taxa_id    Int
+  valor      Float
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  unidade Unidade @relation(fields: [unidade_id], references: [id])
+  taxa    Taxa    @relation(fields: [taxa_id], references: [id])
+
+  @@id([unidade_id, taxa_id])
+  @@map("unidades_has_taxas")
+}
+
+model TipoContratoCondominio {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  ativo       Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  condominios Pessoa[]
+
+  @@map("tipos_contratos_condominio")
+}
+
+model Filial {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  empresa_id Int
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa       Pessoa         @relation(fields: [empresa_id], references: [id])
+  departamentos Departamento[]
+
+  @@map("filiais")
+}
+
+model Tema {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  logo       String
+  logo_white String?
+  empresa_id Int
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("temas")
+}
+

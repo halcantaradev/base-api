@@ -43,7 +43,7 @@ model Pessoa {
   setup_empresa_sistema         SistemaSetup[]
   tipo_contrato                 TipoContratoCondominio?      @relation(fields: [tipo_contrato_id], references: [id])
   tipos_infracoes               TipoInfracao[]
-  filiais                       Filial[]
+  filiais_empresa               Filial[]
 
   @@map("pessoas")
 }
@@ -471,12 +471,12 @@ model UnidadeHasTaxas {
 }
 
 model TipoContratoCondominio {
-  id         Int      @id @default(autoincrement())
-  nome       String
-  ativo      Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  condominios     Pessoa[]
+  id          Int      @id @default(autoincrement())
+  nome        String
+  ativo       Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  condominios Pessoa[]
 
   @@map("tipos_contratos_condominio")
 }

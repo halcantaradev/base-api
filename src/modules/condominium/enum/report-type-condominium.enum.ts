@@ -1,0 +1,5 @@
+export enum ReportTypeCondominium {
+	FILIAL = 'filial',
+	RESPONSAVEL = 'responsavel',
+	DEPARTAMENTO = 'departamento',
+}

@@ -44,6 +44,7 @@ model Pessoa {
   tipo_contrato                 TipoContratoCondominio?      @relation(fields: [tipo_contrato_id], references: [id])
   tipos_infracoes               TipoInfracao[]
   filiais_empresa               Filial[]
+  temas                         Tema[]
 
   @@map("pessoas")
 }
@@ -494,3 +495,19 @@ model Filial {
 
   @@map("filiais")
 }
+
+model Tema {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  logo       String
+  logo_white String?
+  empresa_id Int
+  ativo      Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("temas")
+}
+

@@ -37,6 +37,7 @@ export class AuthService {
 		const empresa = await this.prisma.pessoa.findUnique({
 			select: {
 				nome: true,
+				temas: true,
 			},
 			where: {
 				id: user.empresa_id,
@@ -47,6 +48,7 @@ export class AuthService {
 			nome: user.nome,
 			empresa: empresa.nome,
 			acessa_todos_departamentos: user.acessa_todos_departamentos,
+			temas: empresa.temas,
 		};
 	}
 

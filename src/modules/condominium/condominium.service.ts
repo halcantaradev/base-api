@@ -172,6 +172,35 @@ export class CondominiumService {
 						].filter((filtro) => !!filtro),
 				  }
 				: null,
+			filters.departamentos_ids?.length || filters.filiais_ids?.length
+				? {
+						departamentos_condominio: {
+							some: {
+								departamento_id: filters.departamentos_ids
+									?.length
+									? {
+											in: filters.departamentos_ids,
+									  }
+									: undefined,
+								departamento: filters.filiais_ids?.length
+									? {
+											filial_id: {
+												in: filters.filiais_ids,
+											},
+									  }
+									: undefined,
+							},
+						},
+				  }
+				: null,
+			filters.tipos_contrato_ids?.length
+				? {
+						tipo_contrato_id: {
+							in: filters.tipos_contrato_ids,
+						},
+				  }
+				: null,
+			filters.ativo != null ? { ativo: filters.ativo } : null,
 			condominiums ||
 			userData.acessa_todos_departamentos ||
 			filters.departamentos_ids?.length ||
@@ -231,33 +260,7 @@ export class CondominiumService {
 		].filter((filter) => !!filter);
 
 		return {
-			ativo: filters.ativo != null ? filters.ativo : undefined,
 			empresa_id: user.empresa_id,
-			departamentos_condominio:
-				filters.departamentos_ids?.length || filters.filiais_ids?.length
-					? {
-							some: {
-								departamento_id: filters.departamentos_ids
-									?.length
-									? {
-											in: filters.departamentos_ids,
-									  }
-									: undefined,
-								departamento: filters.filiais_ids?.length
-									? {
-											filial_id: {
-												in: filters.filiais_ids,
-											},
-									  }
-									: undefined,
-							},
-					  }
-					: undefined,
-			tipo_contrato_id: filters.tipos_contrato_ids?.length
-				? {
-						in: filters.tipos_contrato_ids,
-				  }
-				: undefined,
 			AND: filtersSelected.length ? filtersSelected : undefined,
 		};
 	}

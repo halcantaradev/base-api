@@ -278,7 +278,7 @@ export class UserService {
 			where: {
 				id,
 				empresas: {
-					every: {
+					some: {
 						empresa_id: user.empresa_id,
 					},
 				},

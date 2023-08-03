@@ -15,7 +15,6 @@ import { UploadFileModule } from './modules/upload-file/upload-file.module';
 import { UserModule } from './modules/user/user.module';
 import { LayoutConstsService } from './shared/services/layout-consts.service';
 import { ExternalAccessDocumentsModule } from './modules/external-access-documents/external-access-documents.module';
-import { ExternalJwtService } from './shared/services/external-jwt/external-jwt.service';
 import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.module';
 import { SubsidiaryModule } from './modules/subsidiary/subsidiary.module';
 import { ContractTypesCondominiumModule } from './modules/contract-type-condominium/contract-types-condominium.module';

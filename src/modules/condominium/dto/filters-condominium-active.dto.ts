@@ -3,7 +3,7 @@ import { IsInt, IsOptional } from 'class-validator';
 
 export class FiltersCondominiumActiveDto {
 	@ApiProperty({
-		description: 'Departamentos do usuário',
+		description: 'Departamentos do condomínio',
 		example: [1, 2],
 		required: false,
 	})
@@ -13,5 +13,5 @@ export class FiltersCondominiumActiveDto {
 		each: true,
 	})
 	@IsOptional()
-	departamentos?: number[];
+	departamentos_ids?: number[];
 }

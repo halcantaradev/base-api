@@ -10,6 +10,7 @@ import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
 import { ReportCondominiumDto } from './dto/report-condominium.dto';
 import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CondominiumService {
@@ -23,7 +24,7 @@ export class CondominiumService {
 		user: UserAuth,
 		condominiums: number[],
 		usuario_id?: number,
-	) {
+	): Promise<Prisma.PessoaWhereInput> {
 		const idUser =
 			usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
 
@@ -173,13 +174,13 @@ export class CondominiumService {
 				: null,
 			condominiums ||
 			userData.acessa_todos_departamentos ||
-			filters.departamentos?.length ||
+			filters.departamentos_ids?.length ||
 			(usuario_id && !Number.isNaN(usuario_id))
 				? {
 						OR: [
 							{ id: { in: condominiums } },
 							userData.acessa_todos_departamentos &&
-							!filters.departamentos?.length &&
+							!filters.departamentos_ids?.length &&
 							!filters.ativo
 								? {
 										departamentos_condominio: { none: {} },
@@ -232,13 +233,29 @@ export class CondominiumService {
 		return {
 			ativo: filters.ativo != null ? filters.ativo : undefined,
 			empresa_id: user.empresa_id,
-			departamentos_condominio: filters.departamentos?.length
-				? {
-						some: {
-							departamento_id: {
-								in: filters.departamentos,
+			departamentos_condominio:
+				filters.departamentos_ids?.length || filters.filiais_ids?.length
+					? {
+							some: {
+								departamento_id: filters.departamentos_ids
+									?.length
+									? {
+											in: filters.departamentos_ids,
+									  }
+									: undefined,
+								departamento: filters.filiais_ids?.length
+									? {
+											filial_id: {
+												in: filters.filiais_ids,
+											},
+									  }
+									: undefined,
 							},
-						},
+					  }
+					: undefined,
+			tipo_contrato_id: filters.tipos_contrato_ids?.length
+				? {
+						in: filters.tipos_contrato_ids,
 				  }
 				: undefined,
 			AND: filtersSelected.length ? filtersSelected : undefined,

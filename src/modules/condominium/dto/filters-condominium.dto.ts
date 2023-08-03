@@ -45,6 +45,34 @@ export class FiltersCondominiumDto extends FiltersCondominiumActiveDto {
 	consultores_ids?: number[];
 
 	@ApiProperty({
+		description: 'Filtro por tipo de contrato do condomínio',
+		example: [1, 2],
+		required: false,
+	})
+	@IsOptional()
+	@IsInt({
+		message:
+			'O campo tipo de contrato informado não é válido. Por favor, forneça um tipo de contrato válido.',
+		each: true,
+	})
+	@Type(() => Number)
+	tipos_contrato_ids?: number[];
+
+	@ApiProperty({
+		description: 'Filtro por filial do condomínio',
+		example: [1, 2],
+		required: false,
+	})
+	@IsOptional()
+	@IsInt({
+		message:
+			'O campo filial informado não é válido. Por favor, forneça um filial válido.',
+		each: true,
+	})
+	@Type(() => Number)
+	filiais_ids?: number[];
+
+	@ApiProperty({
 		description: 'Filtro por tipo do condomínio',
 		example: 1,
 		required: false,

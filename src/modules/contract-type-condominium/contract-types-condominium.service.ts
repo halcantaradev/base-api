@@ -3,6 +3,7 @@ import { CreateContractTypesCondominiumDto } from './dto/create-contract-types-c
 import { UpdateContractTypesCondominiumDto } from './dto/update-contract-types-condominium.dto';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { Pagination } from 'src/shared/entities/pagination.entity';
+import { FiltersContractTypesCondominiumDto } from './dto/filters-contract-types-condominium.dto';
 
 @Injectable()
 export class ContractTypesCondominiumService {
@@ -16,11 +17,35 @@ export class ContractTypesCondominiumService {
 		});
 	}
 
-	async findAll(ativo?: boolean, pagination?: Pagination) {
+	async findAll(
+		filtersContractTypesCondominiumDto: FiltersContractTypesCondominiumDto,
+		pagination?: Pagination,
+	) {
 		const tiposContrato =
 			await this.prismaServices.tipoContratoCondominio.findMany({
 				where: {
-					ativo: ativo || undefined,
+					OR: filtersContractTypesCondominiumDto.busca
+						? [
+								{
+									nome: {
+										contains:
+											filtersContractTypesCondominiumDto.busca,
+										mode: 'insensitive',
+									},
+								},
+								!Number.isNaN(
+									+filtersContractTypesCondominiumDto.busca,
+								)
+									? {
+											id: +filtersContractTypesCondominiumDto.busca,
+									  }
+									: null,
+						  ]
+						: undefined,
+					ativo:
+						filtersContractTypesCondominiumDto.ativo != null
+							? filtersContractTypesCondominiumDto.ativo
+							: undefined,
 				},
 				take: 20,
 				skip: pagination?.page

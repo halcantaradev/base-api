@@ -9,7 +9,7 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar todos os usuários',
 	},
 	{
-		label: 'Listar usuários agrupados para relatório',
+		label: 'Gerar relatórios de usuários',
 		key: 'usuario-relatorios',
 		message: 'Sem permissão para gerar relatório de usuários',
 	},
@@ -151,7 +151,7 @@ export const permissionslist: Array<{
 			'Sem permissão para vincular tipos de contrato a um condomínio',
 	},
 	{
-		label: 'Listar condomínios agrupados para relatório',
+		label: 'Gerar relatórios de condomínios',
 		key: 'condominios-relatorios',
 		message: 'Sem permissão para gerar relatório de condomínios',
 	},

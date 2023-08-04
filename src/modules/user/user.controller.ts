@@ -109,7 +109,7 @@ export class UserController {
 	}
 
 	@Post('report')
-	@Role('condominios-relatorios')
+	@Role('usuarios-relatorios')
 	@UseInterceptors(UserCondominiumsAccess)
 	@ApiOperation({ summary: 'Lista todos os condomínios ativos' })
 	@ApiResponse({

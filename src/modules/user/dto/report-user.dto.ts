@@ -6,7 +6,7 @@ import { ListUserDto } from './list-user.dto';
 export class ReportUserDto {
 	@ApiProperty({
 		description: 'Tipo do relatório',
-		example: 'responsavel',
+		example: 'departamento',
 		required: true,
 	})
 	@IsNotEmpty({

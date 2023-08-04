@@ -6,7 +6,7 @@ import { FiltersCondominiumDto } from './filters-condominium.dto';
 export class ReportCondominiumDto {
 	@ApiProperty({
 		description: 'Tipo do relatório de condomínios',
-		example: 'responsavel',
+		example: 'filial | responsavel | departamento',
 		required: true,
 	})
 	@IsNotEmpty({

@@ -16,6 +16,9 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { ReturnSetupNotificationEntity } from './entities/return-setup-notification.entity';
 import { UpdateSetupNotificationDto } from './dto/update-setup-notification.dto';
 import { UpdateSetupSystemDto } from './dto/update-setup-system.dto';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { ReturnSetupSystemEntity } from './entities/return-setup-system.entity';
 
 @ApiTags('Módulo de Configurações')
 @UseGuards(PermissionGuard)
@@ -71,27 +74,28 @@ export class SetupController {
 		};
 	}
 
-	@Get('system/:id')
+	@Get('system')
 	@Role('setup-sistema-listar')
 	@ApiOperation({ summary: 'Lista os dados de setup de sistema' })
 	@ApiResponse({
 		description: 'Dados de setup listados com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnSetupNotificationEntity,
+		type: ReturnSetupSystemEntity,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async getSetupSystem(@Param('id') id: number) {
+	async getSetupSystem(@CurrentUser() user: UserAuth) {
+		console.log(user);
 		return {
 			success: true,
-			data: await this.setupService.findSetupSystem(+id),
+			data: await this.setupService.findSetupSystem(+user.empresa_id),
 		};
 	}
 
-	@Patch('system/:id')
+	@Patch('system')
 	@Role('setup-sistema-atualizar')
 	@ApiOperation({ summary: 'Atualiza os dados de setup de sistema' })
 	@ApiResponse({
@@ -105,14 +109,14 @@ export class SetupController {
 		type: ReturnEntity.error(),
 	})
 	async updateSetupSystem(
-		@Param('id') id: number,
+		@CurrentUser() user: UserAuth,
 		@Body() updateSetupSystemDto: UpdateSetupSystemDto,
 	) {
 		return {
 			success: true,
 			message: 'Configurações atualizadas com sucesso!',
 			data: await this.setupService.updateSetupSystem(
-				+id,
+				+user.empresa_id,
 				updateSetupSystemDto,
 			),
 		};

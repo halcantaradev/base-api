@@ -47,6 +47,10 @@ export class UserService {
 						},
 				  ]
 				: undefined,
+			acessa_todos_departamentos:
+				filtros.departamentos && filtros.departamentos.length
+					? false
+					: undefined,
 			empresas: {
 				some: {
 					empresa_id: user.empresa_id,

@@ -106,7 +106,6 @@ export class DepartmentService {
 			where: {
 				id,
 				empresa_id: user.empresa_id,
-				ativo: true,
 				excluido: false,
 			},
 		});

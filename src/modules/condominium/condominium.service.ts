@@ -361,7 +361,7 @@ export class CondominiumService {
 					case ReportTypeCondominium.RESPONSAVEL:
 						grupos = currentValue.responsaveis.map((item) => ({
 							id: item.id,
-							descricao: item.nome,
+							descricao: `${item.nome} - ${item.empresas[0].cargo.nome}`,
 						}));
 						break;
 

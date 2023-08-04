@@ -321,6 +321,11 @@ export class CondominiumService {
 								},
 							},
 						},
+						where: {
+							departamento: {
+								empresa_id: user.empresa_id,
+							},
+						},
 					},
 				},
 				await this.getFilterList(report.filtros, user, condominiums),
@@ -353,7 +358,7 @@ export class CondominiumService {
 						grupos = currentValue.departamentos_condominio.map(
 							(item) => ({
 								id: item.departamento_id,
-								descricao: item.departamento.nome,
+								descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
 							}),
 						);
 						break;

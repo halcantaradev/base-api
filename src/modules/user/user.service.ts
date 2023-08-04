@@ -141,12 +141,20 @@ export class UserService {
 								},
 							},
 						},
+						where: {
+							empresa_id: user.empresa_id,
+						},
 					},
 					departamentos: {
 						select: {
 							departamento_id: true,
 							departamento: {
 								select: { nome: true },
+							},
+						},
+						where: {
+							departamento: {
+								empresa_id: user.empresa_id,
 							},
 						},
 					},
@@ -184,12 +192,27 @@ export class UserService {
 							},
 						},
 					},
+					where: {
+						empresa_id: user.empresa_id,
+					},
 				},
 				departamentos: {
 					select: {
 						departamento_id: true,
 						departamento: {
-							select: { nome: true },
+							select: {
+								nome: true,
+								filial: {
+									select: {
+										nome: true,
+									},
+								},
+							},
+						},
+					},
+					where: {
+						departamento: {
+							empresa_id: user.empresa_id,
 						},
 					},
 				},
@@ -206,7 +229,7 @@ export class UserService {
 
 				grupos = currentValue.departamentos.map((item) => ({
 					id: item.departamento_id,
-					descricao: item.departamento.nome,
+					descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
 				}));
 
 				if (!grupos.length) return list;
@@ -257,6 +280,9 @@ export class UserService {
 							},
 						},
 					},
+					where: {
+						empresa_id: user.empresa_id,
+					},
 				},
 				departamentos: {
 					select: {
@@ -265,12 +291,22 @@ export class UserService {
 							select: { nome: true },
 						},
 					},
+					where: {
+						departamento: {
+							empresa_id: user.empresa_id,
+						},
+					},
 				},
 				condominios: {
 					select: {
 						condominio_id: true,
 						condominio: {
 							select: { nome: true },
+						},
+					},
+					where: {
+						condominio: {
+							empresa_id: user.empresa_id,
 						},
 					},
 				},
@@ -493,6 +529,9 @@ export class UserService {
 			await this.prisma.usuarioHasDepartamentos.findFirst({
 				where: {
 					departamento_id: filterUserCondominiumDto.departamento_id,
+					departamento: {
+						empresa_id: user.empresa_id,
+					},
 					usuario_id: id,
 				},
 			});

@@ -51,6 +51,7 @@ export class PermissionsService {
 				select: {
 					id: true,
 					label: true,
+					module: true,
 					cargos: {
 						select: { cargo_id: true },
 						where: { cargo_id },

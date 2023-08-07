@@ -12,8 +12,8 @@ export const permissionslist: Array<{
 	},
 	{
 		label: 'Gerar relatórios de usuários',
-		key: 'usuario-relatorios',
 		module: 'Usuários',
+		key: 'usuario-relatorios',
 		message: 'Sem permissão para gerar relatório de usuários',
 	},
 	{
@@ -366,26 +366,26 @@ export const permissionslist: Array<{
 	},
 	{
 		label: 'Atualizar tipos de contratos',
-		module: 'Contratos',
+		module: 'Tipos de Contratos',
 		key: 'tipo-contrato-atualizar',
 		message: 'Sem permissão para atualizar os dados do tipo de contrato',
 	},
 	{
 		label: 'Listar tipos de contratos',
-		module: 'Contratos',
+		module: 'Tipos de Contratos',
 		key: 'tipo-contrato-listar',
 		message: 'Sem permissão para listar os dados do tipo de contrato',
 	},
 	{
 		label: 'Listar tipos de contratos ativos',
-		module: 'Contratos',
+		module: 'Tipos de Contratos',
 		key: 'tipo-contrato-listar-ativos',
 		message:
 			'Sem permissão para listar os dados do tipo de contrato ativos',
 	},
 	{
 		label: 'Visualizar dados de tipo de contrato',
-		module: 'Contratos',
+		module: 'Tipos de Contratos',
 		key: 'tipo-contrato-exibir-dados',
 		message: 'Sem permissão para ver os dados do tipo de contrato',
 	},

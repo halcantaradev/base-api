@@ -13,6 +13,7 @@ export const permissionslist: Array<{
 	{
 		label: 'Gerar relatórios de usuários',
 		key: 'usuario-relatorios',
+		module: 'Usuários',
 		message: 'Sem permissão para gerar relatório de usuários',
 	},
 	{
@@ -181,6 +182,7 @@ export const permissionslist: Array<{
 	},
 	{
 		label: 'Gerar relatórios de condomínios',
+		module: 'Condomínios',
 		key: 'condominios-relatorios',
 		message: 'Sem permissão para gerar relatório de condomínios',
 	},

@@ -8,6 +8,9 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
+import { ReportCondominiumDto } from './dto/report-condominium.dto';
+import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class CondominiumService {
@@ -16,13 +19,12 @@ export class CondominiumService {
 		private readonly prisma: PrismaService,
 	) {}
 
-	async findAll(
+	private async getFilterList(
 		filters: FiltersCondominiumDto,
 		user: UserAuth,
 		condominiums: number[],
 		usuario_id?: number,
-		pagination?: Pagination,
-	) {
+	): Promise<Prisma.PessoaWhereInput> {
 		const idUser =
 			usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
 
@@ -170,15 +172,44 @@ export class CondominiumService {
 						].filter((filtro) => !!filtro),
 				  }
 				: null,
+			filters.departamentos_ids?.length || filters.filiais_ids?.length
+				? {
+						departamentos_condominio: {
+							some: {
+								departamento_id: filters.departamentos_ids
+									?.length
+									? {
+											in: filters.departamentos_ids,
+									  }
+									: undefined,
+								departamento: filters.filiais_ids?.length
+									? {
+											filial_id: {
+												in: filters.filiais_ids,
+											},
+									  }
+									: undefined,
+							},
+						},
+				  }
+				: null,
+			filters.tipos_contrato_ids?.length
+				? {
+						tipo_contrato_id: {
+							in: filters.tipos_contrato_ids,
+						},
+				  }
+				: null,
+			filters.ativo != null ? { ativo: filters.ativo } : null,
 			condominiums ||
 			userData.acessa_todos_departamentos ||
-			filters.departamentos?.length ||
+			filters.departamentos_ids?.length ||
 			(usuario_id && !Number.isNaN(usuario_id))
 				? {
 						OR: [
 							{ id: { in: condominiums } },
 							userData.acessa_todos_departamentos &&
-							!filters.departamentos?.length &&
+							!filters.departamentos_ids?.length &&
 							!filters.ativo
 								? {
 										departamentos_condominio: { none: {} },
@@ -228,6 +259,19 @@ export class CondominiumService {
 				: null,
 		].filter((filter) => !!filter);
 
+		return {
+			empresa_id: user.empresa_id,
+			AND: filtersSelected.length ? filtersSelected : undefined,
+		};
+	}
+
+	async findAll(
+		filters: FiltersCondominiumDto,
+		user: UserAuth,
+		condominiums: number[],
+		usuario_id?: number,
+		pagination?: Pagination,
+	) {
 		return this.pessoaService.findAll(
 			'condominio',
 			{
@@ -248,22 +292,111 @@ export class CondominiumService {
 					},
 				},
 			},
-			{
-				ativo: filters.ativo != null ? filters.ativo : undefined,
-				empresa_id: user.empresa_id,
-				departamentos_condominio: filters.departamentos?.length
-					? {
-							some: {
-								departamento_id: {
-									in: filters.departamentos,
-								},
-							},
-					  }
-					: undefined,
-				AND: filtersSelected.length ? filtersSelected : undefined,
-			},
+			await this.getFilterList(filters, user, condominiums, usuario_id),
 			pagination,
 		);
+	}
+
+	async report(
+		report: ReportCondominiumDto,
+		user: UserAuth,
+		condominiums: number[],
+	) {
+		let condominiumsSaved: any[] = (
+			await this.pessoaService.findAll(
+				'condominio',
+				{
+					departamentos_condominio: {
+						select: {
+							departamento_id: true,
+							departamento: {
+								select: {
+									nome: true,
+									filial_id: true,
+									filial: {
+										select: {
+											nome: true,
+										},
+									},
+								},
+							},
+						},
+						where: {
+							departamento: {
+								empresa_id: user.empresa_id,
+							},
+						},
+					},
+				},
+				await this.getFilterList(report.filtros, user, condominiums),
+				null,
+			)
+		).data;
+
+		condominiumsSaved = await Promise.all(
+			condominiumsSaved.map(async (condominium) => ({
+				...condominium,
+				responsaveis: await this.findResponsible(condominium.id, user),
+			})),
+		);
+
+		const response = condominiumsSaved.reduce(
+			(list: Array<any>, currentValue) => {
+				let grupos: { id: number; descricao: string }[] = [];
+
+				switch (report.tipo) {
+					case ReportTypeCondominium.FILIAL:
+						grupos = currentValue.departamentos_condominio.map(
+							(item) => ({
+								id: item.departamento.filial_id,
+								descricao: item.departamento.filial.nome,
+							}),
+						);
+						break;
+
+					case ReportTypeCondominium.DEPARTAMENTO:
+						grupos = currentValue.departamentos_condominio.map(
+							(item) => ({
+								id: item.departamento_id,
+								descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
+							}),
+						);
+						break;
+
+					case ReportTypeCondominium.RESPONSAVEL:
+						grupos = currentValue.responsaveis.map((item) => ({
+							id: item.id,
+							descricao: `${item.nome} (${item.empresas[0].cargo.nome})`,
+						}));
+						break;
+
+					default:
+						break;
+				}
+
+				if (!grupos.length) return list;
+
+				grupos.forEach((grupo) => {
+					let index = list.findIndex((item) => item.id == grupo.id);
+
+					if (index === -1) {
+						list.push({
+							...grupo,
+							data: [],
+						});
+
+						index = list.length - 1;
+					}
+
+					list[index].data.push(currentValue);
+				});
+
+				return list;
+			},
+			[],
+		);
+
+		return response;
 	}
 
 	async findOne(id: number | number[], user: UserAuth): Promise<Condominium> {

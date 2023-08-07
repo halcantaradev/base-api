@@ -21,6 +21,8 @@ import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { ContractTypesCondominiumListReturn } from './dto/contract-types-condominium.-list-return.entity';
 import { ContractTypesCondominiumReturn } from './entities/contract-types-condominium-return.entity';
+import { FiltersContractTypesCondominiumDto } from './dto/filters-contract-types-condominium.dto';
+import { FiltersContractTypesCondominiumActiveDto } from './dto/filters-contract-types-condominium-active.dto';
 
 @ApiTags('Tipos de Contrato')
 @UseGuards(PermissionGuard)
@@ -64,7 +66,7 @@ export class ContractTypesCondominiumController {
 		};
 	}
 
-	@Get()
+	@Post('list')
 	@Role('tipo-contrato-listar')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Lista todos os tipos de contratos' })
@@ -74,13 +76,22 @@ export class ContractTypesCondominiumController {
 		type: ContractTypesCondominiumListReturn,
 	})
 	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os tipos de contratos',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAll(@Query() pagination: Pagination) {
+	async findAll(
+		@Body()
+		filtersContractTypesCondominiumDto: FiltersContractTypesCondominiumDto,
+		@Query() pagination: Pagination,
+	) {
 		const dados = await this.contractTypesCondominiumService.findAll(
-			false,
+			filtersContractTypesCondominiumDto,
 			pagination,
 		);
 
@@ -90,7 +101,7 @@ export class ContractTypesCondominiumController {
 		};
 	}
 
-	@Get('active')
+	@Post('active')
 	@Role('tipo-contrato-listar-ativos')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Lista todos os tipos de contratos ativos' })
@@ -100,13 +111,22 @@ export class ContractTypesCondominiumController {
 		type: ContractTypesCondominiumListReturn,
 	})
 	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os tipos de contratos',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllActive(@Query() pagination: Pagination) {
+	async findAllActive(
+		@Body()
+		filtersContractTypesCondominiumActiveDto: FiltersContractTypesCondominiumActiveDto,
+		@Query() pagination: Pagination,
+	) {
 		const dados = await this.contractTypesCondominiumService.findAll(
-			true,
+			{ ...filtersContractTypesCondominiumActiveDto, ativo: true },
 			pagination,
 		);
 

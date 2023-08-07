@@ -33,6 +33,8 @@ import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominium
 import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 import { UsersCondominiumReturn } from './entities/users-condominium-return.entity';
 import { LinkTypeContractDto } from './dto/link-type-contract.dto';
+import { ReportCondominiumDto } from './dto/report-condominium.dto';
+import { ReportCondominiumReturn } from './entities/report-condominium-return.entity';
 
 @ApiTags('Condomínios')
 @UseGuards(PermissionGuard)
@@ -123,6 +125,42 @@ export class CondominiumController {
 		return {
 			success: true,
 			...dados,
+		};
+	}
+
+	@Post('report')
+	@Role('condominios-relatorios')
+	@UseInterceptors(UserCondominiumsAccess)
+	@ApiOperation({ summary: 'Lista todos os condomínios ativos' })
+	@ApiResponse({
+		description: 'Condomínios listados com sucesso',
+		status: HttpStatus.OK,
+		type: ReportCondominiumReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os filtros enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os condomínios',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async getReport(
+		@CurrentUserCondominiums() condominiums: number[],
+		@CurrentUser() user: UserAuth,
+		@Body() report: ReportCondominiumDto,
+	) {
+		const data = await this.condominioService.report(
+			{ ...report, filtros: { ...report.filtros, ativo: true } },
+			user,
+			condominiums,
+		);
+
+		return {
+			success: true,
+			data,
 		};
 	}
 

@@ -12,7 +12,7 @@ export class Condominium extends Person {
 		isArray: true,
 		required: false,
 	})
-	departamentos_condominio: CondominioHasDepartamento[];
+	departamentos_condominio?: CondominioHasDepartamento[];
 
 	@ApiProperty({
 		description: 'Dados da administração do condominio',
@@ -20,14 +20,14 @@ export class Condominium extends Person {
 		isArray: true,
 		required: false,
 	})
-	condominio_administracao: CondominioAdministracao[];
+	condominio_administracao?: CondominioAdministracao[];
 
 	@ApiProperty({
 		description: 'Dados do contrato do condominio',
 		type: ContractsCondominiumType,
 		required: false,
 	})
-	tipo_contrato: ContractsCondominiumType;
+	tipo_contrato?: ContractsCondominiumType;
 
 	@ApiProperty({
 		description: 'Dados dos responsáveis do condomínio',

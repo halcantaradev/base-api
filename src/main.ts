@@ -24,6 +24,8 @@ async function bootstrap() {
 		SwaggerModule.setup('docs', app, document);
 	}
 
+	app.setGlobalPrefix('/api');
+
 	app.enableCors();
 	app.useGlobalPipes(new ValidationPipe({ transform: true }));
 	app.useGlobalFilters(new HttpExceptionFilter());

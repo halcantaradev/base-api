@@ -207,6 +207,7 @@ model Notificacao {
 model Permissoes {
   id         Int      @id @default(autoincrement())
   label      String
+  module     String   @default("Padrão")
   key        String
   message    String
   active     Boolean  @default(true)
@@ -510,4 +511,3 @@ model Tema {
 
   @@map("temas")
 }
-

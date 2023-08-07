@@ -39,6 +39,7 @@ export class SubsidiaryService {
 							{
 								nome: {
 									contains: filtersSubsidiaryDto.busca,
+									mode: 'insensitive',
 								},
 							},
 							!Number.isNaN(+filtersSubsidiaryDto.busca)
@@ -46,7 +47,7 @@ export class SubsidiaryService {
 										id: +filtersSubsidiaryDto.busca,
 								  }
 								: null,
-					  ].filter((filtro) => !!filtro)
+					  ]
 					: undefined,
 				ativo:
 					filtersSubsidiaryDto.ativo != null

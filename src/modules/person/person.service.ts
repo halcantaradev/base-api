@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { PrismaService } from 'src/shared/services/prisma.service';
-import { PersonList } from './entities/person-list.entity';
 
 @Injectable()
 export class PersonService {
@@ -12,8 +11,16 @@ export class PersonService {
 		tipo: string,
 		select: Prisma.PessoaSelect = {},
 		where: Prisma.PessoaWhereInput = {},
-		pagination?: Pagination,
-	): Promise<PersonList> {
+		pagination: Pagination | null = {},
+	) {
+		let page;
+
+		if (pagination === null) {
+			page = null;
+		} else if (pagination?.page) {
+			page = pagination.page;
+		}
+
 		return {
 			total_pages: await this.prisma.pessoa.count({
 				where: {
@@ -46,10 +53,8 @@ export class PersonService {
 					...where,
 					tipos: { some: { tipo: { nome: tipo } } },
 				},
-				take: pagination?.page ? 20 : 100,
-				skip: pagination?.page
-					? (pagination?.page - 1) * 20
-					: undefined,
+				take: page !== null ? (page ? 20 : 100) : undefined,
+				skip: page ? (page - 1) * 20 : undefined,
 			}),
 		};
 	}

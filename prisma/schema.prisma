@@ -340,7 +340,7 @@ model LayoutsNotificacao {
 model UsuarioHasDepartamentos {
   usuario_id        Int
   departamento_id   Int
-  restringir_acesso Boolean  @default(false)
+  delimitar_acesso Boolean  @default(false)
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
 

@@ -51,6 +51,8 @@ export class PermissionsService {
 				select: {
 					id: true,
 					label: true,
+					key: true,
+					module: true,
 					cargos: {
 						select: { cargo_id: true },
 						where: { cargo_id },
@@ -82,6 +84,7 @@ export class PermissionsService {
 				select: {
 					id: true,
 					label: true,
+					module: true,
 					usuarios: {
 						select: { usuario_id: true },
 						where: { usuario_id },

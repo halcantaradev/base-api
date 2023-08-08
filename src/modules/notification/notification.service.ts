@@ -248,7 +248,7 @@ export class NotificationService {
 														usuario_id: {
 															in: idsConsultores,
 														},
-														restringir_acesso:
+														delimitar_acesso:
 															false,
 													},
 												},

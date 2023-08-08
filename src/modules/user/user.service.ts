@@ -584,7 +584,7 @@ export class UserService {
 
 		let restrictUserAccess = false;
 
-		if (linkCondominiumsDto.restringir_acesso) {
+		if (linkCondominiumsDto.delimitar_acesso) {
 			restrictUserAccess = true;
 
 			await this.prisma.usuarioHasCondominios.createMany({

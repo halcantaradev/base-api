@@ -247,7 +247,7 @@ export class CondominiumService {
 													usuario_id: {
 														in: idsConsultores,
 													},
-													restringir_acesso: false,
+													delimitar_acesso: false,
 												},
 											},
 										},

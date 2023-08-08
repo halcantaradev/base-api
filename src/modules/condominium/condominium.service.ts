@@ -328,6 +328,7 @@ export class CondominiumService {
 			await this.pessoaService.findAll(
 				'condominio',
 				{
+					tipo_contrato: true,
 					departamentos_condominio: {
 						select: {
 							departamento_id: true,
@@ -417,8 +418,19 @@ export class CondominiumService {
 			},
 			[],
 		);
+		const total = await this.count(report.tipo, report.filtros);
 
-		return response;
+		return { data: response, total };
+	}
+
+	async count(tipo: string, filters: any) {
+		console.log(filters);
+		return await this.prisma.pessoa.count({
+			where: {
+				...filters,
+				tipos: { some: { tipo: { nome: tipo } } },
+			},
+		});
 	}
 
 	async findOne(id: number | number[], user: UserAuth): Promise<Condominium> {

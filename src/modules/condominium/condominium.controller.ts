@@ -161,7 +161,7 @@ export class CondominiumController {
 
 		return {
 			success: true,
-			data,
+			...data,
 		};
 	}
 

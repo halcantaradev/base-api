@@ -418,19 +418,8 @@ export class CondominiumService {
 			},
 			[],
 		);
-		const total = await this.count(report.tipo, report.filtros);
 
-		return { data: response, total };
-	}
-
-	async count(tipo: string, filters: any) {
-		console.log(filters);
-		return await this.prisma.pessoa.count({
-			where: {
-				...filters,
-				tipos: { some: { tipo: { nome: tipo } } },
-			},
-		});
+		return { data: response, total: condominiumsSaved?.length };
 	}
 
 	async findOne(id: number | number[], user: UserAuth): Promise<Condominium> {

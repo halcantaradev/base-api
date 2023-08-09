@@ -96,7 +96,7 @@ export const layoutConst: Array<{
 	{
 		label: 'Sanção padrão',
 		const: '[SANCAO_PADRAO]',
-		field: '{{sancao_padrao}}',
+		field: '{{{sancao_padrao}}}',
 	},
 	{
 		label: 'Detalhes da infração',

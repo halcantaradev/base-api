@@ -2,6 +2,8 @@ import { Pessoa, PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { menulist } from '../src/modules/public/menu/menus-list';
 import { permissionslist } from '../src/modules/public/permissions/permissions-list';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
 
@@ -189,6 +191,7 @@ async function createMenu() {
 					url: menu.url,
 					icon: menu.icon,
 					target: menu.target,
+					ativo: menu.ativo != undefined ? menu.ativo : true,
 				},
 			});
 		}
@@ -223,6 +226,7 @@ async function createMenu() {
 									url: item.url,
 									icon: item.icon,
 									target: item.target,
+									ativo: item.ativo,
 								},
 							});
 						}
@@ -286,6 +290,28 @@ async function createTipoInfracao(empresa_id: number) {
 	}
 }
 
+async function createLayoutDefaultNotification(empresa_id: number) {
+	const html: Buffer | string = readFileSync(
+		resolve('./src/shared/layouts/notification.html'),
+	);
+	const layout = await prisma.layoutsNotificacao.findFirst({
+		where: { padrao: true },
+	});
+	if (!layout) {
+		await prisma.layoutsNotificacao.create({
+			data: {
+				nome: '',
+				modelo: html.toString(),
+				empresa_id,
+				padrao: true,
+			},
+		});
+		console.log('Layout de notificação criado!');
+	} else {
+		console.log('Layout de notificação já criado!');
+	}
+}
+
 async function main() {
 	await createTiposPessoas();
 	await createPermissoesList();
@@ -295,7 +321,7 @@ async function main() {
 	await creatSetupSistena(empresa.id);
 	await cretePermissionToUser(user.id, empresa.id);
 	await createMenu();
-
+	await createLayoutDefaultNotification(empresa.id);
 	console.log('Seeds de produção executadas');
 }
 

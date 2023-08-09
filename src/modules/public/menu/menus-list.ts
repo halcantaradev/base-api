@@ -6,6 +6,7 @@ export const menulist: Array<{
 	url: string | null;
 	icon: string;
 	target: string;
+	ativo?: boolean;
 }> = [
 	{
 		id_relation: 1,
@@ -35,10 +36,12 @@ export const menulist: Array<{
 	{
 		id_relation: 4,
 		relation: 1,
+		permission_key: 'layouts-notificacao-listar',
 		label: 'Modelos',
 		url: 'notificacoes/modelos',
 		icon: 'add',
 		target: '_self',
+		ativo: false,
 	},
 	{
 		id_relation: 7,

@@ -1,5 +1,4 @@
 import {
-	Body,
 	Controller,
 	Get,
 	HttpCode,
@@ -13,7 +12,6 @@ import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from '../../../shared/entities/user-auth.entity';
 import { AuthService } from './auth.service';
-import { LoginDto } from './dto/login.dto';
 import { LoginEntity } from './entities/login.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -41,7 +39,7 @@ export class AuthController {
 		type: ReturnEntity.error(),
 	})
 	@UseGuards(AuthGuard('local'))
-	login(@CurrentUser() user: UserAuth, @Body() _: LoginDto) {
+	login(@CurrentUser() user: UserAuth) {
 		return this.authService.login(user);
 	}
 

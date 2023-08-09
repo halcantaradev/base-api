@@ -362,7 +362,7 @@ export class CondominiumService {
 				responsaveis: await this.findResponsible(condominium.id, user),
 			})),
 		);
-
+		let total = 0;
 		const response = condominiumsSaved.reduce(
 			(list: Array<any>, currentValue) => {
 				let grupos: { id: number; descricao: string }[] = [];
@@ -375,6 +375,9 @@ export class CondominiumService {
 								descricao: item.departamento.filial.nome,
 							}),
 						);
+						total = condominiumsSaved.filter(
+							(item) => item.departamentos_condominio.length > 0,
+						).length;
 						break;
 
 					case ReportTypeCondominium.DEPARTAMENTO:
@@ -384,6 +387,9 @@ export class CondominiumService {
 								descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
 							}),
 						);
+						total = condominiumsSaved.filter(
+							(item) => item.departamentos_condominio.length > 0,
+						).length;
 						break;
 
 					case ReportTypeCondominium.RESPONSAVEL:
@@ -391,6 +397,9 @@ export class CondominiumService {
 							id: item.id,
 							descricao: `${item.nome} (${item.empresas[0].cargo.nome})`,
 						}));
+						total = condominiumsSaved.filter(
+							(item) => item.responsaveis.length > 0,
+						).length;
 						break;
 
 					default:
@@ -419,7 +428,7 @@ export class CondominiumService {
 			[],
 		);
 
-		return { data: response, total: condominiumsSaved?.length };
+		return { data: response, total };
 	}
 
 	async findOne(id: number | number[], user: UserAuth): Promise<Condominium> {

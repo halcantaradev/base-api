@@ -362,63 +362,68 @@ export class CondominiumService {
 			})),
 		);
 
-		const response = condominiumsSaved.reduce(
-			(list: Array<any>, currentValue) => {
-				let grupos: { id: number; descricao: string }[] = [];
+		if (report.tipo !== ReportTypeCondominium.GERAL) {
+			return condominiumsSaved.reduce(
+				(list: Array<any>, currentValue) => {
+					let grupos: { id: number; descricao: string }[] = [];
 
-				switch (report.tipo) {
-					case ReportTypeCondominium.FILIAL:
-						grupos = currentValue.departamentos_condominio.map(
-							(item) => ({
-								id: item.departamento.filial_id,
-								descricao: item.departamento.filial.nome,
-							}),
-						);
-						break;
+					switch (report.tipo) {
+						case ReportTypeCondominium.FILIAL:
+							grupos = currentValue.departamentos_condominio.map(
+								(item) => ({
+									id: item.departamento.filial_id,
+									descricao: item.departamento.filial.nome,
+								}),
+							);
+							break;
 
-					case ReportTypeCondominium.DEPARTAMENTO:
-						grupos = currentValue.departamentos_condominio.map(
-							(item) => ({
-								id: item.departamento_id,
-								descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
-							}),
-						);
-						break;
+						case ReportTypeCondominium.DEPARTAMENTO:
+							grupos = currentValue.departamentos_condominio.map(
+								(item) => ({
+									id: item.departamento_id,
+									descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
+								}),
+							);
+							break;
 
-					case ReportTypeCondominium.RESPONSAVEL:
-						grupos = currentValue.responsaveis.map((item) => ({
-							id: item.id,
-							descricao: `${item.nome} (${item.empresas[0].cargo.nome})`,
-						}));
-						break;
+						case ReportTypeCondominium.RESPONSAVEL:
+							grupos = currentValue.responsaveis.map((item) => ({
+								id: item.id,
+								descricao: `${item.nome} (${item.empresas[0].cargo.nome})`,
+							}));
+							break;
 
-					default:
-						break;
-				}
-
-				if (!grupos.length) return list;
-
-				grupos.forEach((grupo) => {
-					let index = list.findIndex((item) => item.id == grupo.id);
-
-					if (index === -1) {
-						list.push({
-							...grupo,
-							data: [],
-						});
-
-						index = list.length - 1;
+						default:
+							break;
 					}
 
-					list[index].data.push(currentValue);
-				});
+					if (!grupos.length) return list;
 
-				return list;
-			},
-			[],
-		);
+					grupos.forEach((grupo) => {
+						let index = list.findIndex(
+							(item) => item.id == grupo.id,
+						);
 
-		return response;
+						if (index === -1) {
+							list.push({
+								...grupo,
+								data: [],
+							});
+
+							index = list.length - 1;
+						}
+
+						list[index].data.push(currentValue);
+					});
+
+					return list;
+				},
+				[],
+			);
+		} else {
+			return condominiumsSaved;
+		}
+		// return response;
 	}
 
 	async findOne(id: number | number[], user: UserAuth): Promise<Condominium> {

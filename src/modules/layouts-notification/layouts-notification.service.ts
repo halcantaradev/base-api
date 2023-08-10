@@ -6,16 +6,28 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 @Injectable()
 export class LayoutsNotificationService {
 	constructor(private readonly prisma: PrismaService) {}
-	create(
+	async create(
 		createLayoutsNotificationDto: CreateLayoutsNotificationDto,
 		empresa_id,
 	) {
+		if (createLayoutsNotificationDto.padrao) {
+			const padrao = await this.prisma.layoutsNotificacao.findFirst({
+				where: { padrao: true },
+			});
+			if (padrao) {
+				await this.prisma.layoutsNotificacao.updateMany({
+					data: { padrao: false },
+					where: { padrao: true },
+				});
+			}
+		}
 		return this.prisma.layoutsNotificacao.create({
 			data: {
 				nome: createLayoutsNotificationDto.nome,
 				modelo: createLayoutsNotificationDto.modelo,
 				ativo: createLayoutsNotificationDto.ativo,
 				empresa_id,
+				padrao: !!createLayoutsNotificationDto.padrao,
 			},
 		});
 	}
@@ -32,15 +44,27 @@ export class LayoutsNotificationService {
 		});
 	}
 
-	update(
+	async update(
 		id: number,
 		updateLayoutsNotificationDto: UpdateLayoutsNotificationDto,
 	) {
+		if (updateLayoutsNotificationDto.padrao) {
+			const padrao = await this.prisma.layoutsNotificacao.findFirst({
+				where: { padrao: true },
+			});
+			if (padrao) {
+				await this.prisma.layoutsNotificacao.updateMany({
+					data: { padrao: false },
+					where: { padrao: true },
+				});
+			}
+		}
 		return this.prisma.layoutsNotificacao.update({
 			data: {
 				nome: updateLayoutsNotificationDto.nome,
 				modelo: updateLayoutsNotificationDto.modelo,
 				ativo: updateLayoutsNotificationDto.ativo,
+				padrao: !!updateLayoutsNotificationDto.padrao,
 			},
 			where: { id },
 		});

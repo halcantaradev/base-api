@@ -300,7 +300,7 @@ async function createLayoutDefaultNotification(empresa_id: number) {
 	if (!layout) {
 		await prisma.layoutsNotificacao.create({
 			data: {
-				nome: '',
+				nome: 'Padrão',
 				modelo: html.toString(),
 				empresa_id,
 				padrao: true,

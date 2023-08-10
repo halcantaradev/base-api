@@ -21,10 +21,14 @@ export class LayoutConstsService {
 	}
 
 	mountTemplate(tpl: string) {
-		const html: Buffer | string = readFileSync(
+		let html: string = readFileSync(
 			resolve('./src/shared/layouts/' + tpl),
-		);
+		).toString();
 
-		return html.toString();
+		layoutConst.forEach((item) => {
+			html = html.replaceAll(item.const, item.field);
+		});
+
+		return html;
 	}
 }

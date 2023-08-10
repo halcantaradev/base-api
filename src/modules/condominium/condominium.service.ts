@@ -360,7 +360,14 @@ export class CondominiumService {
 		condominiumsSaved = await Promise.all(
 			condominiumsSaved.map(async (condominium) => ({
 				...condominium,
-				responsaveis: await this.findResponsible(condominium.id, user),
+				responsaveis: (
+					await this.findResponsible(condominium.id, user)
+				).filter(
+					(responsavel) =>
+						report.filtros.consultores_ids == null ||
+						!report.filtros.consultores_ids.length ||
+						report.filtros.consultores_ids.includes(responsavel.id),
+				),
 			})),
 		);
 		let total = 0;

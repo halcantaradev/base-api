@@ -248,8 +248,7 @@ export class NotificationService {
 														usuario_id: {
 															in: idsConsultores,
 														},
-														delimitar_acesso:
-															false,
+														delimitar_acesso: false,
 													},
 												},
 											},
@@ -266,7 +265,43 @@ export class NotificationService {
 											in: filtro.unidades_ids,
 									  }
 									: undefined,
-								notificacoes: { some: { ativo: true } },
+								notificacoes: {
+									some: {
+										ativo: true,
+										tipo_registro: filtro.tipo_registro
+											? filtro.tipo_registro
+											: undefined,
+										tipo_infracao_id:
+											filtro.tipo_infracao_id
+												? filtro.tipo_infracao_id
+												: undefined,
+										OR: filtro.tipo_data_filtro
+											? [
+													filtro.tipo_data_filtro == 1
+														? {
+																data_emissao: {
+																	gte: filtro.data_inicial
+																		? filtro.data_inicial
+																		: undefined,
+																	lte: filtro.data_final
+																		? filtro.data_final
+																		: undefined,
+																},
+														  }
+														: {
+																data_infracao: {
+																	gte: filtro.data_inicial
+																		? filtro.data_inicial
+																		: undefined,
+																	lte: filtro.data_final
+																		? filtro.data_final
+																		: undefined,
+																},
+														  },
+											  ]
+											: undefined,
+									},
+								},
 							},
 					  }
 					: undefined,

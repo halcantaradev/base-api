@@ -11,6 +11,7 @@ import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
 import { ReportCondominiumDto } from './dto/report-condominium.dto';
 import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
 import { Prisma } from '@prisma/client';
+import { response } from 'express';
 
 @Injectable()
 export class CondominiumService {
@@ -370,72 +371,86 @@ export class CondominiumService {
 			})),
 		);
 		let total = 0;
-		const response = condominiumsSaved.reduce(
-			(list: Array<any>, currentValue) => {
-				let grupos: { id: number; descricao: string }[] = [];
+		let response;
+		if (report.tipo === ReportTypeCondominium.GERAL) {
+			response = {
+				data: condominiumsSaved,
+				total: condominiumsSaved.length,
+			};
+		} else {
+			const data = condominiumsSaved.reduce(
+				(list: Array<any>, currentValue) => {
+					let grupos: { id: number; descricao: string }[] = [];
 
-				switch (report.tipo) {
-					case ReportTypeCondominium.FILIAL:
-						grupos = currentValue.departamentos_condominio.map(
-							(item) => ({
-								id: item.departamento.filial_id,
-								descricao: item.departamento.filial.nome,
-							}),
-						);
-						total = condominiumsSaved.filter(
-							(item) => item.departamentos_condominio.length > 0,
-						).length;
-						break;
+					switch (report.tipo) {
+						case ReportTypeCondominium.FILIAL:
+							grupos = currentValue.departamentos_condominio.map(
+								(item) => ({
+									id: item.departamento.filial_id,
+									descricao: item.departamento.filial.nome,
+								}),
+							);
+							total = condominiumsSaved.filter(
+								(item) =>
+									item.departamentos_condominio.length > 0,
+							).length;
+							break;
 
-					case ReportTypeCondominium.DEPARTAMENTO:
-						grupos = currentValue.departamentos_condominio.map(
-							(item) => ({
-								id: item.departamento_id,
-								descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
-							}),
-						);
-						total = condominiumsSaved.filter(
-							(item) => item.departamentos_condominio.length > 0,
-						).length;
-						break;
+						case ReportTypeCondominium.DEPARTAMENTO:
+							grupos = currentValue.departamentos_condominio.map(
+								(item) => ({
+									id: item.departamento_id,
+									descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
+								}),
+							);
+							total = condominiumsSaved.filter(
+								(item) =>
+									item.departamentos_condominio.length > 0,
+							).length;
+							break;
 
-					case ReportTypeCondominium.RESPONSAVEL:
-						grupos = currentValue.responsaveis.map((item) => ({
-							id: item.id,
-							descricao: `${item.nome} (${item.empresas[0].cargo.nome})`,
-						}));
-						total = condominiumsSaved.filter(
-							(item) => item.responsaveis.length > 0,
-						).length;
-						break;
+						case ReportTypeCondominium.RESPONSAVEL:
+							grupos = currentValue.responsaveis.map((item) => ({
+								id: item.id,
+								descricao: `${item.nome} (${item.empresas[0].cargo.nome})`,
+							}));
+							total = condominiumsSaved.filter(
+								(item) => item.responsaveis.length > 0,
+							).length;
+							break;
 
-					default:
-						break;
-				}
-
-				if (!grupos.length) return list;
-
-				grupos.forEach((grupo) => {
-					let index = list.findIndex((item) => item.id == grupo.id);
-
-					if (index === -1) {
-						list.push({
-							...grupo,
-							data: [],
-						});
-
-						index = list.length - 1;
+						default:
+							break;
 					}
 
-					list[index].data.push(currentValue);
-				});
+					if (!grupos.length) return list;
 
-				return list;
-			},
-			[],
-		);
+					grupos.forEach((grupo) => {
+						let index = list.findIndex(
+							(item) => item.id == grupo.id,
+						);
 
-		return { data: response, total };
+						if (index === -1) {
+							list.push({
+								...grupo,
+								data: [],
+							});
+
+							index = list.length - 1;
+						}
+
+						list[index].data.push(currentValue);
+					});
+
+					return list;
+				},
+				[],
+			);
+
+			return { data, total };
+		}
+
+		return response;
 	}
 
 	async findOne(id: number | number[], user: UserAuth): Promise<Condominium> {

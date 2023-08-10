@@ -2,6 +2,7 @@ export const layoutConst: Array<{
 	label: string;
 	const: string;
 	field: string;
+	template?: string;
 }> = [
 	{
 		label: 'Data hora atual',
@@ -137,5 +138,11 @@ export const layoutConst: Array<{
 		label: 'Vencimento multa da notificação',
 		const: '[VENCIMENTO_MULTA_NOTIFICACAO]',
 		field: '{{{vencimento_multa_notificacao}}}',
+	},
+	{
+		label: 'Anexos da notificação',
+		const: '[ANEXOS_NOTIFICACAO]',
+		field: '{{{anexos_notificacao}}}',
+		template: 'anexos-notification.html',
 	},
 ];

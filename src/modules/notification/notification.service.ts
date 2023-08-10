@@ -6,6 +6,7 @@ import { format } from 'src/shared/helpers/currency.helper';
 import { EmailService } from 'src/shared/services/email.service';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
 import { PrismaService } from 'src/shared/services/prisma.service';
+import { S3Service } from 'src/shared/services/s3.service';
 import { CondominiumService } from '../condominium/condominium.service';
 import { Condominium } from '../condominium/entities/condominium.entity';
 import { SetupService } from '../setup/setup.service';
@@ -17,7 +18,6 @@ import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
-import { S3Service } from 'src/shared/services/s3.service';
 
 @Injectable()
 export class NotificationService {
@@ -248,8 +248,7 @@ export class NotificationService {
 														usuario_id: {
 															in: idsConsultores,
 														},
-														delimitar_acesso:
-															false,
+														delimitar_acesso: false,
 													},
 												},
 											},
@@ -1028,9 +1027,10 @@ export class NotificationService {
 			},
 		});
 
-		dataToPrint.anexos = files.length ? files : null;
+		dataToPrint.anexos = files;
 		dataToPrint.hasAnexos =
 			(hasPdf && hasPdf.length) || (!files && files.length) ? 1 : 0;
+
 		const condominio: Condominium = await this.condomonioService.findOnById(
 			data.unidade.condominio_id,
 		);

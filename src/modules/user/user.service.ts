@@ -12,6 +12,7 @@ import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
 import { PersonService } from '../person/person.service';
 import { Prisma } from '@prisma/client';
 import { ReportUserDto } from './dto/report-user.dto';
+import { log } from 'console';
 
 @Injectable()
 export class UserService {
@@ -176,7 +177,7 @@ export class UserService {
 		user: UserAuth,
 		condominiums: number[],
 	) {
-		const condominiumsSaved = await this.prisma.user.findMany({
+		const usersSaved = await this.prisma.user.findMany({
 			select: {
 				id: true,
 				nome: true,
@@ -227,38 +228,36 @@ export class UserService {
 			},
 		});
 
-		const response = condominiumsSaved.reduce(
-			(list: Array<any>, currentValue) => {
-				let grupos: { id: number; descricao: string }[] = [];
+		const total = usersSaved.length;
+		const response = usersSaved.reduce((list: Array<any>, currentValue) => {
+			let grupos: { id: number; descricao: string }[] = [];
 
-				grupos = currentValue.departamentos.map((item) => ({
-					id: item.departamento_id,
-					descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
-				}));
+			grupos = currentValue.departamentos.map((item) => ({
+				id: item.departamento_id,
+				descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
+			}));
 
-				if (!grupos.length) return list;
+			if (!grupos.length) return list;
 
-				grupos.forEach((grupo) => {
-					let index = list.findIndex((item) => item.id == grupo.id);
+			grupos.forEach((grupo) => {
+				let index = list.findIndex((item) => item.id == grupo.id);
 
-					if (index === -1) {
-						list.push({
-							...grupo,
-							data: [],
-						});
+				if (index === -1) {
+					list.push({
+						...grupo,
+						data: [],
+					});
 
-						index = list.length - 1;
-					}
+					index = list.length - 1;
+				}
 
-					list[index].data.push(currentValue);
-				});
+				list[index].data.push(currentValue);
+			});
 
-				return list;
-			},
-			[],
-		);
+			return list;
+		}, []);
 
-		return response;
+		return { data: response, total };
 	}
 
 	async findOneById(id: number, user: UserAuth): Promise<ReturnUserEntity> {

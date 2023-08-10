@@ -12,12 +12,12 @@ export class LayoutsNotificationService {
 	) {
 		if (createLayoutsNotificationDto.padrao) {
 			const padrao = await this.prisma.layoutsNotificacao.findFirst({
-				where: { padrao: true },
+				where: { padrao: true, empresa_id },
 			});
 			if (padrao) {
 				await this.prisma.layoutsNotificacao.updateMany({
 					data: { padrao: false },
-					where: { padrao: true },
+					where: { padrao: true, empresa_id },
 				});
 			}
 		}
@@ -47,15 +47,16 @@ export class LayoutsNotificationService {
 	async update(
 		id: number,
 		updateLayoutsNotificationDto: UpdateLayoutsNotificationDto,
+		empresa_id: number,
 	) {
 		if (updateLayoutsNotificationDto.padrao) {
 			const padrao = await this.prisma.layoutsNotificacao.findFirst({
-				where: { padrao: true },
+				where: { padrao: true, empresa_id },
 			});
 			if (padrao) {
 				await this.prisma.layoutsNotificacao.updateMany({
 					data: { padrao: false },
-					where: { padrao: true },
+					where: { padrao: true, empresa_id },
 				});
 			}
 		}
@@ -72,5 +73,11 @@ export class LayoutsNotificationService {
 
 	remove(id: number) {
 		return `This action removes a #${id} layoutsNotification`;
+	}
+
+	findPadrao(empresa_id: number) {
+		return this.prisma.layoutsNotificacao.findFirst({
+			where: { padrao: true, empresa_id },
+		});
 	}
 }

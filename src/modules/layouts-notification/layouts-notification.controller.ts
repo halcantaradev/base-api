@@ -136,10 +136,12 @@ export class LayoutsNotificationController {
 	async update(
 		@Param('id') id: string,
 		@Body() updateLayoutsNotificationDto: UpdateLayoutsNotificationDto,
+		@CurrentUser() user: UserAuth,
 	) {
 		await this.layoutsNotificationService.update(
 			+id,
 			updateLayoutsNotificationDto,
+			user.empresa_id,
 		);
 
 		return {

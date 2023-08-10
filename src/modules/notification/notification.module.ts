@@ -15,6 +15,7 @@ import { NotificationController } from './notification.controller';
 import { NotificationService } from './notification.service';
 import { ExternalJwtModule } from 'src/shared/services/external-jwt/external-jwt.module';
 import { S3Service } from 'src/shared/services/s3.service';
+import { LayoutsNotificationService } from '../layouts-notification/layouts-notification.service';
 
 @Module({
 	controllers: [NotificationController, InfractionController],
@@ -30,6 +31,7 @@ import { S3Service } from 'src/shared/services/s3.service';
 		InfractionService,
 		EmailService,
 		S3Service,
+		LayoutsNotificationService,
 	],
 	imports: [HttpModule, ExternalJwtModule, UploadFileModule],
 	exports: [NotificationService],

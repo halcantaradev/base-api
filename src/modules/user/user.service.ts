@@ -544,7 +544,7 @@ export class UserService {
 			condominios_ids: condominios.data.map(
 				(condominio) => condominio.id,
 			),
-			restringir_acesso: !!departamento?.restringir_acesso,
+			delimitar_acesso: !!departamento?.delimitar_acesso,
 		};
 	}
 
@@ -584,7 +584,7 @@ export class UserService {
 
 		let restrictUserAccess = false;
 
-		if (linkCondominiumsDto.restringir_acesso) {
+		if (linkCondominiumsDto.delimitar_acesso) {
 			restrictUserAccess = true;
 
 			await this.prisma.usuarioHasCondominios.createMany({
@@ -598,7 +598,7 @@ export class UserService {
 		if (!departamento) {
 			await this.prisma.usuarioHasDepartamentos.createMany({
 				data: {
-					restringir_acesso: restrictUserAccess,
+					delimitar_acesso: restrictUserAccess,
 					usuario_id: id,
 					departamento_id: linkCondominiumsDto.departamento_id,
 				},
@@ -606,7 +606,7 @@ export class UserService {
 		} else {
 			await this.prisma.usuarioHasDepartamentos.updateMany({
 				data: {
-					restringir_acesso: restrictUserAccess,
+					delimitar_acesso: restrictUserAccess,
 				},
 				where: {
 					departamento_id: linkCondominiumsDto.departamento_id,

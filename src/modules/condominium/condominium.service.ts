@@ -247,7 +247,7 @@ export class CondominiumService {
 													usuario_id: {
 														in: idsConsultores,
 													},
-													restringir_acesso: false,
+													delimitar_acesso: false,
 												},
 											},
 										},
@@ -279,7 +279,29 @@ export class CondominiumService {
 					select: {
 						departamento_id: true,
 						departamento: {
-							select: { nome: true },
+							select: {
+								id: true,
+								nome: true,
+								nac: true,
+								ativo: true,
+								filial: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+							},
+						},
+					},
+					where: {
+						departamento: {
+							condominios: {
+								some: {
+									condominio: {
+										empresa_id: user.empresa_id,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -482,6 +504,36 @@ export class CondominiumService {
 							select: {
 								id: true,
 								nome: true,
+							},
+						},
+					},
+					where: {
+						empresa_id: user.empresa_id,
+					},
+				},
+				departamentos: {
+					select: {
+						departamento: {
+							select: {
+								id: true,
+								nome: true,
+								nac: true,
+								ativo: true,
+								filial: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+							},
+						},
+					},
+					where: {
+						departamento: {
+							condominios: {
+								some: {
+									condominio_id: id,
+								},
 							},
 						},
 					},

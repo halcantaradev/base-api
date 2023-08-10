@@ -17,5 +17,5 @@ export class UserCondominiums {
 		required: true,
 		readOnly: true,
 	})
-	restringir_acesso?: boolean;
+	delimitar_acesso?: boolean;
 }

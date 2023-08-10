@@ -138,4 +138,13 @@ export const menulist: Array<{
 		icon: 'file-done',
 		target: '_self',
 	},
+	{
+		id_relation: 99997,
+		relation: 99990,
+		label: 'Sistema',
+		permission_key: 'setup-sistema-listar',
+		url: 'sistema/listar',
+		icon: 'setting',
+		target: '_self',
+	},
 ];

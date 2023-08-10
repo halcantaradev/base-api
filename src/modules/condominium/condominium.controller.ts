@@ -154,13 +154,14 @@ export class CondominiumController {
 	) {
 		const data = await this.condominioService.report(
 			{ ...report, filtros: { ...report.filtros, ativo: true } },
+
 			user,
 			condominiums,
 		);
 
 		return {
 			success: true,
-			data,
+			...data,
 		};
 	}
 

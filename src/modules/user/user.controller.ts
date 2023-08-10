@@ -140,7 +140,7 @@ export class UserController {
 
 		return {
 			success: true,
-			data,
+			...data,
 		};
 	}
 

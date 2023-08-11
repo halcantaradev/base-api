@@ -88,7 +88,6 @@ export class SetupController {
 		type: ReturnEntity.error(),
 	})
 	async getSetupSystem(@CurrentUser() user: UserAuth) {
-		console.log(user);
 		return {
 			success: true,
 			data: await this.setupService.findSetupSystem(+user.empresa_id),

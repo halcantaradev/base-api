@@ -34,7 +34,6 @@ export class HandlebarsService {
 		);
 	}
 	compile(layout: string, data: any) {
-		const font = '<style> * { font-family: sans-serif, Helvetica;}</style>';
-		return Handlebars.compile(font + layout)(data);
+		return Handlebars.compile(layout)(data);
 	}
 }

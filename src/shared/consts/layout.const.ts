@@ -2,6 +2,7 @@ export const layoutConst: Array<{
 	label: string;
 	const: string;
 	field: string;
+	template?: string;
 }> = [
 	{
 		label: 'Data hora atual',
@@ -96,7 +97,7 @@ export const layoutConst: Array<{
 	{
 		label: 'Sanção padrão',
 		const: '[SANCAO_PADRAO]',
-		field: '{{sancao_padrao}}',
+		field: '{{{sancao_padrao}}}',
 	},
 	{
 		label: 'Detalhes da infração',
@@ -137,5 +138,17 @@ export const layoutConst: Array<{
 		label: 'Vencimento multa da notificação',
 		const: '[VENCIMENTO_MULTA_NOTIFICACAO]',
 		field: '{{{vencimento_multa_notificacao}}}',
+	},
+	{
+		label: 'Anexos da notificação',
+		const: '[ANEXOS_NOTIFICACAO]',
+		field: '{{{anexos_notificacao}}}',
+		template: 'annex-notification.html',
+	},
+	{
+		label: 'Dados de pagamento da notificação tipo multa',
+		const: '[DADOS_PAGAMENTO_NOTIFICACAO_SE_MULTA]',
+		field: '{{{dados_pagamento_notificacao_se_multa}}}',
+		template: 'payment-notification.html',
 	},
 ];

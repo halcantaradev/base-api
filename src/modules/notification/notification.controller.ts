@@ -14,16 +14,17 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { Response } from 'express';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { PdfService } from 'src/shared/services/pdf.service';
+import { LayoutsNotificationService } from '../layouts-notification/layouts-notification.service';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -34,8 +35,6 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
 import { NotificationService } from './notification.service';
-import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
-import { Response } from 'express';
 
 @ApiTags('Notificações')
 @Controller('notifications')
@@ -47,6 +46,7 @@ export class NotificationController {
 		private readonly layoutService: LayoutConstsService,
 		private readonly handleBarService: HandlebarsService,
 		private readonly pdfService: PdfService,
+		private readonly layoutNotificationServe: LayoutsNotificationService,
 	) {}
 
 	@Post()
@@ -246,15 +246,18 @@ export class NotificationController {
 	async findOnePrint(
 		@Param('id') id: string,
 		@Res({ passthrough: true }) res: Response,
+		@CurrentUser() user: UserAuth,
 	) {
-		let html: Buffer | string = readFileSync(
-			resolve('./src/shared/layouts/notification.html'),
+		const layoutPadrao = await this.layoutNotificationServe.findPadrao(
+			user.empresa_id,
 		);
 
-		const layout = this.layoutService.replaceLayoutVars(html.toString());
+		const layout = this.layoutService.replaceLayoutVars(
+			layoutPadrao.modelo,
+		);
 
 		const dataToPrint = await this.notificationService.dataToHandle(+id);
-		html = this.handleBarService.compile(layout, dataToPrint);
+		const html = this.handleBarService.compile(layout, dataToPrint);
 
 		const pdf = await this.pdfService.getPDF(html);
 		const pdfs = await this.notificationService.getPDFFiles(+id);

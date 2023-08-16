@@ -17,6 +17,7 @@ import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
+import { Filas } from 'src/shared/consts/filas.const';
 
 @Injectable()
 export class NotificationService {
@@ -71,13 +72,13 @@ export class NotificationService {
 			data: { id: data.id },
 		});
 
-		// await this.emailService.send(Filas.EMAIL, {
-		// 	from: process.env.EMAIL_SEND_PROVIDER,
-		// 	html: `<p>Notificação criada para o condomino: ${condomino.nome} <br>
-		// 	Clique no link para acessar clique: <a href="${url}">${url}</a></p>`,
-		// 	subject: 'Notificação criada',
-		// 	to: userLogado.email,
-		// });
+		await this.emailService.send(Filas.EMAIL, {
+			from: process.env.EMAIL_SEND_PROVIDER,
+			html: `<p>Notificação criada para o condomino: ${condomino.nome} <br>
+			Clique no link para acessar clique: <a href="${url}">${url}</a></p>`,
+			subject: 'Notificação criada',
+			to: userLogado.email,
+		});
 
 		return {
 			success: true,
@@ -1057,26 +1058,6 @@ export class NotificationService {
 			},
 			where: { id },
 		});
-		const files = await this.prisma.arquivo.findMany({
-			where: {
-				referencia_id: id,
-				origem: 1,
-				tipo: { not: { contains: 'pdf' } },
-				ativo: true,
-			},
-		});
-
-		const hasPdf = await this.prisma.arquivo.findMany({
-			where: {
-				referencia_id: id,
-				origem: 1,
-				tipo: { contains: 'pdf' },
-				ativo: true,
-			},
-		});
-		dataToPrint.anexos = files;
-		dataToPrint.hasAnexos =
-			(hasPdf && hasPdf.length) || (files && files.length);
 
 		const condominio: Condominium = await this.condomonioService.findOnById(
 			data.unidade.condominio_id,
@@ -1155,6 +1136,39 @@ export class NotificationService {
 		dataToPrint.tipo_responsavel_notificado = condomino.tipo.descricao;
 		dataToPrint.responsavel_notificado = condomino.condomino.nome;
 
+		return dataToPrint;
+	}
+
+	async dataAnexos(id: number) {
+		const dataToPrint: {
+			[key: string]:
+				| number
+				| string
+				| Date
+				| Array<any>
+				| boolean
+				| undefined;
+		} = {};
+		const files = await this.prisma.arquivo.findMany({
+			where: {
+				referencia_id: id,
+				origem: 1,
+				tipo: { not: { contains: 'pdf' } },
+				ativo: true,
+			},
+		});
+
+		const hasPdf = await this.prisma.arquivo.findMany({
+			where: {
+				referencia_id: id,
+				origem: 1,
+				tipo: { contains: 'pdf' },
+				ativo: true,
+			},
+		});
+		dataToPrint.anexos = files;
+		dataToPrint.hasAnexos =
+			(hasPdf && hasPdf.length) || (files && files.length);
 		return dataToPrint;
 	}
 

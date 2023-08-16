@@ -292,13 +292,35 @@ export class NotificationController {
 			throw new BadRequestException('Notificação não encontrada');
 		}
 		const pdf = await this.pdfService.getPDF(notificacao.data.doc_gerado);
-		const pdfs = await this.notificationService.getPDFFiles(+id);
+
+		const layout = this.layoutService.replaceLayoutVars(
+			this.layoutService.getTemplat('annex-notification.html'),
+		);
+
+		let pdfMerge: any;
+
+		const dataToAnexo = await this.notificationService.dataAnexos(+id);
+		if (dataToAnexo.hasAnexos) {
+			const tplAnexos = this.handleBarService.compile(
+				layout,
+				dataToAnexo,
+			);
+			const pdfAnexo = await this.pdfService.getPDF(tplAnexos);
+			const pdfs = await this.notificationService.getPDFFiles(+id);
+
+			pdfMerge = await this.pdfService.mergePDFs(
+				[pdf, pdfAnexo, ...pdfs],
+				'Notificação',
+			);
+		} else {
+			pdfMerge = await this.pdfService.mergePDFs([pdf], 'Notificação');
+		}
 
 		res.set({
 			'Content-Type': 'application/pdf',
 			'Content-Disposition': 'inline;',
 		});
-		return await this.pdfService.mergePDFs([pdf, ...pdfs], 'Notificação');
+		return pdfMerge;
 	}
 
 	@Post('unidade/:id')

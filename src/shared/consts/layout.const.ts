@@ -140,12 +140,6 @@ export const layoutConst: Array<{
 		field: '{{{vencimento_multa_notificacao}}}',
 	},
 	{
-		label: 'Anexos da notificação',
-		const: '[ANEXOS_NOTIFICACAO]',
-		field: '{{{anexos_notificacao}}}',
-		template: 'annex-notification.html',
-	},
-	{
 		label: 'Dados de pagamento da notificação tipo multa',
 		const: '[DADOS_PAGAMENTO_NOTIFICACAO_SE_MULTA]',
 		field: '{{{dados_pagamento_notificacao_se_multa}}}',

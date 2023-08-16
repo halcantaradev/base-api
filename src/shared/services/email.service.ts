@@ -25,7 +25,7 @@ export class EmailService {
 						rejectUnauthorized: false,
 					}),
 				})
-				.subscribe({ next: () => res(true), error: () => rej(false) });
+				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});
 	}
 }

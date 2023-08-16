@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -68,11 +69,35 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	create(
+	async create(
 		@Body() createNotificationDto: CreateNotificationDto,
 		@CurrentUser() user: UserAuth,
 	) {
-		return this.notificationService.create(createNotificationDto, user);
+		const layoutPadrao = await this.layoutNotificationServe.findOne(
+			createNotificationDto.layout_id,
+			user.empresa_id,
+		);
+
+		const layout = this.layoutService.replaceLayoutVars(
+			layoutPadrao.modelo,
+		);
+
+		const notificacao = await this.notificationService.create(
+			createNotificationDto,
+			user,
+		);
+
+		const dataToPrint = await this.notificationService.dataToHandle(
+			notificacao.data.id,
+		);
+
+		const html = this.handleBarService.compile(layout, dataToPrint);
+		await this.notificationService.updateLayoutUsado(
+			notificacao.data.id,
+			html,
+		);
+
+		return notificacao;
 	}
 
 	@Get()
@@ -223,10 +248,25 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	update(
+	async update(
 		@Param('id') id: string,
 		@Body() updateNotificationDto: UpdateNotificationDto,
+		@CurrentUser() user: UserAuth,
 	) {
+		const layoutPadrao = await this.layoutNotificationServe.findOne(
+			updateNotificationDto.layout_id,
+			user.empresa_id,
+		);
+
+		const layout = this.layoutService.replaceLayoutVars(
+			layoutPadrao.modelo,
+		);
+
+		const dataToPrint = await this.notificationService.dataToHandle(+id);
+		updateNotificationDto.doc_gerado = this.handleBarService.compile(
+			layout,
+			dataToPrint,
+		);
 		return this.notificationService.update(+id, updateNotificationDto);
 	}
 
@@ -246,20 +286,12 @@ export class NotificationController {
 	async findOnePrint(
 		@Param('id') id: string,
 		@Res({ passthrough: true }) res: Response,
-		@CurrentUser() user: UserAuth,
 	) {
-		const layoutPadrao = await this.layoutNotificationServe.findPadrao(
-			user.empresa_id,
-		);
-
-		const layout = this.layoutService.replaceLayoutVars(
-			layoutPadrao.modelo,
-		);
-
-		const dataToPrint = await this.notificationService.dataToHandle(+id);
-		const html = this.handleBarService.compile(layout, dataToPrint);
-
-		const pdf = await this.pdfService.getPDF(html);
+		const notificacao = await this.notificationService.findOneById(+id);
+		if (!notificacao) {
+			throw new BadRequestException('Notificação não encontrada');
+		}
+		const pdf = await this.pdfService.getPDF(notificacao.data.doc_gerado);
 		const pdfs = await this.notificationService.getPDFFiles(+id);
 
 		res.set({

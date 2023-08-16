@@ -32,9 +32,9 @@ export class LayoutsNotificationService {
 		});
 	}
 
-	findAll(empresa_id: number) {
+	findAll(empresa_id: number, ativo?: boolean) {
 		return this.prisma.layoutsNotificacao.findMany({
-			where: { empresa_id },
+			where: { empresa_id, ativo },
 		});
 	}
 

@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Filas } from 'src/shared/consts/filas.const';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { format } from 'src/shared/helpers/currency.helper';
@@ -55,6 +54,7 @@ export class NotificationService {
 				vencimento_multa: createNotificationDto.vencimento_multa,
 				observacoes: createNotificationDto.observacoes,
 				pessoa_id: createNotificationDto.pessoa_id,
+				layout_id: createNotificationDto.layout_id,
 			},
 		});
 
@@ -71,13 +71,13 @@ export class NotificationService {
 			data: { id: data.id },
 		});
 
-		await this.emailService.send(Filas.EMAIL, {
-			from: process.env.EMAIL_SEND_PROVIDER,
-			html: `<p>Notificação criada para o condomino: ${condomino.nome} <br>
-			Clique no link para acessar clique: <a href="${url}">${url}</a></p>`,
-			subject: 'Notificação criada',
-			to: userLogado.email,
-		});
+		// await this.emailService.send(Filas.EMAIL, {
+		// 	from: process.env.EMAIL_SEND_PROVIDER,
+		// 	html: `<p>Notificação criada para o condomino: ${condomino.nome} <br>
+		// 	Clique no link para acessar clique: <a href="${url}">${url}</a></p>`,
+		// 	subject: 'Notificação criada',
+		// 	to: userLogado.email,
+		// });
 
 		return {
 			success: true,
@@ -913,6 +913,8 @@ export class NotificationService {
 					detalhes_infracao: true,
 					fundamentacao_legal: true,
 					observacoes: true,
+					layout_id: true,
+					doc_gerado: true,
 				},
 			}),
 		};
@@ -996,6 +998,7 @@ export class NotificationService {
 				competencia_multa: true,
 				unir_taxa: true,
 				vencimento_multa: true,
+				layout_id: true,
 			},
 			data: {
 				unidade_id: updateNotificationDto.unidade_id,
@@ -1011,6 +1014,8 @@ export class NotificationService {
 				vencimento_multa: updateNotificationDto.vencimento_multa,
 				unir_taxa: updateNotificationDto.unir_taxa,
 				observacoes: updateNotificationDto.observacoes,
+				layout_id: updateNotificationDto.layout_id,
+				doc_gerado: updateNotificationDto.doc_gerado,
 			},
 			where: { id },
 		});
@@ -1030,7 +1035,13 @@ export class NotificationService {
 
 	async dataToHandle(id: number) {
 		const dataToPrint: {
-			[key: string]: number | string | Date | Array<any> | undefined;
+			[key: string]:
+				| number
+				| string
+				| Date
+				| Array<any>
+				| boolean
+				| undefined;
 		} = {};
 		const data = await this.prisma.notificacao.findFirst({
 			include: {
@@ -1062,10 +1073,9 @@ export class NotificationService {
 				ativo: true,
 			},
 		});
-
 		dataToPrint.anexos = files;
 		dataToPrint.hasAnexos =
-			(hasPdf && hasPdf.length) || (!files && files.length) ? 1 : 0;
+			(hasPdf && hasPdf.length) || (files && files.length);
 
 		const condominio: Condominium = await this.condomonioService.findOnById(
 			data.unidade.condominio_id,
@@ -1232,6 +1242,13 @@ export class NotificationService {
 	async inativate(id: number) {
 		return this.prisma.notificacao.update({
 			data: { ativo: false },
+			where: { id },
+		});
+	}
+
+	async updateLayoutUsado(id: number, doc_gerado: string) {
+		return this.prisma.notificacao.update({
+			data: { doc_gerado },
 			where: { id },
 		});
 	}

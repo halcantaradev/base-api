@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Arquivo } from '@prisma/client';
-import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
 
 export class NotificationEntity {
 	@ApiProperty({
@@ -107,4 +106,18 @@ export class NotificationEntity {
 		required: false,
 	})
 	arquivos?: Arquivo[];
+
+	@ApiProperty({
+		description: 'Id do layout de impressão usado',
+		example: 1,
+		required: true,
+	})
+	layout_id: number;
+
+	@ApiProperty({
+		description: 'Documento de impressão gerado',
+		example: 'Teste',
+		required: true,
+	})
+	doc_gerado?: string;
 }

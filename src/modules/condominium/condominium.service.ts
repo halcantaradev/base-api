@@ -114,7 +114,7 @@ export class CondominiumService {
 								nome: {
 									contains: filters.condominio
 										.toString()
-										.normalize('NFD')
+										.normalize('NFC')
 										.replace(/[\u0300-\u036f]/g, ''),
 									mode: 'insensitive',
 								},

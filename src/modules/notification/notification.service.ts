@@ -275,31 +275,32 @@ export class NotificationService {
 											filtro.tipo_infracao_id
 												? filtro.tipo_infracao_id
 												: undefined,
-										OR: filtro.tipo_data_filtro
-											? [
-													filtro.tipo_data_filtro == 1
-														? {
-																data_emissao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  }
-														: {
-																data_infracao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  },
-											  ]
-											: undefined,
+										data_emissao:
+											filtro.tipo_data_filtro == 1 &&
+											(filtro.data_inicial ||
+												filtro.data_final)
+												? {
+														gte: filtro.data_inicial
+															? filtro.data_inicial
+															: undefined,
+														lte: filtro.data_final
+															? filtro.data_final
+															: undefined,
+												  }
+												: undefined,
+										data_infracao:
+											filtro.tipo_data_filtro == 2 &&
+											(filtro.data_inicial ||
+												filtro.data_final)
+												? {
+														gte: filtro.data_inicial
+															? filtro.data_inicial
+															: undefined,
+														lte: filtro.data_final
+															? filtro.data_final
+															: undefined,
+												  }
+												: undefined,
 									},
 								},
 							},

@@ -29,7 +29,7 @@ import { FiltersResidenceDto } from './dto/filters-residence.dto';
 import { FiltersCondominiumActiveDto } from './dto/filters-condominium-active.dto';
 import { FiltersResidenceActiveDto } from './dto/filters-residence-active.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
-import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
 import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 import { UsersCondominiumReturn } from './entities/users-condominium-return.entity';
 import { LinkTypeContractDto } from './dto/link-type-contract.dto';

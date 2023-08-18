@@ -21,7 +21,7 @@ import { Role } from 'src/shared/decorators/role.decorator';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { PdfService } from 'src/shared/services/pdf.service';

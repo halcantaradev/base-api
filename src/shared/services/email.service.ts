@@ -12,7 +12,7 @@ export class EmailService {
 		this.baseURL = process.env.EMAIL_SEND_URL;
 		this.headers = new AxiosHeaders({
 			'Content-Type': 'application/json',
-			Authorization: process.env.EMAIL_SEND_TOKEN,
+			Authorization: process.env.RABBIT_QUEUE_TOKEN,
 		});
 	}
 

@@ -25,6 +25,7 @@ export class LoggerService {
 		userId: number,
 		empresaId: number,
 		query: object = {},
+		param: object = {},
 		body: object = {},
 		responseStatus: number,
 		responseMessage: string | string[] | undefined,
@@ -41,6 +42,7 @@ export class LoggerService {
 					agent,
 					method,
 					query,
+					param,
 					body,
 				},
 				reponse: {

@@ -4,7 +4,7 @@ import {
 	Injectable,
 	NestInterceptor,
 } from '@nestjs/common';
-import { catchError, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { LoggerService } from '../services/logger.service';
 import { UserAuth } from '../entities/user-auth.entity';
 
@@ -18,41 +18,46 @@ export class LoggerInterceptor implements NestInterceptor {
 		const ip = request.ip;
 		const body = request.body;
 		const query = request.query;
+		const param = request.params;
 		const method = request.method;
-		const route = request.originalUrl;
+		const route = request.route.path;
 		const user: UserAuth = request?.user;
 		const agent = request.headers['user-agent'];
 
 		return next.handle().pipe(
-			tap((data) => {
-				const response = context.switchToHttp().getResponse();
+			tap({
+				next: (data) => {
+					const response = context.switchToHttp().getResponse();
 
-				return this.loggerService.send(
-					ip,
-					agent,
-					route,
-					method,
-					user.id,
-					user.empresa_id,
-					query,
-					body,
-					response.statusCode,
-					data.message,
-				);
-			}),
-			catchError((err) => {
-				return this.loggerService.send(
-					ip,
-					agent,
-					route,
-					method,
-					user.id,
-					user.empresa_id,
-					query,
-					body,
-					err.status,
-					err.response.message,
-				);
+					this.loggerService.send(
+						ip,
+						agent,
+						route,
+						method,
+						user.id,
+						user.empresa_id,
+						query,
+						param,
+						body,
+						response.statusCode,
+						data.message,
+					);
+				},
+				error: (err) => {
+					this.loggerService.send(
+						ip,
+						agent,
+						route,
+						method,
+						user.id,
+						user.empresa_id,
+						query,
+						param,
+						body,
+						err.status,
+						err.response.message,
+					);
+				},
 			}),
 		);
 	}

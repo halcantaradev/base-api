@@ -26,7 +26,9 @@ import { DocumentTypeListReturn } from './dto/document-type-list-return.entity';
 @Controller('document-type')
 export class DocumentTypeController {
 	constructor(private readonly documentTypeService: DocumentTypeService) {}
-
+	@Post()
+	@Role('tipos-documentos-cadastrar')
+	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Cadastrar um tipo de documento' })
 	@ApiResponse({
 		description: 'Cadastrar tipos de documentos',
@@ -44,9 +46,6 @@ export class DocumentTypeController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error('Erro ao cadastrar tipo de documento'),
 	})
-	@Role('tipos-documentos-cadastrar')
-	@HttpCode(HttpStatus.OK)
-	@Post()
 	async create(@Body() createDocumentTypeDto: CreateDocumentTypeDto) {
 		await this.documentTypeService.create(createDocumentTypeDto);
 		return {
@@ -56,7 +55,6 @@ export class DocumentTypeController {
 	}
 
 	@Get('list')
-	@HttpCode(HttpStatus.OK)
 	@Role('tipos-documentos-listar')
 	@ApiOperation({ summary: 'Lista todos os tipos de documentos' })
 	@ApiResponse({
@@ -77,7 +75,6 @@ export class DocumentTypeController {
 	}
 
 	@Get('active')
-	@HttpCode(HttpStatus.OK)
 	@Role('tipos-documentos-listar-ativos')
 	@ApiOperation({ summary: 'Lista todos os tipos de documentos ativos' })
 	@ApiResponse({
@@ -99,7 +96,6 @@ export class DocumentTypeController {
 
 	@Patch(':id')
 	@Role('tipos-documentos-atualizar')
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Atualizar um tipo de documento' })
 	@ApiResponse({
 		description: 'Cadastrar tipos de documentos',
@@ -130,7 +126,6 @@ export class DocumentTypeController {
 
 	@Delete(':id')
 	@Role('tipos-documentos-remover')
-	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Remover um tipo de documento' })
 	@ApiResponse({
 		description: 'Remover tipos de documentos',

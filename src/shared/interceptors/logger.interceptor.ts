@@ -40,7 +40,7 @@ export class LoggerInterceptor implements NestInterceptor {
 						param,
 						body,
 						response.statusCode,
-						data.message,
+						data?.message,
 					);
 				},
 				error: (err) => {
@@ -55,7 +55,7 @@ export class LoggerInterceptor implements NestInterceptor {
 						param,
 						body,
 						err.status,
-						err.response.message,
+						err.response?.message,
 					);
 				},
 			}),

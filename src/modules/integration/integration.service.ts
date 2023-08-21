@@ -35,7 +35,7 @@ export class IntegrationService {
 
 	generatePayloadFila(payload: any) {
 		return this.externalService.generateTokenBySecret(
-			process.env.SYNC_SECRET,
+			process.env.SYNC_ENCRYPT_SECRET,
 			payload,
 		);
 	}

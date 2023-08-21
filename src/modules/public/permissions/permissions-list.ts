@@ -3,6 +3,7 @@ export const permissionslist: Array<{
 	module: string;
 	key: string;
 	message: string;
+	active?: boolean;
 }> = [
 	{
 		label: 'Listar todos os usuários',
@@ -394,5 +395,19 @@ export const permissionslist: Array<{
 		module: 'Tipos de Contratos',
 		key: 'tipo-contrato-exibir-dados',
 		message: 'Sem permissão para ver os dados do tipo de contrato',
+	},
+	{
+		label: 'Listar integrações ativas',
+		module: 'Integração',
+		key: 'integracoes-listar-ativas',
+		message: 'Sem permissão para listar integrações ativas',
+		active: false,
+	},
+	{
+		label: 'Gerar token de integração',
+		module: 'Integração',
+		key: 'integracoes-gerar-token',
+		message: 'Sem permissão para gerar tokens de integrações',
+		active: false,
 	},
 ];

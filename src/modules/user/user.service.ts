@@ -12,7 +12,6 @@ import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
 import { PersonService } from '../person/person.service';
 import { Prisma } from '@prisma/client';
 import { ReportUserDto } from './dto/report-user.dto';
-import { log } from 'console';
 
 @Injectable()
 export class UserService {

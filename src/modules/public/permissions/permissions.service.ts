@@ -58,6 +58,7 @@ export class PermissionsService {
 						where: { cargo_id },
 					},
 				},
+				where: { active: true },
 			}),
 		};
 	}
@@ -90,6 +91,7 @@ export class PermissionsService {
 						where: { usuario_id },
 					},
 				},
+				where: { active: true },
 			}),
 		};
 	}

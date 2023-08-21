@@ -8,21 +8,22 @@ datasource db {
 }
 
 model Pessoa {
-  id               Int      @id @default(autoincrement())
-  nome             String
-  cnpj             String
-  empresa_id       Int?
-  numero           String?
-  endereco         String?
-  cep              String?
-  bairro           String?
-  cidade           String?
-  uf               String?
-  categoria_id     Int?
-  tipo_contrato_id Int?
-  ativo            Boolean  @default(true)
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  id                Int       @id @default(autoincrement())
+  nome              String
+  cnpj              String
+  empresa_id        Int?
+  numero            String?
+  endereco          String?
+  cep               String?
+  bairro            String?
+  cidade            String?
+  uf                String?
+  categoria_id      Int?
+  tipo_contrato_id  Int?
+  ativo             Boolean   @default(true)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  updated_at_origin DateTime?
 
   contatos                      Contato[]
   unidades_condominio           Unidade[]
@@ -45,6 +46,7 @@ model Pessoa {
   tipos_infracoes               TipoInfracao[]
   filiais_empresa               Filial[]
   temas                         Tema[]
+  integracoes                   IntegracaoDatabase[]
 
   @@map("pessoas")
 }
@@ -129,13 +131,14 @@ model EmpresasHasUsuarios {
 }
 
 model Unidade {
-  id                  Int      @id @default(autoincrement())
+  id                  Int       @id @default(autoincrement())
   original_unidade_id Int?
   condominio_id       Int
   codigo              String
-  ativo               Boolean  @default(true)
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
+  ativo               Boolean   @default(true)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+  updated_at_origin   DateTime?
 
   condominos   PessoasHasUnidades[]
   notificacoes Notificacao[]
@@ -514,4 +517,24 @@ model Tema {
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
 
   @@map("temas")
+}
+
+model IntegracaoDatabase {
+  id               Int       @id @default(autoincrement())
+  empresa_id       Int
+  descricao        String
+  host             String
+  banco            String
+  usuario          String
+  senha            String
+  porta            Int
+  token            String
+  data_atualizacao DateTime?
+  ativo            Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("integracoes_database")
 }

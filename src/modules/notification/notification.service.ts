@@ -17,7 +17,6 @@ import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
-import { Filas } from 'src/shared/consts/filas.const';
 
 @Injectable()
 export class NotificationService {
@@ -72,7 +71,7 @@ export class NotificationService {
 			data: { id: data.id },
 		});
 
-		await this.emailService.send(Filas.EMAIL, {
+		await this.emailService.send({
 			from: process.env.EMAIL_SEND_PROVIDER,
 			html: `<p>Notificação criada para o condomino: ${condomino.nome} <br>
 			Clique no link para acessar clique: <a href="${url}">${url}</a></p>`,

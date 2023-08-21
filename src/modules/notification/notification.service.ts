@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Filas } from 'src/shared/consts/filas.const';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { format } from 'src/shared/helpers/currency.helper';
 import { EmailService } from 'src/shared/services/email.service';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
 import { PrismaService } from 'src/shared/services/prisma.service';
+import { S3Service } from 'src/shared/services/s3.service';
 import { CondominiumService } from '../condominium/condominium.service';
 import { Condominium } from '../condominium/entities/condominium.entity';
 import { SetupService } from '../setup/setup.service';
@@ -17,7 +17,6 @@ import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
-import { S3Service } from 'src/shared/services/s3.service';
 
 @Injectable()
 export class NotificationService {
@@ -55,6 +54,7 @@ export class NotificationService {
 				vencimento_multa: createNotificationDto.vencimento_multa,
 				observacoes: createNotificationDto.observacoes,
 				pessoa_id: createNotificationDto.pessoa_id,
+				layout_id: createNotificationDto.layout_id,
 			},
 		});
 
@@ -71,7 +71,7 @@ export class NotificationService {
 			data: { id: data.id },
 		});
 
-		await this.emailService.send(Filas.EMAIL, {
+		await this.emailService.send({
 			from: process.env.EMAIL_SEND_PROVIDER,
 			html: `<p>Notificação criada para o condomino: ${condomino.nome} <br>
 			Clique no link para acessar clique: <a href="${url}">${url}</a></p>`,
@@ -248,8 +248,7 @@ export class NotificationService {
 														usuario_id: {
 															in: idsConsultores,
 														},
-														restringir_acesso:
-															false,
+														delimitar_acesso: false,
 													},
 												},
 											},
@@ -266,7 +265,44 @@ export class NotificationService {
 											in: filtro.unidades_ids,
 									  }
 									: undefined,
-								notificacoes: { some: { ativo: true } },
+								notificacoes: {
+									some: {
+										ativo: true,
+										tipo_registro: filtro.tipo_registro
+											? filtro.tipo_registro
+											: undefined,
+										tipo_infracao_id:
+											filtro.tipo_infracao_id
+												? filtro.tipo_infracao_id
+												: undefined,
+										data_emissao:
+											filtro.tipo_data_filtro == 1 &&
+											(filtro.data_inicial ||
+												filtro.data_final)
+												? {
+														gte: filtro.data_inicial
+															? filtro.data_inicial
+															: undefined,
+														lte: filtro.data_final
+															? filtro.data_final
+															: undefined,
+												  }
+												: undefined,
+										data_infracao:
+											filtro.tipo_data_filtro == 2 &&
+											(filtro.data_inicial ||
+												filtro.data_final)
+												? {
+														gte: filtro.data_inicial
+															? filtro.data_inicial
+															: undefined,
+														lte: filtro.data_final
+															? filtro.data_final
+															: undefined,
+												  }
+												: undefined,
+									},
+								},
 							},
 					  }
 					: undefined,
@@ -878,6 +914,8 @@ export class NotificationService {
 					detalhes_infracao: true,
 					fundamentacao_legal: true,
 					observacoes: true,
+					layout_id: true,
+					doc_gerado: true,
 				},
 			}),
 		};
@@ -961,6 +999,7 @@ export class NotificationService {
 				competencia_multa: true,
 				unir_taxa: true,
 				vencimento_multa: true,
+				layout_id: true,
 			},
 			data: {
 				unidade_id: updateNotificationDto.unidade_id,
@@ -976,6 +1015,8 @@ export class NotificationService {
 				vencimento_multa: updateNotificationDto.vencimento_multa,
 				unir_taxa: updateNotificationDto.unir_taxa,
 				observacoes: updateNotificationDto.observacoes,
+				layout_id: updateNotificationDto.layout_id,
+				doc_gerado: updateNotificationDto.doc_gerado,
 			},
 			where: { id },
 		});
@@ -995,7 +1036,13 @@ export class NotificationService {
 
 	async dataToHandle(id: number) {
 		const dataToPrint: {
-			[key: string]: number | string | Date | Array<any> | undefined;
+			[key: string]:
+				| number
+				| string
+				| Date
+				| Array<any>
+				| boolean
+				| undefined;
 		} = {};
 		const data = await this.prisma.notificacao.findFirst({
 			include: {
@@ -1010,27 +1057,7 @@ export class NotificationService {
 			},
 			where: { id },
 		});
-		const files = await this.prisma.arquivo.findMany({
-			where: {
-				referencia_id: id,
-				origem: 1,
-				tipo: { not: { contains: 'pdf' } },
-				ativo: true,
-			},
-		});
 
-		const hasPdf = await this.prisma.arquivo.findMany({
-			where: {
-				referencia_id: id,
-				origem: 1,
-				tipo: { contains: 'pdf' },
-				ativo: true,
-			},
-		});
-
-		dataToPrint.anexos = files.length ? files : null;
-		dataToPrint.hasAnexos =
-			(hasPdf && hasPdf.length) || (!files && files.length) ? 1 : 0;
 		const condominio: Condominium = await this.condomonioService.findOnById(
 			data.unidade.condominio_id,
 		);
@@ -1108,6 +1135,39 @@ export class NotificationService {
 		dataToPrint.tipo_responsavel_notificado = condomino.tipo.descricao;
 		dataToPrint.responsavel_notificado = condomino.condomino.nome;
 
+		return dataToPrint;
+	}
+
+	async dataAnexos(id: number) {
+		const dataToPrint: {
+			[key: string]:
+				| number
+				| string
+				| Date
+				| Array<any>
+				| boolean
+				| undefined;
+		} = {};
+		const files = await this.prisma.arquivo.findMany({
+			where: {
+				referencia_id: id,
+				origem: 1,
+				tipo: { not: { contains: 'pdf' } },
+				ativo: true,
+			},
+		});
+
+		const hasPdf = await this.prisma.arquivo.findMany({
+			where: {
+				referencia_id: id,
+				origem: 1,
+				tipo: { contains: 'pdf' },
+				ativo: true,
+			},
+		});
+		dataToPrint.anexos = files;
+		dataToPrint.hasAnexos =
+			(hasPdf && hasPdf.length) || (files && files.length);
 		return dataToPrint;
 	}
 
@@ -1196,6 +1256,13 @@ export class NotificationService {
 	async inativate(id: number) {
 		return this.prisma.notificacao.update({
 			data: { ativo: false },
+			where: { id },
+		});
+	}
+
+	async updateLayoutUsado(id: number, doc_gerado: string) {
+		return this.prisma.notificacao.update({
+			data: { doc_gerado },
 			where: { id },
 		});
 	}

@@ -187,4 +187,22 @@ export class CreateNotificationDto {
 		message: 'O campo dever está no formato válido.',
 	})
 	vencimento_multa?: Date;
+
+	@ApiProperty({
+		description: 'Layout usado para impressão',
+		example: 'Modelo teste',
+		required: false,
+	})
+	@IsNotEmpty({
+		message:
+			'O modelo de impressão é obrigatório. Por favor, forneça o modelo de impressão.',
+	})
+	@IsInt({
+		message:
+			'O modelo de impressão não é válido. Por favor, forneça uma unidade válida.',
+	})
+	layout_id: number;
+
+	@IsOptional()
+	doc_gerado?: string;
 }

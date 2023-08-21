@@ -11,6 +11,7 @@ import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
 import { ReportCondominiumDto } from './dto/report-condominium.dto';
 import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
 import { Prisma } from '@prisma/client';
+import { response } from 'express';
 
 @Injectable()
 export class CondominiumService {
@@ -113,7 +114,7 @@ export class CondominiumService {
 								nome: {
 									contains: filters.condominio
 										.toString()
-										.normalize('NFD')
+										.normalize('NFC')
 										.replace(/[\u0300-\u036f]/g, ''),
 									mode: 'insensitive',
 								},
@@ -247,7 +248,7 @@ export class CondominiumService {
 													usuario_id: {
 														in: idsConsultores,
 													},
-													restringir_acesso: false,
+													delimitar_acesso: false,
 												},
 											},
 										},
@@ -279,7 +280,29 @@ export class CondominiumService {
 					select: {
 						departamento_id: true,
 						departamento: {
-							select: { nome: true },
+							select: {
+								id: true,
+								nome: true,
+								nac: true,
+								ativo: true,
+								filial: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+							},
+						},
+					},
+					where: {
+						departamento: {
+							condominios: {
+								some: {
+									condominio: {
+										empresa_id: user.empresa_id,
+									},
+								},
+							},
 						},
 					},
 				},
@@ -306,6 +329,7 @@ export class CondominiumService {
 			await this.pessoaService.findAll(
 				'condominio',
 				{
+					tipo_contrato: true,
 					departamentos_condominio: {
 						select: {
 							departamento_id: true,
@@ -336,65 +360,95 @@ export class CondominiumService {
 		condominiumsSaved = await Promise.all(
 			condominiumsSaved.map(async (condominium) => ({
 				...condominium,
-				responsaveis: await this.findResponsible(condominium.id, user),
+				responsaveis: (
+					await this.findResponsible(condominium.id, user)
+				).filter(
+					(responsavel) =>
+						report.filtros.consultores_ids == null ||
+						!report.filtros.consultores_ids.length ||
+						report.filtros.consultores_ids.includes(responsavel.id),
+				),
 			})),
 		);
+		let total = 0;
+		let response;
+		if (report.tipo === ReportTypeCondominium.GERAL) {
+			response = {
+				data: condominiumsSaved,
+				total: condominiumsSaved.length,
+			};
+		} else {
+			const data = condominiumsSaved.reduce(
+				(list: Array<any>, currentValue) => {
+					let grupos: { id: number; descricao: string }[] = [];
 
-		const response = condominiumsSaved.reduce(
-			(list: Array<any>, currentValue) => {
-				let grupos: { id: number; descricao: string }[] = [];
+					switch (report.tipo) {
+						case ReportTypeCondominium.FILIAL:
+							grupos = currentValue.departamentos_condominio.map(
+								(item) => ({
+									id: item.departamento.filial_id,
+									descricao: item.departamento.filial.nome,
+								}),
+							);
+							total = condominiumsSaved.filter(
+								(item) =>
+									item.departamentos_condominio.length > 0,
+							).length;
+							break;
 
-				switch (report.tipo) {
-					case ReportTypeCondominium.FILIAL:
-						grupos = currentValue.departamentos_condominio.map(
-							(item) => ({
-								id: item.departamento.filial_id,
-								descricao: item.departamento.filial.nome,
-							}),
-						);
-						break;
+						case ReportTypeCondominium.DEPARTAMENTO:
+							grupos = currentValue.departamentos_condominio.map(
+								(item) => ({
+									id: item.departamento_id,
+									descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
+								}),
+							);
+							total = condominiumsSaved.filter(
+								(item) =>
+									item.departamentos_condominio.length > 0,
+							).length;
+							break;
 
-					case ReportTypeCondominium.DEPARTAMENTO:
-						grupos = currentValue.departamentos_condominio.map(
-							(item) => ({
-								id: item.departamento_id,
-								descricao: `${item.departamento.nome} (${item.departamento.filial.nome})`,
-							}),
-						);
-						break;
+						case ReportTypeCondominium.RESPONSAVEL:
+							grupos = currentValue.responsaveis.map((item) => ({
+								id: item.id,
+								descricao: `${item.nome} (${item.empresas[0].cargo.nome})`,
+							}));
+							total = condominiumsSaved.filter(
+								(item) => item.responsaveis.length > 0,
+							).length;
+							break;
 
-					case ReportTypeCondominium.RESPONSAVEL:
-						grupos = currentValue.responsaveis.map((item) => ({
-							id: item.id,
-							descricao: `${item.nome} (${item.empresas[0].cargo.nome})`,
-						}));
-						break;
-
-					default:
-						break;
-				}
-
-				if (!grupos.length) return list;
-
-				grupos.forEach((grupo) => {
-					let index = list.findIndex((item) => item.id == grupo.id);
-
-					if (index === -1) {
-						list.push({
-							...grupo,
-							data: [],
-						});
-
-						index = list.length - 1;
+						default:
+							break;
 					}
 
-					list[index].data.push(currentValue);
-				});
+					if (!grupos.length) return list;
 
-				return list;
-			},
-			[],
-		);
+					grupos.forEach((grupo) => {
+						let index = list.findIndex(
+							(item) => item.id == grupo.id,
+						);
+
+						if (index === -1) {
+							list.push({
+								...grupo,
+								data: [],
+							});
+
+							index = list.length - 1;
+						}
+
+						list[index].data.push(currentValue);
+					});
+
+					return list;
+				},
+				[],
+			);
+
+			return { data, total };
+		}
 
 		return response;
 	}
@@ -482,6 +536,36 @@ export class CondominiumService {
 							select: {
 								id: true,
 								nome: true,
+							},
+						},
+					},
+					where: {
+						empresa_id: user.empresa_id,
+					},
+				},
+				departamentos: {
+					select: {
+						departamento: {
+							select: {
+								id: true,
+								nome: true,
+								nac: true,
+								ativo: true,
+								filial: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+							},
+						},
+					},
+					where: {
+						departamento: {
+							condominios: {
+								some: {
+									condominio_id: id,
+								},
 							},
 						},
 					},

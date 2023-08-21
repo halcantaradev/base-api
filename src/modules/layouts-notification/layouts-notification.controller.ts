@@ -91,6 +91,29 @@ export class LayoutsNotificationController {
 		};
 	}
 
+	@ApiOperation({ summary: 'Listar os modelos de impressão ativos' })
+	@ApiResponse({
+		description: 'Listar modelos ativos',
+		status: HttpStatus.OK,
+		type: LayoutsNotificationListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os modelos ativos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error('Erro ao listar modelo ativos'),
+	})
+	@Role('layouts-notificacao-listar-ativos')
+	@Get('ativos')
+	async findAllActive(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.layoutsNotificationService.findAll(
+				user.empresa_id,
+				true,
+			),
+		};
+	}
+
 	@ApiOperation({ summary: 'Listar constantes para layouts' })
 	@ApiResponse({
 		description: 'Listar constantes',
@@ -136,10 +159,12 @@ export class LayoutsNotificationController {
 	async update(
 		@Param('id') id: string,
 		@Body() updateLayoutsNotificationDto: UpdateLayoutsNotificationDto,
+		@CurrentUser() user: UserAuth,
 	) {
 		await this.layoutsNotificationService.update(
 			+id,
 			updateLayoutsNotificationDto,
+			user.empresa_id,
 		);
 
 		return {

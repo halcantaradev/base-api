@@ -2,11 +2,9 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { AxiosHeaders } from 'axios';
 import { Agent } from 'https';
-import { Email } from '../types';
-import { Filas } from '../consts/filas.const';
 
 @Injectable()
-export class EmailService {
+export class FilaService {
 	headers: AxiosHeaders;
 	baseURL: string;
 	constructor(private readonly httpService: HttpService) {
@@ -17,19 +15,15 @@ export class EmailService {
 		});
 	}
 
-	send(email: Email): Promise<boolean> {
+	subscribe(fila: string, payload: any): Promise<boolean> {
 		return new Promise((res, rej) => {
 			this.httpService
-				.post(
-					`${this.baseURL}/${Filas.EMAIL}-${process.env.PREFIX_EMPRESA}`,
-					email,
-					{
-						headers: this.headers,
-						httpsAgent: new Agent({
-							rejectUnauthorized: false,
-						}),
-					},
-				)
+				.post(`${this.baseURL}/${fila}`, payload, {
+					headers: this.headers,
+					httpsAgent: new Agent({
+						rejectUnauthorized: false,
+					}),
+				})
 				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});
 	}

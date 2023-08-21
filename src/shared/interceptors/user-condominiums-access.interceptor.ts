@@ -58,7 +58,7 @@ export class UserCondominiumsAccess implements NestInterceptor {
 											usuarios: {
 												some: {
 													usuario_id: idUser,
-													restringir_acesso: false,
+													delimitar_acesso: false,
 												},
 											},
 										},

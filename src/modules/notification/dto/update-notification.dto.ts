@@ -48,4 +48,10 @@ export class UpdateNotificationDto extends CreateNotificationDto {
 
 	@IsOptional()
 	arquivos_ids: number[];
+
+	@IsOptional()
+	layout_id: number;
+
+	@IsOptional()
+	doc_gerado?: string;
 }

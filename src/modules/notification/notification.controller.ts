@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -14,16 +15,17 @@ import {
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
+import { Response } from 'express';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { PdfService } from 'src/shared/services/pdf.service';
+import { LayoutsNotificationService } from '../layouts-notification/layouts-notification.service';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -34,8 +36,6 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
 import { NotificationService } from './notification.service';
-import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
-import { Response } from 'express';
 
 @ApiTags('Notificações')
 @Controller('notifications')
@@ -47,6 +47,7 @@ export class NotificationController {
 		private readonly layoutService: LayoutConstsService,
 		private readonly handleBarService: HandlebarsService,
 		private readonly pdfService: PdfService,
+		private readonly layoutNotificationServe: LayoutsNotificationService,
 	) {}
 
 	@Post()
@@ -68,11 +69,35 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	create(
+	async create(
 		@Body() createNotificationDto: CreateNotificationDto,
 		@CurrentUser() user: UserAuth,
 	) {
-		return this.notificationService.create(createNotificationDto, user);
+		const layoutPadrao = await this.layoutNotificationServe.findOne(
+			createNotificationDto.layout_id,
+			user.empresa_id,
+		);
+
+		const layout = this.layoutService.replaceLayoutVars(
+			layoutPadrao.modelo,
+		);
+
+		const notificacao = await this.notificationService.create(
+			createNotificationDto,
+			user,
+		);
+
+		const dataToPrint = await this.notificationService.dataToHandle(
+			notificacao.data.id,
+		);
+
+		const html = this.handleBarService.compile(layout, dataToPrint);
+		await this.notificationService.updateLayoutUsado(
+			notificacao.data.id,
+			html,
+		);
+
+		return notificacao;
 	}
 
 	@Get()
@@ -223,10 +248,25 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	update(
+	async update(
 		@Param('id') id: string,
 		@Body() updateNotificationDto: UpdateNotificationDto,
+		@CurrentUser() user: UserAuth,
 	) {
+		const layoutPadrao = await this.layoutNotificationServe.findOne(
+			updateNotificationDto.layout_id,
+			user.empresa_id,
+		);
+
+		const layout = this.layoutService.replaceLayoutVars(
+			layoutPadrao.modelo,
+		);
+
+		const dataToPrint = await this.notificationService.dataToHandle(+id);
+		updateNotificationDto.doc_gerado = this.handleBarService.compile(
+			layout,
+			dataToPrint,
+		);
 		return this.notificationService.update(+id, updateNotificationDto);
 	}
 
@@ -247,23 +287,40 @@ export class NotificationController {
 		@Param('id') id: string,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		let html: Buffer | string = readFileSync(
-			resolve('./src/shared/layouts/notification.html'),
+		const notificacao = await this.notificationService.findOneById(+id);
+		if (!notificacao) {
+			throw new BadRequestException('Notificação não encontrada');
+		}
+		const pdf = await this.pdfService.getPDF(notificacao.data.doc_gerado);
+
+		const layout = this.layoutService.replaceLayoutVars(
+			this.layoutService.getTemplat('annex-notification.html'),
 		);
 
-		const layout = this.layoutService.replaceLayoutVars(html.toString());
+		let pdfMerge: any;
 
-		const dataToPrint = await this.notificationService.dataToHandle(+id);
-		html = this.handleBarService.compile(layout, dataToPrint);
+		const dataToAnexo = await this.notificationService.dataAnexos(+id);
+		if (dataToAnexo.hasAnexos) {
+			const tplAnexos = this.handleBarService.compile(
+				layout,
+				dataToAnexo,
+			);
+			const pdfAnexo = await this.pdfService.getPDF(tplAnexos);
+			const pdfs = await this.notificationService.getPDFFiles(+id);
 
-		const pdf = await this.pdfService.getPDF(html);
-		const pdfs = await this.notificationService.getPDFFiles(+id);
+			pdfMerge = await this.pdfService.mergePDFs(
+				[pdf, pdfAnexo, ...pdfs],
+				'Notificação',
+			);
+		} else {
+			pdfMerge = await this.pdfService.mergePDFs([pdf], 'Notificação');
+		}
 
 		res.set({
 			'Content-Type': 'application/pdf',
 			'Content-Disposition': 'inline;',
 		});
-		return await this.pdfService.mergePDFs([pdf, ...pdfs], 'Notificação');
+		return pdfMerge;
 	}
 
 	@Post('unidade/:id')

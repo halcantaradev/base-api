@@ -28,7 +28,7 @@ import { ListUserActiveDto } from './dto/list-user-active.dto';
 import { LinkCondominiumsDto } from './dto/link-condominiums.dto';
 import { ReturnUserCondominiums } from './entities/return-user-condominiums.entity';
 import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
-import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.decorator';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
 import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 import { ReportUserDto } from './dto/report-user.dto';
 import { ReportUserReturn } from './entities/report-user-return.entity';
@@ -140,7 +140,7 @@ export class UserController {
 
 		return {
 			success: true,
-			data,
+			...data,
 		};
 	}
 

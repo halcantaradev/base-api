@@ -6,6 +6,7 @@ export const menulist: Array<{
 	url: string | null;
 	icon: string;
 	target: string;
+	ativo?: boolean;
 }> = [
 	{
 		id_relation: 1,
@@ -35,10 +36,12 @@ export const menulist: Array<{
 	{
 		id_relation: 4,
 		relation: 1,
+		permission_key: 'layouts-notificacao-listar',
 		label: 'Modelos',
 		url: 'notificacoes/modelos',
 		icon: 'add',
 		target: '_self',
+		ativo: false,
 	},
 	{
 		id_relation: 7,
@@ -133,6 +136,15 @@ export const menulist: Array<{
 		permission_key: 'tipo-contrato-listar',
 		url: 'tipos-de-contrato/buscar',
 		icon: 'file-done',
+		target: '_self',
+	},
+	{
+		id_relation: 99997,
+		relation: 99990,
+		label: 'Sistema',
+		permission_key: 'setup-sistema-listar',
+		url: 'sistema/listar',
+		icon: 'setting',
 		target: '_self',
 	},
 ];

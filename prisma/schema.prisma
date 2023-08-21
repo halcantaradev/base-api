@@ -8,21 +8,22 @@ datasource db {
 }
 
 model Pessoa {
-  id               Int      @id @default(autoincrement())
-  nome             String
-  cnpj             String
-  empresa_id       Int?
-  numero           String?
-  endereco         String?
-  cep              String?
-  bairro           String?
-  cidade           String?
-  uf               String?
-  categoria_id     Int?
-  tipo_contrato_id Int?
-  ativo            Boolean  @default(true)
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  id                Int       @id @default(autoincrement())
+  nome              String
+  cnpj              String
+  empresa_id        Int?
+  numero            String?
+  endereco          String?
+  cep               String?
+  bairro            String?
+  cidade            String?
+  uf                String?
+  categoria_id      Int?
+  tipo_contrato_id  Int?
+  ativo             Boolean   @default(true)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+  updated_at_origin DateTime?
 
   contatos                      Contato[]
   unidades_condominio           Unidade[]
@@ -45,6 +46,7 @@ model Pessoa {
   tipos_infracoes               TipoInfracao[]
   filiais_empresa               Filial[]
   temas                         Tema[]
+  integracoes                   IntegracaoDatabase[]
 
   @@map("pessoas")
 }
@@ -129,13 +131,14 @@ model EmpresasHasUsuarios {
 }
 
 model Unidade {
-  id                  Int      @id @default(autoincrement())
+  id                  Int       @id @default(autoincrement())
   original_unidade_id Int?
   condominio_id       Int
   codigo              String
-  ativo               Boolean  @default(true)
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
+  ativo               Boolean   @default(true)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+  updated_at_origin   DateTime?
 
   condominos   PessoasHasUnidades[]
   notificacoes Notificacao[]
@@ -181,11 +184,13 @@ model Notificacao {
   id                  Int       @id @default(autoincrement())
   unidade_id          Int
   pessoa_id           Int
+  layout_id           Int
   tipo_infracao_id    Int
   tipo_registro       Int       @default(1)
   data_emissao        DateTime  @default(now())
   data_infracao       DateTime  @default(now())
   codigo              String
+  doc_gerado          String?
   detalhes_infracao   String
   fundamentacao_legal String    @db.Text
   observacoes         String?   @db.Text
@@ -197,9 +202,10 @@ model Notificacao {
   created_at          DateTime  @default(now())
   updated_at          DateTime  @updatedAt
 
-  unidade       Unidade      @relation(fields: [unidade_id], references: [id])
-  pessoa        Pessoa       @relation(fields: [pessoa_id], references: [id])
-  tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])
+  unidade       Unidade            @relation(fields: [unidade_id], references: [id])
+  pessoa        Pessoa             @relation(fields: [pessoa_id], references: [id])
+  tipo_infracao TipoInfracao       @relation(fields: [tipo_infracao_id], references: [id])
+  layout        LayoutsNotificacao @relation(fields: [layout_id], references: [id])
 
   @@map("notificacoes")
 }
@@ -207,6 +213,7 @@ model Notificacao {
 model Permissoes {
   id         Int      @id @default(autoincrement())
   label      String
+  module     String   @default("Padrão")
   key        String
   message    String
   active     Boolean  @default(true)
@@ -331,17 +338,18 @@ model LayoutsNotificacao {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  empresa      Pessoa        @relation(fields: [empresa_id], references: [id])
+  notificacoes Notificacao[]
 
   @@map("layouts_notificacao")
 }
 
 model UsuarioHasDepartamentos {
-  usuario_id        Int
-  departamento_id   Int
-  restringir_acesso Boolean  @default(false)
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
+  usuario_id       Int
+  departamento_id  Int
+  delimitar_acesso Boolean  @default(false)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
 
   usuario      User         @relation(fields: [usuario_id], references: [id])
   departamento Departamento @relation(fields: [departamento_id], references: [id])
@@ -511,3 +519,22 @@ model Tema {
   @@map("temas")
 }
 
+model IntegracaoDatabase {
+  id               Int       @id @default(autoincrement())
+  empresa_id       Int
+  descricao        String
+  host             String
+  banco            String
+  usuario          String
+  senha            String
+  porta            Int
+  token            String
+  data_atualizacao DateTime?
+  ativo            Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("integracoes_database")
+}

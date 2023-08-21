@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, Validate } from 'class-validator';
-import { DepartmentExists } from '../validators';
+import { DepartmentExists } from 'src/shared/validators';
 
 export class LinkDepartamentDto {
 	@ApiProperty({

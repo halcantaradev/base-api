@@ -8,22 +8,40 @@ export class DocumentTypeService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async create(createDocumentTypeDto: CreateDocumentTypeDto) {
-		const alreadyexists = await this.prisma.tipoDocumento.findUnique({
+		const alreadyexists = await this.prisma.tipoDocumento.findMany({
 			where: {
 				nome: createDocumentTypeDto.nome,
 			},
 		});
 
-		if (alreadyexists) {
+		if (
+			alreadyexists &&
+			alreadyexists.some((item) => item.excluido === false)
+		) {
 			throw new BadRequestException('Nome de documento já cadastrado', {
 				cause: new Error(),
 				description: 'Por favor use um nome diferente',
+			});
+		} else if (
+			alreadyexists &&
+			alreadyexists.some((item) => item.excluido === true)
+		) {
+			return this.prisma.tipoDocumento.create({
+				data: createDocumentTypeDto,
 			});
 		} else {
 			return this.prisma.tipoDocumento.create({
 				data: createDocumentTypeDto,
 			});
 		}
+	}
+
+	async findOne(id: number) {
+		return this.prisma.tipoDocumento.findUnique({
+			where: {
+				id,
+			},
+		});
 	}
 
 	async findAll(ativo?: boolean) {

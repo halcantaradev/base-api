@@ -439,6 +439,13 @@ export const permissionslist: Array<{
 		active: false,
 	},
 	{
+		label: 'Visualizar dados do tipo de documento',
+		module: 'Documentos',
+		key: 'tipos-documentos-exibir-dados',
+		message: 'Sem permissão para exibir dados do tipo de documento',
+		active: false,
+	},
+	{
 		label: 'Listar tipos de documentos ativos',
 		module: 'Documentos',
 		key: 'tipos-documentos-listar-ativos',

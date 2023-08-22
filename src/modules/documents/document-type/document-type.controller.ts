@@ -94,6 +94,28 @@ export class DocumentTypeController {
 		};
 	}
 
+	@Get(':id')
+	@Role('tipos-documentos-exibir-dados')
+	@ApiOperation({ summary: 'Exibir dados de um tipo de documento' })
+	@ApiResponse({
+		description: 'Exibir dados de um tipo de documento',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success('Dados do tipo de documento'),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao exibir os dados do tipo de documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(
+			'Erro ao exibir os dados do tipo de documento',
+		),
+	})
+	async findOne(@Param('id') id: string) {
+		return {
+			success: true,
+			data: await this.documentTypeService.findOne(+id),
+		};
+	}
+
 	@Patch(':id')
 	@Role('tipos-documentos-atualizar')
 	@ApiOperation({ summary: 'Atualizar um tipo de documento' })

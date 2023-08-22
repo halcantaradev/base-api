@@ -3,6 +3,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateProtocolDto } from './dto/create-protocol.dto';
 import { UpdateProtocolDto } from './dto/update-protocol.dto';
 import { Prisma } from '@prisma/client';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 
 @Injectable()
 export class ProtocolService {
@@ -70,7 +71,7 @@ export class ProtocolService {
 		});
 	}
 
-	findById(id: number, user_id: number) {
+	findById(id: number, user: UserAuth) {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Protocolo não encontrado');
 
@@ -79,30 +80,32 @@ export class ProtocolService {
 			where: {
 				id,
 				excluido: false,
-				OR: [
-					{
-						destino_departamento: {
-							usuarios: {
-								some: {
-									usuario: {
-										id: user_id,
+				OR: !user.acessa_todos_departamentos
+					? [
+							{
+								destino_departamento: {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
 									},
 								},
 							},
-						},
-					},
-					{
-						origem_departamento: {
-							usuarios: {
-								some: {
-									usuario: {
-										id: user_id,
+							{
+								origem_departamento: {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
 									},
 								},
 							},
-						},
-					},
-				],
+					  ]
+					: undefined,
 			},
 		});
 	}
@@ -110,9 +113,9 @@ export class ProtocolService {
 	async update(
 		id: number,
 		updateProtocolDto: UpdateProtocolDto,
-		origem_usuario_id: number,
+		user: UserAuth,
 	) {
-		const protocolo = this.findById(id, origem_usuario_id);
+		const protocolo = this.findById(id, user);
 
 		if (!protocolo)
 			throw new BadRequestException('Protocolo não encontrado');
@@ -125,7 +128,7 @@ export class ProtocolService {
 				destino_usuario_id:
 					updateProtocolDto.destino_usuario_id || undefined,
 				origem_usuario_id: updateProtocolDto.origem_departamento_id
-					? origem_usuario_id
+					? user.id
 					: undefined,
 				origem_departamento_id:
 					updateProtocolDto.origem_departamento_id || undefined,

@@ -79,7 +79,7 @@ export class ProtocolController {
 	async findOne(@Param('id') id: string, @CurrentUser() user: UserAuth) {
 		return {
 			success: true,
-			data: await this.protocolService.findById(+id, user.id),
+			data: await this.protocolService.findById(+id, user),
 		};
 	}
 
@@ -109,10 +109,11 @@ export class ProtocolController {
 	) {
 		return {
 			success: true,
+			message: 'Protocolo atualizado com sucesso',
 			data: await this.protocolService.update(
 				+id,
 				updateProtocolDto,
-				user.id,
+				user,
 			),
 		};
 	}

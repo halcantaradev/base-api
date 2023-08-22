@@ -19,6 +19,7 @@ import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.m
 import { SubsidiaryModule } from './modules/subsidiary/subsidiary.module';
 import { ContractTypesCondominiumModule } from './modules/contract-type-condominium/contract-types-condominium.module';
 import { IntegrationModule } from './modules/integration/integration.module';
+import { DocumentsModule } from './modules/documents/documents.module';
 
 @Module({
 	imports: [
@@ -39,6 +40,7 @@ import { IntegrationModule } from './modules/integration/integration.module';
 		SubsidiaryModule,
 		ContractTypesCondominiumModule,
 		IntegrationModule,
+		DocumentsModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, LayoutConstsService],

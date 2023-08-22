@@ -54,8 +54,8 @@ export class LoggerInterceptor implements NestInterceptor {
 						query,
 						param,
 						body,
-						err.status,
-						err.response.message,
+						err?.status || 500,
+						err?.response?.message || err,
 					);
 				},
 			}),

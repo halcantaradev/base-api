@@ -82,7 +82,10 @@ export class DocumentTypeService {
 		}
 
 		return this.prisma.tipoDocumento.update({
-			data: updateDocumentTypeDto,
+			data: {
+				ativo: updateDocumentTypeDto.ativo,
+				nome: updateDocumentTypeDto.nome,
+			},
 			where: {
 				id,
 			},

@@ -41,7 +41,7 @@ export class UpdateProtocolDto extends PartialType(CreateProtocolDto) {
 	})
 	@Validate(IsBooleanType, {
 		message:
-			'O campo informado não é válido. Por favor, forneça um válido.',
+			'O campo progresso informado não é válido. Por favor, forneça um válido.',
 	})
 	@Transform(BooleanTransformHelper)
 	@IsOptional()

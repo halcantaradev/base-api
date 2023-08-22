@@ -58,7 +58,6 @@ export class ProtocolController {
 	}
 
 	@Get('/:id')
-	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
 	@ApiResponse({
@@ -84,7 +83,6 @@ export class ProtocolController {
 	}
 
 	@Patch('/:id')
-	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-atualizar-dados')
 	@ApiOperation({ summary: 'Atualiza os dados de um protocolo' })
 	@ApiResponse({

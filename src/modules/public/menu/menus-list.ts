@@ -82,7 +82,7 @@ export const menulist: Array<{
 		permission_key: 'protocolos-listar',
 		label: 'Protocolos',
 		url: 'protocolos',
-		icon: 'docs',
+		icon: 'container',
 		target: '_self',
 	},
 	{

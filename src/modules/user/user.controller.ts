@@ -84,7 +84,37 @@ export class UserController {
 	@Role('usuarios-listar-ativos')
 	@ApiOperation({ summary: 'Lista usuários ativos' })
 	@ApiResponse({
-		description: 'Usuários ativos listados com sucesso',
+		description: 'Usuários listados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnUserListEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os usuários',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	findAllActiveByUser(
+		@CurrentUserCondominiums() condominiums: number[],
+		@CurrentUser() user: UserAuth,
+		@Body() filters: ListUserActiveDto,
+	) {
+		return this.userService.findAll(
+			user,
+			{
+				...filters,
+				ativo: true,
+			},
+			condominiums,
+		);
+	}
+
+	@Post('active/all')
+	@HttpCode(HttpStatus.OK)
+	@UseInterceptors(UserCondominiumsAccess)
+	@Role('usuarios-listar-ativos')
+	@ApiOperation({ summary: 'Lista todos os usuários ativos' })
+	@ApiResponse({
+		description: 'Usuários listados com sucesso',
 		status: HttpStatus.OK,
 		type: ReturnUserListEntity,
 	})
@@ -105,6 +135,7 @@ export class UserController {
 				ativo: true,
 			},
 			condominiums,
+			true,
 		);
 	}
 

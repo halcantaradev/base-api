@@ -78,6 +78,14 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
+		id_relation: 11,
+		permission_key: 'protocolos-listar',
+		label: 'Protocolos',
+		url: 'protocolos',
+		icon: 'container',
+		target: '_self',
+	},
+	{
 		id_relation: 99990,
 		label: 'Configurações',
 		url: null,
@@ -145,6 +153,15 @@ export const menulist: Array<{
 		permission_key: 'setup-sistema-listar',
 		url: 'sistema/listar',
 		icon: 'setting',
+		target: '_self',
+	},
+	{
+		id_relation: 99998,
+		relation: 99990,
+		label: 'Tipos de documentos',
+		permission_key: 'tipos-documentos-listar',
+		url: 'tipos-de-documentos/buscar',
+		icon: 'file_text',
 		target: '_self',
 	},
 ];

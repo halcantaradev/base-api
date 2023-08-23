@@ -96,7 +96,7 @@ export class DepartmentController {
 			param_type: 'query',
 		},
 	])
-	@ApiOperation({ summary: 'Lista todos os departamentos ativos' })
+	@ApiOperation({ summary: 'Lista os departamentos ativos' })
 	@ApiResponse({
 		description: 'Departamentos listados com sucesso',
 		status: HttpStatus.OK,
@@ -107,7 +107,7 @@ export class DepartmentController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllActive(
+	async findAllActiveByUser(
 		@CurrentUser() user: UserAuth,
 		@Query('usuario_id') usuario_id?: string,
 		@Query('busca') busca?: string,
@@ -121,6 +121,44 @@ export class DepartmentController {
 					ativo: true,
 				},
 				+usuario_id,
+			),
+		};
+	}
+
+	@Get('active/all')
+	@Role([
+		'departamentos-listar-ativos',
+		{
+			role: 'usuarios-atualizar-vinculos-condominios',
+			param: 'usuario_id',
+			param_type: 'query',
+		},
+	])
+	@ApiOperation({ summary: 'Lista todos os departamentos ativos' })
+	@ApiResponse({
+		description: 'Departamentos listados com sucesso',
+		status: HttpStatus.OK,
+		type: DepartmentListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os departamentos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllActive(
+		@CurrentUser() user: UserAuth,
+		@Query('busca') busca?: string,
+	) {
+		return {
+			success: true,
+			data: await this.departmentService.findAll(
+				user,
+				{
+					busca,
+					ativo: true,
+				},
+				undefined,
+				true,
 			),
 		};
 	}

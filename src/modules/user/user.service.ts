@@ -122,6 +122,7 @@ export class UserService {
 		user: UserAuth,
 		filtros: ListUserDto = {},
 		condominiums?: number[],
+		all = false,
 	): Promise<ReturnUserListEntity> {
 		return {
 			success: true,
@@ -163,7 +164,28 @@ export class UserService {
 						},
 					},
 				},
-				where: await this.getFilterList(user, filtros, condominiums),
+				where: all
+					? {
+							OR: [
+								{
+									departamentos:
+										filtros.departamentos &&
+										filtros.departamentos.length
+											? {
+													some: {
+														departamento_id: {
+															in: filtros.departamentos,
+														},
+													},
+											  }
+											: undefined,
+								},
+								{
+									acessa_todos_departamentos: true,
+								},
+							],
+					  }
+					: await this.getFilterList(user, filtros, condominiums),
 				orderBy: {
 					nome: 'asc',
 				},

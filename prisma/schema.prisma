@@ -47,6 +47,7 @@ model Pessoa {
   filiais_empresa               Filial[]
   temas                         Tema[]
   integracoes                   IntegracaoDatabase[]
+  protocolo_documentos          ProtocoloDocumentos[]
 
   @@map("pessoas")
 }
@@ -557,12 +558,32 @@ model Protocolo {
   created_at              DateTime @default(now())
   updated_at              DateTime @updatedAt
 
-  destino_departamento Departamento @relation(name: "DestinoProtocoloDepartamento", fields: [destino_departamento_id], references: [id])
-  origem_departamento  Departamento @relation(name: "OrigemProtocoloDepartamento", fields: [origem_departamento_id], references: [id])
-  destino_usuario      User?        @relation(name: "DestinoProtocoloUsuario", fields: [destino_usuario_id], references: [id])
-  origem_usuario       User?        @relation(name: "OrigemProtocoloUsuario", fields: [origem_usuario_id], references: [id])
+  destino_departamento Departamento          @relation(name: "DestinoProtocoloDepartamento", fields: [destino_departamento_id], references: [id])
+  origem_departamento  Departamento          @relation(name: "OrigemProtocoloDepartamento", fields: [origem_departamento_id], references: [id])
+  destino_usuario      User?                 @relation(name: "DestinoProtocoloUsuario", fields: [destino_usuario_id], references: [id])
+  origem_usuario       User?                 @relation(name: "OrigemProtocoloUsuario", fields: [origem_usuario_id], references: [id])
+  documentos           ProtocoloDocumentos[]
 
   @@map("protocolos")
+}
+
+model ProtocoloDocumentos {
+  id                     Int      @id @default(autoincrement())
+  protocolo_id           Int
+  tipo_documento_id      Int
+  condominio_id          Int
+  usuario_id_recebimento Int
+  discriminacao          String
+  observacao             String
+  data_recebimento       DateTime
+  status                 Boolean  @default(false)
+  excluido               Boolean  @default(false)
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
+
+  condominio     Pessoa        @relation(fields: [condominio_id], references: [id])
+  tipo_documento TipoDocumento @relation(fields: [tipo_documento_id], references: [id])
+  protocolo      Protocolo     @relation(fields: [protocolo_id], references: [id])
 }
 
 model TipoDocumento {
@@ -572,6 +593,8 @@ model TipoDocumento {
   excluido   Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  protocolo_documentos ProtocoloDocumentos[]
 
   @@map("tipos_documentos")
 }

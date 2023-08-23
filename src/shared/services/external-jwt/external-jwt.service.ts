@@ -9,7 +9,7 @@ export class ExternalJwtService {
 		return this.jwtService.sign(payload, { expiresIn: '1d' });
 	}
 
-	_validateToken(token: string) {
+	validateToken(token: string) {
 		return this.jwtService.verify(token, {
 			secret: process.env.EXTERNAL_ACCESS_SECRET,
 		});
@@ -21,5 +21,11 @@ export class ExternalJwtService {
 
 	generateTokenBySecret(secret: string, payload: any) {
 		return this.jwtService.sign(payload, { secret });
+	}
+
+	getPayload(token: string, secret: string) {
+		return this.jwtService.verify(token, {
+			secret,
+		});
 	}
 }

@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientRMQ } from '@nestjs/microservices';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { UpdateIntegrationDto } from './dto/update-integration.dto';
@@ -8,6 +9,7 @@ export class IntegrationService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly externalService: ExternalJwtService,
+		@Inject('SYNC_SERVICE') private readonly syncService: ClientRMQ,
 	) {}
 
 	findAllByEmpresa(empresa_id: number) {
@@ -26,11 +28,20 @@ export class IntegrationService {
 		});
 	}
 
-	generateApiTokenAccess(payload: any) {
-		return this.externalService.generateTokenBySecret(
+	generateApiTokenAccess(payload: any, id: number) {
+		const token = this.externalService.generateTokenBySecret(
 			process.env.SECRET,
 			payload,
 		);
+
+		return this.prisma.integracaoDatabase.update({
+			data: { token },
+			where: { id },
+		});
+	}
+
+	getUserByToken(token: string) {
+		this.externalService.getPayload(token, process.env.SECRET);
 	}
 
 	generatePayloadFila(payload: any) {
@@ -78,6 +89,8 @@ export class IntegrationService {
 						id: condominio.id,
 					},
 				});
+			} else {
+				return false;
 			}
 		} else {
 			const cond = await this.prisma.pessoa.create({
@@ -108,5 +121,9 @@ export class IntegrationService {
 
 	update(id: number, data: UpdateIntegrationDto) {
 		return this.prisma.integracaoDatabase.update({ data, where: { id } });
+	}
+
+	starSync(pattern: string, payload: any) {
+		this.syncService.emit(pattern, JSON.stringify(payload));
 	}
 }

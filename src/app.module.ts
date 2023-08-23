@@ -22,6 +22,7 @@ import { IntegrationModule } from './modules/integration/integration.module';
 import { ProtocolModule } from './modules/protocol/protocol.module';
 import { DepartmentExists, UserExists } from './shared/validators';
 import { PrismaService } from './shared/services/prisma.service';
+import { DocumentsModule } from './modules/documents/documents.module';
 
 @Module({
 	imports: [
@@ -43,6 +44,7 @@ import { PrismaService } from './shared/services/prisma.service';
 		ContractTypesCondominiumModule,
 		IntegrationModule,
 		ProtocolModule,
+		DocumentsModule,
 	],
 	controllers: [AppController],
 	providers: [

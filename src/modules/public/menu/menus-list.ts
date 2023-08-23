@@ -155,4 +155,13 @@ export const menulist: Array<{
 		icon: 'setting',
 		target: '_self',
 	},
+	{
+		id_relation: 99998,
+		relation: 99990,
+		label: 'Tipos de documentos',
+		permission_key: 'tipos-documentos-listar',
+		url: 'tipos-de-documentos/buscar',
+		icon: 'file_text',
+		target: '_self',
+	},
 ];

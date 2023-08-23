@@ -434,4 +434,40 @@ export const permissionslist: Array<{
 		key: 'protocolos-atualizar-dados',
 		message: 'Sem permissão para atualizar protocolo',
 	},
+	{
+		label: 'Cadastrar tipos de documentos',
+		module: 'Documentos',
+		key: 'tipos-documentos-cadastrar',
+		message: 'Sem permissão para cadastrar tipos de documentos',
+	},
+	{
+		label: 'Atualizar tipos de documentos',
+		module: 'Documentos',
+		key: 'tipos-documentos-atualizar',
+		message: 'Sem permissão para atualizar tipos de documentos',
+	},
+	{
+		label: 'Listar tipos de documentos',
+		module: 'Documentos',
+		key: 'tipos-documentos-listar',
+		message: 'Sem permissão para listar tipos de documentos',
+	},
+	{
+		label: 'Remover tipo de documento',
+		module: 'Documentos',
+		key: 'tipos-documentos-remover',
+		message: 'Sem permissão para remover tipos de documentos',
+	},
+	{
+		label: 'Visualizar dados do tipo de documento',
+		module: 'Documentos',
+		key: 'tipos-documentos-exibir-dados',
+		message: 'Sem permissão para exibir dados do tipo de documento',
+	},
+	{
+		label: 'Listar tipos de documentos ativos',
+		module: 'Documentos',
+		key: 'tipos-documentos-listar-ativos',
+		message: 'Sem permissão para listar tipos de documentos',
+	},
 ];

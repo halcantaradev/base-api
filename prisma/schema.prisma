@@ -564,3 +564,14 @@ model Protocolo {
 
   @@map("protocolos")
 }
+
+model TipoDocumento {
+  id         Int      @id @default(autoincrement())
+  nome       String
+  ativo      Boolean  @default(true)
+  excluido   Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("tipos_documentos")
+}

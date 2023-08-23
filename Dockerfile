@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18
 LABEL Author="Gestart Team Dev" 
 ENV SERVER_HOME=/usr/src/server/
 WORKDIR $SERVER_HOME

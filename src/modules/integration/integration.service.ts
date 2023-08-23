@@ -1,6 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientRMQ } from '@nestjs/microservices';
+import { Injectable } from '@nestjs/common';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
+import { FilaService } from 'src/shared/services/fila/fila.service';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { UpdateIntegrationDto } from './dto/update-integration.dto';
 
@@ -9,7 +9,7 @@ export class IntegrationService {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly externalService: ExternalJwtService,
-		@Inject('SYNC_SERVICE') private readonly syncService: ClientRMQ,
+		private readonly filaService: FilaService,
 	) {}
 
 	findAllByEmpresa(empresa_id: number) {
@@ -124,6 +124,6 @@ export class IntegrationService {
 	}
 
 	starSync(pattern: string, payload: any) {
-		this.syncService.emit(pattern, JSON.stringify(payload));
+		this.filaService.publishSync(pattern, payload);
 	}
 }

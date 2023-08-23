@@ -1,36 +1,15 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ExternalJwtModule } from 'src/shared/services/external-jwt/external-jwt.module';
+import { FilaModule } from 'src/shared/services/fila/fila.module';
 import { PrismaService } from 'src/shared/services/prisma.service';
+import { PermissionsModule } from '../public/permissions/permissions.module';
 import { IntegrationController } from './integration.controller';
 import { IntegrationService } from './integration.service';
-import { FilaService } from 'src/shared/services/fila.service';
-import { HttpModule } from '@nestjs/axios';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { Filas } from 'src/shared/consts/filas.const';
-import { PermissionsModule } from '../public/permissions/permissions.module';
 
 @Module({
 	controllers: [IntegrationController],
-	imports: [
-		ExternalJwtModule,
-		HttpModule,
-		PermissionsModule,
-		ClientsModule.register([
-			{
-				name: 'SYNC_SERVICE',
-				transport: Transport.RMQ,
-				options: {
-					urls: [
-						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
-					],
-					queue: Filas.SYNC + '-' + process.env.PREFIX_EMPRESA,
-					noAck: true,
-					persistent: true,
-					queueOptions: {},
-				},
-			},
-		]),
-	],
-	providers: [IntegrationService, PrismaService, FilaService],
+	imports: [ExternalJwtModule, HttpModule, FilaModule, PermissionsModule],
+	providers: [IntegrationService, PrismaService],
 })
 export class IntegrationModule {}

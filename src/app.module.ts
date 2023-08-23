@@ -23,6 +23,7 @@ import { ProtocolModule } from './modules/protocol/protocol.module';
 import { DepartmentExists, UserExists } from './shared/validators';
 import { PrismaService } from './shared/services/prisma.service';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { FilaModule } from './shared/services/fila/fila.module';
 
 @Module({
 	imports: [
@@ -45,6 +46,7 @@ import { DocumentsModule } from './modules/documents/documents.module';
 		IntegrationModule,
 		ProtocolModule,
 		DocumentsModule,
+		FilaModule,
 	],
 	controllers: [AppController],
 	providers: [

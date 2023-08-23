@@ -1,14 +1,14 @@
-import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import 'reflect-metadata';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
-import { PrismaExceptionFilter } from './shared/filters/prisma-exception-filter';
+import 'reflect-metadata';
+import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/filters/http-exception-filter';
+import { PrismaExceptionFilter } from './shared/filters/prisma-exception-filter';
 import { LoggerInterceptor } from './shared/interceptors/logger.interceptor';
+import { FilaService } from './shared/services/fila/fila.service';
 import { LoggerService } from './shared/services/logger.service';
-import { HttpService } from '@nestjs/axios';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule, {
@@ -34,7 +34,7 @@ async function bootstrap() {
 	app.useGlobalFilters(new HttpExceptionFilter());
 	app.useGlobalFilters(new PrismaExceptionFilter());
 	app.useGlobalInterceptors(
-		new LoggerInterceptor(new LoggerService(new HttpService())),
+		new LoggerInterceptor(new LoggerService(new FilaService())),
 	);
 
 	useContainer(app.select(AppModule), { fallbackOnErrors: true });

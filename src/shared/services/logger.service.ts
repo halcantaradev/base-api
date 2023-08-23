@@ -1,21 +1,10 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { AxiosHeaders } from 'axios';
-import { Agent } from 'https';
-import { Filas } from '../consts/filas.const';
 import { firstValueFrom } from 'rxjs';
+import { FilaService } from './fila/fila.service';
 
 @Injectable()
 export class LoggerService {
-	headers: AxiosHeaders;
-	baseURL: string;
-	constructor(private readonly httpService: HttpService) {
-		this.baseURL = process.env.EMAIL_SEND_URL;
-		this.headers = new AxiosHeaders({
-			'Content-Type': 'application/json',
-			Authorization: process.env.EMAIL_SEND_TOKEN,
-		});
-	}
+	constructor(private readonly filaService: FilaService) {}
 
 	async send(
 		ip: string,
@@ -56,18 +45,7 @@ export class LoggerService {
 				`[${new Date().toLocaleString()}] ${method} ${route} ${responseStatus}`,
 			);
 
-			await firstValueFrom(
-				this.httpService.post(
-					`${this.baseURL}/${Filas.LOGS}-${process.env.PREFIX_EMPRESA}`,
-					queueBody,
-					{
-						headers: this.headers,
-						httpsAgent: new Agent({
-							rejectUnauthorized: false,
-						}),
-					},
-				),
-			);
+			await firstValueFrom(this.filaService.publishLog('', queueBody));
 
 			return true;
 		} catch {

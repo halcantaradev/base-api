@@ -21,7 +21,7 @@ import { PermissionsModule } from '../public/permissions/permissions.module';
 				transport: Transport.RMQ,
 				options: {
 					urls: [
-						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.QUEUE_URL}`,
+						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
 					],
 					queue: Filas.SYNC + '-' + process.env.PREFIX_EMPRESA,
 					noAck: true,

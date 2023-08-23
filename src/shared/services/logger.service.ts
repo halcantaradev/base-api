@@ -10,10 +10,10 @@ export class LoggerService {
 	headers: AxiosHeaders;
 	baseURL: string;
 	constructor(private readonly httpService: HttpService) {
-		this.baseURL = process.env.QUEUE_URL;
+		this.baseURL = process.env.EMAIL_SEND_URL;
 		this.headers = new AxiosHeaders({
 			'Content-Type': 'application/json',
-			Authorization: process.env.QUEUE_TOKEN,
+			Authorization: process.env.EMAIL_SEND_TOKEN,
 		});
 	}
 

@@ -405,7 +405,7 @@ model CargosCondominio {
   id                       Int                       @id @default(autoincrement())
   nome                     String
   sindico                  Boolean                   @default(false)
-  createdAt                DateTime                  @default(now())
+  created_at                DateTime                  @default(now())
   updated_at               DateTime                  @updatedAt
   condominio_administracao CondomimioAdministracao[]
 
@@ -417,7 +417,7 @@ model CondomimioAdministracao {
   condominio_id Int
   cargo_id      Int
   nome          String
-  createdAt     DateTime @default(now())
+  created_at     DateTime @default(now())
   updated_at    DateTime @updatedAt
 
   condominio Pessoa           @relation(fields: [condominio_id], references: [id])
@@ -535,7 +535,7 @@ model IntegracaoDatabase {
   token            String
   data_atualizacao DateTime?
   ativo            Boolean   @default(true)
-  createdAt        DateTime  @default(now())
+  created_at        DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 
   empresa Pessoa @relation(fields: [empresa_id], references: [id])

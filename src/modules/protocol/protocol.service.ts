@@ -4,6 +4,7 @@ import { CreateProtocolDto } from './dto/create-protocol.dto';
 import { UpdateProtocolDto } from './dto/update-protocol.dto';
 import { Prisma } from '@prisma/client';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { FiltersProtocolDto } from './dto/filters-department.dto';
 
 @Injectable()
 export class ProtocolService {
@@ -59,11 +60,46 @@ export class ProtocolService {
 		});
 	}
 
-	findAll(busca?: string, ativo?: boolean) {
+	findAll(filtersProtocolDto: FiltersProtocolDto, user: UserAuth) {
 		return this.prisma.protocolo.findMany({
 			select: this.select,
 			where: {
-				ativo: ativo != null ? ativo : undefined,
+				id:
+					filtersProtocolDto.busca &&
+					!Number.isNaN(+filtersProtocolDto.busca)
+						? +filtersProtocolDto.busca
+						: undefined,
+				ativo:
+					filtersProtocolDto.ativo != null
+						? filtersProtocolDto.ativo
+						: undefined,
+				excluido: false,
+				OR: !user.acessa_todos_departamentos
+					? [
+							{
+								destino_departamento: {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
+									},
+								},
+							},
+							{
+								origem_departamento: {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
+									},
+								},
+							},
+					  ]
+					: undefined,
 			},
 			orderBy: {
 				id: 'desc',

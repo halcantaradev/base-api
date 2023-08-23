@@ -20,6 +20,8 @@ import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { ProtocolReturn } from './entities/protocol-return.entity';
 import { UpdateProtocolDto } from './dto/update-protocol.dto';
+import { FiltersProtocolDto } from './dto/filters-department.dto';
+import { ProtocolListReturn } from './entities/protocol-list-return.entity';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -57,7 +59,35 @@ export class ProtocolController {
 		};
 	}
 
-	@Get('/:id')
+	@Post('listar')
+	@Role('protocolos-listar')
+	@ApiOperation({ summary: 'Lista os protocolos' })
+	@ApiResponse({
+		description: 'Protocolos listados com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os protocolos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAll(
+		@Body() filtersProtocolDto: FiltersProtocolDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		return {
+			success: true,
+			data: await this.protocolService.findAll(filtersProtocolDto, user),
+		};
+	}
+
+	@Get(':id')
 	@Role('protocolos-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
 	@ApiResponse({
@@ -82,7 +112,7 @@ export class ProtocolController {
 		};
 	}
 
-	@Patch('/:id')
+	@Patch(':id')
 	@Role('protocolos-atualizar-dados')
 	@ApiOperation({ summary: 'Atualiza os dados de um protocolo' })
 	@ApiResponse({

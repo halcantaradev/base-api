@@ -18,7 +18,7 @@ export class ExternalAccessDocumentsService {
 	) {}
 
 	async getDocByToken(token: string): Promise<Buffer | null> {
-		const data = this.externalJwtService._validateToken(token);
+		const data = this.externalJwtService.validateToken(token);
 
 		if (data.origin == 'notificacoes') {
 			let html: Buffer | string = readFileSync(

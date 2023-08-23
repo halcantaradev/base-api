@@ -19,6 +19,11 @@ import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.m
 import { SubsidiaryModule } from './modules/subsidiary/subsidiary.module';
 import { ContractTypesCondominiumModule } from './modules/contract-type-condominium/contract-types-condominium.module';
 import { IntegrationModule } from './modules/integration/integration.module';
+import { ProtocolModule } from './modules/protocol/protocol.module';
+import { DepartmentExists, UserExists } from './shared/validators';
+import { PrismaService } from './shared/services/prisma.service';
+import { DocumentsModule } from './modules/documents/documents.module';
+import { FilaModule } from './shared/services/fila/fila.module';
 
 @Module({
 	imports: [
@@ -39,8 +44,17 @@ import { IntegrationModule } from './modules/integration/integration.module';
 		SubsidiaryModule,
 		ContractTypesCondominiumModule,
 		IntegrationModule,
+		ProtocolModule,
+		DocumentsModule,
+		FilaModule,
 	],
 	controllers: [AppController],
-	providers: [AppService, LayoutConstsService],
+	providers: [
+		AppService,
+		LayoutConstsService,
+		DepartmentExists,
+		UserExists,
+		PrismaService,
+	],
 })
 export class AppModule {}

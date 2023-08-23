@@ -23,7 +23,7 @@ export class FilaService {
 	publishEmail(pattern: string, payload: any): Promise<boolean> {
 		return new Promise((res, rej) => {
 			this.emailService
-				.emit(pattern, JSON.stringify(payload))
+				.emit(pattern, payload)
 				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});
 	}
@@ -31,12 +31,12 @@ export class FilaService {
 	publishSync(pattern: string, payload: any): Promise<boolean> {
 		return new Promise((res, rej) => {
 			this.syncService
-				.emit(pattern, JSON.stringify(payload))
+				.emit(pattern, payload)
 				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});
 	}
 
 	publishLog(pattern: string, payload: any) {
-		return this.logService.emit(pattern, JSON.stringify(payload));
+		return this.logService.emit(pattern, payload);
 	}
 }

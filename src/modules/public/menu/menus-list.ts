@@ -84,6 +84,7 @@ export const menulist: Array<{
 		url: 'protocolos',
 		icon: 'container',
 		target: '_self',
+		ativo: false,
 	},
 	{
 		id_relation: 99990,
@@ -163,5 +164,6 @@ export const menulist: Array<{
 		url: 'tipos-de-documentos/buscar',
 		icon: 'file_text',
 		target: '_self',
+		ativo: false,
 	},
 ];

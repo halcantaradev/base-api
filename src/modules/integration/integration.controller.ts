@@ -17,6 +17,7 @@ import { SyncDataDto } from './dto/sync-data.dto';
 import { IntegrationTokenReturn } from './entities/token-integration.entity copy';
 import { IntegrationService } from './integration.service';
 import { CurrentUserIntegration } from 'src/shared/decorators/current-user-integration.decorator';
+import { Filas } from 'src/shared/consts/filas.const';
 
 @ApiTags('Integração')
 @Controller('integracao')
@@ -45,6 +46,7 @@ export class IntegrationController {
 		delete user['iot'];
 		await this.integrationService.generateApiTokenAccess(
 			{
+				sub: user.id,
 				...user,
 			},
 			+id,
@@ -86,11 +88,12 @@ export class IntegrationController {
 						porta: integ.porta,
 					},
 					last_date_updated: integ.data_atualizacao,
-					exec_url: process.env.API_URL + '/integracao/sincronizar',
-					exec_url_token: integ.token,
+					queue_exec:
+						Filas.SYNC_INSERT + '-' + process.env.PREFIX_EMPRESA,
+					token: integ.token,
 				});
 			}
-
+			console.log('Sincronismo iniciado');
 			return {
 				success: true,
 			};
@@ -105,8 +108,11 @@ export class IntegrationController {
 	async syncData(
 		@CurrentUserIntegration() user: UserAuth,
 		@Payload('params') body: SyncDataDto,
+		@Payload('payload') payload: any,
 		@Ctx() context: RmqContext,
 	) {
+		console.log('Dados para sincronismo recebido!');
+
 		try {
 			switch (body.tipo) {
 				case EntidadesSincronimo.CONDOMINIO:
@@ -118,8 +124,9 @@ export class IntegrationController {
 			}
 
 			if (body.data.current_date_update != undefined) {
+				console.log('Sincronismo finalizado!');
 				await this.integrationService.update(
-					+body.payload.database_config.id,
+					+payload.database_config.id,
 					{
 						data_atualizacao: new Date(
 							body.data.current_date_update,
@@ -136,17 +143,5 @@ export class IntegrationController {
 	@MessagePattern('sync')
 	async getNotifications(@Payload() data: string) {
 		return data;
-	}
-
-	@UseGuards(PermissionGuard)
-	@UseGuards(JwtAuthGuard)
-	@Get('send')
-	sendFila() {
-		try {
-			this.integrationService.starSync('sync', 'teste');
-			return { success: true };
-		} catch (error) {
-			return { success: false };
-		}
 	}
 }

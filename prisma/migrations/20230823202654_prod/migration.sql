@@ -460,6 +460,23 @@ CREATE TABLE "tipos_documentos" (
     CONSTRAINT "tipos_documentos_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "emails_setup" (
+    "id" SERIAL NOT NULL,
+    "empresa_id" INTEGER NOT NULL,
+    "host" TEXT NOT NULL,
+    "port" TEXT NOT NULL,
+    "secure" BOOLEAN NOT NULL DEFAULT false,
+    "user" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "padrao" BOOLEAN NOT NULL DEFAULT false,
+    "ativo" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "emails_setup_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "tipos_pessoas_nome_key" ON "tipos_pessoas"("nome");
 
@@ -630,3 +647,6 @@ ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_destino_usuario_id_fkey" FOR
 
 -- AddForeignKey
 ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_origem_usuario_id_fkey" FOREIGN KEY ("origem_usuario_id") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "emails_setup" ADD CONSTRAINT "emails_setup_empresa_id_fkey" FOREIGN KEY ("empresa_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -13,7 +13,7 @@ import { Filas } from 'src/shared/consts/filas.const';
 					urls: [
 						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
 					],
-					queue: Filas.SYNC + '-' + process.env.PREFIX_EMPRESA,
+					queue: Filas.SYNC,
 					noAck: true,
 					persistent: true,
 					queueOptions: {},
@@ -28,7 +28,7 @@ import { Filas } from 'src/shared/consts/filas.const';
 					urls: [
 						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
 					],
-					queue: Filas.EMAIL + '-' + process.env.PREFIX_EMPRESA,
+					queue: Filas.EMAIL,
 					noAck: true,
 					persistent: true,
 					queueOptions: {},

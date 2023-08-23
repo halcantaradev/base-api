@@ -24,7 +24,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 
 		return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
 			success: false,
-			message: `Ocorreu um erro ao interno`,
+			message: `Ocorreu um erro interno`,
 		});
 	}
 }

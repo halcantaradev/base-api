@@ -71,12 +71,26 @@ export class NotificationService {
 			data: { id: data.id },
 		});
 
+		const setupEmail = await this.prisma.emailSetup.findFirst({
+			where: {
+				empresa_id: user.empresa_id,
+				padrao: true,
+			},
+		});
+
 		await this.emailService.send({
 			from: process.env.EMAIL_SEND_PROVIDER,
 			html: `<p>Notificação criada para o condomino: ${condomino.nome} <br>
 			Clique no link para acessar clique: <a href="${url}">${url}</a></p>`,
 			subject: 'Notificação criada',
 			to: userLogado.email,
+			setup: {
+				MAIL_SMTP_HOST: setupEmail.host,
+				MAIL_SMTP_PORT: setupEmail.port,
+				MAIL_SMTP_SECURE: setupEmail.secure,
+				MAIL_SMTP_USER: setupEmail.user,
+				MAIL_SMTP_PASS: setupEmail.password,
+			},
 		});
 
 		return {

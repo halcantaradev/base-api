@@ -107,10 +107,12 @@ model User {
   created_at                 DateTime @default(now())
   updated_at                 DateTime @updatedAt
 
-  empresas      EmpresasHasUsuarios[]
-  permissoes    UsuarioHasPermissoes[]
-  departamentos UsuarioHasDepartamentos[]
-  condominios   UsuarioHasCondominios[]
+  empresas           EmpresasHasUsuarios[]
+  permissoes         UsuarioHasPermissoes[]
+  departamentos      UsuarioHasDepartamentos[]
+  condominios        UsuarioHasCondominios[]
+  destino_protocolos Protocolo[]               @relation(name: "DestinoProtocoloUsuario")
+  origem_protocolos  Protocolo[]               @relation(name: "OrigemProtocoloUsuario")
 
   @@map("usuarios")
 }
@@ -322,8 +324,10 @@ model Departamento {
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
   filial  Filial @relation(fields: [filial_id], references: [id])
 
-  usuarios    UsuarioHasDepartamentos[]
-  condominios CondominioHasDepartamentos[]
+  usuarios           UsuarioHasDepartamentos[]
+  condominios        CondominioHasDepartamentos[]
+  destino_protocolos Protocolo[]                  @relation(name: "DestinoProtocoloDepartamento")
+  origem_protocolos  Protocolo[]                  @relation(name: "OrigemProtocoloDepartamento")
 
   @@map("departamentos")
 }
@@ -537,6 +541,28 @@ model IntegracaoDatabase {
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
 
   @@map("integracoes_database")
+}
+
+model Protocolo {
+  id                      Int      @id @default(autoincrement())
+  tipo                    Int      @default(1)
+  destino_departamento_id Int
+  origem_departamento_id  Int
+  destino_usuario_id      Int?
+  origem_usuario_id       Int?
+  retorna_malote_vazio    Boolean  @default(false)
+  finalizado              Boolean  @default(false)
+  ativo                   Boolean  @default(true)
+  excluido                Boolean  @default(false)
+  created_at              DateTime @default(now())
+  updated_at              DateTime @updatedAt
+
+  destino_departamento Departamento @relation(name: "DestinoProtocoloDepartamento", fields: [destino_departamento_id], references: [id])
+  origem_departamento  Departamento @relation(name: "OrigemProtocoloDepartamento", fields: [origem_departamento_id], references: [id])
+  destino_usuario      User?        @relation(name: "DestinoProtocoloUsuario", fields: [destino_usuario_id], references: [id])
+  origem_usuario       User?        @relation(name: "OrigemProtocoloUsuario", fields: [origem_usuario_id], references: [id])
+
+  @@map("protocolos")
 }
 
 model TipoDocumento {

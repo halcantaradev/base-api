@@ -38,29 +38,31 @@ export class DepartmentService {
 		user: UserAuth,
 		filters: FiltersDepartmentDto,
 		usuario_id?: number,
+		all = false,
 	) {
-		const idUser =
-			usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
+		let departamentos;
+		if (!all) {
+			const idUser =
+				usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
 
-		const userData = await this.prisma.user.findFirst({
-			include: {
-				departamentos: {
-					select: {
-						departamento_id: true,
+			const userData = await this.prisma.user.findFirst({
+				include: {
+					departamentos: {
+						select: {
+							departamento_id: true,
+						},
 					},
 				},
-			},
-			where: {
-				id: idUser,
-			},
-		});
+				where: {
+					id: idUser,
+				},
+			});
 
-		let departamentos;
-
-		if (!userData.acessa_todos_departamentos) {
-			departamentos = userData.departamentos.map(
-				(departamento) => departamento.departamento_id,
-			);
+			if (!userData.acessa_todos_departamentos) {
+				departamentos = userData.departamentos.map(
+					(departamento) => departamento.departamento_id,
+				);
+			}
 		}
 
 		return this.prisma.departamento.findMany({

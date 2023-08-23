@@ -411,6 +411,30 @@ export const permissionslist: Array<{
 		active: false,
 	},
 	{
+		label: 'Cadastrar protocolo',
+		module: 'Protocolos',
+		key: 'protocolos-cadastrar',
+		message: 'Sem permissão para criar protocolos',
+	},
+	{
+		label: 'Listar protocolos',
+		module: 'Protocolos',
+		key: 'protocolos-listar',
+		message: 'Sem permissão para listar protocolos',
+	},
+	{
+		label: 'Visualizar dados de protocolos',
+		module: 'Protocolos',
+		key: 'protocolos-exibir-dados',
+		message: 'Sem permissão para exibir os dados do protocolo',
+	},
+	{
+		label: 'Atualizar dados do protocolo',
+		module: 'Protocolos',
+		key: 'protocolos-atualizar-dados',
+		message: 'Sem permissão para atualizar protocolo',
+	},
+	{
 		label: 'Cadastrar tipos de documentos',
 		module: 'Documentos',
 		key: 'tipos-documentos-cadastrar',

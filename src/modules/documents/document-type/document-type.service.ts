@@ -61,24 +61,31 @@ export class DocumentTypeService {
 	}
 
 	async update(id: number, updateDocumentTypeDto: UpdateDocumentTypeDto) {
-		if (Number.isNaN(id)) {
-			throw new BadRequestException('Tipo de documento não encontrado');
-		}
-
-		const documentTypeExists = await this.prisma.tipoDocumento.findFirst({
+		const documentTypeExists = await this.prisma.tipoDocumento.findUnique({
 			where: {
-				id: {
-					not: id,
-				},
-				nome: {
-					contains: updateDocumentTypeDto.nome,
-					mode: 'insensitive',
-				},
+				id,
 			},
 		});
 
-		if (documentTypeExists) {
-			throw new BadRequestException('Nome de documento já cadastrado');
+		if (Number.isNaN(id) && !documentTypeExists) {
+			throw new BadRequestException('Tipo de documento não encontrado');
+		}
+
+		const documentTypeNameExists =
+			await this.prisma.tipoDocumento.findFirst({
+				where: {
+					id: {
+						not: id,
+					},
+					nome: {
+						contains: updateDocumentTypeDto.nome,
+						mode: 'insensitive',
+					},
+				},
+			});
+
+		if (documentTypeNameExists) {
+			throw new BadRequestException('Tipo de documento já cadastrado');
 		}
 
 		return this.prisma.tipoDocumento.update({

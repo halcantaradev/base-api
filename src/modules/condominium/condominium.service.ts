@@ -1,17 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PersonService } from '../person/person.service';
-import { Condominium } from './entities/condominium.entity';
-import { PrismaService } from 'src/shared/services/prisma.service';
-import { Residence } from './entities/residence.entity';
-import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
-import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { FiltersResidenceDto } from './dto/filters-residence.dto';
-import { Pagination } from 'src/shared/entities/pagination.entity';
-import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
-import { ReportCondominiumDto } from './dto/report-condominium.dto';
-import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
 import { Prisma } from '@prisma/client';
-import { response } from 'express';
+import { Pagination } from 'src/shared/entities/pagination.entity';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { PrismaService } from 'src/shared/services/prisma.service';
+import { PersonService } from '../person/person.service';
+import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
+import { FiltersResidenceDto } from './dto/filters-residence.dto';
+import { ReportCondominiumDto } from './dto/report-condominium.dto';
+import { Condominium } from './entities/condominium.entity';
+import { Residence } from './entities/residence.entity';
+import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
+import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
 
 @Injectable()
 export class CondominiumService {

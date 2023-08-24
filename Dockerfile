@@ -3,6 +3,7 @@ LABEL Author="Gestart Team Dev"
 ENV SERVER_HOME=/usr/src/server/
 WORKDIR $SERVER_HOME
 COPY ./package*.json $SERVER_HOME
+COPY startup.sh .
 
 RUN npm install pm2 -g
 
@@ -13,4 +14,5 @@ RUN yarn build
 
 EXPOSE 8080
 
-CMD ["pm2-runtime","./dist/src/main.js","--no-autorestart"]
+
+CMD ["/bin/bash","-c","./startup.sh"]

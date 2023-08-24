@@ -25,6 +25,7 @@ export class CondominiumService {
 		user: UserAuth,
 		condominiums: number[],
 		usuario_id?: number,
+		ativo = false,
 	): Promise<Prisma.PessoaWhereInput> {
 		const idUser =
 			usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
@@ -211,7 +212,7 @@ export class CondominiumService {
 							{ id: { in: condominiums } },
 							userData.acessa_todos_departamentos &&
 							!filters.departamentos_ids?.length &&
-							!filters.ativo
+							!ativo
 								? {
 										departamentos_condominio: { none: {} },
 								  }
@@ -272,6 +273,7 @@ export class CondominiumService {
 		condominiums: number[],
 		usuario_id?: number,
 		pagination?: Pagination,
+		ativo = false,
 	) {
 		return this.pessoaService.findAll(
 			'condominio',
@@ -315,7 +317,13 @@ export class CondominiumService {
 					},
 				},
 			},
-			await this.getFilterList(filters, user, condominiums, usuario_id),
+			await this.getFilterList(
+				filters,
+				user,
+				condominiums,
+				usuario_id,
+				ativo,
+			),
 			pagination,
 		);
 	}

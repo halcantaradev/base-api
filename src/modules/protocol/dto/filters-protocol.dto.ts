@@ -1,7 +1,7 @@
-import { IsOptional, IsString, Validate } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBooleanType } from 'src/shared/validators';
+import { IsOptional, IsString, Validate } from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class FiltersProtocolDto {

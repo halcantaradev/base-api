@@ -44,6 +44,7 @@ export class ProtocolService {
 		retorna_malote_vazio: true,
 		ativo: true,
 		finalizado: true,
+		data_finalizado: true,
 		created_at: true,
 		updated_at: true,
 	};
@@ -57,7 +58,7 @@ export class ProtocolService {
 				nome: true,
 			},
 		},
-		recebimento_usuario: {
+		aceite_usuario: {
 			select: {
 				id: true,
 				nome: true,
@@ -71,7 +72,7 @@ export class ProtocolService {
 		},
 		discriminacao: true,
 		observacao: true,
-		data_recebimento: true,
+		data_aceite: true,
 		situacao: true,
 		created_at: true,
 		updated_at: true,
@@ -232,16 +233,34 @@ export class ProtocolService {
 	) {
 		const protocolo = await this.findById(id, user);
 
-		if (!protocolo || protocolo.finalizado)
+		if (!protocolo)
 			throw new BadRequestException('Protocolo não encontrado');
+
+		console.log({
+			tipo: updateProtocolDto.tipo || undefined,
+			destino_departamento_id:
+				updateProtocolDto.destino_departamento_id || undefined,
+			destino_usuario_id: updateProtocolDto.destino_usuario_id,
+			origem_usuario_id: updateProtocolDto.origem_departamento_id
+				? user.id
+				: undefined,
+			origem_departamento_id:
+				updateProtocolDto.origem_departamento_id || undefined,
+			retorna_malote_vazio:
+				updateProtocolDto.retorna_malote_vazio || undefined,
+			ativo: updateProtocolDto.ativo || undefined,
+			finalizado: updateProtocolDto.finalizado || undefined,
+			data_finalizado: updateProtocolDto.finalizado
+				? new Date()
+				: undefined,
+		});
 
 		return this.prisma.protocolo.update({
 			data: {
 				tipo: updateProtocolDto.tipo || undefined,
 				destino_departamento_id:
 					updateProtocolDto.destino_departamento_id || undefined,
-				destino_usuario_id:
-					updateProtocolDto.destino_usuario_id || undefined,
+				destino_usuario_id: updateProtocolDto.destino_usuario_id,
 				origem_usuario_id: updateProtocolDto.origem_departamento_id
 					? user.id
 					: undefined,
@@ -297,7 +316,7 @@ export class ProtocolService {
 		});
 	}
 
-	findDocumentById(
+	async findDocumentById(
 		protocolo_id: number,
 		document_id: number,
 		user: UserAuth,
@@ -307,12 +326,23 @@ export class ProtocolService {
 		if (!protocolo || Number.isNaN(document_id))
 			throw new BadRequestException('Documento não encontrado');
 
-		return this.prisma.protocoloDocumento.findFirst({
+		const document = await this.prisma.protocoloDocumento.findFirst({
 			select: this.selectDocuments,
 			where: {
 				protocolo_id,
+				id: document_id,
 			},
 		});
+
+		const arquivos = await this.prisma.arquivo.findMany({
+			where: {
+				ativo: true,
+				origem: 2,
+				referencia_id: document_id,
+			},
+		});
+
+		return { ...document, arquivos };
 	}
 
 	updateDocument(

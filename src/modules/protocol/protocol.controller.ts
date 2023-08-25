@@ -180,15 +180,14 @@ export class ProtocolController {
 		@Body() createDocumentProtocolDto: CreateDocumentProtocolDto,
 		@CurrentUser() user: UserAuth,
 	) {
-		await this.protocolService.createDocument(
-			+id,
-			createDocumentProtocolDto,
-			user,
-		);
-
 		return {
 			success: true,
 			message: 'Documento adicionado com sucesso',
+			data: await this.protocolService.createDocument(
+				+id,
+				createDocumentProtocolDto,
+				user,
+			),
 		};
 	}
 

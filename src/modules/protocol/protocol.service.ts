@@ -7,6 +7,8 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { FiltersProtocolDto } from './dto/filters-protocol.dto';
 import { CreateDocumentProtocolDto } from './dto/create-document-protocol.dto';
 import { UpdateDocumentProtocolDto } from './dto/update-document-protocol.dto';
+import { Pagination } from 'src/shared/entities/pagination.entity';
+import { setCustomHour } from 'src/shared/helpers/date.helper';
 
 @Injectable()
 export class ProtocolService {
@@ -92,24 +94,33 @@ export class ProtocolService {
 		});
 	}
 
-	findAll(filtersProtocolDto: FiltersProtocolDto, user: UserAuth) {
+	findAll(
+		filtersProtocolDto: FiltersProtocolDto,
+		user: UserAuth,
+		pagination?: Pagination,
+	) {
 		return this.prisma.protocolo.findMany({
 			select: this.select,
+			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
+			skip:
+				!filtersProtocolDto && pagination?.page
+					? (pagination?.page - 1) * 20
+					: undefined,
 			where: {
 				OR:
-					filtersProtocolDto.busca || !user.acessa_todos_departamentos
+					filtersProtocolDto.id || !user.acessa_todos_departamentos
 						? [
 								{
-									id: !Number.isNaN(+filtersProtocolDto.busca)
-										? +filtersProtocolDto.busca
+									id: !Number.isNaN(+filtersProtocolDto.id)
+										? +filtersProtocolDto.id
 										: undefined,
 								},
+
 								{
 									destino_departamento: {
-										nome: filtersProtocolDto.busca
+										id: filtersProtocolDto.destino_departamento_ids
 											? {
-													contains:
-														filtersProtocolDto.busca,
+													in: filtersProtocolDto.destino_departamento_ids,
 											  }
 											: undefined,
 										usuarios:
@@ -125,11 +136,16 @@ export class ProtocolService {
 									},
 								},
 								{
+									tipo:
+										filtersProtocolDto.tipo != null
+											? filtersProtocolDto.tipo
+											: undefined,
+								},
+								{
 									origem_departamento: {
-										nome: filtersProtocolDto.busca
+										id: filtersProtocolDto.origem_departament_ids
 											? {
-													contains:
-														filtersProtocolDto.busca,
+													in: filtersProtocolDto.origem_departament_ids,
 											  }
 											: undefined,
 										usuarios:
@@ -146,6 +162,18 @@ export class ProtocolService {
 								},
 						  ]
 						: undefined,
+
+				created_at: filtersProtocolDto.data_emissao
+					? {
+							lte:
+								filtersProtocolDto.data_emissao[1] || undefined,
+							gte:
+								setCustomHour(
+									filtersProtocolDto.data_emissao[0],
+								) || undefined,
+					  }
+					: undefined,
+
 				ativo:
 					filtersProtocolDto.ativo != null
 						? filtersProtocolDto.ativo

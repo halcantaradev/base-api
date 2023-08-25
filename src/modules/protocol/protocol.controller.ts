@@ -8,6 +8,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	UseGuards,
 } from '@nestjs/common';
 import { ProtocolService } from './protocol.service';
@@ -25,6 +26,7 @@ import { FiltersProtocolDto } from './dto/filters-protocol.dto';
 import { ProtocolListReturn } from './entities/protocol-list-return.entity';
 import { CreateDocumentProtocolDto } from './dto/create-document-protocol.dto';
 import { UpdateDocumentProtocolDto } from './dto/update-document-protocol.dto';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -83,10 +85,15 @@ export class ProtocolController {
 	async findAll(
 		@Body() filtersProtocolDto: FiltersProtocolDto,
 		@CurrentUser() user: UserAuth,
+		@Query() pagination: Pagination,
 	) {
 		return {
 			success: true,
-			data: await this.protocolService.findAll(filtersProtocolDto, user),
+			data: await this.protocolService.findAll(
+				filtersProtocolDto,
+				user,
+				pagination,
+			),
 		};
 	}
 

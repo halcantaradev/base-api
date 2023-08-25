@@ -1,21 +1,123 @@
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBooleanType } from 'src/shared/validators';
-import { IsOptional, IsString, Validate } from 'class-validator';
+import {
+	IsArray,
+	IsDateString,
+	IsInt,
+	IsOptional,
+	Validate,
+} from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class FiltersProtocolDto {
 	@ApiProperty({
-		description: 'Filtro por código do protocolo',
+		description: 'Filtro por numero do protocolo',
 		example: '001',
 		required: false,
 	})
-	@IsString({
-		message:
-			'O campo busca informado não é válido. Por favor, forneça um código ou nome de busca válido.',
+	@IsOptional()
+	id: number | undefined;
+
+	@ApiProperty({
+		description: 'Filtro por tipo do protocolo',
+		example: '001',
+		required: false,
 	})
 	@IsOptional()
-	busca?: string;
+	tipo: 1 | 2;
+
+	@ApiProperty({
+		description: 'Filtro por tipo do protocolo',
+		example: '001',
+		required: false,
+	})
+	@IsOptional()
+	situacao: 1 | 2 | 3;
+
+	@ApiProperty({
+		description: 'Filtro por usuário de origem',
+		example: 1,
+		required: false,
+	})
+	@IsOptional()
+	origem_usuario_id: number;
+
+	@ApiProperty({
+		description: 'Filtro por numero do protocolo',
+		example: '001',
+		required: false,
+	})
+	@IsInt({
+		each: true,
+		message: 'O campo departamento origem deve ser um array',
+	})
+	@IsOptional()
+	origem_departament_ids: number[];
+
+	@ApiProperty({
+		description: 'Filtro por usuário destino',
+		example: 1,
+		required: false,
+	})
+	@IsOptional()
+	destino_usuario_id: number;
+
+	@ApiProperty({
+		description: 'Filtro por usuário que aceitou o protocolo',
+		example: 1,
+		required: false,
+	})
+	@IsOptional()
+	aceito_por: number;
+
+	@ApiProperty({
+		description: 'Filtro por departamento destino',
+		example: [1, 2],
+		required: false,
+	})
+	@IsArray({
+		each: true,
+		message: 'O campo departamento destino deve ser um  ',
+	})
+	@IsOptional()
+	destino_departamento_ids: number[];
+
+	@ApiProperty({
+		description: 'Filtro por codomínio(s)',
+		example: [1, 2],
+		required: false,
+	})
+	@IsArray({
+		each: true,
+		message: 'O campo condomínio deve ser um  array',
+	})
+	@IsOptional()
+	condominios_ids: number[];
+
+	@ApiProperty({
+		description: 'Filtro por data de emissão',
+		example: [new Date(), new Date()],
+		required: false,
+	})
+	@IsOptional()
+	@IsDateString(
+		{},
+		{ each: true, message: 'O campo data de emissão deve ser uma data' },
+	)
+	data_emissao: string[];
+
+	@ApiProperty({
+		description: 'Filtro por data que aceitou o protocolo',
+		example: [new Date(), new Date()],
+		required: false,
+	})
+	@IsOptional()
+	@IsDateString(
+		{},
+		{ each: true, message: 'O campo data aceito deve ser uma data' },
+	)
+	data_aceito: Date[];
 
 	@ApiProperty({
 		description: 'Status do protocolo',

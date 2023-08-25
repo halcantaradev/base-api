@@ -575,23 +575,23 @@ model Protocolo {
 }
 
 model ProtocoloDocumento {
-  id                     Int       @id @default(autoincrement())
-  protocolo_id           Int
-  tipo_documento_id      Int
-  condominio_id          Int
-  recebimento_usuario_id Int?
-  discriminacao          String
-  observacao             String?
-  data_recebimento       DateTime?
-  situacao               Boolean   @default(false)
-  excluido               Boolean   @default(false)
-  created_at             DateTime  @default(now())
-  updated_at             DateTime  @updatedAt
+  id                Int       @id @default(autoincrement())
+  protocolo_id      Int
+  tipo_documento_id Int
+  condominio_id     Int
+  aceite_usuario_id Int?
+  discriminacao     String
+  observacao        String?
+  data_aceite       DateTime?
+  situacao          Boolean   @default(false)
+  excluido          Boolean   @default(false)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
 
-  condominio          Pessoa        @relation(fields: [condominio_id], references: [id])
-  tipo_documento      TipoDocumento @relation(fields: [tipo_documento_id], references: [id])
-  protocolo           Protocolo     @relation(fields: [protocolo_id], references: [id])
-  recebimento_usuario User?         @relation(fields: [recebimento_usuario_id], references: [id])
+  condominio     Pessoa        @relation(fields: [condominio_id], references: [id])
+  tipo_documento TipoDocumento @relation(fields: [tipo_documento_id], references: [id])
+  protocolo      Protocolo     @relation(fields: [protocolo_id], references: [id])
+  aceite_usuario User?         @relation(fields: [aceite_usuario_id], references: [id])
 
   @@map("protocolo_documentos")
 }

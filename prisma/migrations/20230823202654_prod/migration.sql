@@ -309,7 +309,7 @@ CREATE TABLE "cargos_condominio" (
     "id" SERIAL NOT NULL,
     "nome" TEXT NOT NULL,
     "sindico" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "cargos_condominio_pkey" PRIMARY KEY ("id")
@@ -321,7 +321,7 @@ CREATE TABLE "condominio_administracao" (
     "condominio_id" INTEGER NOT NULL,
     "cargo_id" INTEGER NOT NULL,
     "nome" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "condominio_administracao_pkey" PRIMARY KEY ("id")
@@ -424,10 +424,57 @@ CREATE TABLE "integracoes_database" (
     "token" TEXT NOT NULL,
     "data_atualizacao" TIMESTAMP(3),
     "ativo" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "integracoes_database_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "protocolos" (
+    "id" SERIAL NOT NULL,
+    "tipo" INTEGER NOT NULL DEFAULT 1,
+    "destino_departamento_id" INTEGER NOT NULL,
+    "origem_departamento_id" INTEGER NOT NULL,
+    "destino_usuario_id" INTEGER,
+    "origem_usuario_id" INTEGER,
+    "retorna_malote_vazio" BOOLEAN NOT NULL DEFAULT false,
+    "finalizado" BOOLEAN NOT NULL DEFAULT false,
+    "ativo" BOOLEAN NOT NULL DEFAULT true,
+    "excluido" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "protocolos_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "tipos_documentos" (
+    "id" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "ativo" BOOLEAN NOT NULL DEFAULT true,
+    "excluido" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "tipos_documentos_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "emails_setup" (
+    "id" SERIAL NOT NULL,
+    "empresa_id" INTEGER NOT NULL,
+    "host" TEXT NOT NULL,
+    "port" TEXT NOT NULL,
+    "secure" BOOLEAN NOT NULL DEFAULT false,
+    "user" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "padrao" BOOLEAN NOT NULL DEFAULT false,
+    "ativo" BOOLEAN NOT NULL DEFAULT true,
+
+    CONSTRAINT "emails_setup_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -588,3 +635,18 @@ ALTER TABLE "temas" ADD CONSTRAINT "temas_empresa_id_fkey" FOREIGN KEY ("empresa
 
 -- AddForeignKey
 ALTER TABLE "integracoes_database" ADD CONSTRAINT "integracoes_database_empresa_id_fkey" FOREIGN KEY ("empresa_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_destino_departamento_id_fkey" FOREIGN KEY ("destino_departamento_id") REFERENCES "departamentos"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_origem_departamento_id_fkey" FOREIGN KEY ("origem_departamento_id") REFERENCES "departamentos"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_destino_usuario_id_fkey" FOREIGN KEY ("destino_usuario_id") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_origem_usuario_id_fkey" FOREIGN KEY ("origem_usuario_id") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "emails_setup" ADD CONSTRAINT "emails_setup_empresa_id_fkey" FOREIGN KEY ("empresa_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

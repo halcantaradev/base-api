@@ -24,7 +24,7 @@ services:
     image: rabbitmq:3-management-alpine
     environment: 
       - RABBITMQ_DEFAULT_USER=guest
-      - RABBITMQ_DEFAULT_PASS=dev@1234
+      - RABBITMQ_DEFAULT_PASS=dev1234
     ports:
       - 5672:5672
       - 15672:15672

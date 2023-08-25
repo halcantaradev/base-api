@@ -28,9 +28,11 @@ import {
 } from './shared/validators';
 import { PrismaService } from './shared/services/prisma.service';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { FilaModule } from './shared/services/fila/fila.module';
 
 @Module({
 	imports: [
+		FilaModule,
 		AuthModule,
 		UserModule,
 		MenuModule,

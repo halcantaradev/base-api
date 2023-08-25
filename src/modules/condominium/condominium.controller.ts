@@ -120,6 +120,8 @@ export class CondominiumController {
 			user,
 			condominiums,
 			+usuario_id,
+			undefined,
+			true,
 		);
 
 		return {

@@ -88,7 +88,7 @@ export class FiltersProtocolDto {
 		example: [1, 2],
 		required: false,
 	})
-	@IsArray({
+	@IsInt({
 		each: true,
 		message: 'O campo condomínio deve ser um  array',
 	})

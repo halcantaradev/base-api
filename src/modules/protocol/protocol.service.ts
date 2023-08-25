@@ -136,33 +136,40 @@ export class ProtocolService {
 												: undefined,
 									},
 								},
-								{
-									tipo:
-										filtersProtocolDto.tipo != null
-											? filtersProtocolDto.tipo
-											: undefined,
-								},
-								{
-									origem_departamento: {
-										id: filtersProtocolDto.origem_departament_ids
-											? {
-													in: filtersProtocolDto.origem_departament_ids,
-											  }
-											: undefined,
-										usuarios:
-											!user.acessa_todos_departamentos
-												? {
-														some: {
-															usuario: {
-																id: user.id,
-															},
-														},
-												  }
-												: undefined,
-									},
-								},
 						  ]
 						: undefined,
+
+				documentos: filtersProtocolDto.condominios_ids
+					? {
+							some: {
+								condominio_id: {
+									in: filtersProtocolDto.condominios_ids,
+								},
+							},
+					  }
+					: undefined,
+
+				tipo:
+					filtersProtocolDto.tipo != null
+						? filtersProtocolDto.tipo
+						: undefined,
+
+				origem_departamento: {
+					id: filtersProtocolDto.origem_departament_ids
+						? {
+								in: filtersProtocolDto.origem_departament_ids,
+						  }
+						: undefined,
+					usuarios: !user.acessa_todos_departamentos
+						? {
+								some: {
+									usuario: {
+										id: user.id,
+									},
+								},
+						  }
+						: undefined,
+				},
 
 				created_at: filtersProtocolDto.data_emissao
 					? {

@@ -583,7 +583,7 @@ model ProtocoloDocumento {
   discriminacao     String
   observacao        String?
   data_aceite       DateTime?
-  situacao          Boolean   @default(false)
+  aceite            Boolean   @default(false)
   excluido          Boolean   @default(false)
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt

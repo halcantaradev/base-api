@@ -73,7 +73,7 @@ export class ProtocolService {
 		discriminacao: true,
 		observacao: true,
 		data_aceite: true,
-		situacao: true,
+		aceite: true,
 		created_at: true,
 		updated_at: true,
 	};

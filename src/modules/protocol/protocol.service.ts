@@ -43,6 +43,7 @@ export class ProtocolService {
 		},
 		retorna_malote_vazio: true,
 		ativo: true,
+		situacao: true,
 		finalizado: true,
 		data_finalizado: true,
 		created_at: true,

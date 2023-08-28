@@ -153,13 +153,17 @@ export class ProtocolService {
 							filtersProtocolDto?.aceito_por || undefined,
 						data_aceite: filtersProtocolDto.data_aceito?.length
 							? {
+									lte:
+										setCustomHour(
+											filtersProtocolDto.data_aceito[1],
+											23,
+											59,
+											59,
+										) || undefined,
 									gte:
 										setCustomHour(
 											filtersProtocolDto.data_aceito[0],
 										) || undefined,
-									lte:
-										filtersProtocolDto.data_aceito[1] ||
-										undefined,
 							  }
 							: undefined,
 					},
@@ -185,7 +189,12 @@ export class ProtocolService {
 				created_at: filtersProtocolDto.data_emissao
 					? {
 							lte:
-								filtersProtocolDto.data_emissao[1] || undefined,
+								setCustomHour(
+									filtersProtocolDto.data_emissao[1],
+									23,
+									59,
+									59,
+								) || undefined,
 							gte:
 								setCustomHour(
 									filtersProtocolDto.data_emissao[0],

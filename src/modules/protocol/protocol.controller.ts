@@ -64,8 +64,8 @@ export class ProtocolController {
 		};
 	}
 
-	@Post('search')
-	@Role('protocolos-busca')
+	@Post('list')
+	@Role('protocolos-listar')
 	@ApiOperation({ summary: 'Lista os protocolos' })
 	@ApiResponse({
 		description: 'Protocolos listados com sucesso',

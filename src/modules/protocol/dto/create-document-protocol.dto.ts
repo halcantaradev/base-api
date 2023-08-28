@@ -48,7 +48,7 @@ export class CreateDocumentProtocolDto {
 	})
 	@IsString({
 		message:
-			'O campo discriminação informado não é válido. Por favor, forneça um valor válido.',
+			'O campo observação informado não é válido. Por favor, forneça um valor válido.',
 	})
 	@IsOptional()
 	observacao?: string;

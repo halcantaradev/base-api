@@ -95,7 +95,7 @@ export class ProtocolService {
 		});
 	}
 
-	findAll(
+	findBy(
 		filtersProtocolDto: FiltersProtocolDto,
 		user: UserAuth,
 		pagination?: Pagination,
@@ -170,6 +170,9 @@ export class ProtocolService {
 						  }
 						: undefined,
 				},
+				situacao: filtersProtocolDto.situacao
+					? filtersProtocolDto.situacao
+					: undefined,
 
 				created_at: filtersProtocolDto.data_emissao
 					? {

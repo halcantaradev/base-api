@@ -64,8 +64,8 @@ export class ProtocolController {
 		};
 	}
 
-	@Post('list')
-	@Role('protocolos-listar')
+	@Post('search')
+	@Role('protocolos-busca')
 	@ApiOperation({ summary: 'Lista os protocolos' })
 	@ApiResponse({
 		description: 'Protocolos listados com sucesso',
@@ -82,14 +82,14 @@ export class ProtocolController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAll(
+	async searchBy(
 		@Body() filtersProtocolDto: FiltersProtocolDto,
 		@CurrentUser() user: UserAuth,
 		@Query() pagination: Pagination,
 	) {
 		return {
 			success: true,
-			data: await this.protocolService.findAll(
+			data: await this.protocolService.findBy(
 				filtersProtocolDto,
 				user,
 				pagination,

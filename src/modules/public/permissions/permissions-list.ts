@@ -423,6 +423,12 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar protocolos',
 	},
 	{
+		label: 'Buscar protocolos',
+		module: 'Protocolos',
+		key: 'protocolos-buscar',
+		message: 'Sem permissão para buscar protocolos',
+	},
+	{
 		label: 'Visualizar dados de protocolos',
 		module: 'Protocolos',
 		key: 'protocolos-exibir-dados',

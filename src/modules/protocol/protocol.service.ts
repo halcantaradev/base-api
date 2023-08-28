@@ -138,9 +138,9 @@ export class ProtocolService {
 						  ]
 						: undefined,
 				origem_usuario_id:
-					filtersProtocolDto.origem_usuario_id ?? undefined,
+					filtersProtocolDto.origem_usuario_id || undefined,
 				destino_usuario_id:
-					filtersProtocolDto.destino_usuario_id ?? undefined,
+					filtersProtocolDto.destino_usuario_id || undefined,
 				documentos: {
 					some: {
 						condominio_id: filtersProtocolDto.condominios_ids
@@ -150,7 +150,7 @@ export class ProtocolService {
 							  }
 							: undefined,
 						aceite_usuario_id:
-							filtersProtocolDto?.aceito_por ?? undefined,
+							filtersProtocolDto?.aceito_por || undefined,
 						data_aceite: filtersProtocolDto.data_aceito?.length
 							? {
 									gte:
@@ -164,7 +164,7 @@ export class ProtocolService {
 							: undefined,
 					},
 				},
-				tipo: filtersProtocolDto.tipo ?? undefined,
+				tipo: filtersProtocolDto.tipo || undefined,
 				origem_departamento: {
 					id: filtersProtocolDto.origem_departament_ids
 						? {
@@ -181,7 +181,7 @@ export class ProtocolService {
 						  }
 						: undefined,
 				},
-				situacao: filtersProtocolDto.situacao ?? undefined,
+				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao
 					? {
 							lte:
@@ -192,7 +192,7 @@ export class ProtocolService {
 								) || undefined,
 					  }
 					: undefined,
-				ativo: filtersProtocolDto.ativo ?? undefined,
+				ativo: filtersProtocolDto.ativo || undefined,
 				excluido: false,
 			},
 			orderBy: {

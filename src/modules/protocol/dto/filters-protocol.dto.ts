@@ -117,7 +117,7 @@ export class FiltersProtocolDto {
 		{},
 		{ each: true, message: 'O campo data aceito deve ser uma data' },
 	)
-	data_aceito: Date[];
+	data_aceito: string[];
 
 	@ApiProperty({
 		description: 'Status do protocolo',

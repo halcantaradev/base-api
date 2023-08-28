@@ -248,7 +248,7 @@ export class ProtocolService {
 	) {
 		const protocolo = await this.findById(id, user);
 
-		if (!protocolo)
+		if (!protocolo || protocolo.situacao != 1)
 			throw new BadRequestException('Protocolo não encontrado');
 
 		console.log({
@@ -302,7 +302,7 @@ export class ProtocolService {
 	) {
 		const protocolo = await this.findById(protocolo_id, user);
 
-		if (!protocolo)
+		if (!protocolo || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
 		return this.prisma.protocoloDocumento.create({
@@ -316,10 +316,10 @@ export class ProtocolService {
 		});
 	}
 
-	findAllDocuments(protocolo_id: number, user: UserAuth) {
-		const protocolo = this.findById(protocolo_id, user);
+	async findAllDocuments(protocolo_id: number, user: UserAuth) {
+		const protocolo = await this.findById(protocolo_id, user);
 
-		if (!protocolo)
+		if (!protocolo || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
 		return this.prisma.protocoloDocumento.findMany({
@@ -336,9 +336,12 @@ export class ProtocolService {
 		document_id: number,
 		user: UserAuth,
 	) {
-		const protocolo = this.findById(protocolo_id, user);
+		const protocolo = await this.findById(protocolo_id, user);
 
-		if (!protocolo || Number.isNaN(document_id))
+		if (!protocolo || Number.isNaN(protocolo_id))
+			throw new BadRequestException('Protocolo não encontrado');
+
+		if (Number.isNaN(document_id))
 			throw new BadRequestException('Documento não encontrado');
 
 		const document = await this.prisma.protocoloDocumento.findFirst({
@@ -360,16 +363,25 @@ export class ProtocolService {
 		return { ...document, arquivos };
 	}
 
-	updateDocument(
+	async updateDocument(
 		protocolo_id: number,
 		document_id: number,
 		updateDocumentProtocolDto: UpdateDocumentProtocolDto,
 		user: UserAuth,
 		exclude = false,
 	) {
-		const protocolo = this.findById(protocolo_id, user);
+		const protocolo = await this.findById(protocolo_id, user);
 
-		if (!protocolo || Number.isNaN(document_id))
+		if (!protocolo || Number.isNaN(protocolo_id))
+			throw new BadRequestException('Protocolo não encontrado');
+
+		const document = await this.findDocumentById(
+			protocolo_id,
+			document_id,
+			user,
+		);
+
+		if (!document || Number.isNaN(document_id) || document.aceite)
 			throw new BadRequestException('Documento não encontrado');
 
 		return this.prisma.protocoloDocumento.update({

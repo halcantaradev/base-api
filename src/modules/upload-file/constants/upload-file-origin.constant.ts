@@ -1,1 +1,1 @@
-export const uploadFileOrigin = [null, 'notificacao'];
+export const uploadFileOrigin = [null, 'notificacao', 'protocoloDocumento'];

@@ -6,8 +6,8 @@ import {
 } from 'class-validator';
 
 @Injectable()
-@ValidatorConstraint({ name: 'CargoExists', async: true })
-export class CargoExists implements ValidatorConstraintInterface {
+@ValidatorConstraint({ name: 'OcupationExists', async: true })
+export class OcupationExists implements ValidatorConstraintInterface {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async validate(id: number) {

@@ -44,7 +44,7 @@ export class DocumentTypeService {
 		});
 	}
 
-	async findAll(ativo?: boolean) {
+	async findAll(busca = '', ativo?: boolean) {
 		return this.prisma.tipoDocumento.findMany({
 			select: {
 				id: true,
@@ -54,6 +54,12 @@ export class DocumentTypeService {
 				updated_at: true,
 			},
 			where: {
+				nome: !!busca
+					? {
+							contains: busca,
+							mode: 'insensitive',
+					  }
+					: undefined,
 				excluido: false,
 				ativo: ativo != null ? ativo : undefined,
 			},

@@ -8,7 +8,11 @@ import {
 	Validate,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { UsernameNotExists, EmailNotExists, CargoExists } from '../validators';
+import {
+	UsernameNotExists,
+	EmailNotExists,
+	OcupationExists,
+} from '../validators';
 import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
@@ -124,7 +128,7 @@ export class CreateUserDto {
 			'O campo cargo informado não é válido. Por favor, forneça um cargo válido.',
 	})
 	@Type(() => Number)
-	@Validate(CargoExists)
+	@Validate(OcupationExists)
 	cargo_id: number;
 
 	@ApiProperty({

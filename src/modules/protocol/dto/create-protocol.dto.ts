@@ -3,9 +3,9 @@ import { Transform, Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsOptional, Validate } from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 import {
-	DepartmentExists,
 	UserExists,
 	IsBooleanType,
+	DepartmentExists,
 } from 'src/shared/validators';
 
 export class CreateProtocolDto {

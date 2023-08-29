@@ -74,7 +74,7 @@ export class ProtocolService {
 		discriminacao: true,
 		observacao: true,
 		data_aceite: true,
-		aceite: true,
+		aceito: true,
 		created_at: true,
 		updated_at: true,
 	};
@@ -381,7 +381,7 @@ export class ProtocolService {
 			user,
 		);
 
-		if (!document || Number.isNaN(document_id) || document.aceite)
+		if (!document || Number.isNaN(document_id) || document.aceito)
 			throw new BadRequestException('Documento não encontrado');
 
 		return this.prisma.protocoloDocumento.update({

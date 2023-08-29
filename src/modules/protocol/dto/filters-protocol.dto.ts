@@ -1,13 +1,7 @@
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBooleanType } from 'src/shared/validators';
-import {
-	IsArray,
-	IsDateString,
-	IsInt,
-	IsOptional,
-	Validate,
-} from 'class-validator';
+import { IsDateString, IsInt, IsOptional, Validate } from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class FiltersProtocolDto {
@@ -76,9 +70,9 @@ export class FiltersProtocolDto {
 		example: [1, 2],
 		required: false,
 	})
-	@IsArray({
+	@IsInt({
 		each: true,
-		message: 'O campo departamento destino deve ser um  ',
+		message: 'O campo departamento destino deve ser um array',
 	})
 	@IsOptional()
 	destino_departamento_ids: number[];

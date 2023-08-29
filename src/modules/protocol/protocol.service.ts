@@ -41,6 +41,7 @@ export class ProtocolService {
 				nome: true,
 			},
 		},
+
 		retorna_malote_vazio: true,
 		ativo: true,
 		situacao: true,
@@ -96,12 +97,13 @@ export class ProtocolService {
 		});
 	}
 
-	findBy(
+	async findBy(
 		filtersProtocolDto: FiltersProtocolDto,
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
-		return this.prisma.protocolo.findMany({
+		console.log(filtersProtocolDto);
+		return await this.prisma.protocolo.findMany({
 			select: this.select,
 			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
 			skip:
@@ -109,83 +111,57 @@ export class ProtocolService {
 					? (pagination?.page - 1) * 20
 					: undefined,
 			where: {
-				OR:
-					filtersProtocolDto.id || !user.acessa_todos_departamentos
-						? [
-								{
-									id: !Number.isNaN(+filtersProtocolDto.id)
-										? +filtersProtocolDto.id
-										: undefined,
-								},
-								{
-									destino_departamento: {
-										id: filtersProtocolDto.destino_departamento_ids
-											? {
-													in: filtersProtocolDto.destino_departamento_ids,
-											  }
-											: undefined,
-										usuarios:
-											!user.acessa_todos_departamentos
-												? {
-														some: {
-															usuario: {
-																id: user.id,
-															},
-														},
-												  }
-												: undefined,
-									},
-								},
-						  ]
+				id: !Number.isNaN(+filtersProtocolDto.id)
+					? +filtersProtocolDto.id
+					: undefined,
+
+				destino_departamento_id:
+					filtersProtocolDto.destino_departamento_ids
+						? {
+								in: filtersProtocolDto.destino_departamento_ids,
+						  }
 						: undefined,
 				origem_usuario_id:
 					filtersProtocolDto.origem_usuario_id || undefined,
 				destino_usuario_id:
 					filtersProtocolDto.destino_usuario_id || undefined,
-				documentos: {
-					some: {
-						condominio_id: filtersProtocolDto.condominios_ids
-							?.length
-							? {
-									in: filtersProtocolDto.condominios_ids,
-							  }
-							: undefined,
-						aceite_usuario_id:
-							filtersProtocolDto?.aceito_por || undefined,
-						data_aceite: filtersProtocolDto.data_aceito?.length
-							? {
-									lte:
-										setCustomHour(
-											filtersProtocolDto.data_aceito[1],
-											23,
-											59,
-											59,
-										) || undefined,
-									gte:
-										setCustomHour(
-											filtersProtocolDto.data_aceito[0],
-										) || undefined,
-							  }
-							: undefined,
-					},
-				},
-				tipo: filtersProtocolDto.tipo || undefined,
-				origem_departamento: {
-					id: filtersProtocolDto.origem_departament_ids
-						? {
-								in: filtersProtocolDto.origem_departament_ids,
-						  }
-						: undefined,
-					usuarios: !user.acessa_todos_departamentos
+				documentos:
+					filtersProtocolDto.condominios_ids ||
+					filtersProtocolDto?.aceito_por
 						? {
 								some: {
-									usuario: {
-										id: user.id,
-									},
+									condominio_id: filtersProtocolDto
+										.condominios_ids?.length
+										? {
+												in: filtersProtocolDto.condominios_ids,
+										  }
+										: undefined,
+									aceite_usuario_id:
+										filtersProtocolDto?.aceito_por ||
+										undefined,
+									data_aceite: filtersProtocolDto.data_aceito
+										?.length
+										? {
+												lte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[1],
+														23,
+														59,
+														59,
+													) || undefined,
+												gte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[0],
+													) || undefined,
+										  }
+										: undefined,
 								},
 						  }
 						: undefined,
-				},
+				tipo: filtersProtocolDto.tipo || undefined,
+
 				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao
 					? {
@@ -204,11 +180,69 @@ export class ProtocolService {
 					: undefined,
 				ativo: filtersProtocolDto.ativo || undefined,
 				excluido: false,
-			},
-			orderBy: {
-				id: 'desc',
+				origem_departamento:
+					!user.acessa_todos_departamentos ||
+					filtersProtocolDto.origem_departament_ids
+						? {
+								id: filtersProtocolDto.origem_departament_ids
+									? {
+											in: filtersProtocolDto.origem_departament_ids,
+									  }
+									: undefined,
+								usuarios: !user.acessa_todos_departamentos
+									? {
+											some: {
+												usuario: {
+													id: user.id,
+												},
+											},
+									  }
+									: undefined,
+						  }
+						: undefined,
 			},
 		});
+	}
+
+	async findOneById(id: number, user: UserAuth) {
+		const data = this.prisma.protocolo.findFirst({
+			select: this.select,
+			where: {
+				id,
+				excluido: false,
+				OR: !user.acessa_todos_departamentos
+					? [
+							{
+								destino_departamento: {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
+									},
+								},
+							},
+							{
+								origem_departamento: {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
+									},
+								},
+							},
+					  ]
+					: undefined,
+			},
+		});
+
+		return {
+			success: true,
+			data,
+		};
 	}
 
 	findById(id: number, user: UserAuth) {

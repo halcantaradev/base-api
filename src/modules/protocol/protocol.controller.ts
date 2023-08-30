@@ -10,6 +10,7 @@ import {
 	Post,
 	Query,
 	UseGuards,
+	UseInterceptors,
 } from '@nestjs/common';
 import { ProtocolService } from './protocol.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -27,11 +28,17 @@ import { ProtocolListReturn } from './entities/protocol-list-return.entity';
 import { CreateDocumentProtocolDto } from './dto/create-document-protocol.dto';
 import { UpdateDocumentProtocolDto } from './dto/update-document-protocol.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
+import { FiltersProtocolCondominiumDto } from './dto/filters-protocol-condominium.dto';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
+import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
+import { ProtocolCondominiumListReturn } from './entities/protocol-condominium-list-return.entity';
+import { ProtocolDocumentReturn } from './entities/protocol-document-return.entity';
+import { ProtocolDocumentListReturn } from './entities/protocol-document-list-return.entity';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
-@Controller('protocol')
+@Controller('protocols')
 export class ProtocolController {
 	constructor(private readonly protocolService: ProtocolService) {}
 
@@ -42,7 +49,7 @@ export class ProtocolController {
 	@ApiResponse({
 		description: 'Protocolo criado com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success(),
+		type: ProtocolReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
@@ -97,6 +104,43 @@ export class ProtocolController {
 		};
 	}
 
+	@Post('condominiums')
+	@Role('protocolos-listar-condominios')
+	@UseInterceptors(UserCondominiumsAccess)
+	@ApiOperation({
+		summary:
+			'Lista os condomínios que podem ser selecionados nos protocolos',
+	})
+	@ApiResponse({
+		description: 'Condominios listados com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolCondominiumListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os condominios',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async listCondominiums(
+		@Body() filtersProtocolCondominiumDto: FiltersProtocolCondominiumDto,
+		@CurrentUser() user: UserAuth,
+		@CurrentUserCondominiums() condominiums: number[],
+	) {
+		return {
+			success: true,
+			data: await this.protocolService.findAllCondominiums(
+				filtersProtocolCondominiumDto,
+				condominiums,
+				user,
+			),
+		};
+	}
+
 	@Get(':id')
 	@Role('protocolos-exibir-dados')
 	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
@@ -128,7 +172,7 @@ export class ProtocolController {
 	@ApiResponse({
 		description: 'Protocolo atualizado com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success(),
+		type: ProtocolReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
@@ -163,7 +207,7 @@ export class ProtocolController {
 	@ApiResponse({
 		description: 'Documento criado com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success(),
+		type: ProtocolDocumentReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
@@ -197,7 +241,7 @@ export class ProtocolController {
 	@ApiResponse({
 		description: 'Documentos listado com sucesso',
 		status: HttpStatus.OK,
-		type: ProtocolReturn,
+		type: ProtocolDocumentListReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
@@ -225,7 +269,7 @@ export class ProtocolController {
 	@ApiResponse({
 		description: 'Documentos listado com sucesso',
 		status: HttpStatus.OK,
-		type: ProtocolReturn,
+		type: ProtocolDocumentReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
@@ -258,7 +302,7 @@ export class ProtocolController {
 	@ApiResponse({
 		description: 'Documento atualizado com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success(),
+		type: ProtocolDocumentReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',

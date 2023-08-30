@@ -28,7 +28,6 @@ export class LayoutConstsService {
 		layoutConst.forEach((item) => {
 			html = html.replaceAll(item.const, item.field);
 		});
-
 		return html;
 	}
 

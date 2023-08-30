@@ -10,6 +10,16 @@ export const layoutConst: Array<{
 		field: '{{data_atual}}',
 	},
 	{
+		label: 'Nome da empresa',
+		const: '[EMPRESA_NOME]',
+		field: '{{empresa_nome}}',
+	},
+	{
+		label: 'Logotipo da empresa',
+		const: '[EMPRESA_LOGO]',
+		field: '{{empresa_logo}}',
+	},
+	{
 		label: 'Data hora atual por extenso',
 		const: '[DATA_ATUAL_EXTENSO]',
 		field: '{{data_atual_extenso}}',
@@ -144,5 +154,23 @@ export const layoutConst: Array<{
 		const: '[DADOS_PAGAMENTO_NOTIFICACAO_SE_MULTA]',
 		field: '{{{dados_pagamento_notificacao_se_multa}}}',
 		template: 'payment-notification.html',
+	},
+
+	// PROTOCOLO
+
+	{
+		label: 'Número do protocolo',
+		const: '[NUMERO_PROTOCOLO]',
+		field: '{{{numero_protocolo}}}',
+	},
+	{
+		label: 'Nome do condominio',
+		const: '[NUMERO_PROTOCOLO]',
+		field: '{{{numero_protocolo}}}',
+	},
+	{
+		label: 'Total de documentos do protocolo',
+		const: '[TOTAL_DOCUMENTOS_PROTOCOLO]',
+		field: '{{{total_documentos_protocolo}}}',
 	},
 ];

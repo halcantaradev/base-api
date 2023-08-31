@@ -423,10 +423,10 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar protocolos',
 	},
 	{
-		label: 'Buscar protocolos',
+		label: 'Listar condomínios',
 		module: 'Protocolos',
-		key: 'protocolos-buscar',
-		message: 'Sem permissão para buscar protocolos',
+		key: 'protocolos-listar-condominios',
+		message: 'Sem permissão para listar condomínios',
 	},
 	{
 		label: 'Visualizar dados de protocolos',

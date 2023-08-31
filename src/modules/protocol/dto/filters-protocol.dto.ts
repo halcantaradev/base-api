@@ -28,7 +28,7 @@ export class FiltersProtocolDto {
 	tipo: 1 | 2;
 
 	@ApiProperty({
-		description: 'Filtro por tipo do protocolo',
+		description: 'Filtro por situação do protocolo',
 		example: '001',
 		required: false,
 	})
@@ -76,9 +76,9 @@ export class FiltersProtocolDto {
 		example: [1, 2],
 		required: false,
 	})
-	@IsArray({
+	@IsInt({
 		each: true,
-		message: 'O campo departamento destino deve ser um  ',
+		message: 'O campo departamento destino deve ser um array',
 	})
 	@IsOptional()
 	destino_departamento_ids: number[];

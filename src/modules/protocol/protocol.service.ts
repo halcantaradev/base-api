@@ -251,47 +251,6 @@ export class ProtocolService {
 		};
 	}
 
-	async findOneById(id: number, user: UserAuth) {
-		const data = await this.prisma.protocolo.findFirst({
-			select: this.select,
-			where: {
-				id,
-				excluido: false,
-				OR: !user.acessa_todos_departamentos
-					? [
-							{
-								destino_departamento: {
-									usuarios: {
-										some: {
-											usuario: {
-												id: user.id,
-											},
-										},
-									},
-								},
-							},
-							{
-								origem_departamento: {
-									usuarios: {
-										some: {
-											usuario: {
-												id: user.id,
-											},
-										},
-									},
-								},
-							},
-					  ]
-					: undefined,
-			},
-		});
-
-		return {
-			success: true,
-			data,
-		};
-	}
-
 	findById(id: number, user: UserAuth) {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Protocolo não encontrado');

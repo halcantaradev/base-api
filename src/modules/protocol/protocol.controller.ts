@@ -183,7 +183,7 @@ export class ProtocolController {
 	@Role('protocolos-exibir-dados')
 	@ApiOperation({ summary: 'Imprimir os dados do protocolo' })
 	@ApiResponse({
-		description: 'Notificação impressa com sucesso',
+		description: 'Protocolo impressa com sucesso',
 		status: HttpStatus.OK,
 		type: () => Protocol,
 	})

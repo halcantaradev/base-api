@@ -22,7 +22,7 @@ export class FiltersProtocolDto {
 	tipo: 1 | 2;
 
 	@ApiProperty({
-		description: 'Filtro por tipo do protocolo',
+		description: 'Filtro por situação do protocolo',
 		example: '001',
 		required: false,
 	})

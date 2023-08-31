@@ -9,11 +9,16 @@ import { CreateDocumentProtocolDto } from './dto/create-document-protocol.dto';
 import { UpdateDocumentProtocolDto } from './dto/update-document-protocol.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { setCustomHour } from 'src/shared/helpers/date.helper';
+import { FiltersProtocolCondominiumDto } from './dto/filters-protocol-condominium.dto';
+import { PersonService } from '../person/person.service';
 import { IsNotEmpty } from 'class-validator';
 
 @Injectable()
 export class ProtocolService {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly pessoaService: PersonService,
+	) {}
 
 	select: Prisma.ProtocoloSelect = {
 		id: true,
@@ -246,11 +251,8 @@ export class ProtocolService {
 		};
 	}
 
-	findById(id: number, user: UserAuth) {
-		if (Number.isNaN(id))
-			throw new BadRequestException('Protocolo não encontrado');
-
-		return this.prisma.protocolo.findFirst({
+	async findOneById(id: number, user: UserAuth) {
+		const data = await this.prisma.protocolo.findFirst({
 			select: this.select,
 			where: {
 				id,
@@ -280,6 +282,35 @@ export class ProtocolService {
 								},
 							},
 					  ]
+					: undefined,
+			},
+		});
+
+		return {
+			success: true,
+			data,
+		};
+	}
+
+	findById(id: number, user: UserAuth) {
+		if (Number.isNaN(id))
+			throw new BadRequestException('Protocolo não encontrado');
+
+		return this.prisma.protocolo.findFirst({
+			select: this.select,
+			where: {
+				id,
+				excluido: false,
+				origem_departamento: !user.acessa_todos_departamentos
+					? {
+							usuarios: {
+								some: {
+									usuario: {
+										id: user.id,
+									},
+								},
+							},
+					  }
 					: undefined,
 			},
 		});
@@ -551,5 +582,51 @@ export class ProtocolService {
 				id: document_id,
 			},
 		});
+	}
+
+	async findAllCondominiums(
+		filtersProtocolCondominiumDto: FiltersProtocolCondominiumDto,
+		condominiums: number[],
+		user: UserAuth,
+	) {
+		const departamento = await this.prisma.departamento.findFirst({
+			where: {
+				id: filtersProtocolCondominiumDto.departamento_id,
+				empresa_id: user.empresa_id,
+			},
+		});
+
+		if (!departamento) return [];
+
+		return (
+			await this.pessoaService.findAll(
+				'condominio',
+				{},
+				{
+					id:
+						departamento.nac && !user.acessa_todos_departamentos
+							? {
+									in: condominiums,
+							  }
+							: undefined,
+					nome: filtersProtocolCondominiumDto.busca
+						? {
+								contains: filtersProtocolCondominiumDto.busca,
+								mode: 'insensitive',
+						  }
+						: undefined,
+					departamentos_condominio: {
+						some: departamento.nac
+							? {
+									departamento_id:
+										filtersProtocolCondominiumDto.departamento_id,
+							  }
+							: {},
+					},
+					empresa_id: user.empresa_id,
+					ativo: true,
+				},
+			)
+		).data;
 	}
 }

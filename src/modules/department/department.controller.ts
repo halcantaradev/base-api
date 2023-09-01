@@ -83,7 +83,12 @@ export class DepartmentController {
 	) {
 		return {
 			success: true,
-			data: await this.departmentService.findAll(user, filters),
+			data: await this.departmentService.findAll(
+				user,
+				filters,
+				undefined,
+				true,
+			),
 		};
 	}
 

@@ -97,12 +97,6 @@ export class DepartmentService {
 	}
 
 	async findOne(id: number, user: UserAuth) {
-		if (
-			!user.departamentos_ids.includes(id) &&
-			!user.acessa_todos_departamentos
-		)
-			return null;
-
 		return this.prisma.departamento.findFirst({
 			select: this.select,
 			where: {
@@ -118,12 +112,6 @@ export class DepartmentService {
 		user: UserAuth,
 		updateDepartmentDto: UpdateDepartmentDto,
 	) {
-		if (
-			!user.departamentos_ids.includes(id) &&
-			!user.acessa_todos_departamentos
-		)
-			throw new BadRequestException('Departamento não encontrado');
-
 		const department = await this.prisma.departamento.findFirst({
 			where: {
 				id,

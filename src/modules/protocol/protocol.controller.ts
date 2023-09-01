@@ -119,7 +119,7 @@ export class ProtocolController {
 		};
 	}
 
-	@Post('documents-list')
+	@Post('documents/accept')
 	@Role('protocolos-listar-documentos')
 	@ApiOperation({
 		summary: 'Lista os documentos de um protocolo',
@@ -146,7 +146,7 @@ export class ProtocolController {
 	) {
 		return {
 			success: true,
-			data: await this.protocolService.findDocumentsBy(
+			data: await this.protocolService.findByAccept(
 				filtersProtocolDto,
 				user,
 				pagination,

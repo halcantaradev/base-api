@@ -11,7 +11,6 @@ import { Pagination } from 'src/shared/entities/pagination.entity';
 import { setCustomHour } from 'src/shared/helpers/date.helper';
 import { FiltersProtocolCondominiumDto } from './dto/filters-protocol-condominium.dto';
 import { PersonService } from '../person/person.service';
-import { IsNotEmpty } from 'class-validator';
 
 @Injectable()
 export class ProtocolService {
@@ -35,6 +34,7 @@ export class ProtocolService {
 				nome: true,
 			},
 		},
+		documentos: true,
 		destino_usuario: {
 			select: {
 				id: true,
@@ -101,22 +101,6 @@ export class ProtocolService {
 				retorna_malote_vazio: createProtocolDto.retorna_malote_vazio,
 				ativo: true,
 			},
-		});
-	}
-
-	async findDocumentsBy(
-		filtersProtocolDto: FiltersProtocolDto,
-		user: UserAuth,
-		pagination?: Pagination,
-	) {
-		return this.prisma.protocoloDocumento.findMany({
-			select: this.selectDocuments,
-			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
-			skip:
-				!filtersProtocolDto && pagination?.page
-					? (pagination?.page - 1) * 20
-					: undefined,
-			where: {},
 		});
 	}
 
@@ -209,6 +193,111 @@ export class ProtocolService {
 								id: filtersProtocolDto.origem_departament_ids
 									? {
 											in: filtersProtocolDto.origem_departament_ids,
+									  }
+									: undefined,
+								usuarios: !user.acessa_todos_departamentos
+									? {
+											some: {
+												usuario: {
+													id: user.id,
+												},
+											},
+									  }
+									: undefined,
+						  }
+						: undefined,
+			},
+		});
+	}
+	async findByAccept(
+		filtersProtocolDto: FiltersProtocolDto,
+		user: UserAuth,
+		pagination?: Pagination,
+	) {
+		return await this.prisma.protocolo.findMany({
+			select: this.select,
+			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
+			skip:
+				!filtersProtocolDto && pagination?.page
+					? (pagination?.page - 1) * 20
+					: undefined,
+			where: {
+				id: !Number.isNaN(+filtersProtocolDto.id)
+					? +filtersProtocolDto.id
+					: undefined,
+
+				destino_departamento_id:
+					filtersProtocolDto.destino_departamento_ids
+						? {
+								in: filtersProtocolDto.destino_departamento_ids,
+						  }
+						: undefined,
+				origem_usuario_id:
+					filtersProtocolDto.origem_usuario_id || undefined,
+				destino_usuario_id:
+					filtersProtocolDto.destino_usuario_id || undefined,
+				documentos:
+					filtersProtocolDto.condominios_ids ||
+					filtersProtocolDto?.aceito_por
+						? {
+								some: {
+									condominio_id: filtersProtocolDto
+										.condominios_ids?.length
+										? {
+												in: filtersProtocolDto.condominios_ids,
+										  }
+										: undefined,
+									aceite_usuario_id:
+										filtersProtocolDto?.aceito_por ||
+										undefined,
+									data_aceite: filtersProtocolDto.data_aceito
+										?.length
+										? {
+												lte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[1],
+														23,
+														59,
+														59,
+													) || undefined,
+												gte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[0],
+													) || undefined,
+										  }
+										: undefined,
+								},
+						  }
+						: undefined,
+				tipo: filtersProtocolDto.tipo || undefined,
+
+				situacao: filtersProtocolDto.situacao || undefined,
+				created_at: filtersProtocolDto.data_emissao
+					? {
+							lte:
+								setCustomHour(
+									filtersProtocolDto.data_emissao[1],
+									23,
+									59,
+									59,
+								) || undefined,
+							gte:
+								setCustomHour(
+									filtersProtocolDto.data_emissao[0],
+								) || undefined,
+					  }
+					: undefined,
+				ativo: filtersProtocolDto.ativo || undefined,
+				excluido: false,
+				destino_departamento:
+					!user.acessa_todos_departamentos ||
+					filtersProtocolDto.destino_departamento_ids
+						? {
+								id: filtersProtocolDto.destino_departamento_ids
+									? {
+											in: filtersProtocolDto.destino_departamento_ids,
 									  }
 									: undefined,
 								usuarios: !user.acessa_todos_departamentos
@@ -388,17 +477,6 @@ export class ProtocolService {
 			where: {
 				protocolo_id,
 				excluido: false,
-				condominio: !user.acessa_todos_departamentos
-					? {
-							usuarios_condominio: {
-								some: {
-									usuario: {
-										id: user?.id,
-									},
-								},
-							},
-					  }
-					: undefined,
 			},
 		});
 	}

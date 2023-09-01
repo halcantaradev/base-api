@@ -8,6 +8,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Put,
 	Query,
 	UseGuards,
 	UseInterceptors,
@@ -34,6 +35,7 @@ import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-cond
 import { ProtocolCondominiumListReturn } from './entities/protocol-condominium-list-return.entity';
 import { ProtocolDocumentReturn } from './entities/protocol-document-return.entity';
 import { ProtocolDocumentListReturn } from './entities/protocol-document-list-return.entity';
+import { AcceptDocumentProtocolDto } from './dto/accept-document-protocol.dto';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -195,6 +197,38 @@ export class ProtocolController {
 			data: await this.protocolService.update(
 				+id,
 				updateProtocolDto,
+				user,
+			),
+		};
+	}
+
+	@Put('documents-accept')
+	@Role('protocolos-atualizar-dados')
+	@ApiOperation({ summary: 'Aceita os documentos de um protocolo' })
+	@ApiResponse({
+		description: 'Documentos aceitos com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os documentos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao aceitar os documentos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async acceptDocuments(
+		@Body() acceptDocumentsProtocolDto: AcceptDocumentProtocolDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		return {
+			success: true,
+			message: 'Documentos aceitos com sucesso',
+			data: await this.protocolService.acceptDocuments(
+				acceptDocumentsProtocolDto.documentos_ids,
 				user,
 			),
 		};

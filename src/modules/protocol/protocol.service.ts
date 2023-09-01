@@ -362,6 +362,36 @@ export class ProtocolService {
 		return { ...document, arquivos };
 	}
 
+	async acceptDocuments(documents_ids: number[], user: UserAuth) {
+		const documentExists = await this.prisma.protocoloDocumento.findMany({
+			where: {
+				id: {
+					in: documents_ids,
+				},
+				aceito: false,
+			},
+		});
+
+		// se o aceito esta false = nao aceito
+
+		if (documentExists) {
+			this.prisma.protocoloDocumento.updateMany({
+				where: {
+					id: {
+						in: documents_ids,
+					},
+				},
+				data: {
+					aceito: true,
+				},
+			});
+		}
+
+		return {
+			success: true,
+			message: 'Documento aceito com sucesso',
+		};
+	}
 	async updateDocument(
 		protocolo_id: number,
 		document_id: number,

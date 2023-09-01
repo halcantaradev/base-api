@@ -11,6 +11,7 @@ import { Pagination } from 'src/shared/entities/pagination.entity';
 import { setCustomHour } from 'src/shared/helpers/date.helper';
 import { FiltersProtocolCondominiumDto } from './dto/filters-protocol-condominium.dto';
 import { PersonService } from '../person/person.service';
+import { IsNotEmpty } from 'class-validator';
 
 @Injectable()
 export class ProtocolService {
@@ -50,6 +51,7 @@ export class ProtocolService {
 		retorna_malote_vazio: true,
 		ativo: true,
 		situacao: true,
+
 		finalizado: true,
 		data_finalizado: true,
 		created_at: true,
@@ -118,12 +120,12 @@ export class ProtocolService {
 		});
 	}
 
-	findBy(
+	async findBy(
 		filtersProtocolDto: FiltersProtocolDto,
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
-		return this.prisma.protocolo.findMany({
+		return await this.prisma.protocolo.findMany({
 			select: this.select,
 			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
 			skip:
@@ -131,83 +133,57 @@ export class ProtocolService {
 					? (pagination?.page - 1) * 20
 					: undefined,
 			where: {
-				OR:
-					filtersProtocolDto.id || !user.acessa_todos_departamentos
-						? [
-								{
-									id: !Number.isNaN(+filtersProtocolDto.id)
-										? +filtersProtocolDto.id
-										: undefined,
-								},
-								{
-									destino_departamento: {
-										id: filtersProtocolDto.destino_departamento_ids
-											? {
-													in: filtersProtocolDto.destino_departamento_ids,
-											  }
-											: undefined,
-										usuarios:
-											!user.acessa_todos_departamentos
-												? {
-														some: {
-															usuario: {
-																id: user.id,
-															},
-														},
-												  }
-												: undefined,
-									},
-								},
-						  ]
+				id: !Number.isNaN(+filtersProtocolDto.id)
+					? +filtersProtocolDto.id
+					: undefined,
+
+				destino_departamento_id:
+					filtersProtocolDto.destino_departamento_ids
+						? {
+								in: filtersProtocolDto.destino_departamento_ids,
+						  }
 						: undefined,
 				origem_usuario_id:
 					filtersProtocolDto.origem_usuario_id || undefined,
 				destino_usuario_id:
 					filtersProtocolDto.destino_usuario_id || undefined,
-				documentos: {
-					some: {
-						condominio_id: filtersProtocolDto.condominios_ids
-							?.length
-							? {
-									in: filtersProtocolDto.condominios_ids,
-							  }
-							: undefined,
-						aceite_usuario_id:
-							filtersProtocolDto?.aceito_por || undefined,
-						data_aceite: filtersProtocolDto.data_aceito?.length
-							? {
-									lte:
-										setCustomHour(
-											filtersProtocolDto.data_aceito[1],
-											23,
-											59,
-											59,
-										) || undefined,
-									gte:
-										setCustomHour(
-											filtersProtocolDto.data_aceito[0],
-										) || undefined,
-							  }
-							: undefined,
-					},
-				},
-				tipo: filtersProtocolDto.tipo || undefined,
-				origem_departamento: {
-					id: filtersProtocolDto.origem_departament_ids
-						? {
-								in: filtersProtocolDto.origem_departament_ids,
-						  }
-						: undefined,
-					usuarios: !user.acessa_todos_departamentos
+				documentos:
+					filtersProtocolDto.condominios_ids ||
+					filtersProtocolDto?.aceito_por
 						? {
 								some: {
-									usuario: {
-										id: user.id,
-									},
+									condominio_id: filtersProtocolDto
+										.condominios_ids?.length
+										? {
+												in: filtersProtocolDto.condominios_ids,
+										  }
+										: undefined,
+									aceite_usuario_id:
+										filtersProtocolDto?.aceito_por ||
+										undefined,
+									data_aceite: filtersProtocolDto.data_aceito
+										?.length
+										? {
+												lte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[1],
+														23,
+														59,
+														59,
+													) || undefined,
+												gte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[0],
+													) || undefined,
+										  }
+										: undefined,
 								},
 						  }
 						: undefined,
-				},
+				tipo: filtersProtocolDto.tipo || undefined,
+
 				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao
 					? {
@@ -226,11 +202,69 @@ export class ProtocolService {
 					: undefined,
 				ativo: filtersProtocolDto.ativo || undefined,
 				excluido: false,
-			},
-			orderBy: {
-				id: 'desc',
+				origem_departamento:
+					!user.acessa_todos_departamentos ||
+					filtersProtocolDto.origem_departament_ids
+						? {
+								id: filtersProtocolDto.origem_departament_ids
+									? {
+											in: filtersProtocolDto.origem_departament_ids,
+									  }
+									: undefined,
+								usuarios: !user.acessa_todos_departamentos
+									? {
+											some: {
+												usuario: {
+													id: user.id,
+												},
+											},
+									  }
+									: undefined,
+						  }
+						: undefined,
 			},
 		});
+	}
+
+	async findOneById(id: number, user: UserAuth) {
+		const data = await this.prisma.protocolo.findFirst({
+			select: this.select,
+			where: {
+				id,
+				excluido: false,
+				OR: !user.acessa_todos_departamentos
+					? [
+							{
+								destino_departamento: {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
+									},
+								},
+							},
+							{
+								origem_departamento: {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
+									},
+								},
+							},
+					  ]
+					: undefined,
+			},
+		});
+
+		return {
+			success: true,
+			data,
+		};
 	}
 
 	findById(id: number, user: UserAuth) {
@@ -266,25 +300,6 @@ export class ProtocolService {
 
 		if (!protocolo || protocolo.situacao != 1)
 			throw new BadRequestException('Protocolo não encontrado');
-
-		console.log({
-			tipo: updateProtocolDto.tipo || undefined,
-			destino_departamento_id:
-				updateProtocolDto.destino_departamento_id || undefined,
-			destino_usuario_id: updateProtocolDto.destino_usuario_id,
-			origem_usuario_id: updateProtocolDto.origem_departamento_id
-				? user.id
-				: undefined,
-			origem_departamento_id:
-				updateProtocolDto.origem_departamento_id || undefined,
-			retorna_malote_vazio:
-				updateProtocolDto.retorna_malote_vazio || undefined,
-			ativo: updateProtocolDto.ativo || undefined,
-			finalizado: updateProtocolDto.finalizado || undefined,
-			data_finalizado: updateProtocolDto.finalizado
-				? new Date()
-				: undefined,
-		});
 
 		return this.prisma.protocolo.update({
 			data: {
@@ -332,19 +347,150 @@ export class ProtocolService {
 		});
 	}
 
-	async findAllDocuments(protocolo_id: number, user: UserAuth) {
+	async findAllDocuments(protocolo_id: number, user?: UserAuth) {
 		const protocolo = await this.findById(protocolo_id, user);
 
 		if (!protocolo || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
 		return this.prisma.protocoloDocumento.findMany({
-			select: this.selectDocuments,
+			select: {
+				id: true,
+				created_at: true,
+				protocolo: {
+					select: {
+						origem_usuario: {
+							select: {
+								nome: true,
+							},
+						},
+					},
+				},
+				tipo_documento: {
+					select: {
+						nome: true,
+					},
+				},
+				discriminacao: true,
+				data_aceite: true,
+				aceite_usuario: {
+					select: {
+						nome: true,
+					},
+				},
+				condominio: {
+					select: {
+						id: true,
+						nome: true,
+					},
+				},
+			},
 			where: {
 				protocolo_id,
 				excluido: false,
+				condominio: !user.acessa_todos_departamentos
+					? {
+							usuarios_condominio: {
+								some: {
+									usuario: {
+										id: user?.id,
+									},
+								},
+							},
+					  }
+					: undefined,
 			},
 		});
+	}
+
+	async getDataHandleToPrint(id: number, user: UserAuth) {
+		const protocol = await this.prisma.protocolo.findUnique({
+			where: {
+				id,
+			},
+		});
+		const total_documentos = await this.prisma.protocoloDocumento.count({
+			where: {
+				protocolo_id: id,
+			},
+		});
+		const documentsProtocol = await this.findAllDocuments(id, user);
+		const empresa = await this.prisma.user.findUnique({
+			select: {
+				empresas: {
+					select: {
+						empresa: {
+							select: {
+								nome: true,
+								temas: {
+									select: {
+										logo: true,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			where: {
+				id: user.id,
+			},
+		});
+		const data: any = {};
+		data.data_atual_extenso = new Intl.DateTimeFormat('pt-BR', {
+			dateStyle: 'long',
+		}).format(new Date());
+		data.numero_protocolo = protocol.id;
+		data.total_documentos_protocolo = total_documentos;
+		data.empresa_nome = empresa.empresas[0].empresa.nome || '';
+		data.empresa_logo = empresa.empresas[0]?.empresa?.temas[0]?.logo;
+
+		const condominios = [];
+		documentsProtocol.forEach((item) => {
+			if (!condominios[item.condominio.id]) {
+				condominios[item.condominio.id] = {
+					id: item.condominio.id,
+					nome: item.condominio.nome,
+					documents: [
+						{
+							emissao: item.created_at
+								? new Intl.DateTimeFormat('pt-BR').format(
+										item?.created_at,
+								  )
+								: null,
+							usuario: item?.protocolo?.origem_usuario?.nome,
+							tipo: item?.tipo_documento?.nome,
+							discriminacao: item?.discriminacao,
+							recebido: item.data_aceite
+								? new Intl.DateTimeFormat('pt-BR').format(
+										item.data_aceite,
+								  )
+								: null,
+							recebido_por: item?.aceite_usuario?.nome,
+						},
+					],
+				};
+			} else {
+				condominios[item.condominio.id].documents.push({
+					emissao: item.created_at
+						? new Intl.DateTimeFormat('pt-BR').format(
+								item?.created_at,
+						  )
+						: null,
+					usuario: item?.protocolo?.origem_usuario?.nome,
+					tipo: item?.tipo_documento?.nome,
+					discriminacao: item?.discriminacao,
+					recebido: item.data_aceite
+						? new Intl.DateTimeFormat('pt-BR').format(
+								item.data_aceite,
+						  )
+						: null,
+					recebido_por: item?.aceite_usuario?.nome,
+				});
+			}
+		});
+		data.condominios = condominios;
+		return data;
 	}
 
 	async findDocumentById(

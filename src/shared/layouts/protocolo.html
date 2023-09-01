@@ -1,0 +1,102 @@
+<style>
+    * {
+        font-family: sans-serif, Helvetica;
+        box-sizing: border-box;
+    }
+
+    th {
+        border: solid 1px;
+        text-align: left;
+    }
+
+    td {
+        border: solid 1px;
+    }
+
+    p {
+        margin: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin-top: 0;
+        margin-bottom: 2px;
+    }
+
+    .page {
+        margin-bottom: 2em;
+        width: 100%;
+        page-break-after: always;
+        border-collapse: collapse;
+    }
+    table td, th{
+        word-wrap: break-word;
+        word-break: break-all;
+        border: none;
+        padding: 2px 8px;
+    }
+    
+    tr:nth-child(odd) {
+            background-color: Lightgreen;
+    }
+
+    .custom-hr {
+        border: none; 
+        height: 2px; 
+        background-color: #333;
+        margin-top: 20px; 
+    }
+</style>
+
+<div class="page" style="width: 100%;">    
+    <div style="display: flex; justify-content: space-between; align-items: end;">
+        <img src="[EMPRESA_LOGO]" height="40" >
+        <h2 style="color: #555;">PROTOCOLO</h2>
+    </div>
+    <hr style="border: #555 solid 1px; margin-top: 16px;">    
+    <p style="display: block; text-align: end; margin-bottom: 1em; font-size: small; font-style: italic;">[DATA_ATUAL_EXTENSO]</p>    
+    <div style="display: flex; justify-content: space-between; margin-top: 4px; margin-bottom: 4px;"><span><strong>Nº Protocolo:</strong> 
+        <span style="font-weight: 400;margin-left: 16px;">00[NUMERO_PROTOCOLO]</span> </span><span>[TOTAL_DOCUMENTOS_PROTOCOLO] documento(s)</span></div>
+    <div >
+        {{#each condominios}}     
+        <h5 style="width: 100%; margin: 1em 0; display: flex; justify-content: space-between"><span>{{this.nome}} </span> <span>COD: {{this.id}}</span></h5>        
+        <table style="width: 100%; border: none; padding: 0 0; margin-top: 8px; margin-bottom: 8px;" cellspacing="0">
+            <thead>
+                <tr style="font-size: 12px; border: none;">
+                    <th>Dt Emissão</th>
+                    <th>Usuário</th>
+                    <th>Tipo</th>
+                    <th>Discriminação</th>
+                    <th>Dt recebimento</th>
+                    <th>Recebido por</th>
+                </tr>
+            </thead>
+            <tbody>                
+                {{#each this.documents}}
+                <tr style="font-size: 12px; border: none;">
+                    <td>{{#if this.emissao}}{{this.emissao}}{{else}}N/A{{/if}}</td>
+                    <td>{{#if this.usuario}}{{this.usuario}}{{else}}N/A{{/if}}</td>
+                    <td>{{#if this.tipo}}{{this.tipo}}{{else}}N/A{{/if}}</td>
+                    <td>{{#if this.discriminacao}}{{this.discriminacao}}{{else}}N/A{{/if}}</td>
+                    <td>{{#if this.recebido}}{{this.recebido}}{{else}}N/A{{/if}}</td>
+                    <td>{{#if this.recebido_por}}{{this.recebido_por}}{{else}}N/A{{/if}}</td>                    
+                </tr>
+                
+                {{/each}}
+            </tbody>
+        </table>
+        {{/each}}
+    </div>
+    <div style="display: flex; margin-top: 20px; width: 100%; padding: 4px; justify-content: space-between; ">
+        <p style="font-size: 9pt; width: 40%; "><strong>Data do recebimento:</strong> ____ / ____ / ________</p>
+        <p style="font-size: 9pt; width: 70%;"><strong>Recebido por:</strong>
+            _______________________________, <strong>&nbsp;&nbsp;&nbsp;RG:</strong>
+            ___________________</p>
+    </div>
+    <hr style="border: #555 solid 1px; margin-top: 16px;">
+    <p>[EMPRESA_NOME]</p>
+</div>

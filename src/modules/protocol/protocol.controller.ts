@@ -180,10 +180,10 @@ export class ProtocolController {
 	}
 
 	@Get('print/:id')
-	@Role('protocolo-exibir-dados')
+	@Role('protocolos-exibir-dados')
 	@ApiOperation({ summary: 'Imprimir os dados do protocolo' })
 	@ApiResponse({
-		description: 'Notificação impressa com sucesso',
+		description: 'Protocolo impressa com sucesso',
 		status: HttpStatus.OK,
 		type: () => Protocol,
 	})
@@ -197,16 +197,25 @@ export class ProtocolController {
 		@CurrentUser() user: UserAuth,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		const data = await this.protocolService.findOneById(+id, user);
+		const data = await this.protocolService.findAllDocuments(+id, user);
+
 		if (!data) {
 			throw new BadRequestException('Notificação não encontrada');
 		}
 
 		const layout = this.layoutService.replaceLayoutVars(
-			this.layoutService.getTemplat('annex-notification.html'),
+			this.layoutService.getTemplat('protocolo.html'),
 		);
 
-		const protocoloFile = this.handleBarService.compile(layout, data.data);
+		const dataToPrint = await this.protocolService.getDataHandleToPrint(
+			+id,
+			user,
+		);
+
+		const protocoloFile = this.handleBarService.compile(
+			layout,
+			dataToPrint,
+		);
 
 		const pdf = await this.pdfService.getPDF(protocoloFile);
 

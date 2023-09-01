@@ -31,7 +31,7 @@ export class LayoutConstsService {
 		return html;
 	}
 
-	getTemplat(layoutPath: string) {
+	getTemplate(layoutPath: string) {
 		return readFileSync(
 			resolve('./src/shared/layouts/' + layoutPath),
 		).toString();

@@ -1,5 +1,4 @@
 import {
-	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -32,27 +31,20 @@ import { UpdateDocumentProtocolDto } from './dto/update-document-protocol.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { Protocol } from './entities/protocol.entity';
 import { Response } from 'express';
-import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
-import { HandlebarsService } from 'src/shared/services/handlebars.service';
-import { PdfService } from 'src/shared/services/pdf.service';
 import { FiltersProtocolCondominiumDto } from './dto/filters-protocol-condominium.dto';
 import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
 import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 import { ProtocolCondominiumListReturn } from './entities/protocol-condominium-list-return.entity';
 import { ProtocolDocumentReturn } from './entities/protocol-document-return.entity';
 import { ProtocolDocumentListReturn } from './entities/protocol-document-list-return.entity';
+import { SendEmailProtocolDto } from './dto/send-email-protocol.dto';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
 @Controller('protocols')
 export class ProtocolController {
-	constructor(
-		private readonly protocolService: ProtocolService,
-		private readonly layoutService: LayoutConstsService,
-		private readonly handleBarService: HandlebarsService,
-		private readonly pdfService: PdfService,
-	) {}
+	constructor(private readonly protocolService: ProtocolService) {}
 
 	@Post()
 	@HttpCode(HttpStatus.OK)
@@ -197,32 +189,13 @@ export class ProtocolController {
 		@CurrentUser() user: UserAuth,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		const data = await this.protocolService.findAllDocuments(+id, user);
-
-		if (!data) {
-			throw new BadRequestException('Notificação não encontrada');
-		}
-
-		const layout = this.layoutService.replaceLayoutVars(
-			this.layoutService.getTemplat('protocolo.html'),
-		);
-
-		const dataToPrint = await this.protocolService.getDataHandleToPrint(
-			+id,
-			user,
-		);
-
-		const protocoloFile = this.handleBarService.compile(
-			layout,
-			dataToPrint,
-		);
-
-		const pdf = await this.pdfService.getPDF(protocoloFile);
+		const pdf = await this.protocolService.print(+id, user);
 
 		res.set({
 			'Content-Type': 'application/pdf',
 			'Content-Disposition': 'inline;',
 		});
+
 		return pdf;
 	}
 
@@ -257,6 +230,62 @@ export class ProtocolController {
 				updateProtocolDto,
 				user,
 			),
+		};
+	}
+
+	@Get(':id/emails')
+	@Role('protocolos-exibir-dados')
+	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
+	@ApiResponse({
+		description: 'Protocolo listado com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar o protocolo',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findEmails(@Param('id') id: string, @CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.protocolService.findEmails(+id, user),
+		};
+	}
+
+	@Post(':id/emails')
+	@Role('protocolos-exibir-dados')
+	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
+	@ApiResponse({
+		description: 'Protocolo listado com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar o protocolo',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async sendEmails(
+		@Param('id') id: string,
+		@Body() sendEmailProtocolDto: SendEmailProtocolDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		await this.protocolService.sendMail(+id, sendEmailProtocolDto, user);
+
+		return {
+			success: true,
+			message: 'Email(s) enviado(s) com sucesso!',
 		};
 	}
 

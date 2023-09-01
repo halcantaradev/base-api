@@ -165,7 +165,7 @@ async function createCondominio(empresa: Pessoa) {
 
 async function createContato(condominio: Pessoa) {
 	const contatos = await prisma.contato.findFirst({
-		where: { pessoa_id: condominio.id },
+		where: { referencia_id: condominio.id },
 	});
 
 	if (!contatos) {
@@ -173,7 +173,8 @@ async function createContato(condominio: Pessoa) {
 			data: {
 				descricao: 'Síndico',
 				contato: `exemplo${condominio.id}@gmail.com`,
-				pessoa_id: condominio.id,
+				referencia_id: condominio.id,
+				origem: 1,
 			},
 		});
 	}

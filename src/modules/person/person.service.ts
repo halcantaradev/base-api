@@ -40,13 +40,6 @@ export class PersonService {
 					cidade: true,
 					uf: true,
 					ativo: true,
-					contatos: {
-						select: {
-							contato: true,
-							tipo: true,
-							descricao: true,
-						},
-					},
 					...select,
 				},
 				where: {
@@ -65,7 +58,19 @@ export class PersonService {
 		select: Prisma.PessoaSelect = {},
 		where: Prisma.PessoaWhereInput = {},
 	): Promise<any> {
-		return this.prisma.pessoa.findFirst({
+		const contatos = await this.prisma.contato.findFirst({
+			select: {
+				contato: true,
+				tipo: true,
+				descricao: true,
+			},
+			where: {
+				referencia_id: Array.isArray(id) ? { in: id } : id,
+				origem: 1,
+			},
+		});
+
+		const pessoa = await this.prisma.pessoa.findFirst({
 			select: {
 				id: true,
 				nome: true,
@@ -77,13 +82,6 @@ export class PersonService {
 				cidade: true,
 				uf: true,
 				ativo: true,
-				contatos: {
-					select: {
-						contato: true,
-						tipo: true,
-						descricao: true,
-					},
-				},
 				...select,
 			},
 			where: {
@@ -92,5 +90,7 @@ export class PersonService {
 				tipos: { some: { tipo: { nome: tipo } } },
 			},
 		});
+
+		return { ...pessoa, contatos };
 	}
 }

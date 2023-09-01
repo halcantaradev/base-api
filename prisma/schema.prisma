@@ -25,7 +25,6 @@ model Pessoa {
   updated_at        DateTime  @updatedAt
   updated_at_origin DateTime?
 
-  contatos                         Contato[]
   unidades_condominio              Unidade[]
   tipos                            PessoasHasTipos[]
   unidades                         PessoasHasUnidades[]
@@ -280,16 +279,15 @@ model Arquivo {
 }
 
 model Contato {
-  id         Int      @id @default(autoincrement())
-  contato    String
-  descricao  String
-  ativo      Boolean  @default(true)
-  tipo       Int      @default(1)
-  pessoa_id  Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  pessoa Pessoa @relation(fields: [pessoa_id], references: [id])
+  id            Int      @id @default(autoincrement())
+  origem        Int
+  contato       String
+  descricao     String
+  ativo         Boolean  @default(true)
+  tipo          Int      @default(1)
+  referencia_id Int
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
 
   @@map("contatos")
 }

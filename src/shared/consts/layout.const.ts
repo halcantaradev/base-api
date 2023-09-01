@@ -164,11 +164,6 @@ export const layoutConst: Array<{
 		field: '{{{numero_protocolo}}}',
 	},
 	{
-		label: 'Nome do condominio',
-		const: '[NUMERO_PROTOCOLO]',
-		field: '{{{numero_protocolo}}}',
-	},
-	{
 		label: 'Total de documentos do protocolo',
 		const: '[TOTAL_DOCUMENTOS_PROTOCOLO]',
 		field: '{{{total_documentos_protocolo}}}',

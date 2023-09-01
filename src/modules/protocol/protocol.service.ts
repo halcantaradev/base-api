@@ -46,6 +46,7 @@ export class ProtocolService {
 				nome: true,
 			},
 		},
+
 		retorna_malote_vazio: true,
 		ativo: true,
 		situacao: true,
@@ -98,6 +99,22 @@ export class ProtocolService {
 				retorna_malote_vazio: createProtocolDto.retorna_malote_vazio,
 				ativo: true,
 			},
+		});
+	}
+
+	async findDocumentsBy(
+		filtersProtocolDto: FiltersProtocolDto,
+		user: UserAuth,
+		pagination?: Pagination,
+	) {
+		return this.prisma.protocoloDocumento.findMany({
+			select: this.selectDocuments,
+			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
+			skip:
+				!filtersProtocolDto && pagination?.page
+					? (pagination?.page - 1) * 20
+					: undefined,
+			where: {},
 		});
 	}
 

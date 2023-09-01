@@ -106,6 +106,41 @@ export class ProtocolController {
 		};
 	}
 
+	@Post('documents-list')
+	@Role('protocolos-listar-documentos')
+	@ApiOperation({
+		summary: 'Lista os documentos de um protocolo',
+	})
+	@ApiResponse({
+		description: 'Protocolo listado com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolDocumentListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os documentos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findDocumentsBy(
+		@Body() filtersProtocolDto: FiltersProtocolDto,
+		@CurrentUser() user: UserAuth,
+		@Query() pagination: Pagination,
+	) {
+		return {
+			success: true,
+			data: await this.protocolService.findDocumentsBy(
+				filtersProtocolDto,
+				user,
+				pagination,
+			),
+		};
+	}
+
 	@Post('condominiums')
 	@Role('protocolos-listar-condominios')
 	@UseInterceptors(UserCondominiumsAccess)

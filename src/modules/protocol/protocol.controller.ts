@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -9,6 +10,7 @@ import {
 	Patch,
 	Post,
 	Query,
+	Res,
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
@@ -28,6 +30,11 @@ import { ProtocolListReturn } from './entities/protocol-list-return.entity';
 import { CreateDocumentProtocolDto } from './dto/create-document-protocol.dto';
 import { UpdateDocumentProtocolDto } from './dto/update-document-protocol.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
+import { Protocol } from './entities/protocol.entity';
+import { Response } from 'express';
+import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
+import { HandlebarsService } from 'src/shared/services/handlebars.service';
+import { PdfService } from 'src/shared/services/pdf.service';
 import { FiltersProtocolCondominiumDto } from './dto/filters-protocol-condominium.dto';
 import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
 import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
@@ -40,7 +47,12 @@ import { ProtocolDocumentListReturn } from './entities/protocol-document-list-re
 @UseGuards(JwtAuthGuard)
 @Controller('protocols')
 export class ProtocolController {
-	constructor(private readonly protocolService: ProtocolService) {}
+	constructor(
+		private readonly protocolService: ProtocolService,
+		private readonly layoutService: LayoutConstsService,
+		private readonly handleBarService: HandlebarsService,
+		private readonly pdfService: PdfService,
+	) {}
 
 	@Post()
 	@HttpCode(HttpStatus.OK)
@@ -94,13 +106,14 @@ export class ProtocolController {
 		@CurrentUser() user: UserAuth,
 		@Query() pagination: Pagination,
 	) {
+		const data = await this.protocolService.findBy(
+			filtersProtocolDto,
+			user,
+			pagination,
+		);
 		return {
 			success: true,
-			data: await this.protocolService.findBy(
-				filtersProtocolDto,
-				user,
-				pagination,
-			),
+			data,
 		};
 	}
 
@@ -164,6 +177,53 @@ export class ProtocolController {
 			success: true,
 			data: await this.protocolService.findById(+id, user),
 		};
+	}
+
+	@Get('print/:id')
+	@Role('protocolos-exibir-dados')
+	@ApiOperation({ summary: 'Imprimir os dados do protocolo' })
+	@ApiResponse({
+		description: 'Protocolo impressa com sucesso',
+		status: HttpStatus.OK,
+		type: () => Protocol,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao imprimir os dados do protocolo',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findOnePrint(
+		@Param('id') id: string,
+		@CurrentUser() user: UserAuth,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		const data = await this.protocolService.findAllDocuments(+id, user);
+
+		if (!data) {
+			throw new BadRequestException('Notificação não encontrada');
+		}
+
+		const layout = this.layoutService.replaceLayoutVars(
+			this.layoutService.getTemplat('protocolo.html'),
+		);
+
+		const dataToPrint = await this.protocolService.getDataHandleToPrint(
+			+id,
+			user,
+		);
+
+		const protocoloFile = this.handleBarService.compile(
+			layout,
+			dataToPrint,
+		);
+
+		const pdf = await this.pdfService.getPDF(protocoloFile);
+
+		res.set({
+			'Content-Type': 'application/pdf',
+			'Content-Disposition': 'inline;',
+		});
+		return pdf;
 	}
 
 	@Patch(':id')

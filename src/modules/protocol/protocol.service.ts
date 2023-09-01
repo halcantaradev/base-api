@@ -349,6 +349,7 @@ export class ProtocolService {
 
 		return this.prisma.protocoloDocumento.findMany({
 			select: {
+				id: true,
 				created_at: true,
 				protocolo: {
 					select: {

@@ -186,6 +186,7 @@ export class ProtocolController {
 
 	@Get(':id')
 	@Role('protocolos-exibir-dados')
+	@UseInterceptors(UserCondominiumsAccess)
 	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
 	@ApiResponse({
 		description: 'Protocolo listado com sucesso',
@@ -202,10 +203,14 @@ export class ProtocolController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findOne(@Param('id') id: string, @CurrentUser() user: UserAuth) {
+	async findOne(
+		@Param('id') id: string,
+		@CurrentUserCondominiums() condominiums: number[],
+		@CurrentUser() user: UserAuth,
+	) {
 		return {
 			success: true,
-			data: await this.protocolService.findById(+id, user),
+			data: await this.protocolService.findById(+id, user, condominiums),
 		};
 	}
 

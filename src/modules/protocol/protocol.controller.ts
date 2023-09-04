@@ -513,9 +513,9 @@ export class ProtocolController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async revokeDocument(
+	async reverseDocument(
 		@Param('id') id: string,
-		@Body() revokeDocumentProtocolDto: ReverseDocumentProtocolDto,
+		@Body() reverseDocumentProtocolDto: ReverseDocumentProtocolDto,
 		@CurrentUser() user: UserAuth,
 	) {
 		return {
@@ -523,7 +523,7 @@ export class ProtocolController {
 			message: 'Documentos estornado(s) com sucesso',
 			data: await this.protocolService.reverseDocuments(
 				+id,
-				revokeDocumentProtocolDto.documentos_ids,
+				reverseDocumentProtocolDto.documentos_ids,
 				user,
 			),
 		};

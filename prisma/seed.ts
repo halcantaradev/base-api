@@ -10,6 +10,7 @@ const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
 import { permissionslist } from '../src/modules/public/permissions/permissions-list';
 import { menulist } from '../src/modules/public/menu/menus-list';
+import { Contact } from 'src/shared/consts/contact.const';
 
 async function createEmpresa() {
 	let tipoEmpresa = await prisma.tiposPessoa.findUnique({
@@ -165,7 +166,7 @@ async function createCondominio(empresa: Pessoa) {
 
 async function createContato(condominio: Pessoa) {
 	const contatos = await prisma.contato.findFirst({
-		where: { pessoa_id: condominio.id },
+		where: { referencia_id: condominio.id },
 	});
 
 	if (!contatos) {
@@ -173,7 +174,8 @@ async function createContato(condominio: Pessoa) {
 			data: {
 				descricao: 'Síndico',
 				contato: `exemplo${condominio.id}@gmail.com`,
-				pessoa_id: condominio.id,
+				referencia_id: condominio.id,
+				origem: Contact.PESSOA,
 			},
 		});
 	}

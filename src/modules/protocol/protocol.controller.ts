@@ -39,7 +39,7 @@ import { ProtocolCondominiumListReturn } from './entities/protocol-condominium-l
 import { ProtocolDocumentReturn } from './entities/protocol-document-return.entity';
 import { ProtocolDocumentListReturn } from './entities/protocol-document-list-return.entity';
 import { AcceptDocumentProtocolDto } from './dto/accept-document-protocol.dto';
-import { RevokeDocumentProtocolDto } from './dto/revoke-document-protocol.dto.ts';
+import { ReverseDocumentProtocolDto } from './dto/reverse-document-protocol.dto.ts';
 import { SendEmailProtocolDto } from './dto/send-email-protocol.dto';
 
 @ApiTags('Protocolos')
@@ -515,7 +515,7 @@ export class ProtocolController {
 	})
 	async revokeDocument(
 		@Param('id') id: string,
-		@Body() revokeDocumentProtocolDto: RevokeDocumentProtocolDto,
+		@Body() revokeDocumentProtocolDto: ReverseDocumentProtocolDto,
 		@CurrentUser() user: UserAuth,
 	) {
 		return {

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
 
-export class RevokeDocumentProtocolDto {
+export class ReverseDocumentProtocolDto {
 	@ApiProperty({
 		description: 'Id(s) dos documento(s) do protocolo',
 		example: [0, 1],

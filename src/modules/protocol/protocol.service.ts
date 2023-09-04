@@ -467,6 +467,7 @@ export class ProtocolService {
 						nome: true,
 					},
 				},
+				aceito: true,
 				condominio: {
 					select: {
 						id: true,
@@ -603,34 +604,148 @@ export class ProtocolService {
 		return { ...document, arquivos };
 	}
 
-	async acceptDocuments(documents_ids: number[], user: UserAuth) {
+	async acceptDocuments(
+		protocol_id: number,
+		documents_ids: number[],
+		user: UserAuth,
+	) {
 		const documentExists = await this.prisma.protocoloDocumento.findMany({
 			where: {
+				protocolo_id: protocol_id,
+				excluido: false,
 				id: {
 					in: documents_ids,
 				},
 				aceito: false,
+				condominio: !user.acessa_todos_departamentos
+					? {
+							usuarios_condominio: {
+								some: {
+									usuario: {
+										id: user.id,
+									},
+								},
+							},
+					  }
+					: undefined,
 			},
 		});
 
-		// se o aceito esta false = nao aceito
+		if (!documentExists.length) {
+			throw new BadRequestException(
+				'Documentos informado(s) já aceitos ou não encontrados',
+			);
+		}
 
-		if (documentExists) {
-			this.prisma.protocoloDocumento.updateMany({
-				where: {
-					id: {
-						in: documents_ids,
-					},
+		const documents_ids_accept = documentExists.map(
+			(document) => document.id,
+		);
+
+		await this.prisma.protocoloDocumento.updateMany({
+			where: {
+				id: {
+					in: documents_ids_accept,
 				},
-				data: {
-					aceito: true,
+			},
+			data: {
+				aceito: true,
+				data_aceite: new Date(),
+			},
+		});
+
+		const protocolTotalDocuments =
+			await this.prisma.protocoloDocumento.findMany({
+				where: {
+					protocolo_id: protocol_id,
+					excluido: false,
+					aceito: false,
 				},
 			});
-		}
+
+		await this.prisma.protocolo.update({
+			where: {
+				id: protocol_id,
+			},
+			data: {
+				situacao: !protocolTotalDocuments.length ? 3 : 2,
+			},
+		});
 
 		return {
 			success: true,
-			message: 'Documento aceito com sucesso',
+			message: 'Documento(s) aceito(s) com sucesso!',
+		};
+	}
+
+	async reverseDocuments(
+		protocol_id: number,
+		documents_ids: number[],
+		user: UserAuth,
+	) {
+		const documentExists = await this.prisma.protocoloDocumento.findMany({
+			where: {
+				protocolo_id: protocol_id,
+				condominio: !user.acessa_todos_departamentos
+					? {
+							usuarios_condominio: {
+								some: {
+									usuario: {
+										id: user.id,
+									},
+								},
+							},
+					  }
+					: undefined,
+				id: {
+					in: documents_ids,
+				},
+				aceito: true,
+			},
+		});
+
+		if (!documentExists.length) {
+			throw new BadRequestException(
+				'Documento(s) informado(s) não aceitos ou não encontrados',
+			);
+		}
+
+		const documents_ids_reverse = documentExists.map(
+			(document) => document.id,
+		);
+
+		await this.prisma.protocoloDocumento.updateMany({
+			where: {
+				id: {
+					in: documents_ids_reverse,
+				},
+			},
+			data: {
+				aceito: false,
+				data_aceite: null,
+			},
+		});
+
+		const protocolTotalDocuments =
+			await this.prisma.protocoloDocumento.findMany({
+				where: {
+					protocolo_id: protocol_id,
+					excluido: false,
+					aceito: true,
+				},
+			});
+
+		await this.prisma.protocolo.update({
+			where: {
+				id: protocol_id,
+			},
+			data: {
+				situacao: !protocolTotalDocuments.length ? 1 : 2,
+			},
+		});
+
+		return {
+			success: true,
+			message: 'Documento(s) estornados(s) com sucesso!',
 		};
 	}
 	async updateDocument(

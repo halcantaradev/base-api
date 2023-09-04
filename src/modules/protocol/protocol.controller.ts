@@ -43,6 +43,7 @@ import { ProtocolCondominiumListReturn } from './entities/protocol-condominium-l
 import { ProtocolDocumentReturn } from './entities/protocol-document-return.entity';
 import { ProtocolDocumentListReturn } from './entities/protocol-document-list-return.entity';
 import { AcceptDocumentProtocolDto } from './dto/accept-document-protocol.dto';
+import { RevokeDocumentProtocolDto } from './dto/revoke-document-protocol.dto.ts';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -297,8 +298,8 @@ export class ProtocolController {
 		};
 	}
 
-	@Put('documents-accept')
-	@Role('protocolos-atualizar-dados')
+	@Post(':id/documents/accept')
+	@Role('protocolos-documento-aceitar')
 	@ApiOperation({ summary: 'Aceita os documentos de um protocolo' })
 	@ApiResponse({
 		description: 'Documentos aceitos com sucesso',
@@ -316,13 +317,15 @@ export class ProtocolController {
 		type: ReturnEntity.error(),
 	})
 	async acceptDocuments(
+		@Param('id') id: string,
 		@Body() acceptDocumentsProtocolDto: AcceptDocumentProtocolDto,
 		@CurrentUser() user: UserAuth,
 	) {
 		return {
 			success: true,
-			message: 'Documentos aceitos com sucesso',
+			message: 'Documento(s) aceito(s) com sucesso',
 			data: await this.protocolService.acceptDocuments(
+				+id,
 				acceptDocumentsProtocolDto.documentos_ids,
 				user,
 			),
@@ -456,6 +459,40 @@ export class ProtocolController {
 				+id,
 				+document_id,
 				updateDocumentProtocolDto,
+				user,
+			),
+		};
+	}
+
+	@Put(':id/document/reversal')
+	@Role('protocolo-documento-estornar')
+	@ApiOperation({ summary: 'Estorna um documento' })
+	@ApiResponse({
+		description: 'Documento estornado com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolDocumentReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao estornar o documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async revokeDocument(
+		@Param('id') id: string,
+		@Body() revokeDocumentProtocolDto: RevokeDocumentProtocolDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		return {
+			success: true,
+			message: 'Documentos estornado(s) com sucesso',
+			data: await this.protocolService.reverseDocuments(
+				+id,
+				revokeDocumentProtocolDto.documentos_ids,
 				user,
 			),
 		};

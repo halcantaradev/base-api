@@ -447,6 +447,18 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para atualizar protocolo',
 	},
 	{
+		label: 'Estornar documento(s)',
+		module: 'Protocolos',
+		key: 'protocolo-documento-estornar',
+		message: 'Sem permissão para estornar documento',
+	},
+	{
+		label: 'Aceitar documento(s)',
+		module: 'Protocolos',
+		key: 'protocolos-documento-aceitar',
+		message: 'Sem permissão para aceitar documento',
+	},
+	{
 		label: 'Cadastrar tipos de documentos',
 		module: 'Documentos',
 		key: 'tipos-documentos-cadastrar',

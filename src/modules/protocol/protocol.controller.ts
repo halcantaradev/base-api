@@ -234,7 +234,7 @@ export class ProtocolController {
 	}
 
 	@Get(':id/emails')
-	@Role('protocolos-exibir-dados')
+	@Role('protocolos-enviar-emails')
 	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
 	@ApiResponse({
 		description: 'Protocolo listado com sucesso',
@@ -259,7 +259,7 @@ export class ProtocolController {
 	}
 
 	@Post(':id/emails')
-	@Role('protocolos-exibir-dados')
+	@Role('protocolos-enviar-emails')
 	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
 	@ApiResponse({
 		description: 'Protocolo listado com sucesso',

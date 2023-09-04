@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { Contact } from 'src/shared/consts/contact.const';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { PrismaService } from 'src/shared/services/prisma.service';
 
@@ -66,7 +67,7 @@ export class PersonService {
 			},
 			where: {
 				referencia_id: Array.isArray(id) ? { in: id } : id,
-				origem: 1,
+				origem: Contact.PESSOA,
 			},
 		});
 

@@ -17,6 +17,8 @@ import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { PdfService } from 'src/shared/services/pdf.service';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
+import { Contact } from 'src/shared/consts/contact.const';
+import { ContactType } from 'src/shared/consts/contact-type.const';
 
 @Injectable()
 export class ProtocolService {
@@ -177,7 +179,6 @@ export class ProtocolService {
 						  }
 						: undefined,
 				tipo: filtersProtocolDto.tipo || undefined,
-
 				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao
 					? {
@@ -708,11 +709,11 @@ export class ProtocolService {
 				referencia_id: true,
 			},
 			where: {
-				origem: 2,
+				origem: Contact.ADMINISTRACAO_CONDOMINIO,
 				referencia_id: {
 					in: administracao_ids,
 				},
-				tipo: 2,
+				tipo: ContactType.EMAIL,
 			},
 		});
 
@@ -790,11 +791,11 @@ export class ProtocolService {
 				id: {
 					in: sendEmailProtocolDto.contatos_ids,
 				},
-				origem: 2,
+				origem: Contact.ADMINISTRACAO_CONDOMINIO,
 				referencia_id: {
 					in: administracao_ids,
 				},
-				tipo: 2,
+				tipo: ContactType.EMAIL,
 			},
 		});
 

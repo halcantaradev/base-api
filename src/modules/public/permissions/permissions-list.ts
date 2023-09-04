@@ -429,6 +429,12 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar condomínios',
 	},
 	{
+		label: 'Enviar email',
+		module: 'Protocolos',
+		key: 'protocolos-enviar-emails',
+		message: 'Sem permissão para enviar emails',
+	},
+	{
 		label: 'Visualizar dados de protocolos',
 		module: 'Protocolos',
 		key: 'protocolos-exibir-dados',

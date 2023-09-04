@@ -377,17 +377,36 @@ export class ProtocolService {
 			where: {
 				id,
 				excluido: false,
-				origem_departamento: !user.acessa_todos_departamentos
-					? {
-							usuarios: {
-								some: {
-									usuario: {
-										id: user.id,
+
+				OR: [
+					{
+						origem_departamento: !user.acessa_todos_departamentos
+							? {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
 									},
-								},
-							},
-					  }
-					: undefined,
+							  }
+							: undefined,
+					},
+
+					{
+						destino_departamento: !user.acessa_todos_departamentos
+							? {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
+									},
+							  }
+							: undefined,
+					},
+				],
 			},
 		});
 	}

@@ -226,7 +226,7 @@ export class ProtocolService {
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
-		return await this.prisma.protocolo.findMany({
+		return this.prisma.protocolo.findMany({
 			select: this.select,
 			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
 			skip:

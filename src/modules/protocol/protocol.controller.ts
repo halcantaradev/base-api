@@ -112,7 +112,7 @@ export class ProtocolController {
 		};
 	}
 
-	@Post('documents/accept')
+	@Post('accept')
 	@Role('protocolos-listar-documentos')
 	@ApiOperation({
 		summary: 'Lista os documentos de um protocolo',

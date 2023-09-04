@@ -294,7 +294,7 @@ export class NotificationController {
 		const pdf = await this.pdfService.getPDF(notificacao.data.doc_gerado);
 
 		const layout = this.layoutService.replaceLayoutVars(
-			this.layoutService.getTemplat('annex-notification.html'),
+			this.layoutService.getTemplate('annex-notification.html'),
 		);
 
 		let pdfMerge: any;

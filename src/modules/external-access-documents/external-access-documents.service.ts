@@ -22,6 +22,7 @@ export class ExternalAccessDocumentsService {
 	async getDocByToken(token: string): Promise<Buffer | null> {
 		const data = this.externalJwtService.validateToken(token);
 		let html: Buffer | string;
+		let dataToPrint: any;
 		let pdfs = [];
 
 		let generateFileName = '';
@@ -33,6 +34,10 @@ export class ExternalAccessDocumentsService {
 				resolve('./src/shared/layouts/notification.html'),
 			);
 
+			dataToPrint = await this.notificationService.dataToHandle(
+				data.data.id,
+			);
+
 			pdfs = await this.notificationService.getPDFFiles(data.data.id);
 		}
 
@@ -40,13 +45,11 @@ export class ExternalAccessDocumentsService {
 			generateFileName = 'Protocolo';
 
 			html = readFileSync(resolve('./src/shared/layouts/protocolo.html'));
+
+			dataToPrint = await this.protocolService.dataToHandle(data.data.id);
 		}
 
 		const layout = this.layoutService.replaceLayoutVars(html.toString());
-
-		const dataToPrint = await this.protocolService.dataToHandle(
-			data.data.id,
-		);
 
 		html = this.handleBarService.compile(layout, dataToPrint);
 

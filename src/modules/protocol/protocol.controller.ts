@@ -210,7 +210,7 @@ export class ProtocolController {
 	) {
 		return {
 			success: true,
-			data: await this.protocolService.findById(+id, user, condominiums),
+			data: await this.protocolService.findById(+id, user),
 		};
 	}
 

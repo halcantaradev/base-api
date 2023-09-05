@@ -60,7 +60,6 @@ export class ProtocolService {
 				nome: true,
 			},
 		},
-
 		retorna_malote_vazio: true,
 		ativo: true,
 		situacao: true,
@@ -303,6 +302,7 @@ export class ProtocolService {
 					: undefined,
 				ativo: filtersProtocolDto.ativo || undefined,
 				excluido: false,
+				finalizado: true,
 				destino_departamento:
 					!user.acessa_todos_departamentos ||
 					filtersProtocolDto.destino_departamento_ids
@@ -368,7 +368,7 @@ export class ProtocolService {
 		};
 	}
 
-	findById(id: number, user: UserAuth, condominiums: number[] = []) {
+	findById(id: number, user: UserAuth) {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Protocolo não encontrado');
 
@@ -377,13 +377,36 @@ export class ProtocolService {
 			where: {
 				id,
 				excluido: false,
-				documentos: {
-					some: {
-						condominio_id: !user.acessa_todos_departamentos
-							? { in: condominiums }
-							: undefined,
+				OR: [
+					{
+						origem_departamento: !user.acessa_todos_departamentos
+							? {
+									usuarios: {
+										some: {
+											usuario: {
+												id: user.id,
+											},
+										},
+									},
+							  }
+							: {
+									NOT: {
+										id: 0,
+									},
+							  },
 					},
-				},
+					{
+						destino_departamento: {
+							usuarios: {
+								some: {
+									usuario: {
+										id: user.id,
+									},
+								},
+							},
+						},
+					},
+				],
 			},
 		});
 	}
@@ -679,17 +702,23 @@ export class ProtocolService {
 		documents_ids: number[],
 		user: UserAuth,
 	) {
-		const documentExists = await this.prisma.protocoloDocumento.findMany({
+		const documentExists = await this.prisma.protocolo.findFirst({
+			include: {
+				documentos: true,
+			},
 			where: {
-				protocolo_id: protocol_id,
-				excluido: false,
-				id: {
-					in: documents_ids,
+				id: protocol_id,
+				documentos: {
+					some: {
+						id: {
+							in: documents_ids,
+						},
+						aceito: false,
+					},
 				},
-				aceito: false,
-				condominio: !user.acessa_todos_departamentos
+				destino_departamento: !user.acessa_todos_departamentos
 					? {
-							usuarios_condominio: {
+							usuarios: {
 								some: {
 									usuario: {
 										id: user.id,
@@ -701,13 +730,17 @@ export class ProtocolService {
 			},
 		});
 
-		if (!documentExists.length) {
+		if (
+			!documentExists ||
+			!documentExists?.documentos ||
+			!documentExists.documentos.length
+		) {
 			throw new BadRequestException(
-				'Documentos informado(s) já aceitos ou não encontrados',
+				'Documento(s) informado(s) não aceitos ou não encontrados',
 			);
 		}
 
-		const documents_ids_accept = documentExists.map(
+		const documents_ids_accept = documentExists.documentos.map(
 			(document) => document.id,
 		);
 
@@ -719,6 +752,7 @@ export class ProtocolService {
 			},
 			data: {
 				aceito: true,
+				aceite_usuario_id: user.id,
 				data_aceite: new Date(),
 			},
 		});
@@ -752,12 +786,23 @@ export class ProtocolService {
 		documents_ids: number[],
 		user: UserAuth,
 	) {
-		const documentExists = await this.prisma.protocoloDocumento.findMany({
+		const documentExists = await this.prisma.protocolo.findFirst({
+			include: {
+				documentos: true,
+			},
 			where: {
-				protocolo_id: protocol_id,
-				condominio: !user.acessa_todos_departamentos
+				id: protocol_id,
+				documentos: {
+					some: {
+						id: {
+							in: documents_ids,
+						},
+						aceito: true,
+					},
+				},
+				destino_departamento: !user.acessa_todos_departamentos
 					? {
-							usuarios_condominio: {
+							usuarios: {
 								some: {
 									usuario: {
 										id: user.id,
@@ -766,20 +811,20 @@ export class ProtocolService {
 							},
 					  }
 					: undefined,
-				id: {
-					in: documents_ids,
-				},
-				aceito: true,
 			},
 		});
 
-		if (!documentExists.length) {
+		if (
+			!documentExists ||
+			!documentExists?.documentos ||
+			!documentExists.documentos.length
+		) {
 			throw new BadRequestException(
 				'Documento(s) informado(s) não aceitos ou não encontrados',
 			);
 		}
 
-		const documents_ids_reverse = documentExists.map(
+		const documents_ids_reverse = documentExists.documentos.map(
 			(document) => document.id,
 		);
 
@@ -791,6 +836,7 @@ export class ProtocolService {
 			},
 			data: {
 				aceito: false,
+				aceite_usuario_id: null,
 				data_aceite: null,
 			},
 		});

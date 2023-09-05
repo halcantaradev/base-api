@@ -300,15 +300,11 @@ export class ProtocolController {
 		@Body() acceptDocumentsProtocolDto: AcceptDocumentProtocolDto,
 		@CurrentUser() user: UserAuth,
 	) {
-		return {
-			success: true,
-			message: 'Documento(s) aceito(s) com sucesso',
-			data: await this.protocolService.acceptDocuments(
-				+id,
-				acceptDocumentsProtocolDto.documentos_ids,
-				user,
-			),
-		};
+		return await this.protocolService.acceptDocuments(
+			+id,
+			acceptDocumentsProtocolDto.documentos_ids,
+			user,
+		);
 	}
 
 	@Get(':id/emails')
@@ -526,15 +522,11 @@ export class ProtocolController {
 		@Body() reverseDocumentProtocolDto: ReverseDocumentProtocolDto,
 		@CurrentUser() user: UserAuth,
 	) {
-		return {
-			success: true,
-			message: 'Documentos estornado(s) com sucesso',
-			data: await this.protocolService.reverseDocuments(
-				+id,
-				reverseDocumentProtocolDto.documentos_ids,
-				user,
-			),
-		};
+		return await this.protocolService.reverseDocuments(
+			+id,
+			reverseDocumentProtocolDto.documentos_ids,
+			user,
+		);
 	}
 
 	@Delete(':id/document/:document_id')

@@ -94,6 +94,15 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
+		id_relation: 14,
+		permission_key: 'protocolos-documentos-aceitar',
+		relation: 11,
+		label: 'Aceitar',
+		url: 'protocolos/aceitar',
+		icon: 'container',
+		target: '_self',
+	},
+	{
 		id_relation: 13,
 		permission_key: 'protocolos-cadastrar',
 		relation: 11,

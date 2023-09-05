@@ -455,7 +455,7 @@ export const permissionslist: Array<{
 	{
 		label: 'Estornar documento(s)',
 		module: 'Protocolos',
-		key: 'protocolo-documento-estornar',
+		key: 'protocolos-documento-estornar',
 		message: 'Sem permissão para estornar documento',
 	},
 	{

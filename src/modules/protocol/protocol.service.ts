@@ -703,19 +703,18 @@ export class ProtocolService {
 		user: UserAuth,
 	) {
 		const documentExists = await this.prisma.protocolo.findFirst({
-			include: {
-				documentos: true,
-			},
-			where: {
-				id: protocol_id,
+			select: {
 				documentos: {
-					some: {
+					where: {
 						id: {
 							in: documents_ids,
 						},
 						aceito: false,
 					},
 				},
+			},
+			where: {
+				id: protocol_id,
 				destino_departamento: !user.acessa_todos_departamentos
 					? {
 							usuarios: {
@@ -743,6 +742,8 @@ export class ProtocolService {
 		const documents_ids_accept = documentExists.documentos.map(
 			(document) => document.id,
 		);
+
+		console.log(documents_ids_accept);
 
 		await this.prisma.protocoloDocumento.updateMany({
 			where: {
@@ -787,19 +788,18 @@ export class ProtocolService {
 		user: UserAuth,
 	) {
 		const documentExists = await this.prisma.protocolo.findFirst({
-			include: {
-				documentos: true,
-			},
-			where: {
-				id: protocol_id,
+			select: {
 				documentos: {
-					some: {
+					where: {
 						id: {
 							in: documents_ids,
 						},
 						aceito: true,
 					},
 				},
+			},
+			where: {
+				id: protocol_id,
 				destino_departamento: !user.acessa_todos_departamentos
 					? {
 							usuarios: {

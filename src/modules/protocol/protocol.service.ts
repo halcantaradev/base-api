@@ -368,7 +368,7 @@ export class ProtocolService {
 		};
 	}
 
-	findById(id: number, user: UserAuth) {
+	findById(id: number, user: UserAuth, condominiums: number[] = []) {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Protocolo não encontrado');
 
@@ -377,31 +377,13 @@ export class ProtocolService {
 			where: {
 				id,
 				excluido: false,
-
-				origem_departamento: !user.acessa_todos_departamentos
-					? {
-							usuarios: {
-								some: {
-									usuario: {
-										id: user.id,
-									},
-								},
-							},
-					  }
-					: undefined,
-				OR: [
-					{
-						destino_departamento: {
-							usuarios: {
-								some: {
-									usuario: {
-										id: user.id,
-									},
-								},
-							},
-						},
+				documentos: {
+					some: {
+						condominio_id: !user.acessa_todos_departamentos
+							? { in: condominiums }
+							: undefined,
 					},
-				],
+				},
 			},
 		});
 	}
@@ -413,8 +395,9 @@ export class ProtocolService {
 	) {
 		const protocolo = await this.findById(id, user);
 
-		if (!protocolo || protocolo.situacao != 1)
+		if (!protocolo || protocolo.situacao != 1) {
 			throw new BadRequestException('Protocolo não encontrado');
+		}
 
 		return this.prisma.protocolo.update({
 			data: {

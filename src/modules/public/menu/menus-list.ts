@@ -95,7 +95,7 @@ export const menulist: Array<{
 	},
 	{
 		id_relation: 14,
-		permission_key: 'protocolos-listar-documentos',
+		permission_key: 'protocolos-documentos-aceitar',
 		relation: 11,
 		label: 'Aceitar',
 		url: 'protocolos/aceitar',

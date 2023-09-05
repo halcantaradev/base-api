@@ -455,13 +455,13 @@ export const permissionslist: Array<{
 	{
 		label: 'Estornar documento(s)',
 		module: 'Protocolos',
-		key: 'protocolos-documento-estornar',
+		key: 'protocolos-documentos-estornar',
 		message: 'Sem permissão para estornar documento',
 	},
 	{
 		label: 'Aceitar documento(s)',
 		module: 'Protocolos',
-		key: 'protocolos-documento-aceitar',
+		key: 'protocolos-documentos-aceitar',
 		message: 'Sem permissão para aceitar documento',
 	},
 	{

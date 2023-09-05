@@ -313,9 +313,12 @@ export class ProtocolController {
 
 	@Get(':id/emails')
 	@Role('protocolos-enviar-emails')
-	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
+	@ApiOperation({
+		summary:
+			'Lista emails dos responsáveis pelo condomínio de um protocolo',
+	})
 	@ApiResponse({
-		description: 'Protocolo listado com sucesso',
+		description: 'Emails listado com sucesso',
 		status: HttpStatus.OK,
 		type: ProtocolReturn,
 	})
@@ -326,7 +329,7 @@ export class ProtocolController {
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao listar o protocolo',
+		description: 'Ocorreu um erro ao listar os emails',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
@@ -339,9 +342,9 @@ export class ProtocolController {
 
 	@Post(':id/emails')
 	@Role('protocolos-enviar-emails')
-	@ApiOperation({ summary: 'Lista os dados de um protocolo' })
+	@ApiOperation({ summary: 'Envia os emails de um protocolo' })
 	@ApiResponse({
-		description: 'Protocolo listado com sucesso',
+		description: 'Email do protocolo enviado com sucesso',
 		status: HttpStatus.OK,
 		type: ProtocolReturn,
 	})
@@ -351,7 +354,7 @@ export class ProtocolController {
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao listar o protocolo',
+		description: 'Ocorreu um erro ao enviar os emails do protocolo',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})

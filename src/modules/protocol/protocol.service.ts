@@ -743,8 +743,6 @@ export class ProtocolService {
 			(document) => document.id,
 		);
 
-		console.log(documents_ids_accept);
-
 		await this.prisma.protocoloDocumento.updateMany({
 			where: {
 				id: {

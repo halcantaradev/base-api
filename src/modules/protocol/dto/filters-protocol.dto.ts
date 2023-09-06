@@ -114,6 +114,19 @@ export class FiltersProtocolDto {
 	data_aceito: string[];
 
 	@ApiProperty({
+		description: 'Status de finalizado do protocolo',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo status informado não é válido. Por favor, forneça um status válido.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	finalizado?: boolean;
+
+	@ApiProperty({
 		description: 'Status do protocolo',
 		example: true,
 		required: false,

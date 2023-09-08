@@ -166,7 +166,7 @@ export class IntegrationService {
 			return await this.prisma.pessoasHasUnidades.create({
 				data: {
 					pessoa_tipo_id: tipoPessoa.id,
-					pessoa_id: condominio.id,
+					pessoa_id: condominio.id, //aqui entra id do proprientario
 					unidade_id: unid.id,
 				},
 			});

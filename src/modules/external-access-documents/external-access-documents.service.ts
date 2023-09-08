@@ -21,22 +21,20 @@ export class ExternalAccessDocumentsService {
 
 	async getDocByToken(token: string): Promise<Buffer | null> {
 		const data = this.externalJwtService.validateToken(token);
-		let html: Buffer | string;
 		let dataToPrint: any;
 		let pdfs = [];
+		let pdf: Buffer;
 
 		let generateFileName = '';
 
 		if (data.origin == 'notificacoes') {
 			generateFileName = 'Notificação';
 
-			html = readFileSync(
-				resolve('./src/shared/layouts/notification.html'),
-			);
-
-			dataToPrint = await this.notificationService.dataToHandle(
+			const notificacao = await this.notificationService.findOneById(
 				data.data.id,
 			);
+
+			pdf = await this.pdfService.getPDF(notificacao.data.doc_gerado);
 
 			pdfs = await this.notificationService.getPDFFiles(data.data.id);
 		}
@@ -44,18 +42,20 @@ export class ExternalAccessDocumentsService {
 		if (data.origin == 'protocolos') {
 			generateFileName = 'Protocolo';
 
-			html = readFileSync(resolve('./src/shared/layouts/protocolo.html'));
+			let html: Buffer | string = readFileSync(
+				resolve('./src/shared/layouts/protocolo.html'),
+			);
 
 			dataToPrint = await this.protocolService.dataToHandle(data.data.id);
+			const layout = this.layoutService.replaceLayoutVars(
+				html.toString(),
+			);
+
+			html = this.handleBarService.compile(layout, dataToPrint);
+			pdf = await this.pdfService.getPDF(html);
 		}
 
-		const layout = this.layoutService.replaceLayoutVars(html.toString());
-
-		html = this.handleBarService.compile(layout, dataToPrint);
-
 		if (generateFileName != '') {
-			const pdf = await this.pdfService.getPDF(html);
-
 			if (pdfs.length)
 				return await this.pdfService.mergePDFs(
 					[pdf, ...pdfs],

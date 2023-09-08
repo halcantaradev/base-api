@@ -18,6 +18,7 @@ import { IntegrationTokenReturn } from './entities/token-integration.entity copy
 import { IntegrationService } from './integration.service';
 import { CurrentUserIntegration } from 'src/shared/decorators/current-user-integration.decorator';
 import { Filas } from 'src/shared/consts/filas.const';
+import { JwtAuthConsumerGuard } from '../public/auth/guards/jwt-auth-consumer.guard';
 
 @ApiTags('Integração')
 @Controller('integracao')
@@ -78,7 +79,7 @@ export class IntegrationController {
 			);
 
 			for (const integ of integracoes) {
-				this.integrationService.starSync('sync', {
+				await this.integrationService.starSync('sync', {
 					database_config: {
 						id: integ.id,
 						host: integ.host,
@@ -104,6 +105,7 @@ export class IntegrationController {
 		}
 	}
 
+	@UseGuards(JwtAuthConsumerGuard)
 	@MessagePattern()
 	async syncData(
 		@CurrentUserIntegration() user: UserAuth,
@@ -120,6 +122,9 @@ export class IntegrationController {
 						body.data,
 						user.empresa_id,
 					);
+					break;
+				case EntidadesSincronimo.UNIDADE:
+					await this.integrationService.syncUnidade(body.data);
 					break;
 			}
 

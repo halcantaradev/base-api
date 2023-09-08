@@ -132,7 +132,10 @@ export class ProtocolService {
 				id: !Number.isNaN(+filtersProtocolDto.id)
 					? +filtersProtocolDto.id
 					: undefined,
-
+				finalizado:
+					filtersProtocolDto.finalizado !== undefined
+						? filtersProtocolDto.finalizado
+						: undefined,
 				destino_departamento_id:
 					filtersProtocolDto.destino_departamento_ids
 						? {
@@ -532,7 +535,10 @@ export class ProtocolService {
 			dataToPrint,
 		);
 
-		return this.pdfService.getPDF(protocoloFile);
+		return this.pdfService.setTitlePDF(
+			`PROTOCOLO_${new Date().getTime()}`,
+			await this.pdfService.getPDF(protocoloFile),
+		);
 	}
 
 	async dataToHandle(id: number) {

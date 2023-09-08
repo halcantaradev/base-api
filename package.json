@@ -36,7 +36,9 @@
     "@nestjs/microservices": "^10.2.0",
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/platform-socket.io": "^10.2.4",
     "@nestjs/swagger": "^6.3.0",
+    "@nestjs/websockets": "^10.2.4",
     "@prisma/client": "4.15.0",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.3",
@@ -52,7 +54,8 @@
     "pdf-lib": "^1.17.1",
     "prisma": "4.15.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "socket.io": "^4.7.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

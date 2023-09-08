@@ -116,6 +116,7 @@ model User {
   destino_protocolos             Protocolo[]               @relation(name: "DestinoProtocoloUsuario")
   origem_protocolos              Protocolo[]               @relation(name: "OrigemProtocoloUsuario")
   protocolo_documentos_recebidos ProtocoloDocumento[]
+  conexoes_socket                ConexaoSocket[]
 
   @@map("usuarios")
 }
@@ -623,4 +624,34 @@ model EmailSetup {
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
 
   @@map("emails_setup")
+}
+
+model ConexaoSocket {
+  socket_id       String    @id()
+  usuario_id      Int?
+  empresa_id      Int?
+  sala            String
+  data_conexao    DateTime
+  data_desconexao DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  status          Int       @default(1)
+
+  usuario User? @relation(fields: [usuario_id], references: [id])
+
+  @@map("conexoes_socket")
+}
+
+model NotificacaoSocket {
+  id         Int      @id @default(autoincrement())
+  sala       String
+  titulo     String
+  conteudo   String   @db.Text
+  rota       String?
+  data       String?
+  lida       Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("notificacoes_socket")
 }

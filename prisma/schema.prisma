@@ -137,7 +137,7 @@ model EmpresasHasUsuarios {
 
 model Unidade {
   id                  Int       @id @default(autoincrement())
-  original_unidade_id Int?
+  original_unidade_id String?
   condominio_id       Int
   codigo              String
   ativo               Boolean   @default(true)

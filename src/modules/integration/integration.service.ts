@@ -119,11 +119,64 @@ export class IntegrationService {
 		}
 	}
 
+	async syncUnidade(data: any) {
+		const condominio = await this.prisma.pessoa.findFirst({
+			where: {
+				tipos: { some: { original_pessoa_id: data.condominio_uuid } },
+			},
+		});
+
+		const unidade = await this.prisma.unidade.findFirst({
+			where: { original_unidade_id: data.unidade_uuid },
+		});
+
+		if (unidade && condominio) {
+			if (
+				condominio.updated_at_origin < new Date(data.updated_at_origin)
+			) {
+				return await this.prisma.unidade.update({
+					data: {
+						codigo: data.codigo,
+						updated_at_origin: new Date(data.updated_at_origin),
+						ativo: !!data.ativo,
+					},
+					where: {
+						id: unidade.id,
+					},
+				});
+			} else {
+				return false;
+			}
+		} else {
+			const tipoPessoa = await this.prisma.tiposPessoa.findFirst({
+				select: { id: true },
+				where: { nome: 'proprietario' },
+			});
+
+			const unid = await this.prisma.unidade.create({
+				data: {
+					codigo: data.codigo,
+					ativo: !!data.ativo,
+					original_unidade_id: data.unidade_uuid,
+					updated_at_origin: new Date(data.updated_at_origin),
+					condominio_id: condominio.id,
+				},
+			});
+
+			return await this.prisma.pessoasHasUnidades.create({
+				data: {
+					pessoa_tipo_id: tipoPessoa.id,
+					pessoa_id: condominio.id,
+					unidade_id: unid.id,
+				},
+			});
+		}
+	}
 	update(id: number, data: UpdateIntegrationDto) {
 		return this.prisma.integracaoDatabase.update({ data, where: { id } });
 	}
 
 	starSync(pattern: string, payload: any) {
-		this.filaService.publishSync(pattern, payload);
+		return this.filaService.publishSync(pattern, payload);
 	}
 }

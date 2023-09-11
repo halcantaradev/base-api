@@ -53,10 +53,7 @@ export class NotificationWSService {
 			});
 
 			client.join(sala);
-
-			console.log(`Cliente ${client.id} conectou na sala: ${sala}`);
 		} catch {
-			console.log(`Cliente ${client.id} não conseguiu se conectar`);
 			client.disconnect();
 		}
 	}
@@ -71,8 +68,6 @@ export class NotificationWSService {
 				socket_id: client_id,
 			},
 		});
-
-		console.log(`Cliente ${client_id} desconectou`);
 	}
 
 	async onRead(client: Socket, notification_id: number) {
@@ -105,8 +100,6 @@ export class NotificationWSService {
 				message: 'Marcado como lido',
 			});
 		} catch (err) {
-			console.log(err);
-
 			client.emit('error', {
 				message: 'Ocorreu um erro',
 			});

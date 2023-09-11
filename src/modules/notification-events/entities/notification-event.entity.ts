@@ -6,6 +6,13 @@ export class NotificationEvent {
 		example: 'Título de teste',
 		required: true,
 	})
+	id: number;
+
+	@ApiProperty({
+		description: 'Título da notificação',
+		example: 'Título de teste',
+		required: true,
+	})
 	titulo: string;
 
 	@ApiProperty({
@@ -14,20 +21,6 @@ export class NotificationEvent {
 		required: true,
 	})
 	conteudo: string;
-
-	@ApiProperty({
-		description: 'Usuário de destino da notificação',
-		example: 1,
-		required: true,
-	})
-	usuario_id: number;
-
-	@ApiProperty({
-		description: 'Empresa do usuário de destino da notificação',
-		example: 1,
-		required: true,
-	})
-	empresa_id: number;
 
 	@ApiProperty({
 		description: 'Dados da notificação',
@@ -49,4 +42,16 @@ export class NotificationEvent {
 		required: true,
 	})
 	lida: boolean;
+
+	@ApiProperty({
+		description: 'Data de criação da notificação',
+		example: new Date(),
+	})
+	created_at: Date;
+
+	@ApiProperty({
+		description: 'Data de atualização da notificação',
+		example: new Date(),
+	})
+	updated_at: Date;
 }

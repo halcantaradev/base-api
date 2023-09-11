@@ -1,7 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { NotificationWSGateway } from './notification-ws.gateway';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { NotificationWS } from './entities/notification-ws.entity';
+import { SendNotificationUserDto } from './dto/send-notification-user.dto';
+import { SendNotificationDepartmentDto } from './dto/send-notification-department.dto';
 
 @Controller('notification-events')
 export class NotificationWSController {
@@ -9,8 +10,21 @@ export class NotificationWSController {
 		private readonly notificationWSGateway: NotificationWSGateway,
 	) {}
 
-	@MessagePattern('send')
-	sendNotification(@Payload() data: NotificationWS) {
-		this.notificationWSGateway.sendMessage(data);
+	@MessagePattern('user')
+	sendNotificationByUser(
+		@Payload() sendNotificationUserDto: SendNotificationUserDto,
+	) {
+		this.notificationWSGateway.sendNotificationByUser(
+			sendNotificationUserDto,
+		);
+	}
+
+	@MessagePattern('department')
+	sendNotificationByDepartment(
+		@Payload() sendNotificationDepartmentDto: SendNotificationDepartmentDto,
+	) {
+		this.notificationWSGateway.sendNotificationByDepartment(
+			sendNotificationDepartmentDto,
+		);
 	}
 }

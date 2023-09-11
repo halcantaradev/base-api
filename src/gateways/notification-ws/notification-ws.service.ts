@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'src/shared/services/prisma.service';
-import { NotificationWS } from './entities/notification-ws.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { WsException } from '@nestjs/websockets';
+import { SendNotificationUserDto } from './dto/send-notification-user.dto';
+import { SendNotificationDepartmentDto } from './dto/send-notification-department.dto';
 
 @Injectable()
 export class NotificationWSService {
@@ -129,22 +130,86 @@ export class NotificationWSService {
 		}
 	}
 
-	async sendMessage(server: Server, message: NotificationWS) {
-		const sala = `${message.usuario_id}-${message.empresa_id}`;
+	async sendNotificationByUser(
+		server: Server,
+		sendNotificationUserDto: SendNotificationUserDto,
+	) {
+		const sala = `${sendNotificationUserDto.usuario_id}-${sendNotificationUserDto.empresa_id}`;
 
 		const notification = await this.prisma.notificacaoSocket.create({
 			data: {
-				titulo: message.titulo,
-				conteudo: message.conteudo,
-				data: message.data,
-				rota: message.rota,
+				titulo: sendNotificationUserDto.notification.titulo,
+				conteudo: sendNotificationUserDto.notification.conteudo,
+				data: sendNotificationUserDto.notification.data,
+				rota: sendNotificationUserDto.notification.rota,
 				sala: sala,
 			},
 		});
 
 		server.to(sala).emit('notify', {
-			...message,
+			...sendNotificationUserDto.notification,
 			id: notification.id,
 		});
+	}
+
+	async sendNotificationByDepartment(
+		server: Server,
+		sendNotificationDepartmentDto: SendNotificationDepartmentDto,
+	) {
+		const usersDepartment = await this.prisma.user.findMany({
+			select: {
+				id: true,
+				empresas: {
+					select: {
+						empresa_id: true,
+					},
+					where: {
+						empresa_id: sendNotificationDepartmentDto.empresa_id,
+					},
+				},
+			},
+			where: {
+				empresas: {
+					some: {
+						empresa_id: sendNotificationDepartmentDto.empresa_id,
+					},
+				},
+				departamentos: {
+					some: {
+						departamento_id:
+							sendNotificationDepartmentDto.departamento_id,
+					},
+				},
+				ativo: true,
+			},
+		});
+
+		await Promise.all(
+			usersDepartment.map(async (user) => {
+				const sala = `${user.id}-${user.empresas[0].empresa_id}`;
+
+				const notification = await this.prisma.notificacaoSocket.create(
+					{
+						data: {
+							titulo: sendNotificationDepartmentDto.notification
+								.titulo,
+							conteudo:
+								sendNotificationDepartmentDto.notification
+									.conteudo,
+							data: sendNotificationDepartmentDto.notification
+								.data,
+							rota: sendNotificationDepartmentDto.notification
+								.rota,
+							sala: sala,
+						},
+					},
+				);
+
+				server.to(sala).emit('notify', {
+					...sendNotificationDepartmentDto.notification,
+					id: notification.id,
+				});
+			}),
+		);
 	}
 }

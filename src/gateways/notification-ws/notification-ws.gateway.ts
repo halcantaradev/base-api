@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { JwtWSAuthGuard } from './guards/jwt-ws-auth.guard';
-import { NotificationWSService } from './notification.service';
+import { NotificationWSService } from './notification-ws.service';
 import {
 	WebSocketServer,
 	SubscribeMessage,
@@ -11,7 +11,8 @@ import {
 	MessageBody,
 	ConnectedSocket,
 } from '@nestjs/websockets';
-import { NotificationWS } from './entities/notification-ws.entity';
+import { SendNotificationUserDto } from './dto/send-notification-user.dto';
+import { SendNotificationDepartmentDto } from './dto/send-notification-department.dto';
 
 @UseGuards(JwtWSAuthGuard)
 @WebSocketGateway(8988, {
@@ -50,7 +51,19 @@ export class NotificationWSGateway
 		this.notificationWSService.onReadAll(client);
 	}
 
-	sendMessage(message: NotificationWS) {
-		this.notificationWSService.sendMessage(this.server, message);
+	sendNotificationByUser(sendNotificationUserDto: SendNotificationUserDto) {
+		this.notificationWSService.sendNotificationByUser(
+			this.server,
+			sendNotificationUserDto,
+		);
+	}
+
+	sendNotificationByDepartment(
+		sendNotificationDepartmentDto: SendNotificationDepartmentDto,
+	) {
+		this.notificationWSService.sendNotificationByDepartment(
+			this.server,
+			sendNotificationDepartmentDto,
+		);
 	}
 }

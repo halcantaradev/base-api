@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { AxiosHeaders } from 'axios';
 import { FilaService } from './fila/fila.service';
-import { NotificationWS } from 'src/gateways/notification-ws/entities/notification-ws.entity';
+import { SendNotificationUserDto } from 'src/gateways/notification-ws/dto/send-notification-user.dto';
+import { SendNotificationDepartmentDto } from 'src/gateways/notification-ws/dto/send-notification-department.dto';
 
 @Injectable()
 export class NotificationWsService {
@@ -9,10 +10,21 @@ export class NotificationWsService {
 	baseURL: string;
 	constructor(private readonly filaService: FilaService) {}
 
-	send(notification: NotificationWS): Promise<boolean> {
+	sendUser(notification: SendNotificationUserDto): Promise<boolean> {
 		return new Promise((res, rej) => {
 			this.filaService
-				.publishNotification('send', notification)
+				.publishNotification('user', notification)
+				.then(() => res(true))
+				.catch((err) => rej(err));
+		});
+	}
+
+	sendDepartment(
+		notification: SendNotificationDepartmentDto,
+	): Promise<boolean> {
+		return new Promise((res, rej) => {
+			this.filaService
+				.publishNotification('department', notification)
 				.then(() => res(true))
 				.catch((err) => rej(err));
 		});

@@ -7,7 +7,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	id: number;
+	id?: number;
 
 	@ApiProperty({
 		description: 'Tipo do protocolo',
@@ -15,7 +15,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	tipo: 1 | 2;
+	tipo?: number;
 
 	@ApiProperty({
 		description: 'Situação do protocolo',
@@ -23,7 +23,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	situacao: 1 | 2 | 3;
+	situacao?: number;
 
 	@ApiProperty({
 		description: 'Usuario de origem do protocolo',
@@ -31,7 +31,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	origem_usuario: { id: number; nome: string };
+	origem_usuario?: { id: number; nome: string };
 
 	@ApiProperty({
 		description: 'Departamento de origem do protocolo',
@@ -39,7 +39,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	origem_departamento: { id: number; nome: string };
+	origem_departamento?: { id: number; nome: string };
 
 	@ApiProperty({
 		description: 'Usuario de destino do protocolo',
@@ -47,7 +47,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	destino_usuario: { id: number; nome: string };
+	destino_usuario?: { id: number; nome: string };
 
 	@ApiProperty({
 		description: 'Departamento de destino do protocolo',
@@ -55,7 +55,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	destino_departamento: { id: number; nome: string };
+	destino_departamento?: { id: number; nome: string };
 
 	@ApiProperty({
 		description: 'Identifica se o protocolo retorna malote vazio',
@@ -63,7 +63,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	retorna_malote_vazio: boolean;
+	retorna_malote_vazio?: boolean;
 
 	@ApiProperty({
 		description: 'Status do protocolo',
@@ -71,7 +71,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	ativo: boolean;
+	ativo?: boolean;
 
 	@ApiProperty({
 		description: 'Identifica se o protocolo foi finalizado',
@@ -79,7 +79,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	finalizado: boolean;
+	finalizado?: boolean;
 
 	@ApiProperty({
 		description: 'Data de finalização do protocolo',
@@ -87,7 +87,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	data_finalizado: Date;
+	data_finalizado?: Date;
 
 	@ApiProperty({
 		description: 'Data de criação do protocolo',
@@ -95,7 +95,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	created_at: Date;
+	created_at?: Date;
 
 	@ApiProperty({
 		description: 'Data da ultima atualização do protocolo',
@@ -103,7 +103,7 @@ export class Protocol {
 		required: true,
 		readOnly: true,
 	})
-	updated_at: Date;
+	updated_at?: Date;
 
-	documentos: any[];
+	documentos?: any[];
 }

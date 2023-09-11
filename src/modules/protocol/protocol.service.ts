@@ -375,7 +375,7 @@ export class ProtocolService {
 		};
 	}
 
-	findById(id: number, user: UserAuth) {
+	findById(id: number, user: UserAuth): Promise<Protocol> {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Protocolo não encontrado');
 
@@ -1140,7 +1140,7 @@ export class ProtocolService {
 	}
 
 	async sendNotificationDepartment(
-		protocolo: any,
+		protocolo: Protocol,
 		departamento_id: number,
 		empresa_id: number,
 	) {

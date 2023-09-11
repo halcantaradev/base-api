@@ -20,6 +20,7 @@ import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jw
 import { Contact } from 'src/shared/consts/contact.const';
 import { ContactType } from 'src/shared/consts/contact-type.const';
 import { NotificationEventsService } from '../notification-events/notification-events.service';
+import { Protocol } from './entities/protocol.entity';
 
 @Injectable()
 export class ProtocolService {
@@ -453,25 +454,11 @@ export class ProtocolService {
 		});
 
 		if (protocolo) {
-			const department = await this.prisma.departamento.findFirst({
-				select: {
-					id: true,
-					nome: true,
-				},
-				where: {
-					id: updateProtocolDto.destino_departamento_id,
-				},
-			});
-
-			await this.notificationEventsService.sendNotificationByDepartment({
-				departamento_id: department.id,
-				empresa_id: user.empresa_id,
-				notification: {
-					titulo: 'Novo Protocolo',
-					conteudo: `Novo protocolo enviado para o departamento ${department.nome}, clique aqui para visualizar!`,
-					rota: `protocolos/detalhes/${protocolo.id}`,
-				},
-			});
+			this.sendNotificationDepartment(
+				protocolo,
+				updateProtocolDto.destino_departamento_id,
+				user.empresa_id,
+			);
 		}
 
 		return protocolo;
@@ -1150,5 +1137,31 @@ export class ProtocolService {
 		);
 
 		return;
+	}
+
+	async sendNotificationDepartment(
+		protocolo: any,
+		departamento_id: number,
+		empresa_id: number,
+	) {
+		const department = await this.prisma.departamento.findFirst({
+			select: {
+				id: true,
+				nome: true,
+			},
+			where: {
+				id: departamento_id,
+			},
+		});
+
+		await this.notificationEventsService.sendNotificationByDepartment({
+			departamento_id: department.id,
+			empresa_id: empresa_id,
+			notification: {
+				titulo: 'Novo Protocolo',
+				conteudo: `Novo protocolo enviado para o departamento ${department.nome}, clique aqui para visualizar`,
+				rota: `protocolos/detalhes/${protocolo.id}`,
+			},
+		});
 	}
 }

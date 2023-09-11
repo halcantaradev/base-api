@@ -18,6 +18,14 @@ export class Protocol {
 	tipo: 1 | 2;
 
 	@ApiProperty({
+		description: 'Situação do protocolo',
+		example: 1,
+		required: true,
+		readOnly: true,
+	})
+	situacao: 1 | 2 | 3;
+
+	@ApiProperty({
 		description: 'Usuario de origem do protocolo',
 		example: { id: 1, nome: 'Usuario Teste' },
 		required: true,
@@ -74,6 +82,14 @@ export class Protocol {
 	finalizado: boolean;
 
 	@ApiProperty({
+		description: 'Data de finalização do protocolo',
+		example: '2023-01-01T23:59:59.000Z',
+		required: true,
+		readOnly: true,
+	})
+	data_finalizado: Date;
+
+	@ApiProperty({
 		description: 'Data de criação do protocolo',
 		example: '2023-01-01T23:59:59.000Z',
 		required: true,
@@ -88,4 +104,6 @@ export class Protocol {
 		readOnly: true,
 	})
 	updated_at: Date;
+
+	documentos: any[];
 }

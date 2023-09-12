@@ -17,6 +17,7 @@ import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
+import { setCustomHour } from 'src/shared/helpers/date.helper';
 
 @Injectable()
 export class NotificationService {
@@ -187,30 +188,41 @@ export class NotificationService {
 											filtro.tipo_infracao_id
 												? filtro.tipo_infracao_id
 												: undefined,
-										OR: filtro.tipo_data_filtro
-											? [
-													filtro.tipo_data_filtro == 1
-														? {
-																data_emissao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  }
-														: {
-																data_infracao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  },
-											  ]
+
+										data_emissao: filtro.data_emissao
+											? {
+													gte:
+														setCustomHour(
+															filtro
+																.data_emissao[0],
+														) || undefined,
+													lte:
+														setCustomHour(
+															filtro
+																.data_emissao[1],
+															23,
+															59,
+															59,
+														) || undefined,
+											  }
+											: undefined,
+
+										data_infracao: filtro.data_infracao
+											? {
+													gte:
+														setCustomHour(
+															filtro
+																.data_infracao[0],
+														) || undefined,
+													lte:
+														setCustomHour(
+															filtro
+																.data_infracao[1],
+															23,
+															59,
+															59,
+														) || undefined,
+											  }
 											: undefined,
 									},
 								},
@@ -289,32 +301,41 @@ export class NotificationService {
 											filtro.tipo_infracao_id
 												? filtro.tipo_infracao_id
 												: undefined,
-										data_emissao:
-											filtro.tipo_data_filtro == 1 &&
-											(filtro.data_inicial ||
-												filtro.data_final)
-												? {
-														gte: filtro.data_inicial
-															? filtro.data_inicial
-															: undefined,
-														lte: filtro.data_final
-															? filtro.data_final
-															: undefined,
-												  }
-												: undefined,
-										data_infracao:
-											filtro.tipo_data_filtro == 2 &&
-											(filtro.data_inicial ||
-												filtro.data_final)
-												? {
-														gte: filtro.data_inicial
-															? filtro.data_inicial
-															: undefined,
-														lte: filtro.data_final
-															? filtro.data_final
-															: undefined,
-												  }
-												: undefined,
+										data_emissao: filtro.data_emissao
+											? {
+													gte:
+														setCustomHour(
+															filtro
+																.data_emissao[0],
+														) || undefined,
+													lte:
+														setCustomHour(
+															filtro
+																.data_emissao[1],
+															23,
+															59,
+															59,
+														) || undefined,
+											  }
+											: undefined,
+
+										data_infracao: filtro.data_infracao
+											? {
+													gte:
+														setCustomHour(
+															filtro
+																.data_infracao[0],
+														) || undefined,
+													lte:
+														setCustomHour(
+															filtro
+																.data_infracao[1],
+															23,
+															59,
+															59,
+														) || undefined,
+											  }
+											: undefined,
 									},
 								},
 							},
@@ -381,34 +402,48 @@ export class NotificationService {
 													filtro.tipo_infracao_id
 														? filtro.tipo_infracao_id
 														: undefined,
-												OR: filtro.tipo_data_filtro
-													? [
-															filtro.tipo_data_filtro ==
-															1
-																? {
-																		data_emissao:
-																			{
-																				gte: filtro.data_inicial
-																					? filtro.data_inicial
-																					: undefined,
-																				lte: filtro.data_final
-																					? filtro.data_final
-																					: undefined,
-																			},
-																  }
-																: {
-																		data_infracao:
-																			{
-																				gte: filtro.data_inicial
-																					? filtro.data_inicial
-																					: undefined,
-																				lte: filtro.data_final
-																					? filtro.data_final
-																					: undefined,
-																			},
-																  },
-													  ]
-													: undefined,
+
+												data_emissao:
+													filtro.data_emissao
+														? {
+																gte:
+																	setCustomHour(
+																		filtro
+																			.data_emissao[0],
+																		23,
+																		59,
+																		59,
+																	) ||
+																	undefined,
+																lte:
+																	setCustomHour(
+																		filtro
+																			.data_emissao[1],
+																	) ||
+																	undefined,
+														  }
+														: undefined,
+
+												data_infracao:
+													filtro.data_infracao
+														? {
+																gte:
+																	setCustomHour(
+																		filtro
+																			.data_infracao[0],
+																	) ||
+																	undefined,
+																lte:
+																	setCustomHour(
+																		filtro
+																			.data_infracao[1],
+																		23,
+																		59,
+																		59,
+																	) ||
+																	undefined,
+														  }
+														: undefined,
 											},
 										},
 									},
@@ -518,33 +553,40 @@ export class NotificationService {
 												filtro.tipo_infracao_id
 													? filtro.tipo_infracao_id
 													: undefined,
-											OR: filtro.tipo_data_filtro
-												? [
-														filtro.tipo_data_filtro ==
-														1
-															? {
-																	data_emissao:
-																		{
-																			gte: filtro.data_inicial
-																				? filtro.data_inicial
-																				: undefined,
-																			lte: filtro.data_final
-																				? filtro.data_final
-																				: undefined,
-																		},
-															  }
-															: {
-																	data_infracao:
-																		{
-																			gte: filtro.data_inicial
-																				? filtro.data_inicial
-																				: undefined,
-																			lte: filtro.data_final
-																				? filtro.data_final
-																				: undefined,
-																		},
-															  },
-												  ]
+											data_emissao: filtro.data_emissao
+												? {
+														gte:
+															setCustomHour(
+																filtro
+																	.data_emissao[0],
+															) || undefined,
+														lte:
+															setCustomHour(
+																filtro
+																	.data_emissao[1],
+																23,
+																59,
+																59,
+															) || undefined,
+												  }
+												: undefined,
+
+											data_infracao: filtro.data_infracao
+												? {
+														gte:
+															setCustomHour(
+																filtro
+																	.data_infracao[0],
+															) || undefined,
+														lte:
+															setCustomHour(
+																filtro
+																	.data_infracao[1],
+																23,
+																59,
+																59,
+															) || undefined,
+												  }
 												: undefined,
 										},
 								  }
@@ -571,30 +613,40 @@ export class NotificationService {
 											filtro.tipo_infracao_id
 												? filtro.tipo_infracao_id
 												: undefined,
-										OR: filtro.tipo_data_filtro
-											? [
-													filtro.tipo_data_filtro == 1
-														? {
-																data_emissao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  }
-														: {
-																data_infracao: {
-																	gte: filtro.data_inicial
-																		? filtro.data_inicial
-																		: undefined,
-																	lte: filtro.data_final
-																		? filtro.data_final
-																		: undefined,
-																},
-														  },
-											  ]
+										data_emissao: filtro.data_emissao
+											? {
+													gte:
+														setCustomHour(
+															filtro
+																.data_emissao[0],
+														) || undefined,
+													lte:
+														setCustomHour(
+															filtro
+																.data_emissao[1],
+															23,
+															59,
+															59,
+														) || undefined,
+											  }
+											: undefined,
+
+										data_infracao: filtro.data_infracao
+											? {
+													gte:
+														setCustomHour(
+															filtro
+																.data_infracao[0],
+														) || undefined,
+													lte:
+														setCustomHour(
+															filtro
+																.data_infracao[1],
+															23,
+															59,
+															59,
+														) || undefined,
+											  }
 											: undefined,
 									},
 								},
@@ -707,34 +759,37 @@ export class NotificationService {
 													filtro.tipo_infracao_id
 														? filtro.tipo_infracao_id
 														: undefined,
-												OR: filtro.tipo_data_filtro
-													? [
-															filtro.tipo_data_filtro ==
-															1
-																? {
-																		data_emissao:
-																			{
-																				gte: filtro.data_inicial
-																					? filtro.data_inicial
-																					: undefined,
-																				lte: filtro.data_final
-																					? filtro.data_final
-																					: undefined,
-																			},
-																  }
-																: {
-																		data_infracao:
-																			{
-																				gte: filtro.data_inicial
-																					? filtro.data_inicial
-																					: undefined,
-																				lte: filtro.data_final
-																					? filtro.data_final
-																					: undefined,
-																			},
-																  },
-													  ]
-													: undefined,
+												data_emissao:
+													filtro.data_emissao
+														? {
+																gte: filtro
+																	.data_emissao[0]
+																	? filtro
+																			.data_emissao[0]
+																	: undefined,
+																lte: filtro
+																	.data_emissao[1]
+																	? filtro
+																			.data_emissao[1]
+																	: undefined,
+														  }
+														: undefined,
+
+												data_infracao:
+													filtro.data_infracao
+														? {
+																gte: filtro
+																	.data_infracao[0]
+																	? filtro
+																			.data_infracao[0]
+																	: undefined,
+																lte: filtro
+																	.data_infracao[1]
+																	? filtro
+																			.data_infracao[1]
+																	: undefined,
+														  }
+														: undefined,
 											},
 										},
 									},
@@ -1226,30 +1281,36 @@ export class NotificationService {
 			tipo_registro: notificationUnidadeDTO.tipo_registro
 				? notificationUnidadeDTO.tipo_registro
 				: undefined,
-			OR: notificationUnidadeDTO.tipo_data_filtro
-				? [
-						notificationUnidadeDTO.tipo_data_filtro == 1
-							? {
-									data_emissao: {
-										gte: notificationUnidadeDTO.data_inicial
-											? notificationUnidadeDTO.data_inicial
-											: undefined,
-										lte: notificationUnidadeDTO.data_final
-											? notificationUnidadeDTO.data_final
-											: undefined,
-									},
-							  }
-							: {
-									data_infracao: {
-										gte: notificationUnidadeDTO.data_inicial
-											? notificationUnidadeDTO.data_inicial
-											: undefined,
-										lte: notificationUnidadeDTO.data_final
-											? notificationUnidadeDTO.data_final
-											: undefined,
-									},
-							  },
-				  ]
+			data_emissao: notificationUnidadeDTO.data_emissao
+				? {
+						gte:
+							setCustomHour(
+								notificationUnidadeDTO.data_emissao[0],
+							) || undefined,
+						lte:
+							setCustomHour(
+								notificationUnidadeDTO.data_emissao[1],
+								23,
+								59,
+								59,
+							) || undefined,
+				  }
+				: undefined,
+
+			data_infracao: notificationUnidadeDTO.data_infracao
+				? {
+						gte:
+							setCustomHour(
+								notificationUnidadeDTO.data_infracao[0],
+							) || undefined,
+						lte:
+							setCustomHour(
+								notificationUnidadeDTO.data_infracao[1],
+								23,
+								59,
+								59,
+							) || undefined,
+				  }
 				: undefined,
 		};
 

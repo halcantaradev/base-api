@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsInt, IsOptional } from 'class-validator';
+import {
+	IsDate,
+	IsDateString,
+	IsInt,
+	IsOptional,
+	isDateString,
+} from 'class-validator';
 
 export class FilterNotificationDto {
 	@ApiProperty({
@@ -72,34 +78,26 @@ export class FilterNotificationDto {
 	tipo_infracao_id: number;
 
 	@ApiProperty({
-		description:
-			'Tipo de filtragem entre períodos, sendo 1 para data de emissão e 2 para data da infração',
+		description: 'Filtro por data da infração da notificação',
+		example: [new Date(), new Date()],
+		required: false,
 	})
 	@IsOptional()
-	@IsInt({
-		message: 'Por favor forneça um tipo de filtro de data válido',
-	})
-	tipo_data_filtro: number;
+	@IsDateString(
+		{},
+		{ each: true, message: 'O campo data da infração deve ser uma data' },
+	)
+	data_infracao: string[];
 
 	@ApiProperty({
-		description: 'Data inicial do período',
-		example: '2023-06-20T00:00:00',
+		description: 'Filtro por data de emissão da notificação',
+		example: [new Date(), new Date()],
+		required: false,
 	})
 	@IsOptional()
-	@IsDate({
-		message: 'Por favor forneça uma data válido',
-	})
-	@Type(() => Date)
-	data_inicial: Date;
-
-	@ApiProperty({
-		description: 'Data final do período',
-		example: '2023-06-21T00:00:00',
-	})
-	@IsOptional()
-	@IsDate({
-		message: 'Por favor forneça uma data válido',
-	})
-	@Type(() => Date)
-	data_final: Date;
+	@IsDateString(
+		{},
+		{ each: true, message: 'O campo data de emissão deve ser uma data' },
+	)
+	data_emissao: string[];
 }

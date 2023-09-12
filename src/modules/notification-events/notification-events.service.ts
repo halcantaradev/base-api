@@ -13,7 +13,7 @@ export class NotificationEventsService {
 		private readonly notificationWsService: NotificationWsService,
 	) {}
 
-	select: Prisma.NotificacaoSocketSelect = {
+	select: Prisma.NotificacaoEventoSelect = {
 		id: true,
 		titulo: true,
 		conteudo: true,
@@ -31,7 +31,7 @@ export class NotificationEventsService {
 		const dataLimite = new Date();
 		dataLimite.setDate(dataHoje.getDate() - 2);
 
-		return this.prisma.notificacaoSocket.findMany({
+		return this.prisma.notificacaoEvento.findMany({
 			select: this.select,
 			where: {
 				sala,

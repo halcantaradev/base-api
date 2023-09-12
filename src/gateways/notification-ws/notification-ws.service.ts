@@ -78,7 +78,7 @@ export class NotificationWSService {
 			if (!notification_id || Number.isNaN(notification_id))
 				throw new WsException('Notificação não encontrada');
 
-			const notification = await this.prisma.notificacaoSocket.findFirst({
+			const notification = await this.prisma.notificacaoEvento.findFirst({
 				where: {
 					id: notification_id,
 					sala: sala,
@@ -88,7 +88,7 @@ export class NotificationWSService {
 			if (!notification)
 				throw new WsException('Notificação não encontrada');
 
-			await this.prisma.notificacaoSocket.update({
+			await this.prisma.notificacaoEvento.update({
 				data: {
 					lida: true,
 				},
@@ -111,7 +111,7 @@ export class NotificationWSService {
 		try {
 			const sala = await this.getClientRoom(client.id);
 
-			await this.prisma.notificacaoSocket.updateMany({
+			await this.prisma.notificacaoEvento.updateMany({
 				data: {
 					lida: true,
 				},
@@ -136,7 +136,7 @@ export class NotificationWSService {
 	) {
 		const sala = `${sendNotificationUserDto.usuario_id}-${sendNotificationUserDto.empresa_id}`;
 
-		const notification = await this.prisma.notificacaoSocket.create({
+		const notification = await this.prisma.notificacaoEvento.create({
 			data: {
 				titulo: sendNotificationUserDto.notification.titulo,
 				conteudo: sendNotificationUserDto.notification.conteudo,
@@ -188,7 +188,7 @@ export class NotificationWSService {
 			usersDepartment.map(async (user) => {
 				const sala = `${user.id}-${user.empresas[0].empresa_id}`;
 
-				const notification = await this.prisma.notificacaoSocket.create(
+				const notification = await this.prisma.notificacaoEvento.create(
 					{
 						data: {
 							titulo: sendNotificationDepartmentDto.notification

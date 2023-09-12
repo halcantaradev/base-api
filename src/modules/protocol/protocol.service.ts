@@ -458,6 +458,7 @@ export class ProtocolService {
 				protocolo,
 				updateProtocolDto.destino_departamento_id,
 				user.empresa_id,
+				updateProtocolDto.finalizado,
 			);
 		}
 
@@ -1143,25 +1144,34 @@ export class ProtocolService {
 		protocolo: Protocol,
 		departamento_id: number,
 		empresa_id: number,
+		novo_protocolo = false,
 	) {
-		const department = await this.prisma.departamento.findFirst({
-			select: {
-				id: true,
-				nome: true,
-			},
-			where: {
-				id: departamento_id,
-			},
-		});
+		try {
+			const department = await this.prisma.departamento.findFirst({
+				select: {
+					id: true,
+					nome: true,
+				},
+				where: {
+					id: departamento_id,
+				},
+			});
 
-		await this.notificationEventsService.sendNotificationByDepartment({
-			departamento_id: department.id,
-			empresa_id: empresa_id,
-			notification: {
-				titulo: 'Novo Protocolo',
-				conteudo: `Novo protocolo enviado para o departamento ${department.nome}, clique aqui para visualizar`,
-				rota: `protocolos/detalhes/${protocolo.id}`,
-			},
-		});
+			await this.notificationEventsService.sendNotificationByDepartment({
+				departamento_id: department.id,
+				empresa_id: empresa_id,
+				notification: {
+					titulo: novo_protocolo
+						? 'Novo Protocolo'
+						: `Protocolo ${protocolo.id} foi atualizado`,
+					conteudo: novo_protocolo
+						? `Novo protocolo enviado para o departamento ${department.nome}, clique aqui para visualizar`
+						: `As informações do protocolo enviado para o departamento ${department.nome} foram atualizadas, clique aqui para visualizar`,
+					rota: `protocolos/detalhes/${protocolo.id}`,
+				},
+			});
+		} catch (err) {
+			console.log(err);
+		}
 	}
 }

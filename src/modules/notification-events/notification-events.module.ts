@@ -6,6 +6,7 @@ import { FilaModule } from 'src/shared/services/fila/fila.module';
 
 @Module({
 	imports: [FilaModule],
+	exports: [NotificationEventsService],
 	controllers: [NotificationEventsController],
 	providers: [NotificationEventsService, PrismaService],
 })

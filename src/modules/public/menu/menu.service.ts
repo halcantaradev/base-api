@@ -33,7 +33,7 @@ export class MenuService {
 						},
 						ativo: true,
 					},
-					orderBy: { id: 'asc' },
+					orderBy: { label: 'asc' },
 				},
 			},
 			where: {

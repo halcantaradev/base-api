@@ -19,6 +19,8 @@ import { PdfService } from 'src/shared/services/pdf.service';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
 import { Contact } from 'src/shared/consts/contact.const';
 import { ContactType } from 'src/shared/consts/contact-type.const';
+import { NotificationEventsService } from '../notification-events/notification-events.service';
+import { Protocol } from './entities/protocol.entity';
 
 @Injectable()
 export class ProtocolService {
@@ -30,6 +32,7 @@ export class ProtocolService {
 		private readonly layoutService: LayoutConstsService,
 		private readonly handleBarService: HandlebarsService,
 		private readonly externalJtwService: ExternalJwtService,
+		private readonly notificationEventsService: NotificationEventsService,
 	) {}
 
 	select: Prisma.ProtocoloSelect = {
@@ -223,6 +226,7 @@ export class ProtocolService {
 			},
 		});
 	}
+
 	async findByAccept(
 		filtersProtocolDto: FiltersProtocolDto,
 		user: UserAuth,
@@ -371,7 +375,7 @@ export class ProtocolService {
 		};
 	}
 
-	findById(id: number, user: UserAuth) {
+	findById(id: number, user: UserAuth): Promise<Protocol> {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Protocolo não encontrado');
 
@@ -419,13 +423,13 @@ export class ProtocolService {
 		updateProtocolDto: UpdateProtocolDto,
 		user: UserAuth,
 	) {
-		const protocolo = await this.findById(id, user);
+		let protocolo = await this.findById(id, user);
 
 		if (!protocolo || protocolo.situacao != 1) {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
-		return this.prisma.protocolo.update({
+		protocolo = await this.prisma.protocolo.update({
 			data: {
 				tipo: updateProtocolDto.tipo || undefined,
 				destino_departamento_id:
@@ -448,6 +452,17 @@ export class ProtocolService {
 				id,
 			},
 		});
+
+		if (protocolo) {
+			this.sendNotificationDepartment(
+				protocolo,
+				updateProtocolDto.destino_departamento_id,
+				user.empresa_id,
+				updateProtocolDto.finalizado,
+			);
+		}
+
+		return protocolo;
 	}
 
 	async createDocument(
@@ -868,6 +883,7 @@ export class ProtocolService {
 			message: 'Documento(s) estornados(s) com sucesso!',
 		};
 	}
+
 	async updateDocument(
 		protocolo_id: number,
 		document_id: number,
@@ -1122,5 +1138,40 @@ export class ProtocolService {
 		);
 
 		return;
+	}
+
+	async sendNotificationDepartment(
+		protocolo: Protocol,
+		departamento_id: number,
+		empresa_id: number,
+		novo_protocolo = false,
+	) {
+		try {
+			const department = await this.prisma.departamento.findFirst({
+				select: {
+					id: true,
+					nome: true,
+				},
+				where: {
+					id: departamento_id,
+				},
+			});
+
+			await this.notificationEventsService.sendNotificationByDepartment({
+				departamento_id: department.id,
+				empresa_id: empresa_id,
+				notification: {
+					titulo: novo_protocolo
+						? 'Novo Protocolo'
+						: `Protocolo ${protocolo.id} foi atualizado`,
+					conteudo: novo_protocolo
+						? `Novo protocolo enviado para o departamento ${department.nome}, clique aqui para visualizar`
+						: `As informações do protocolo enviado para o departamento ${department.nome} foram atualizadas, clique aqui para visualizar`,
+					rota: `protocolos/detalhes/${protocolo.id}`,
+				},
+			});
+		} catch (err) {
+			console.log(err);
+		}
 	}
 }

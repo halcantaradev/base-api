@@ -15,5 +15,5 @@ RUN yarn build
 EXPOSE 8080
 EXPOSE 8081
 
-
-CMD ["/bin/bash","-c","./startup.sh"]
+# RUN ["chmod", "+x", "/usr/src/server/startup.sh"]
+CMD ["sh","/usr/src/server/startup.sh"]

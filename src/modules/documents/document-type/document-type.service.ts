@@ -44,7 +44,7 @@ export class DocumentTypeService {
 		});
 	}
 
-	async findAll(ativo?: boolean) {
+	async findAll(busca = '', ativo?: boolean) {
 		return this.prisma.tipoDocumento.findMany({
 			select: {
 				id: true,
@@ -54,6 +54,12 @@ export class DocumentTypeService {
 				updated_at: true,
 			},
 			where: {
+				nome: !!busca
+					? {
+							contains: busca,
+							mode: 'insensitive',
+					  }
+					: undefined,
 				excluido: false,
 				ativo: ativo != null ? ativo : undefined,
 			},
@@ -61,24 +67,31 @@ export class DocumentTypeService {
 	}
 
 	async update(id: number, updateDocumentTypeDto: UpdateDocumentTypeDto) {
-		if (Number.isNaN(id)) {
-			throw new BadRequestException('Tipo de documento não encontrado');
-		}
-
-		const documentTypeExists = await this.prisma.tipoDocumento.findFirst({
+		const documentTypeExists = await this.prisma.tipoDocumento.findUnique({
 			where: {
-				id: {
-					not: id,
-				},
-				nome: {
-					contains: updateDocumentTypeDto.nome,
-					mode: 'insensitive',
-				},
+				id,
 			},
 		});
 
-		if (documentTypeExists) {
-			throw new BadRequestException('Nome de documento já cadastrado');
+		if (Number.isNaN(id) && !documentTypeExists) {
+			throw new BadRequestException('Tipo de documento não encontrado');
+		}
+
+		const documentTypeNameExists =
+			await this.prisma.tipoDocumento.findFirst({
+				where: {
+					id: {
+						not: id,
+					},
+					nome: {
+						contains: updateDocumentTypeDto.nome,
+						mode: 'insensitive',
+					},
+				},
+			});
+
+		if (documentTypeNameExists) {
+			throw new BadRequestException('Tipo de documento já cadastrado');
 		}
 
 		return this.prisma.tipoDocumento.update({

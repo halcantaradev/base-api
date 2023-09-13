@@ -89,7 +89,7 @@ CREATE TABLE "empresas_has_usuarios" (
 -- CreateTable
 CREATE TABLE "unidades" (
     "id" SERIAL NOT NULL,
-    "original_unidade_id" INTEGER,
+    "original_unidade_id" TEXT,
     "condominio_id" INTEGER NOT NULL,
     "codigo" TEXT NOT NULL,
     "ativo" BOOLEAN NOT NULL DEFAULT true,
@@ -207,11 +207,12 @@ CREATE TABLE "arquivos" (
 -- CreateTable
 CREATE TABLE "contatos" (
     "id" SERIAL NOT NULL,
+    "origem" INTEGER NOT NULL,
     "contato" TEXT NOT NULL,
     "descricao" TEXT NOT NULL,
     "ativo" BOOLEAN NOT NULL DEFAULT true,
     "tipo" INTEGER NOT NULL DEFAULT 1,
-    "pessoa_id" INTEGER NOT NULL,
+    "referencia_id" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -434,18 +435,39 @@ CREATE TABLE "integracoes_database" (
 CREATE TABLE "protocolos" (
     "id" SERIAL NOT NULL,
     "tipo" INTEGER NOT NULL DEFAULT 1,
+    "empresa_id" INTEGER NOT NULL,
     "destino_departamento_id" INTEGER NOT NULL,
     "origem_departamento_id" INTEGER NOT NULL,
     "destino_usuario_id" INTEGER,
     "origem_usuario_id" INTEGER,
+    "data_finalizado" TIMESTAMP(3),
     "retorna_malote_vazio" BOOLEAN NOT NULL DEFAULT false,
     "finalizado" BOOLEAN NOT NULL DEFAULT false,
+    "situacao" INTEGER NOT NULL DEFAULT 1,
     "ativo" BOOLEAN NOT NULL DEFAULT true,
     "excluido" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "protocolos_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "protocolo_documentos" (
+    "id" SERIAL NOT NULL,
+    "protocolo_id" INTEGER NOT NULL,
+    "tipo_documento_id" INTEGER NOT NULL,
+    "condominio_id" INTEGER NOT NULL,
+    "aceite_usuario_id" INTEGER,
+    "discriminacao" TEXT NOT NULL,
+    "observacao" TEXT,
+    "data_aceite" TIMESTAMP(3),
+    "aceito" BOOLEAN NOT NULL DEFAULT false,
+    "excluido" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "protocolo_documentos_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -475,6 +497,36 @@ CREATE TABLE "emails_setup" (
     "ativo" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "emails_setup_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "conexoes_socket" (
+    "socket_id" TEXT NOT NULL,
+    "usuario_id" INTEGER,
+    "empresa_id" INTEGER,
+    "sala" TEXT NOT NULL,
+    "data_conexao" TIMESTAMP(3) NOT NULL,
+    "data_desconexao" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "status" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "conexoes_socket_pkey" PRIMARY KEY ("socket_id")
+);
+
+-- CreateTable
+CREATE TABLE "notificacoes_eventos" (
+    "id" SERIAL NOT NULL,
+    "sala" TEXT NOT NULL,
+    "titulo" TEXT NOT NULL,
+    "conteudo" TEXT NOT NULL,
+    "rota" TEXT,
+    "data" TEXT,
+    "lida" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "notificacoes_eventos_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -568,9 +620,6 @@ ALTER TABLE "usuario_has_permissoes" ADD CONSTRAINT "usuario_has_permissoes_empr
 ALTER TABLE "usuario_has_permissoes" ADD CONSTRAINT "usuario_has_permissoes_permissao_id_fkey" FOREIGN KEY ("permissao_id") REFERENCES "permissoes"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "contatos" ADD CONSTRAINT "contatos_pessoa_id_fkey" FOREIGN KEY ("pessoa_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "menus" ADD CONSTRAINT "menus_menu_id_fkey" FOREIGN KEY ("menu_id") REFERENCES "menus"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -637,6 +686,9 @@ ALTER TABLE "temas" ADD CONSTRAINT "temas_empresa_id_fkey" FOREIGN KEY ("empresa
 ALTER TABLE "integracoes_database" ADD CONSTRAINT "integracoes_database_empresa_id_fkey" FOREIGN KEY ("empresa_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_empresa_id_fkey" FOREIGN KEY ("empresa_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_destino_departamento_id_fkey" FOREIGN KEY ("destino_departamento_id") REFERENCES "departamentos"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -649,4 +701,19 @@ ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_destino_usuario_id_fkey" FOR
 ALTER TABLE "protocolos" ADD CONSTRAINT "protocolos_origem_usuario_id_fkey" FOREIGN KEY ("origem_usuario_id") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "protocolo_documentos" ADD CONSTRAINT "protocolo_documentos_condominio_id_fkey" FOREIGN KEY ("condominio_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "protocolo_documentos" ADD CONSTRAINT "protocolo_documentos_tipo_documento_id_fkey" FOREIGN KEY ("tipo_documento_id") REFERENCES "tipos_documentos"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "protocolo_documentos" ADD CONSTRAINT "protocolo_documentos_protocolo_id_fkey" FOREIGN KEY ("protocolo_id") REFERENCES "protocolos"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "protocolo_documentos" ADD CONSTRAINT "protocolo_documentos_aceite_usuario_id_fkey" FOREIGN KEY ("aceite_usuario_id") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "emails_setup" ADD CONSTRAINT "emails_setup_empresa_id_fkey" FOREIGN KEY ("empresa_id") REFERENCES "pessoas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "conexoes_socket" ADD CONSTRAINT "conexoes_socket_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "usuarios"("id") ON DELETE SET NULL ON UPDATE CASCADE;

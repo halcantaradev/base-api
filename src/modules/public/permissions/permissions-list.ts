@@ -423,6 +423,24 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar protocolos',
 	},
 	{
+		label: 'Listar documento de protocolos',
+		module: 'Protocolos',
+		key: 'protocolos-listar-documentos',
+		message: 'Sem permissão para listar os documentos dos protocolos',
+	},
+	{
+		label: 'Listar condomínios',
+		module: 'Protocolos',
+		key: 'protocolos-listar-condominios',
+		message: 'Sem permissão para listar condomínios',
+	},
+	{
+		label: 'Enviar email',
+		module: 'Protocolos',
+		key: 'protocolos-enviar-emails',
+		message: 'Sem permissão para enviar emails',
+	},
+	{
 		label: 'Visualizar dados de protocolos',
 		module: 'Protocolos',
 		key: 'protocolos-exibir-dados',
@@ -433,6 +451,18 @@ export const permissionslist: Array<{
 		module: 'Protocolos',
 		key: 'protocolos-atualizar-dados',
 		message: 'Sem permissão para atualizar protocolo',
+	},
+	{
+		label: 'Estornar documento(s)',
+		module: 'Protocolos',
+		key: 'protocolos-documentos-estornar',
+		message: 'Sem permissão para estornar documento',
+	},
+	{
+		label: 'Aceitar documento(s)',
+		module: 'Protocolos',
+		key: 'protocolos-documentos-aceitar',
+		message: 'Sem permissão para aceitar documento',
 	},
 	{
 		label: 'Cadastrar tipos de documentos',

@@ -6,9 +6,10 @@ import { NotificationModule } from '../notification/notification.module';
 import { ExternalAccessDocumentsController } from './external-access-documents.controller';
 import { ExternalAccessDocumentsService } from './external-access-documents.service';
 import { PdfService } from 'src/shared/services/pdf.service';
+import { ProtocolModule } from '../protocol/protocol.module';
 
 @Module({
-	imports: [NotificationModule, ExternalJwtModule],
+	imports: [NotificationModule, ProtocolModule, ExternalJwtModule],
 	controllers: [ExternalAccessDocumentsController],
 	providers: [
 		ExternalAccessDocumentsService,

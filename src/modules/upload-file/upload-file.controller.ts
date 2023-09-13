@@ -70,6 +70,6 @@ export class UploadFileController {
 	async removeFiles(@Body() body: RemoveFileDto) {
 		await this.uploadFileService.removeFiles(body.ids);
 
-		return { success: true, message: 'Os arquivos foram removidos' };
+		return { success: true, message: 'Arquivos removidos com sucesso' };
 	}
 }

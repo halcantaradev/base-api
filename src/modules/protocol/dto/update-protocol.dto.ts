@@ -1,9 +1,9 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateProtocolDto } from './create-protocol.dto';
-import { IsOptional, Validate } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 import { IsBooleanType } from 'src/shared/validators';
+import { IsOptional, Validate } from 'class-validator';
+import { CreateProtocolDto } from './create-protocol.dto';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class UpdateProtocolDto extends PartialType(CreateProtocolDto) {
 	@IsOptional()

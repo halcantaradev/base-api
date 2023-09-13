@@ -8,6 +8,8 @@ export class FilaService {
 	constructor(
 		@Inject('SYNC_SERVICE') private readonly syncService?: ClientRMQ,
 		@Inject('EMAIL_SERVICE') private readonly emailService?: ClientRMQ,
+		@Inject('NOTIFICACAO_SERVICE')
+		private readonly notificationService?: ClientRMQ,
 	) {
 		this.logService = new ClientRMQ({
 			urls: [
@@ -17,6 +19,14 @@ export class FilaService {
 			noAck: true,
 			persistent: true,
 			queueOptions: {},
+		});
+	}
+
+	publishNotification(pattern: string, payload: any): Promise<boolean> {
+		return new Promise((res, rej) => {
+			this.notificationService
+				.emit(pattern, payload)
+				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});
 	}
 

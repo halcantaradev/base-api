@@ -83,7 +83,12 @@ export class DepartmentController {
 	) {
 		return {
 			success: true,
-			data: await this.departmentService.findAll(user, filters),
+			data: await this.departmentService.findAll(
+				user,
+				filters,
+				undefined,
+				true,
+			),
 		};
 	}
 
@@ -126,14 +131,7 @@ export class DepartmentController {
 	}
 
 	@Get('active/all')
-	@Role([
-		'departamentos-listar-ativos',
-		{
-			role: 'usuarios-atualizar-vinculos-condominios',
-			param: 'usuario_id',
-			param_type: 'query',
-		},
-	])
+	@Role('departamentos-listar-ativos')
 	@ApiOperation({ summary: 'Lista todos os departamentos ativos' })
 	@ApiResponse({
 		description: 'Departamentos listados com sucesso',

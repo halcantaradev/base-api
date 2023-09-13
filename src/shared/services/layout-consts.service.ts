@@ -28,11 +28,10 @@ export class LayoutConstsService {
 		layoutConst.forEach((item) => {
 			html = html.replaceAll(item.const, item.field);
 		});
-
 		return html;
 	}
 
-	getTemplat(layoutPath: string) {
+	getTemplate(layoutPath: string) {
 		return readFileSync(
 			resolve('./src/shared/layouts/' + layoutPath),
 		).toString();

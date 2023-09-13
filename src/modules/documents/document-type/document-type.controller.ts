@@ -9,6 +9,7 @@ import {
 	HttpCode,
 	HttpStatus,
 	Delete,
+	Query,
 } from '@nestjs/common';
 import { DocumentTypeService } from './document-type.service';
 import { CreateDocumentTypeDto } from './dto/create-document-type.dto';
@@ -67,10 +68,10 @@ export class DocumentTypeController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAll() {
+	async findAll(@Query('busca') busca: string) {
 		return {
 			success: true,
-			data: await this.documentTypeService.findAll(),
+			data: await this.documentTypeService.findAll(busca),
 		};
 	}
 
@@ -87,10 +88,10 @@ export class DocumentTypeController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findActive() {
+	async findActive(@Query('busca') busca: string) {
 		return {
 			success: true,
-			data: await this.documentTypeService.findAll(true),
+			data: await this.documentTypeService.findAll(busca, true),
 		};
 	}
 

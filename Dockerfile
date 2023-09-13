@@ -13,6 +13,7 @@ RUN yarn prisma generate
 RUN yarn build
 
 EXPOSE 8080
+EXPOSE 8081
 
 
 CMD ["/bin/bash","-c","./startup.sh"]

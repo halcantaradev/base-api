@@ -15,7 +15,7 @@ import { SendNotificationUserDto } from './dto/send-notification-user.dto';
 import { SendNotificationDepartmentDto } from './dto/send-notification-department.dto';
 
 @UseGuards(JwtWSAuthGuard)
-@WebSocketGateway(8988, {
+@WebSocketGateway(+process.env.SOCKET_PORT, {
 	cors: {
 		origin: '*',
 	},

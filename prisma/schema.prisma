@@ -642,7 +642,7 @@ model ConexaoSocket {
   @@map("conexoes_socket")
 }
 
-model NotificacaoSocket {
+model NotificacaoEvento {
   id         Int      @id @default(autoincrement())
   sala       String
   titulo     String
@@ -653,5 +653,5 @@ model NotificacaoSocket {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  @@map("notificacoes_socket")
+  @@map("notificacoes_eventos")
 }

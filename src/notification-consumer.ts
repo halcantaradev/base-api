@@ -14,7 +14,8 @@ async function bootstrap() {
 					urls: [
 						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
 					],
-					queue: Filas.NOTIFICATION,
+					queue:
+						Filas.NOTIFICATION + '-' + process.env.PREFIX_EMPRESA,
 					noAck: true,
 					persistent: false,
 					queueOptions: {},

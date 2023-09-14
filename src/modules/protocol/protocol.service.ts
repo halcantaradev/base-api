@@ -1196,7 +1196,7 @@ export class ProtocolService {
 			await this.notificationEventsService.sendNotificationByDepartment({
 				departamento_id: department.id,
 				empresa_id: empresa_id,
-				notification: { ...notification },
+				notification,
 			});
 		} catch (err) {
 			console.log(err);

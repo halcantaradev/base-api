@@ -1,0 +1,5 @@
+export enum TypeNotificationProtocol {
+	NOVO_PROTOCOLO = 1,
+	ATUALIZACAO_PROTOCOLO = 2,
+	ESTORNO_DOCUMENTO_PROTOCOLO = 3,
+}

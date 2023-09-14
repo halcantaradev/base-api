@@ -375,11 +375,11 @@ export class ProtocolService {
 		};
 	}
 
-	findById(id: number, user: UserAuth): Promise<Protocol> {
+	async findById(id: number, user: UserAuth): Promise<Protocol> {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Protocolo não encontrado');
 
-		return this.prisma.protocolo.findFirst({
+		const protocolo = await this.prisma.protocolo.findFirst({
 			select: this.select,
 			where: {
 				id,
@@ -416,6 +416,28 @@ export class ProtocolService {
 				],
 			},
 		});
+
+		if (!protocolo) {
+			throw new BadRequestException('Protocolo não encontrado');
+		}
+		const arquivos = await this.prisma.arquivo.findMany({
+			where: {
+				ativo: true,
+				origem: 2,
+				referencia_id: {
+					in: protocolo.documentos.map((d) => d.id),
+				},
+			},
+		});
+
+		return {
+			...protocolo,
+			documentos: protocolo.documentos.map((d) => ({
+				...d,
+				total_anexos: arquivos.filter((a) => a.referencia_id === d.id)
+					.length,
+			})),
+		};
 	}
 
 	async update(

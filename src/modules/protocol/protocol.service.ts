@@ -455,10 +455,11 @@ export class ProtocolService {
 		});
 
 		if (protocolo) {
-			this.sendNotificationDepartment(
+			this.sendNotification(
 				protocolo,
 				updateProtocolDto.destino_departamento_id,
 				user.empresa_id,
+				null,
 				updateProtocolDto.finalizado
 					? TypeNotificationProtocol.ATUALIZACAO_PROTOCOLO
 					: TypeNotificationProtocol.NOVO_PROTOCOLO,
@@ -881,10 +882,11 @@ export class ProtocolService {
 			},
 		});
 
-		await this.sendNotificationDepartment(
+		await this.sendNotification(
 			protocolo,
 			protocolo.origem_departamento_id,
 			user.empresa_id,
+			protocolo.destino_usuario_id,
 			TypeNotificationProtocol.ESTORNO_DOCUMENTO_PROTOCOLO,
 		);
 
@@ -1150,10 +1152,11 @@ export class ProtocolService {
 		return;
 	}
 
-	async sendNotificationDepartment(
+	async sendNotification(
 		protocolo: Protocol,
 		departamento_id: number,
 		empresa_id: number,
+		usuario_id: number,
 		tipo: TypeNotificationProtocol = TypeNotificationProtocol.NOVO_PROTOCOLO,
 	) {
 		try {
@@ -1193,11 +1196,21 @@ export class ProtocolService {
 					break;
 			}
 
-			await this.notificationEventsService.sendNotificationByDepartment({
-				departamento_id: department.id,
-				empresa_id: empresa_id,
-				notification,
-			});
+			if (!usuario_id) {
+				await this.notificationEventsService.sendNotificationByDepartment(
+					{
+						departamento_id: department.id,
+						empresa_id: empresa_id,
+						notification,
+					},
+				);
+			} else {
+				await this.notificationEventsService.sendNotificationByUser({
+					usuario_id: usuario_id,
+					empresa_id: empresa_id,
+					notification,
+				});
+			}
 		} catch (err) {
 			console.log(err);
 		}

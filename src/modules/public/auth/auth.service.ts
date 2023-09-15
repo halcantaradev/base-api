@@ -99,7 +99,6 @@ export class AuthService {
 	}
 
 	async getProfile(user: UserAuth) {
-		console.log({ user });
 		const empresa = await this.prisma.pessoa.findUnique({
 			select: {
 				nome: true,

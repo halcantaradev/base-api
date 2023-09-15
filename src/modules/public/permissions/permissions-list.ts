@@ -411,6 +411,13 @@ export const permissionslist: Array<{
 		active: false,
 	},
 	{
+		label: 'Iniciar sincronizição',
+		module: 'Integração',
+		key: 'integracoes-iniciar-sincronismo',
+		message: 'Sem permissão para iniciar a sincrinização',
+		active: true,
+	},
+	{
 		label: 'Cadastrar protocolo',
 		module: 'Protocolos',
 		key: 'protocolos-cadastrar',

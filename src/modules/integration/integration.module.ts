@@ -6,10 +6,33 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { PermissionsModule } from '../public/permissions/permissions.module';
 import { IntegrationController } from './integration.controller';
 import { IntegrationService } from './integration.service';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { Filas } from 'src/shared/consts/filas.const';
 
 @Module({
 	controllers: [IntegrationController],
-	imports: [ExternalJwtModule, HttpModule, FilaModule, PermissionsModule],
+	imports: [
+		ExternalJwtModule,
+		HttpModule,
+		FilaModule,
+		PermissionsModule,
+		ClientsModule.register([
+			{
+				name: 'NOTIFICACAO_CONSUMER_SERVICE',
+				transport: Transport.RMQ,
+				options: {
+					urls: [
+						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
+					],
+					queue:
+						Filas.NOTIFICATION + '-' + process.env.PREFIX_EMPRESA,
+					noAck: true,
+					persistent: true,
+					queueOptions: {},
+				},
+			},
+		]),
+	],
 	providers: [IntegrationService, PrismaService],
 })
 export class IntegrationModule {}

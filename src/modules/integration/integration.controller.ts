@@ -71,7 +71,7 @@ export class IntegrationController {
 	@UseGuards(PermissionGuard)
 	@UseGuards(JwtAuthGuard)
 	@Get('start')
-	@Role('integracoes-listar-ativas')
+	@Role('integracoes-iniciar-sincronismo')
 	async startSync(@CurrentUser() user: UserAuth) {
 		try {
 			const integracoes = await this.integrationService.findAllByEmpresa(
@@ -138,6 +138,8 @@ export class IntegrationController {
 						),
 					},
 				);
+
+				await this.integrationService.sendNotification({ end: true });
 			}
 			return context;
 		} catch (error) {

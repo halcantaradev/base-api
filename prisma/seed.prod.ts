@@ -56,11 +56,12 @@ async function createEmpresa() {
 		where: { nome: 'empresa' },
 	});
 
-	let empresa = await prisma.pessoa.findFirst({
-		where: { nome: 'Empresa Teste' },
+	const tipoHasEmpresa = await prisma.pessoasHasTipos.findFirst({
+		where: { tipo_id: tipoEmpresa.id },
 	});
 
-	if (!empresa) {
+	let empresa: any = null;
+	if (!tipoHasEmpresa) {
 		empresa = await prisma.pessoa.create({
 			data: {
 				nome: 'Empresa Teste',
@@ -76,13 +77,16 @@ async function createEmpresa() {
 
 		await prisma.pessoasHasTipos.create({
 			data: {
-				pessoa_id: empresa.id,
+				pessoa_id: tipoHasEmpresa.pessoa_id,
 				tipo_id: tipoEmpresa.id,
 			},
 		});
 
 		console.log('Empresa criada!');
 	} else {
+		empresa = await prisma.pessoa.findUnique({
+			where: { id: tipoHasEmpresa.pessoa_id },
+		});
 		console.log('Empresa já criada!');
 	}
 

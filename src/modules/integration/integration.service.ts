@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
 import { FilaService } from 'src/shared/services/fila/fila.service';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { UpdateIntegrationDto } from './dto/update-integration.dto';
+import { ClientRMQ } from '@nestjs/microservices';
 
 @Injectable()
 export class IntegrationService {
@@ -10,6 +11,8 @@ export class IntegrationService {
 		private readonly prisma: PrismaService,
 		private readonly externalService: ExternalJwtService,
 		private readonly filaService: FilaService,
+		@Inject('NOTIFICACAO_CONSUMER_SERVICE')
+		private readonly notificationService?: ClientRMQ,
 	) {}
 
 	findAllByEmpresa(empresa_id: number) {
@@ -176,7 +179,16 @@ export class IntegrationService {
 		return this.prisma.integracaoDatabase.update({ data, where: { id } });
 	}
 
-	starSync(pattern: string, payload: any) {
+	async starSync(pattern: string, payload: any) {
+		await this.sendNotification({ start: true });
 		return this.filaService.publishSync(pattern, payload);
+	}
+
+	sendNotification(payload: any) {
+		return new Promise((res, rej) => {
+			this.notificationService
+				.emit('synchronism', payload)
+				.subscribe({ next: () => res(true), error: (err) => rej(err) });
+		});
 	}
 }

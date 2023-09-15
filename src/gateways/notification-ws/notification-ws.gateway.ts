@@ -68,6 +68,6 @@ export class NotificationWSGateway
 	}
 
 	sendNotificationSync(data: any) {
-		this.server.emit('sincronismo', data);
+		this.server.emit('synchronism', data);
 	}
 }

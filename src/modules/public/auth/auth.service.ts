@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+	BadRequestException,
+	Injectable,
+	UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
 import { PrismaService } from 'src/shared/services/prisma.service';
@@ -54,7 +58,7 @@ export class AuthService {
 			throw new UnauthorizedException('Acesso não permitido');
 
 		if (firstAccessDto.password != firstAccessDto.confirmPassword)
-			throw new UnauthorizedException(
+			throw new BadRequestException(
 				'Senha nao confere com a confirmação da senha',
 			);
 
@@ -71,7 +75,7 @@ export class AuthService {
 		if (
 			PasswordHelper.compare(firstAccessDto.password, userExists.password)
 		)
-			throw new UnauthorizedException(
+			throw new BadRequestException(
 				'Digite uma senha diferente da anterior',
 			);
 

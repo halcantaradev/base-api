@@ -68,6 +68,13 @@ export class AuthService {
 		if (!userExists)
 			throw new UnauthorizedException('Acesso não permitido');
 
+		if (
+			PasswordHelper.compare(firstAccessDto.password, userExists.password)
+		)
+			throw new UnauthorizedException(
+				'Digite uma senha diferente da anterior',
+			);
+
 		const userData = await this.prisma.user.update({
 			include: {
 				empresas: {

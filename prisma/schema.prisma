@@ -535,9 +535,10 @@ model IntegracaoDatabase {
   usuario          String
   senha            String
   porta            Int
-  token            String
+  token            String?
   data_atualizacao DateTime?
   ativo            Boolean   @default(true)
+  excluido         Boolean   @default(false)
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 

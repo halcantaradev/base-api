@@ -138,6 +138,8 @@ export class IntegrationController {
 						),
 					},
 				);
+
+				await this.integrationService.sendNotification({ end: true });
 			}
 			return context;
 		} catch (error) {

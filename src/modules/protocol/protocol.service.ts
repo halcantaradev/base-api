@@ -22,6 +22,7 @@ import { ContactType } from 'src/shared/consts/contact-type.const';
 import { NotificationEventsService } from '../notification-events/notification-events.service';
 import { Protocol } from './entities/protocol.entity';
 import { FilesOrigin } from 'src/shared/consts/file-origin.const';
+import { TypeNotificationProtocol } from './enums/type-notification-protocol.enum';
 
 @Injectable()
 export class ProtocolService {
@@ -456,11 +457,14 @@ export class ProtocolService {
 		});
 
 		if (protocolo) {
-			this.sendNotificationDepartment(
+			this.sendNotification(
 				protocolo,
 				updateProtocolDto.destino_departamento_id,
 				user.empresa_id,
-				updateProtocolDto.finalizado,
+				null,
+				updateProtocolDto.finalizado
+					? TypeNotificationProtocol.ATUALIZACAO_PROTOCOLO
+					: TypeNotificationProtocol.NOVO_PROTOCOLO,
 			);
 		}
 
@@ -893,7 +897,7 @@ export class ProtocolService {
 				},
 			});
 
-		await this.prisma.protocolo.update({
+		const protocolo = await this.prisma.protocolo.update({
 			where: {
 				id: protocol_id,
 			},
@@ -901,6 +905,14 @@ export class ProtocolService {
 				situacao: !protocolTotalDocuments.length ? 1 : 2,
 			},
 		});
+
+		await this.sendNotification(
+			protocolo,
+			protocolo.origem_departamento_id,
+			user.empresa_id,
+			protocolo.destino_usuario_id,
+			TypeNotificationProtocol.ESTORNO_DOCUMENTO_PROTOCOLO,
+		);
 
 		return {
 			success: true,
@@ -1164,11 +1176,12 @@ export class ProtocolService {
 		return;
 	}
 
-	async sendNotificationDepartment(
+	async sendNotification(
 		protocolo: Protocol,
 		departamento_id: number,
 		empresa_id: number,
-		novo_protocolo = false,
+		usuario_id: number,
+		tipo: TypeNotificationProtocol = TypeNotificationProtocol.NOVO_PROTOCOLO,
 	) {
 		try {
 			const department = await this.prisma.departamento.findFirst({
@@ -1181,19 +1194,47 @@ export class ProtocolService {
 				},
 			});
 
-			await this.notificationEventsService.sendNotificationByDepartment({
-				departamento_id: department.id,
-				empresa_id: empresa_id,
-				notification: {
-					titulo: novo_protocolo
-						? 'Novo Protocolo'
-						: `Protocolo ${protocolo.id} foi atualizado`,
-					conteudo: novo_protocolo
-						? `Novo protocolo enviado para o departamento ${department.nome}, clique aqui para visualizar`
-						: `As informações do protocolo enviado para o departamento ${department.nome} foram atualizadas, clique aqui para visualizar`,
-					rota: `protocolos/detalhes/${protocolo.id}`,
-				},
-			});
+			let notification;
+
+			switch (tipo) {
+				case TypeNotificationProtocol.NOVO_PROTOCOLO:
+					notification = {
+						titulo: 'Novo Protocolo',
+						conteudo: `Novo protocolo enviado para o departamento ${department.nome}, clique aqui para visualizar`,
+						rota: `protocolos/detalhes/${protocolo.id}`,
+					};
+					break;
+				case TypeNotificationProtocol.ATUALIZACAO_PROTOCOLO:
+					notification = {
+						titulo: `Protocolo ${protocolo.id} foi atualizado`,
+						conteudo: `As informações do protocolo enviado para o departamento ${department.nome} foram atualizadas, clique aqui para visualizar`,
+						rota: `protocolos/detalhes/${protocolo.id}`,
+					};
+					break;
+				case TypeNotificationProtocol.ESTORNO_DOCUMENTO_PROTOCOLO:
+					notification = {
+						titulo: `Protocolo ${protocolo.id} teve um estorno`,
+						conteudo: `Documentos foram estornados pelo departamento de destino, clique aqui para visualizar`,
+						rota: `protocolos/detalhes/${protocolo.id}`,
+					};
+					break;
+			}
+
+			if (!usuario_id) {
+				await this.notificationEventsService.sendNotificationByDepartment(
+					{
+						departamento_id: department.id,
+						empresa_id: empresa_id,
+						notification,
+					},
+				);
+			} else {
+				await this.notificationEventsService.sendNotificationByUser({
+					usuario_id: usuario_id,
+					empresa_id: empresa_id,
+					notification,
+				});
+			}
 		} catch (err) {
 			console.log(err);
 		}

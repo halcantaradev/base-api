@@ -50,9 +50,11 @@ export class AuthController {
 	@Post('first-access')
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(FirstAccessJwtAuthGuard)
-	@ApiOperation({ summary: 'Realiza a autênticação do usuário' })
+	@ApiOperation({
+		summary: 'Realiza a troca de senha no primeiro acesso do usuário',
+	})
 	@ApiResponse({
-		description: 'Usuário autenticado com sucesso',
+		description: 'Senha alterada com sucesso',
 		status: HttpStatus.OK,
 		type: LoginEntity,
 	})
@@ -62,7 +64,7 @@ export class AuthController {
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao realizar o login',
+		description: 'Ocorreu um erro ao realizar a alteração',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})

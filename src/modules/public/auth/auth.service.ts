@@ -11,6 +11,7 @@ import { UserAuth } from '../../../shared/entities/user-auth.entity';
 import { UserFirstAccessPayload } from './entities/user-first-access-payload.entity';
 import { FirstAccessDto } from './dto/first-access.dto';
 import { UserFirstAccess } from './entities/user-first-access.entity';
+import { LoginDataDto } from './dto/login-data.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,7 +20,7 @@ export class AuthService {
 		private readonly prisma: PrismaService,
 	) {}
 
-	login(user: any) {
+	login(user: LoginDataDto) {
 		let token;
 
 		if (user.primeiro_acesso) {
@@ -59,7 +60,7 @@ export class AuthService {
 
 		if (firstAccessDto.password != firstAccessDto.confirmPassword)
 			throw new BadRequestException(
-				'Senha nao confere com a confirmação da senha',
+				'Senha não confere com a confirmação da senha',
 			);
 
 		const userExists = await this.prisma.user.findFirst({

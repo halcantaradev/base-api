@@ -1,4 +1,5 @@
 import {
+	Body,
 	Controller,
 	Get,
 	HttpCode,
@@ -14,6 +15,9 @@ import { UserAuth } from '../../../shared/entities/user-auth.entity';
 import { AuthService } from './auth.service';
 import { LoginEntity } from './entities/login.entity';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { FirstAccessDto } from './dto/first-access.dto';
+import { UserFirstAccess } from './entities/user-first-access.entity';
+import { FirstAccessJwtAuthGuard } from './guards/first-access-jwt-auth.guard';
 
 @ApiTags('Autenticação')
 @Controller('auth')
@@ -41,6 +45,32 @@ export class AuthController {
 	@UseGuards(AuthGuard('local'))
 	login(@CurrentUser() user: UserAuth) {
 		return this.authService.login(user);
+	}
+
+	@Post('first-access')
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(FirstAccessJwtAuthGuard)
+	@ApiOperation({ summary: 'Realiza a autênticação do usuário' })
+	@ApiResponse({
+		description: 'Usuário autenticado com sucesso',
+		status: HttpStatus.OK,
+		type: LoginEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao realizar o login',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	firstAccess(
+		@CurrentUser() user: UserFirstAccess,
+		@Body() firstAccessDto: FirstAccessDto,
+	) {
+		return this.authService.firstAccess(user, firstAccessDto);
 	}
 
 	@Get('profile')

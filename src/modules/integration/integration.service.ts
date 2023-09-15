@@ -187,7 +187,7 @@ export class IntegrationService {
 	sendNotification(payload: any) {
 		return new Promise((res, rej) => {
 			this.notificationService
-				.emit('sincronismo', payload)
+				.emit('synchronism', payload)
 				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});
 	}

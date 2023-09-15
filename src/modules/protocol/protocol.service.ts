@@ -21,6 +21,7 @@ import { Contact } from 'src/shared/consts/contact.const';
 import { ContactType } from 'src/shared/consts/contact-type.const';
 import { NotificationEventsService } from '../notification-events/notification-events.service';
 import { Protocol } from './entities/protocol.entity';
+import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 
 @Injectable()
 export class ProtocolService {
@@ -375,11 +376,12 @@ export class ProtocolService {
 		};
 	}
 
-	async findById(id: number, user: UserAuth): Promise<Protocol> {
-		if (Number.isNaN(id))
+	findById(id: number, user: UserAuth): Promise<Protocol> {
+		if (Number.isNaN(id)) {
 			throw new BadRequestException('Protocolo não encontrado');
+		}
 
-		const protocolo = await this.prisma.protocolo.findFirst({
+		return this.prisma.protocolo.findFirst({
 			select: this.select,
 			where: {
 				id,
@@ -416,28 +418,6 @@ export class ProtocolService {
 				],
 			},
 		});
-
-		if (!protocolo) {
-			throw new BadRequestException('Protocolo não encontrado');
-		}
-		const arquivos = await this.prisma.arquivo.findMany({
-			where: {
-				ativo: true,
-				origem: 2,
-				referencia_id: {
-					in: protocolo.documentos.map((d) => d.id),
-				},
-			},
-		});
-
-		return {
-			...protocolo,
-			documentos: protocolo.documentos.map((d) => ({
-				...d,
-				total_anexos: arquivos.filter((a) => a.referencia_id === d.id)
-					.length,
-			})),
-		};
 	}
 
 	async update(
@@ -514,44 +494,66 @@ export class ProtocolService {
 		if (!protocolo || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
-		return this.prisma.protocoloDocumento.findMany({
-			select: {
-				id: true,
-				created_at: true,
-				protocolo: {
-					select: {
-						origem_usuario: {
-							select: {
-								nome: true,
+		const documentsProtocol = await this.prisma.protocoloDocumento.findMany(
+			{
+				select: {
+					id: true,
+					created_at: true,
+					protocolo: {
+						select: {
+							origem_usuario: {
+								select: {
+									nome: true,
+								},
 							},
 						},
 					},
-				},
-				tipo_documento: {
-					select: {
-						nome: true,
+					tipo_documento: {
+						select: {
+							nome: true,
+						},
+					},
+					discriminacao: true,
+					data_aceite: true,
+					aceite_usuario: {
+						select: {
+							nome: true,
+						},
+					},
+					aceito: true,
+					condominio: {
+						select: {
+							id: true,
+							nome: true,
+						},
 					},
 				},
-				discriminacao: true,
-				data_aceite: true,
-				aceite_usuario: {
-					select: {
-						nome: true,
-					},
-				},
-				aceito: true,
-				condominio: {
-					select: {
-						id: true,
-						nome: true,
-					},
+				where: {
+					protocolo_id,
+					excluido: false,
 				},
 			},
+		);
+
+		if (!documentsProtocol) {
+			throw new BadRequestException('Protocolo não encontrado');
+		}
+
+		const arquivos = await this.prisma.arquivo.findMany({
 			where: {
-				protocolo_id,
-				excluido: false,
+				ativo: true,
+				origem: FilesOrigin.PROTOCOL,
+				referencia_id: {
+					in: documentsProtocol.map((d) => d.id),
+				},
 			},
 		});
+
+		return documentsProtocol.map((d) => ({
+			...d,
+			total_anexos: arquivos.filter((a) => a.referencia_id === d.id)
+				.length,
+		}));
 	}
 
 	async print(protocol_id: number, user: UserAuth) {

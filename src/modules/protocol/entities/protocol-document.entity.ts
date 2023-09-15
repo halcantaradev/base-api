@@ -23,7 +23,7 @@ export class ProtocolDocument {
 		required: true,
 		readOnly: true,
 	})
-	tipo: { id: number; nome: string };
+	tipo?: { id: number; nome: string };
 
 	@ApiProperty({
 		description: 'Usuario de aceite do documento',
@@ -31,7 +31,7 @@ export class ProtocolDocument {
 		required: false,
 		readOnly: true,
 	})
-	aceite_usuario: { id: number; nome: string };
+	aceite_usuario?: { id: number; nome: string };
 
 	@ApiProperty({
 		description: 'Condomínio do documento',
@@ -39,7 +39,7 @@ export class ProtocolDocument {
 		required: true,
 		readOnly: true,
 	})
-	condominio: { id: number; nome: string };
+	condominio?: { id: number; nome: string };
 
 	@ApiProperty({
 		description: 'Discriminação do documento',
@@ -47,7 +47,7 @@ export class ProtocolDocument {
 		required: true,
 		readOnly: true,
 	})
-	retorna_malote_vazio: string;
+	retorna_malote_vazio?: string;
 
 	@ApiProperty({
 		description: 'Observação do documento',
@@ -88,4 +88,12 @@ export class ProtocolDocument {
 		readOnly: true,
 	})
 	updated_at: Date;
+
+	@ApiProperty({
+		description: 'Total de anexos do documento',
+		example: 2,
+		required: true,
+		readOnly: true,
+	})
+	total_anexos?: number;
 }

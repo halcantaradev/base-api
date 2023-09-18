@@ -8,6 +8,7 @@ export const menulist: Array<{
 	target: string;
 	ativo?: boolean;
 }> = [
+	// NOTIFICAÇÃO
 	{
 		id_relation: 1,
 		label: 'Notificações',
@@ -43,6 +44,7 @@ export const menulist: Array<{
 		target: '_self',
 		ativo: false,
 	},
+	// CONDOMINIO
 	{
 		id_relation: 7,
 		label: 'Condominios',
@@ -77,6 +79,8 @@ export const menulist: Array<{
 		icon: 'setting',
 		target: '_self',
 	},
+
+	// PROTOCOLO
 	{
 		id_relation: 11,
 		label: 'Protocolos',
@@ -112,6 +116,35 @@ export const menulist: Array<{
 		target: '_self',
 		ativo: true,
 	},
+
+	// SEGURANÇA
+	{
+		id_relation: 99980,
+		label: 'Segurança',
+		url: null,
+		icon: 'security-scan',
+		target: '_self',
+	},
+	{
+		id_relation: 99981,
+		relation: 99980,
+		permission_key: 'permissoes-listar',
+		label: 'Permissões',
+		url: 'permissoes',
+		icon: 'guard',
+		target: '_self',
+	},
+	{
+		id_relation: 99982,
+		relation: 99980,
+		permission_key: 'usuarios-listar-todos',
+		label: 'Usuários',
+		url: 'usuarios',
+		icon: 'user',
+		target: '_self',
+	},
+
+	// CONFIGURAÇÃO
 	{
 		id_relation: 99990,
 		label: 'Configurações',
@@ -119,15 +152,7 @@ export const menulist: Array<{
 		icon: 'setting',
 		target: '_self',
 	},
-	{
-		id_relation: 99991,
-		relation: 99990,
-		permission_key: 'usuarios-listar-todos',
-		label: 'Usuários',
-		url: 'usuarios',
-		icon: 'user',
-		target: '_self',
-	},
+
 	{
 		id_relation: 99992,
 		relation: 99990,
@@ -137,15 +162,7 @@ export const menulist: Array<{
 		icon: 'wallet',
 		target: '_self',
 	},
-	{
-		id_relation: 99993,
-		relation: 99990,
-		permission_key: 'permissoes-listar',
-		label: 'Permissões',
-		url: 'permissoes',
-		icon: 'guard',
-		target: '_self',
-	},
+
 	{
 		id_relation: 99994,
 		relation: 99990,

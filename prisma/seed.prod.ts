@@ -77,7 +77,7 @@ async function createEmpresa() {
 
 		await prisma.pessoasHasTipos.create({
 			data: {
-				pessoa_id: tipoHasEmpresa.pessoa_id,
+				pessoa_id: empresa.id,
 				tipo_id: tipoEmpresa.id,
 			},
 		});

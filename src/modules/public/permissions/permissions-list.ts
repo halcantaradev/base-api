@@ -507,4 +507,11 @@ export const permissionslist: Array<{
 		key: 'tipos-documentos-listar-ativos',
 		message: 'Sem permissão para listar tipos de documentos',
 	},
+	{
+		label: 'Importar dados iniciais',
+		module: 'Importação',
+		key: 'importar-dados-iniciais',
+		message: 'Sem permissão para importar dados',
+		active: false,
+	},
 ];

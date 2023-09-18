@@ -1,24 +1,62 @@
 import {
 	Body,
 	Controller,
+	HttpCode,
+	HttpStatus,
 	Post,
 	UploadedFiles,
+	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import {
+	ApiConsumes,
+	ApiOperation,
+	ApiResponse,
+	ApiTags,
+} from '@nestjs/swagger';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { Role } from 'src/shared/decorators/role.decorator';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
+import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { CreateImportDatumDto } from './dto/create-import-datum.dto';
 import { ImportDataService } from './import-data.service';
-import { FilesInterceptor } from '@nestjs/platform-express';
 
+@ApiTags('Importação')
+@UseGuards(PermissionGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('import-data')
 export class ImportDataController {
 	constructor(private readonly importDataService: ImportDataService) {}
 
 	@Post()
-	@UseInterceptors(FilesInterceptor('xlsx', 1))
-	importCondominios(
+	@UseInterceptors(FilesInterceptor('import', 1))
+	@HttpCode(HttpStatus.OK)
+	@Role('importar-dados-iniciais')
+	@ApiOperation({ summary: 'Importar dados iniciais' })
+	@ApiConsumes('multipart/form-data')
+	@ApiResponse({
+		description: 'Dados importados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao importar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	importData(
 		@UploadedFiles() file: Express.Multer.File[],
-		@Body() createImportDatumDto: CreateImportDatumDto,
+		@CurrentUser() user: UserAuth,
+		@Body() _: CreateImportDatumDto,
 	) {
-		return this.importDataService.readDataFromXlsx(file[0]);
+		return this.importDataService.importData(file[0], user.empresa_id);
 	}
 }

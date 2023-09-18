@@ -9,7 +9,8 @@ export class CreateIntegrationDto
 	usuario: string;
 	senha: string;
 	porta: number;
-	token: string;
+	token?: string;
 	data_atualizacao?: string | Date;
 	ativo?: boolean;
+	excluido?: boolean;
 }

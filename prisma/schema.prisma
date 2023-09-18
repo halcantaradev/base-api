@@ -105,6 +105,7 @@ model User {
   ramal                      String?
   secret                     String   @default(uuid())
   ativo                      Boolean  @default(true)
+  primeiro_acesso            Boolean  @default(true)
   acessa_todos_departamentos Boolean  @default(false)
   created_at                 DateTime @default(now())
   updated_at                 DateTime @updatedAt
@@ -535,9 +536,10 @@ model IntegracaoDatabase {
   usuario          String
   senha            String
   porta            Int
-  token            String
+  token            String?
   data_atualizacao DateTime?
   ativo            Boolean   @default(true)
+  excluido         Boolean   @default(false)
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 

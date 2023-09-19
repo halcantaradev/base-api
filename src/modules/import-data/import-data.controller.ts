@@ -21,7 +21,7 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
-import { CreateImportDatumDto } from './dto/create-import-datum.dto';
+import { CreateImportDataDto } from './dto/create-import-data.dto';
 import { ImportDataService } from './import-data.service';
 
 @ApiTags('Importação')
@@ -55,7 +55,7 @@ export class ImportDataController {
 	importData(
 		@UploadedFiles() file: Express.Multer.File[],
 		@CurrentUser() user: UserAuth,
-		@Body() _: CreateImportDatumDto,
+		@Body() _: CreateImportDataDto,
 	) {
 		return this.importDataService.importData(file[0], user.empresa_id);
 	}

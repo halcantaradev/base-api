@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { File } from 'buffer';
 import { IsNotEmpty } from 'class-validator';
 
-export class CreateImportDatumDto {
+export class CreateImportDataDto {
 	@ApiProperty({
 		description: 'Arquivo para ser importado',
 		required: true,

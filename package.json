@@ -23,6 +23,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate:dev": "prisma migrate dev --name dev",
+    "migrate:prod": "prisma migrate dev --name prod",
     "migrate:deploy": "prisma migrate deploy",
     "seed:dev": "ts-node prisma/seed.ts",
     "seed:prod": "ts-node prisma/seed.prod.ts"

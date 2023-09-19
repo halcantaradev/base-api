@@ -45,7 +45,7 @@ export class LoggerService {
 				`[${new Date().toLocaleString()}] ${method} ${route} ${responseStatus}`,
 			);
 
-			await firstValueFrom(this.filaService.publishLog('', queueBody));
+			await firstValueFrom(this.filaService.publishLog('log', queueBody));
 
 			return true;
 		} catch {

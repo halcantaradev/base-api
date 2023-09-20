@@ -39,7 +39,7 @@ export class FirstAccessJwtAuthGuard implements CanActivate {
 
 			return true;
 		} catch (ex) {
-			throw new InternalServerErrorException('Ocorreu um erro interno');
+			throw new UnauthorizedException('Token inválido');
 		}
 	}
 }

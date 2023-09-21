@@ -17,7 +17,7 @@ export const layoutConst: Array<{
 	{
 		label: 'Logotipo da empresa',
 		const: '[EMPRESA_LOGO]',
-		field: '{{empresa_logo}}',
+		field: '{{{empresa_logo}}}',
 	},
 	{
 		label: 'Data hora atual por extenso',

@@ -8,10 +8,12 @@ import { IntegrationController } from './integration.controller';
 import { IntegrationService } from './integration.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Filas } from 'src/shared/consts/filas.const';
+import { GlobalModule } from '../global/global.module';
 
 @Module({
 	controllers: [IntegrationController],
 	imports: [
+		GlobalModule,
 		ExternalJwtModule,
 		HttpModule,
 		FilaModule,

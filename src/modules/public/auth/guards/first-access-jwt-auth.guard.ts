@@ -2,15 +2,18 @@ import {
 	CanActivate,
 	ExecutionContext,
 	Injectable,
-	InternalServerErrorException,
 	UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
+import { LoggerService } from 'src/shared/services/logger.service';
 
 @Injectable()
 export class FirstAccessJwtAuthGuard implements CanActivate {
-	constructor(private jwtService: JwtService) {}
+	constructor(
+		private jwtService: JwtService,
+		private loggerService: LoggerService,
+	) {}
 
 	canActivate(
 		context: ExecutionContext,
@@ -39,7 +42,8 @@ export class FirstAccessJwtAuthGuard implements CanActivate {
 
 			return true;
 		} catch (ex) {
-			throw new InternalServerErrorException('Ocorreu um erro interno');
+			this.loggerService.send(request, 401, 'Token inválido');
+			throw new UnauthorizedException('Token inválido');
 		}
 	}
 }

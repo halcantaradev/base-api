@@ -100,7 +100,7 @@ export class AuthService {
 			},
 		});
 
-		return this.login({
+		const loginData = await this.login({
 			...userData,
 			departamentos_ids: userData.departamentos.map(
 				(departamento) => departamento.departamento_id,
@@ -108,6 +108,8 @@ export class AuthService {
 			empresa_id: userData.empresas[0].empresa_id,
 			cargo_id: userData.empresas[0].cargo.id,
 		});
+
+		return { ...loginData, message: 'Senha alterada com sucesso!' };
 	}
 
 	async getProfile(user: UserAuth) {

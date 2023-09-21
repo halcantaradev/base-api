@@ -7,7 +7,6 @@ import { SetupModule } from './modules/setup/setup.module';
 import { PersonModule } from './modules/person/person.module';
 import { AuthModule } from './modules/public/auth/auth.module';
 import { MenuModule } from './modules/public/menu/menu.module';
-import { FilaModule } from './shared/services/fila/fila.module';
 import { ProtocolModule } from './modules/protocol/protocol.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { OcupationsModule } from './modules/ocupations/ocupations.module';
@@ -33,14 +32,16 @@ import {
 	CondominiumExists,
 	DocumentTypeExists,
 } from './shared/validators';
+import { ImportDataModule } from './modules/import-data/import-data.module';
+import { GlobalModule } from './modules/global/global.module';
 
 @Module({
 	imports: [
-		FilaModule,
 		AuthModule,
 		UserModule,
 		MenuModule,
 		SetupModule,
+		GlobalModule,
 		PersonModule,
 		ProtocolModule,
 		DocumentsModule,
@@ -57,6 +58,7 @@ import {
 		LayoutsNotificationModule,
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
+		ImportDataModule,
 	],
 	controllers: [AppController],
 	providers: [

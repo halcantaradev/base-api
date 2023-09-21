@@ -1,25 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { FilaService } from './fila/fila.service';
+import { UserAuth } from '../entities/user-auth.entity';
 
 @Injectable()
 export class LoggerService {
 	constructor(private readonly filaService: FilaService) {}
 
 	async send(
-		ip: string,
-		agent: string,
-		route: string,
-		method: string,
-		userId: number,
-		empresaId: number,
-		query: object = {},
-		param: object = {},
-		body: object = {},
+		request: any,
 		responseStatus: number,
 		responseMessage: string | string[] | undefined,
 	): Promise<boolean> {
 		try {
+			const user: UserAuth = request?.user;
+
+			const ip = request.ip;
+			const body = request.body;
+			const userId = user ? user.id : null;
+			const empresaId = user ? user.empresa_id : null;
+			const query = request.query;
+			const param = request.params;
+			const method = request.method;
+			const route = request.route.path;
+			const agent = request.headers['user-agent'];
+
 			const queueBody = {
 				user: {
 					ip,

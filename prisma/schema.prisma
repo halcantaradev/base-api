@@ -10,7 +10,7 @@ datasource db {
 model Pessoa {
   id                Int       @id @default(autoincrement())
   nome              String
-  cnpj              String
+  cnpj              String?
   empresa_id        Int?
   numero            String?
   endereco          String?

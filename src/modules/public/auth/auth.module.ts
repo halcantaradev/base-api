@@ -7,6 +7,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/modules/user/user.module';
+import { FilaModule } from 'src/shared/services/fila/fila.module';
+import { LoggerService } from 'src/shared/services/logger.service';
 @Module({
 	imports: [
 		PassportModule,
@@ -15,8 +17,15 @@ import { UserModule } from 'src/modules/user/user.module';
 			signOptions: { expiresIn: '1d', algorithm: 'HS512' },
 		}),
 		UserModule,
+		FilaModule,
 	],
 	controllers: [AuthController],
-	providers: [AuthService, LocalStrategy, PrismaService, JwtStrategy],
+	providers: [
+		AuthService,
+		LocalStrategy,
+		PrismaService,
+		JwtStrategy,
+		LoggerService,
+	],
 })
 export class AuthModule {}

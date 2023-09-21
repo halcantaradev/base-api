@@ -7,12 +7,14 @@ import {
 import { Reflector } from '@nestjs/core';
 import { PermissionsService } from 'src/modules/public/permissions/permissions.service';
 import { PermissionParamDecorator } from 'src/shared/entities/permission-param-decorator.entity';
+import { LoggerService } from 'src/shared/services/logger.service';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
 	constructor(
 		private reflector: Reflector,
 		private readonly permissionService: PermissionsService,
+		private loggerService: LoggerService,
 	) {}
 
 	async canActivate(context: ExecutionContext) {
@@ -65,6 +67,12 @@ export class PermissionGuard implements CanActivate {
 							!permission.cargos.length &&
 							!permission.usuarios.length
 						) {
+							this.loggerService.send(
+								request,
+								403,
+								permission.message,
+							);
+
 							throw new ForbiddenException(permission.message);
 						}
 					}

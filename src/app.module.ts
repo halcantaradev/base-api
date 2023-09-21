@@ -32,6 +32,7 @@ import {
 	CondominiumExists,
 	DocumentTypeExists,
 } from './shared/validators';
+import { ImportDataModule } from './modules/import-data/import-data.module';
 import { GlobalModule } from './modules/global/global.module';
 
 @Module({
@@ -57,6 +58,7 @@ import { GlobalModule } from './modules/global/global.module';
 		LayoutsNotificationModule,
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
+		ImportDataModule,
 	],
 	controllers: [AppController],
 	providers: [

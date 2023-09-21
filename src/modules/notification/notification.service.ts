@@ -18,6 +18,7 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
 import { setCustomHour } from 'src/shared/helpers/date.helper';
+import { defaultLogo } from 'src/shared/consts/default-logo.base64';
 
 @Injectable()
 export class NotificationService {
@@ -1140,6 +1141,25 @@ export class NotificationService {
 			(item) => item.cargo.sindico,
 		);
 
+		const empresa = await this.prisma.pessoa.findUnique({
+			select: {
+				nome: true,
+				temas: {
+					select: {
+						logo: true,
+					},
+				},
+			},
+			where: {
+				id: setupSistema.empresa_id,
+			},
+		});
+
+		dataToPrint.empresa_logo = `<img src="${
+			empresa.temas.length && empresa.temas[0].logo
+				? empresa.temas[0].logo
+				: defaultLogo
+		}" width="150"/> `;
 		dataToPrint.nome_sindico = sindico?.length ? sindico[0].nome : '';
 		dataToPrint.sancao_padrao = setupSistema ? setupSistema.sancao : '';
 		dataToPrint.texto_padrao_notificacao = setupSistema

@@ -23,6 +23,7 @@ import { NotificationEventsService } from '../notification-events/notification-e
 import { Protocol } from './entities/protocol.entity';
 import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 import { TypeNotificationProtocol } from './enums/type-notification-protocol.enum';
+import { defaultLogo } from 'src/shared/consts/default-logo.base64';
 
 @Injectable()
 export class ProtocolService {
@@ -662,7 +663,11 @@ export class ProtocolService {
 		data.numero_protocolo = protocol.id;
 		data.total_documentos_protocolo = total_documentos;
 		data.empresa_nome = empresa.nome || '';
-		data.empresa_logo = empresa?.temas[0]?.logo;
+		data.empresa_logo = `<img src="${
+			empresa.temas.length && empresa.temas[0].logo
+				? empresa.temas[0].logo
+				: defaultLogo
+		}" width="150"/>`;
 
 		const condominios = [];
 

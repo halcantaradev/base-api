@@ -14,11 +14,12 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { SyncDataDto } from './dto/sync-data.dto';
-import { IntegrationTokenReturn } from './entities/token-integration.entity copy';
+import { IntegrationTokenReturn } from './entities/token-integration-return.entity';
 import { IntegrationService } from './integration.service';
 import { CurrentUserIntegration } from 'src/shared/decorators/current-user-integration.decorator';
 import { Filas } from 'src/shared/consts/filas.const';
 import { JwtAuthConsumerGuard } from '../public/auth/guards/jwt-auth-consumer.guard';
+import { CondominioIntegrationDto } from './dto/types-integration.dto';
 
 @ApiTags('Integração')
 @Controller('integracao')
@@ -109,7 +110,7 @@ export class IntegrationController {
 	@MessagePattern()
 	async syncData(
 		@CurrentUserIntegration() user: UserAuth,
-		@Payload('params') body: SyncDataDto,
+		@Payload('params') body: SyncDataDto<CondominioIntegrationDto>,
 		@Payload('payload') payload: any,
 		@Ctx() context: RmqContext,
 	) {
@@ -124,7 +125,10 @@ export class IntegrationController {
 					);
 					break;
 				case EntidadesSincronimo.UNIDADE:
-					await this.integrationService.syncUnidade(body.data);
+					await this.integrationService.syncUnidade(
+						body.data,
+						user.empresa_id,
+					);
 					break;
 			}
 

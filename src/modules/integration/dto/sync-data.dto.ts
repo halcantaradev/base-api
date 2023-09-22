@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class SyncDataDto {
+export class SyncDataDto<T> {
 	@ApiProperty({
 		description: 'Nome do departamento',
 		example: 'condominio',
@@ -26,7 +26,7 @@ export class SyncDataDto {
 	@IsNotEmpty({
 		message: 'O campo data é obrigatório.',
 	})
-	data: any;
+	data: T;
 
 	@ApiProperty({
 		description: 'Nome do departamento',

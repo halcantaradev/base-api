@@ -514,4 +514,16 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para importar dados',
 		active: false,
 	},
+	{
+		label: 'Listar malotes físicos',
+		module: 'Expedição',
+		key: 'malotes-fisicos-listar',
+		message: 'Sem permissão para listar malotes físicos',
+	},
+	{
+		label: 'Listar rotas',
+		module: 'Expedição',
+		key: 'rotas-listar',
+		message: 'Sem permissão para listar as rotas',
+	},
 ];

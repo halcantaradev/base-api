@@ -98,15 +98,6 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
-		id_relation: 14,
-		permission_key: 'protocolos-documentos-aceitar',
-		relation: 11,
-		label: 'Aceitar',
-		url: 'protocolos/aceitar',
-		icon: 'container',
-		target: '_self',
-	},
-	{
 		id_relation: 13,
 		permission_key: 'protocolos-cadastrar',
 		relation: 11,
@@ -115,6 +106,42 @@ export const menulist: Array<{
 		icon: 'container',
 		target: '_self',
 		ativo: true,
+	},
+	{
+		id_relation: 14,
+		permission_key: 'protocolos-documentos-aceitar',
+		relation: 11,
+		label: 'Aceitar',
+		url: 'protocolos/aceitar',
+		icon: 'container',
+		target: '_self',
+	},
+
+	// EXPEDIÇÃO
+	{
+		id_relation: 15,
+		label: 'Expedição',
+		url: null,
+		icon: 'delivered-procedure',
+		target: '_self',
+	},
+	{
+		id_relation: 16,
+		permission_key: 'malotes-fisicos-listar',
+		relation: 15,
+		label: 'Malotes físicos',
+		url: 'malotes-fisico',
+		icon: 'container',
+		target: '_self',
+	},
+	{
+		id_relation: 17,
+		permission_key: 'rotas-listar',
+		relation: 15,
+		label: 'Rotas',
+		url: 'rotas',
+		icon: 'container',
+		target: '_self',
 	},
 
 	// SEGURANÇA

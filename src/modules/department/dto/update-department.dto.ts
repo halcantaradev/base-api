@@ -24,4 +24,17 @@ export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {
 	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	ativo?: boolean;
+
+	@ApiProperty({
+		description: 'Tipo do departamento',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo externo informado não é válido. Por favor, forneça um valor válido.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	externo?: boolean;
 }

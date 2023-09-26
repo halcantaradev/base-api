@@ -68,6 +68,7 @@ export class RouteService {
 		const rotas = await this.prisma.rota.findMany({
 			select: this.select,
 			where: { empresa_id, excluido: false },
+			orderBy: { id: 'asc' },
 		});
 
 		return rotas.map((route) => ({
@@ -80,6 +81,7 @@ export class RouteService {
 		const rotas = await this.prisma.rota.findMany({
 			select: this.select,
 			where: { empresa_id, excluido: false },
+			orderBy: { id: 'asc' },
 		});
 
 		return rotas.map((route) => ({

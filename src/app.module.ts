@@ -4,7 +4,9 @@ import { AppController } from './app.controller';
 
 import { UserModule } from './modules/user/user.module';
 import { SetupModule } from './modules/setup/setup.module';
+import { RouteModule } from './modules/route/route.module';
 import { PersonModule } from './modules/person/person.module';
+import { GlobalModule } from './modules/global/global.module';
 import { AuthModule } from './modules/public/auth/auth.module';
 import { MenuModule } from './modules/public/menu/menu.module';
 import { ProtocolModule } from './modules/protocol/protocol.module';
@@ -13,6 +15,7 @@ import { OcupationsModule } from './modules/ocupations/ocupations.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { SubsidiaryModule } from './modules/subsidiary/subsidiary.module';
 import { UploadFileModule } from './modules/upload-file/upload-file.module';
+import { ImportDataModule } from './modules/import-data/import-data.module';
 import { IntegrationModule } from './modules/integration/integration.module';
 import { CondominiumModule } from './modules/condominium/condominium.module';
 import { NotificationModule } from './modules/notification/notification.module';
@@ -32,8 +35,6 @@ import {
 	CondominiumExists,
 	DocumentTypeExists,
 } from './shared/validators';
-import { ImportDataModule } from './modules/import-data/import-data.module';
-import { GlobalModule } from './modules/global/global.module';
 
 @Module({
 	imports: [
@@ -41,6 +42,7 @@ import { GlobalModule } from './modules/global/global.module';
 		UserModule,
 		MenuModule,
 		SetupModule,
+		RouteModule,
 		GlobalModule,
 		PersonModule,
 		ProtocolModule,
@@ -49,6 +51,7 @@ import { GlobalModule } from './modules/global/global.module';
 		DepartmentModule,
 		OcupationsModule,
 		SubsidiaryModule,
+		ImportDataModule,
 		IntegrationModule,
 		ExternalJwtModule,
 		CondominiumModule,
@@ -58,7 +61,6 @@ import { GlobalModule } from './modules/global/global.module';
 		LayoutsNotificationModule,
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
-		ImportDataModule,
 	],
 	controllers: [AppController],
 	providers: [

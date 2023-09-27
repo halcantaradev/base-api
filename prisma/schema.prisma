@@ -321,6 +321,7 @@ model Departamento {
   empresa_id Int
   filial_id  Int
   nac        Boolean  @default(false)
+  externo    Boolean  @default(false)
   ativo      Boolean  @default(true)
   excluido   Boolean  @default(false)
   created_at DateTime @default(now())

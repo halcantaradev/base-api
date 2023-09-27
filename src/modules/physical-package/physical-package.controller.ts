@@ -22,6 +22,7 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { FiltersPhysicalPackage } from './dto/filters-physical-package.dto';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @ApiTags('Malotes físicos')
 @UseGuards(PermissionGuard)
@@ -63,15 +64,31 @@ export class PhysicalPackageController {
 
 	@Post('list')
 	@Role('malote-fisico-listar')
+	@ApiOperation({ summary: 'Lista todos os malotes físicos' })
+	@ApiResponse({
+		description: 'Malotes físicos listados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os malotes físicos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os malotes físicos',
+		status: HttpStatus.NOT_FOUND,
+		type: ReturnEntity.error(),
+	})
 	async findAll(
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersPhysicalPackage,
-		@Query('page') page: number,
+		@Query() pagination: Pagination,
 	) {
 		const data = await this.physicalPackageService.findAll(
 			user.empresa_id,
 			filters,
-			+page,
+			pagination,
 		);
 		return {
 			success: true,

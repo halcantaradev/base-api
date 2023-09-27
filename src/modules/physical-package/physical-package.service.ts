@@ -3,6 +3,7 @@ import { CreatePhysicalPackageDto } from './dto/create-physical-package.dto';
 import { UpdatePhysicalPackageDto } from './dto/update-physical-package.dto';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { FiltersPhysicalPackage } from './dto/filters-physical-package.dto';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @Injectable()
 export class PhysicalPackageService {
@@ -33,11 +34,26 @@ export class PhysicalPackageService {
 	async findAll(
 		empresa_id: number,
 		filters: FiltersPhysicalPackage,
-		page: number,
+		pagination?: Pagination,
 	) {
+		let page;
+
+		if (pagination === null) {
+			page = null;
+		} else if (pagination?.page) {
+			page = pagination.page;
+		}
 		const data = await this.prisma.malotesFisicos.findMany({
-			take: 20,
-			skip: (page - 1) * 10,
+			take: page !== null ? (page ? 20 : 100) : undefined,
+			skip: page ? (page - 1) * 20 : undefined,
+			where: {
+				empresa_id,
+				...filters,
+				excluido: false,
+			},
+		});
+
+		const total_pages = await this.prisma.malotesFisicos.count({
 			where: {
 				empresa_id,
 				...filters,
@@ -52,6 +68,7 @@ export class PhysicalPackageService {
 				excluido: false,
 			},
 		});
+
 		const total = await this.prisma.malotesFisicos.count({
 			where: {
 				empresa_id,
@@ -67,6 +84,7 @@ export class PhysicalPackageService {
 			},
 		});
 		return {
+			total_pages,
 			data,
 			disponiveis,
 			em_uso,

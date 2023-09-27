@@ -16,12 +16,53 @@ export class Route {
 	turno: 1 | 2 | 3;
 
 	@ApiProperty({
-		description: 'Dias da rota',
-		example: [1, 2],
+		description: 'Identifica se o dia de domingo está marcado',
+		example: true,
 		required: false,
-		isArray: true,
 	})
-	dias: number[];
+	dom?: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o dia de segunda-feira está marcado',
+		example: true,
+		required: false,
+	})
+	seg?: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o dia de terça-feira está marcado',
+		example: true,
+		required: false,
+	})
+	ter?: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o dia de quarta-feira está marcado',
+		example: true,
+		required: false,
+	})
+	qua?: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o dia de quinta-feira está marcado',
+		example: true,
+		required: false,
+	})
+	qui?: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o dia de sexta-feira está marcado',
+		example: true,
+		required: false,
+	})
+	sex?: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o dia de sábado está marcado',
+		example: true,
+		required: false,
+	})
+	sab?: boolean;
 
 	@ApiProperty({
 		description: 'Identifica se a rota está ativa',

@@ -11,101 +11,107 @@ export class RouteService {
 	select: Prisma.RotaSelect = {
 		id: true,
 		turno: true,
-		dias: {
-			select: {
-				dia: true,
-			},
-		},
+		dom: true,
+		seg: true,
+		ter: true,
+		qua: true,
+		qui: true,
+		sex: true,
+		sab: true,
 		ativo: true,
 	};
 
-	private async validateRoute(turno: number, dias: number[], id?: number) {
-		let rotas = await this.prisma.rota.findMany({
+	private async validateRoute(
+		turno: number,
+		dias: {
+			dom?: boolean;
+			seg?: boolean;
+			ter?: boolean;
+			qua?: boolean;
+			qui?: boolean;
+			sex?: boolean;
+			sab?: boolean;
+		},
+		id?: number,
+	) {
+		const rotas = await this.prisma.rota.findMany({
 			select: this.select,
 			where: {
 				id: { not: id },
 				turno: turno,
-				dias: {
-					some: {
-						dia: {
-							in: dias,
-						},
-					},
-				},
+				dom: dias.dom,
+				seg: dias.seg,
+				ter: dias.ter,
+				qua: dias.qua,
+				qui: dias.qui,
+				sex: dias.sex,
+				sab: dias.sab,
 				excluido: false,
 			},
 		});
-
-		rotas = rotas.filter(
-			(route) =>
-				JSON.stringify(route.dias.map((dia) => dia.dia)) ==
-				JSON.stringify(dias),
-		);
 
 		if (rotas.length) throw new BadRequestException('Rota já cadastrada');
 	}
 
 	async create(createRouteDto: CreateRouteDto, empresa_id: number) {
-		await this.validateRoute(createRouteDto.turno, createRouteDto.dias);
+		await this.validateRoute(createRouteDto.turno, {
+			dom: createRouteDto.dom,
+			seg: createRouteDto.seg,
+			ter: createRouteDto.ter,
+			qua: createRouteDto.qua,
+			qui: createRouteDto.qui,
+			sex: createRouteDto.sex,
+			sab: createRouteDto.sab,
+		});
 
 		return this.prisma.rota.create({
 			data: {
 				turno: createRouteDto.turno,
-				dias: {
-					createMany: {
-						data: createRouteDto.dias.map((dia) => ({
-							dia: dia,
-						})),
-					},
-				},
+				dom:
+					createRouteDto.dom != null ? createRouteDto.dom : undefined,
+				seg:
+					createRouteDto.seg != null ? createRouteDto.seg : undefined,
+				ter:
+					createRouteDto.ter != null ? createRouteDto.ter : undefined,
+				qua:
+					createRouteDto.qua != null ? createRouteDto.qua : undefined,
+				qui:
+					createRouteDto.qui != null ? createRouteDto.qui : undefined,
+				sex:
+					createRouteDto.sex != null ? createRouteDto.sex : undefined,
+				sab:
+					createRouteDto.sab != null ? createRouteDto.sab : undefined,
 				empresa_id,
 				ativo: createRouteDto.ativo,
 			},
 		});
 	}
 
-	async findAll(empresa_id: number) {
-		const rotas = await this.prisma.rota.findMany({
+	findAll(empresa_id: number) {
+		return this.prisma.rota.findMany({
 			select: this.select,
 			where: { empresa_id, excluido: false },
 			orderBy: { id: 'asc' },
 		});
-
-		return rotas.map((route) => ({
-			...route,
-			dias: route.dias.map((dia) => dia.dia),
-		}));
 	}
 
-	async findAllActive(empresa_id: number) {
-		const rotas = await this.prisma.rota.findMany({
+	findAllActive(empresa_id: number) {
+		return this.prisma.rota.findMany({
 			select: this.select,
-			where: { empresa_id, excluido: false },
+			where: { empresa_id, excluido: false, ativo: true },
 			orderBy: { id: 'asc' },
 		});
-
-		return rotas.map((route) => ({
-			...route,
-			dias: route.dias.map((dia) => dia.dia),
-		}));
 	}
 
-	async findOne(id: number, empresa_id: number) {
+	findOne(id: number, empresa_id: number) {
 		if (Number.isNaN(id)) {
 			throw new BadRequestException('Rota não encontrada');
 		}
 
-		const route = await this.prisma.rota.findFirst({
+		return this.prisma.rota.findFirst({
 			select: this.select,
 			where: { id, empresa_id, excluido: false },
 		});
-
-		return route
-			? {
-					...route,
-					dias: route.dias.map((dia) => dia.dia),
-			  }
-			: null;
 	}
 
 	async update(
@@ -119,26 +125,36 @@ export class RouteService {
 
 		await this.validateRoute(
 			updateRouteDto.turno || route.turno,
-			updateRouteDto.dias || route.dias,
+			{
+				dom: updateRouteDto.dom,
+				seg: updateRouteDto.seg,
+				ter: updateRouteDto.ter,
+				qua: updateRouteDto.qua,
+				qui: updateRouteDto.qui,
+				sex: updateRouteDto.sex,
+				sab: updateRouteDto.sab,
+			},
 			id,
 		);
 
-		const updatedRoute = await this.prisma.rota.update({
+		return this.prisma.rota.update({
 			select: this.select,
 			data: {
 				turno: updateRouteDto.turno || undefined,
-				dias: updateRouteDto.dias
-					? {
-							deleteMany: {
-								rota_id: id,
-							},
-							createMany: {
-								data: updateRouteDto.dias.map((dia) => ({
-									dia: dia,
-								})),
-							},
-					  }
-					: undefined,
+				dom:
+					updateRouteDto.dom != null ? updateRouteDto.dom : undefined,
+				seg:
+					updateRouteDto.seg != null ? updateRouteDto.seg : undefined,
+				ter:
+					updateRouteDto.ter != null ? updateRouteDto.ter : undefined,
+				qua:
+					updateRouteDto.qua != null ? updateRouteDto.qua : undefined,
+				qui:
+					updateRouteDto.qui != null ? updateRouteDto.qui : undefined,
+				sex:
+					updateRouteDto.sex != null ? updateRouteDto.sex : undefined,
+				sab:
+					updateRouteDto.sab != null ? updateRouteDto.sab : undefined,
 				ativo:
 					updateRouteDto.ativo != null
 						? updateRouteDto.ativo
@@ -146,11 +162,6 @@ export class RouteService {
 			},
 			where: { id },
 		});
-
-		return {
-			...updatedRoute,
-			dias: updatedRoute.dias.map((dia) => dia.dia),
-		};
 	}
 
 	async remove(id: number, empresa_id) {
@@ -158,15 +169,10 @@ export class RouteService {
 
 		if (!route) throw new BadRequestException('Rota não encontrada');
 
-		const updatedRoute = await this.prisma.rota.update({
+		return this.prisma.rota.update({
 			select: this.select,
 			data: { excluido: true },
 			where: { id },
 		});
-
-		return {
-			...updatedRoute,
-			dias: updatedRoute.dias.map((dia) => dia.dia),
-		};
 	}
 }

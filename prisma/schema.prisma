@@ -663,23 +663,19 @@ model Rota {
   id         Int      @id @default(autoincrement())
   empresa_id Int
   turno      Int      @default(1)
+  dom        Boolean  @default(false)
+  seg        Boolean  @default(false)
+  ter        Boolean  @default(false)
+  qua        Boolean  @default(false)
+  qui        Boolean  @default(false)
+  sex        Boolean  @default(false)
+  sab        Boolean  @default(false)
   ativo      Boolean  @default(true)
   excluido   Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   empresa Pessoa    @relation(fields: [empresa_id], references: [id])
-  dias    DiaRota[]
 
   @@map("rotas")
-}
-
-model DiaRota {
-  dia     Int @default(1)
-  rota_id Int
-
-  rota Rota @relation(fields: [rota_id], references: [id])
-
-  @@id([dia, rota_id])
-  @@map("dias_rotas")
 }

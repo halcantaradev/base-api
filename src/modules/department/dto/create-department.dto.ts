@@ -51,4 +51,17 @@ export class CreateDepartmentDto {
 	})
 	@Transform(BooleanTransformHelper)
 	nac: boolean;
+
+	@ApiProperty({
+		description: 'Departamento externo',
+		example: true,
+		required: true,
+	})
+	@IsOptional()
+	@Validate(IsBooleanType, {
+		message:
+			'O campo externo informado não é válido. Por favor, forneça um valor válido.',
+	})
+	@Transform(BooleanTransformHelper)
+	externo: boolean;
 }

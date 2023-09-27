@@ -26,7 +26,7 @@ export class UpdateDepartmentDto extends PartialType(CreateDepartmentDto) {
 	ativo?: boolean;
 
 	@ApiProperty({
-		description: 'Tipo do departamento',
+		description: 'Externo do departamento',
 		example: true,
 		required: false,
 	})

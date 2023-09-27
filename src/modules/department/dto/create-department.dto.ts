@@ -53,7 +53,7 @@ export class CreateDepartmentDto {
 	nac: boolean;
 
 	@ApiProperty({
-		description: 'Departamento é externo',
+		description: 'Departamento externo',
 		example: true,
 		required: true,
 	})

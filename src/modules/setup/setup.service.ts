@@ -102,6 +102,10 @@ export class SetupService {
 					updateSetupSystemDto.texto_padrao_notificacao != null
 						? updateSetupSystemDto.texto_padrao_notificacao
 						: '',
+				usa_malote_fisico:
+					updateSetupSystemDto.usa_malote_fisico != null
+						? updateSetupSystemDto.usa_malote_fisico
+						: undefined,
 			},
 			update: {
 				salario_minimo_base:
@@ -115,6 +119,10 @@ export class SetupService {
 				texto_padrao_notificacao:
 					updateSetupSystemDto.texto_padrao_notificacao != null
 						? updateSetupSystemDto.texto_padrao_notificacao
+						: undefined,
+				usa_malote_fisico:
+					updateSetupSystemDto.usa_malote_fisico != null
+						? updateSetupSystemDto.usa_malote_fisico
 						: undefined,
 			},
 			where: {

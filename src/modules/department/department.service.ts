@@ -18,6 +18,7 @@ export class DepartmentService {
 				nome: true,
 			},
 		},
+		externo: true,
 		nome: true,
 		nac: true,
 		ativo: true,
@@ -29,6 +30,7 @@ export class DepartmentService {
 				nome: createDepartmentDto.nome,
 				nac: createDepartmentDto.nac || false,
 				empresa_id,
+				externo: createDepartmentDto.externo,
 				filial_id: createDepartmentDto.filial_id,
 			},
 		});
@@ -129,6 +131,7 @@ export class DepartmentService {
 				nac: updateDepartmentDto.nac,
 				nome: updateDepartmentDto.nome,
 				ativo: updateDepartmentDto.ativo,
+				externo: updateDepartmentDto.externo,
 				filial_id: updateDepartmentDto.filial_id,
 			},
 			where: {

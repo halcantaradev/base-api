@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsNumber, IsOptional, IsString, Validate } from 'class-validator';
+import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
+import { IsBooleanType } from 'src/shared/validators';
 
 export class UpdateSetupSystemDto {
 	@ApiProperty({
@@ -42,4 +44,17 @@ export class UpdateSetupSystemDto {
 	})
 	@IsOptional()
 	texto_padrao_notificacao?: string;
+
+	@ApiProperty({
+		description: 'Status de uso de malotes físicos',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo usa malote físico é obrigatório. Por favor, forneça um valor.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	usa_malote_fisico: boolean;
 }

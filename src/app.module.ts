@@ -21,6 +21,7 @@ import { CondominiumModule } from './modules/condominium/condominium.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { PermissionsModule } from './modules/public/permissions/permissions.module';
 import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.module';
+import { PhysicalPackageModule } from './modules/physical-package/physical-package.module';
 import { NotificationEventsModule } from './modules/notification-events/notification-events.module';
 import { LayoutsNotificationModule } from './modules/layouts-notification/layouts-notification.module';
 import { ExternalAccessDocumentsModule } from './modules/external-access-documents/external-access-documents.module';
@@ -57,6 +58,7 @@ import {
 		CondominiumModule,
 		PermissionsModule,
 		NotificationModule,
+		PhysicalPackageModule,
 		NotificationEventsModule,
 		LayoutsNotificationModule,
 		ExternalAccessDocumentsModule,

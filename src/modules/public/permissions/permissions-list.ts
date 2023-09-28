@@ -550,4 +550,28 @@ export const permissionslist: Array<{
 		key: 'rotas-atualizar-dados',
 		message: 'Sem permissão para atualizar rota',
 	},
+	{
+		label: 'Cadastrar malote físico',
+		module: 'Expedição',
+		key: 'malote-fisico-cadastrar',
+		message: 'Sem permissão para cadastrar malotes físicos',
+	},
+	{
+		label: 'Atualizar malote físico',
+		module: 'Expedição',
+		key: 'malote-fisico-atualizar',
+		message: 'Sem permissão para atualizar malotes físicos',
+	},
+	{
+		label: 'Exibir dados de malote físico',
+		module: 'Expedição',
+		key: 'malote-fisico-exibir-dados',
+		message: 'Sem permissão para listar dados de malote físico',
+	},
+	{
+		label: 'Excluir dados de malote físico',
+		module: 'Expedição',
+		key: 'malote-fisico-excluir',
+		message: 'Sem permissão para excluir dados de malote físico',
+	},
 ];

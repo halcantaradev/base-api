@@ -40,7 +40,7 @@ export class PhysicalPackageService {
 		filters: FiltersPhysicalPackage,
 		pagination?: Pagination,
 	) {
-		if (empresa_id === null || !Number.isNaN(empresa_id)) {
+		if (Number.isNaN(empresa_id)) {
 			throw new BadRequestException('O id da empresa deve ser informado');
 		}
 
@@ -57,7 +57,7 @@ export class PhysicalPackageService {
 			where: {
 				empresa_id,
 				codigo: filters.codigo ? filters.codigo : undefined,
-				disponivel: filters.disponivel ? filters.disponivel : undefined,
+				disponivel: filters.disponivel,
 				ativo: filters.ativo ? filters.ativo : undefined,
 				excluido: false,
 			},

@@ -34,6 +34,7 @@ import {
 } from './shared/validators';
 import { ImportDataModule } from './modules/import-data/import-data.module';
 import { GlobalModule } from './modules/global/global.module';
+import { PhysicalPackageModule } from './modules/physical-package/physical-package.module';
 
 @Module({
 	imports: [
@@ -59,6 +60,7 @@ import { GlobalModule } from './modules/global/global.module';
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
 		ImportDataModule,
+		PhysicalPackageModule,
 	],
 	controllers: [AppController],
 	providers: [

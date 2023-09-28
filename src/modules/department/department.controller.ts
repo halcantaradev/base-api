@@ -59,7 +59,6 @@ export class DepartmentController {
 			user.empresa_id,
 			createDepartmentDto,
 		);
-
 		return { success: true, message: 'Departamento criado com sucesso' };
 	}
 

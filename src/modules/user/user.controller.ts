@@ -105,6 +105,8 @@ export class UserController {
 				ativo: true,
 			},
 			condominiums,
+			true,
+			1,
 		);
 	}
 
@@ -136,6 +138,7 @@ export class UserController {
 			},
 			condominiums,
 			true,
+			1,
 		);
 	}
 

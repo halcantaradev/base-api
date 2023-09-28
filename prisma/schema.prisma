@@ -70,9 +70,10 @@ model TiposPessoa {
 }
 
 model Cargo {
-  id         Int      @id @default(autoincrement())
-  nome       String   @unique
-  ativo      Boolean  @default(true)
+  id    Int     @id @default(autoincrement())
+  nome  String  @unique
+  ativo Boolean @default(true)
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -125,12 +126,13 @@ model User {
 }
 
 model EmpresasHasUsuarios {
-  id         Int      @id @default(autoincrement())
-  usuario_id Int
-  empresa_id Int
-  cargo_id   Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  usuario_id   Int
+  empresa_id   Int
+  cargo_id     Int
+  tipo_usuario Int      @default(1)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   usuario User   @relation(fields: [usuario_id], references: [id])
   empresa Pessoa @relation(fields: [empresa_id], references: [id])

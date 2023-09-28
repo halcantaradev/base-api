@@ -99,6 +99,7 @@ export class UserService {
 					create: {
 						cargo_id: createUserDto.cargo_id,
 						empresa_id: user.empresa_id,
+						tipo_usuario: createUserDto.tipo_usuario,
 					},
 				},
 				departamentos: createUserDto.departamentos
@@ -123,6 +124,7 @@ export class UserService {
 		filtros: ListUserDto = {},
 		condominiums?: number[],
 		all = false,
+		tipo_usuario?: number,
 	): Promise<ReturnUserListEntity> {
 		return {
 			success: true,
@@ -145,6 +147,7 @@ export class UserService {
 									nome: true,
 								},
 							},
+							tipo_usuario: true,
 						},
 						where: {
 							empresa_id: user.empresa_id,
@@ -166,6 +169,11 @@ export class UserService {
 				},
 				where: all
 					? {
+							empresas: {
+								some: {
+									tipo_usuario,
+								},
+							},
 							OR: [
 								{
 									departamentos:
@@ -303,6 +311,7 @@ export class UserService {
 								nome: true,
 							},
 						},
+						tipo_usuario: true,
 					},
 					where: {
 						empresa_id: user.empresa_id,
@@ -488,6 +497,7 @@ export class UserService {
 						updateMany: {
 							data: {
 								cargo_id: updateUserDto.cargo_id,
+								tipo_usuario: updateUserDto.tipo_usuario,
 							},
 							where: {
 								empresa_id: user.empresa_id,

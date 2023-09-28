@@ -75,7 +75,7 @@ export class UserController {
 		type: ReturnEntity.error(),
 	})
 	findAll(@CurrentUser() user: UserAuth, @Body() filtros: ListUserDto) {
-		return this.userService.findAll(user, filtros);
+		return this.userService.findAll(user, filtros, [], false);
 	}
 
 	@Post('active')
@@ -105,6 +105,8 @@ export class UserController {
 				ativo: true,
 			},
 			condominiums,
+			true,
+			1,
 		);
 	}
 
@@ -136,6 +138,7 @@ export class UserController {
 			},
 			condominiums,
 			true,
+			1,
 		);
 	}
 

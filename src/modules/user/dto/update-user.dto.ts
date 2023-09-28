@@ -27,6 +27,9 @@ export class UpdateUserDto extends CreateUserDto {
 	@IsOptional()
 	cargo_id: number;
 
+	@IsOptional()
+	tipo_usuario: number;
+
 	@ApiProperty({
 		description: 'Status do usuário',
 		example: true,

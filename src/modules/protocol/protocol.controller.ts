@@ -79,6 +79,7 @@ export class ProtocolController {
 	}
 
 	@Post('list')
+	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-listar')
 	@ApiOperation({ summary: 'Lista os protocolos' })
 	@ApiResponse({
@@ -113,6 +114,7 @@ export class ProtocolController {
 	}
 
 	@Post('accept')
+	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-listar-documentos')
 	@ApiOperation({
 		summary: 'Lista os documentos de um protocolo',
@@ -148,6 +150,7 @@ export class ProtocolController {
 	}
 
 	@Post('condominiums')
+	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-listar-condominios')
 	@UseInterceptors(UserCondominiumsAccess)
 	@ApiOperation({
@@ -277,6 +280,7 @@ export class ProtocolController {
 	}
 
 	@Post(':id/documents/accept')
+	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-documento-aceitar')
 	@ApiOperation({ summary: 'Aceita os documentos de um protocolo' })
 	@ApiResponse({
@@ -337,6 +341,7 @@ export class ProtocolController {
 	}
 
 	@Post(':id/emails')
+	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-enviar-emails')
 	@ApiOperation({ summary: 'Envia os emails de um protocolo' })
 	@ApiResponse({

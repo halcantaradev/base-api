@@ -521,10 +521,34 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar malotes físicos',
 	},
 	{
+		label: 'Cadastrar rota',
+		module: 'Expedição',
+		key: 'rotas-cadastrar',
+		message: 'Sem permissão para criar rotas',
+	},
+	{
 		label: 'Listar rotas',
 		module: 'Expedição',
 		key: 'rotas-listar',
 		message: 'Sem permissão para listar as rotas',
+	},
+	{
+		label: 'Listar rotas ativas',
+		module: 'Expedição',
+		key: 'rotas-listar-ativos',
+		message: 'Sem permissão para listar as rotas ativas',
+	},
+	{
+		label: 'Visualizar dados de rotas',
+		module: 'Expedição',
+		key: 'rotas-exibir-dados',
+		message: 'Sem permissão para exibir os dados do rota',
+	},
+	{
+		label: 'Atualizar dados do rota',
+		module: 'Expedição',
+		key: 'rotas-atualizar-dados',
+		message: 'Sem permissão para atualizar rota',
 	},
 	{
 		label: 'Cadastrar malote físico',

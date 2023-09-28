@@ -533,6 +533,12 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar as rotas',
 	},
 	{
+		label: 'Listar rotas ativas',
+		module: 'Expedição',
+		key: 'rotas-listar-ativos',
+		message: 'Sem permissão para listar as rotas ativas',
+	},
+	{
 		label: 'Visualizar dados de rotas',
 		module: 'Expedição',
 		key: 'rotas-exibir-dados',

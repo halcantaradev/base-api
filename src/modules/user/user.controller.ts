@@ -75,7 +75,7 @@ export class UserController {
 		type: ReturnEntity.error(),
 	})
 	findAll(@CurrentUser() user: UserAuth, @Body() filtros: ListUserDto) {
-		return this.userService.findAll(user, filtros, [], false);
+		return this.userService.findAll(user, filtros);
 	}
 
 	@Post('active')

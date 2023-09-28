@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsOptional, IsString } from 'class-validator';
+import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class FiltersPhysicalPackage {
 	@ApiProperty({
 		description: 'Filtro por  código do malote físico',
-		example: '001',
+		example: '000001',
 		required: false,
 	})
 	@IsString({
@@ -20,6 +22,7 @@ export class FiltersPhysicalPackage {
 		required: false,
 	})
 	@IsOptional()
+	@Transform(BooleanTransformHelper)
 	ativo?: boolean;
 
 	@ApiProperty({
@@ -28,5 +31,6 @@ export class FiltersPhysicalPackage {
 		required: false,
 	})
 	@IsOptional()
+	@Transform(BooleanTransformHelper)
 	disponivel?: boolean;
 }

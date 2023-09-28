@@ -23,6 +23,8 @@ import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { FiltersPhysicalPackage } from './dto/filters-physical-package.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
+import { PhysicalPackageListReturnEntity } from './entities/physical-package-list-return.entity';
+import { PhysicalPackage } from './entities/physical-package.entity';
 
 @ApiTags('Malotes físicos')
 @UseGuards(PermissionGuard)
@@ -68,7 +70,7 @@ export class PhysicalPackageController {
 	@ApiResponse({
 		description: 'Malotes físicos listados com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success(),
+		type: PhysicalPackageListReturnEntity,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os malotes físicos',
@@ -77,7 +79,7 @@ export class PhysicalPackageController {
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os malotes físicos',
-		status: HttpStatus.NOT_FOUND,
+		status: HttpStatus.BAD_REQUEST,
 		type: ReturnEntity.error(),
 	})
 	async findAll(
@@ -103,11 +105,11 @@ export class PhysicalPackageController {
 	@ApiResponse({
 		description: 'Malote físico encontrado com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success(),
+		type: PhysicalPackage,
 	})
 	@ApiResponse({
 		description: 'Malote físico não encontrado',
-		status: HttpStatus.NOT_FOUND,
+		status: HttpStatus.BAD_REQUEST,
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
@@ -165,7 +167,7 @@ export class PhysicalPackageController {
 	})
 	@ApiResponse({
 		description: 'Malote físico não encontrado',
-		status: HttpStatus.NOT_FOUND,
+		status: HttpStatus.BAD_REQUEST,
 		type: ReturnEntity.error(),
 	})
 	remove(@Param('id') id: string) {

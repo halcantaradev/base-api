@@ -13,10 +13,4 @@ export class UpdatePhysicalPackageDto extends PartialType(
 
 	@IsOptional()
 	disponivel?: boolean;
-
-	@IsOptional()
-	empresa_id?: number;
-
-	@IsOptional()
-	excluido?: boolean;
 }

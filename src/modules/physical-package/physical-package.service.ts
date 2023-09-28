@@ -27,7 +27,11 @@ export class PhysicalPackageService {
 		}
 
 		return this.prisma.malotesFisicos.create({
-			data: { empresa_id, ...createPhysicalPackageDto },
+			data: {
+				empresa_id,
+				codigo: createPhysicalPackageDto.codigo,
+				alerta: createPhysicalPackageDto.alerta,
+			},
 		});
 	}
 
@@ -36,6 +40,10 @@ export class PhysicalPackageService {
 		filters: FiltersPhysicalPackage,
 		pagination?: Pagination,
 	) {
+		if (empresa_id === null || !Number.isNaN(empresa_id)) {
+			throw new BadRequestException('O id da empresa deve ser informado');
+		}
+
 		let page;
 
 		if (pagination === null) {
@@ -48,7 +56,9 @@ export class PhysicalPackageService {
 			skip: page ? (page - 1) * 20 : undefined,
 			where: {
 				empresa_id,
-				...filters,
+				codigo: filters.codigo ? filters.codigo : undefined,
+				disponivel: filters.disponivel ? filters.disponivel : undefined,
+				ativo: filters.ativo ? filters.ativo : undefined,
 				excluido: false,
 			},
 		});
@@ -56,7 +66,9 @@ export class PhysicalPackageService {
 		const total_pages = await this.prisma.malotesFisicos.count({
 			where: {
 				empresa_id,
-				...filters,
+				codigo: filters.codigo ? filters.codigo : undefined,
+				disponivel: filters.disponivel ? filters.disponivel : undefined,
+				ativo: filters.ativo ? filters.ativo : undefined,
 				excluido: false,
 			},
 		});
@@ -93,6 +105,11 @@ export class PhysicalPackageService {
 	}
 
 	findOne(id: number) {
+		if (id === null || !Number.isNaN(id)) {
+			throw new BadRequestException(
+				'O id do malote físico deve ser informado',
+			);
+		}
 		return this.prisma.malotesFisicos.findUnique({
 			where: {
 				id,
@@ -104,6 +121,11 @@ export class PhysicalPackageService {
 		id: number,
 		updatePhysicalPackageDto: UpdatePhysicalPackageDto,
 	) {
+		if (id === null || !Number.isNaN(id)) {
+			throw new BadRequestException(
+				'O id do malote físico deve ser informado',
+			);
+		}
 		const packageExists = await this.prisma.malotesFisicos.findFirst({
 			where: {
 				id,
@@ -131,11 +153,20 @@ export class PhysicalPackageService {
 			where: {
 				id,
 			},
-			data: updatePhysicalPackageDto,
+			data: {
+				codigo: updatePhysicalPackageDto.codigo,
+				alerta: updatePhysicalPackageDto.alerta,
+				disponivel: updatePhysicalPackageDto.disponivel,
+			},
 		});
 	}
 
 	remove(id: number) {
+		if (id === null || !Number.isNaN(id)) {
+			throw new BadRequestException(
+				'O id do malote físico deve ser informado',
+			);
+		}
 		const packageExists = this.prisma.malotesFisicos.findFirst({
 			where: {
 				id,

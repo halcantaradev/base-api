@@ -49,6 +49,7 @@ model Pessoa {
   protocolos_documentos_condominio ProtocoloDocumento[]
   protocolos_empresa               Protocolo[]
   emails_setup                     EmailSetup[]
+  rotas                            Rota[]
   malotes_fisicos                  MalotesFisicos[]
 
   @@map("pessoas")
@@ -659,6 +660,27 @@ model NotificacaoEvento {
   updated_at DateTime @updatedAt
 
   @@map("notificacoes_eventos")
+}
+
+model Rota {
+  id         Int      @id @default(autoincrement())
+  empresa_id Int
+  turno      Int      @default(1)
+  dom        Boolean  @default(false)
+  seg        Boolean  @default(false)
+  ter        Boolean  @default(false)
+  qua        Boolean  @default(false)
+  qui        Boolean  @default(false)
+  sex        Boolean  @default(false)
+  sab        Boolean  @default(false)
+  ativo      Boolean  @default(true)
+  excluido   Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+
+  @@map("rotas")
 }
 
 model MalotesFisicos {

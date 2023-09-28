@@ -4,7 +4,9 @@ import { AppController } from './app.controller';
 
 import { UserModule } from './modules/user/user.module';
 import { SetupModule } from './modules/setup/setup.module';
+import { RouteModule } from './modules/route/route.module';
 import { PersonModule } from './modules/person/person.module';
+import { GlobalModule } from './modules/global/global.module';
 import { AuthModule } from './modules/public/auth/auth.module';
 import { MenuModule } from './modules/public/menu/menu.module';
 import { ProtocolModule } from './modules/protocol/protocol.module';
@@ -13,11 +15,13 @@ import { OcupationsModule } from './modules/ocupations/ocupations.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { SubsidiaryModule } from './modules/subsidiary/subsidiary.module';
 import { UploadFileModule } from './modules/upload-file/upload-file.module';
+import { ImportDataModule } from './modules/import-data/import-data.module';
 import { IntegrationModule } from './modules/integration/integration.module';
 import { CondominiumModule } from './modules/condominium/condominium.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { PermissionsModule } from './modules/public/permissions/permissions.module';
 import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.module';
+import { PhysicalPackageModule } from './modules/physical-package/physical-package.module';
 import { NotificationEventsModule } from './modules/notification-events/notification-events.module';
 import { LayoutsNotificationModule } from './modules/layouts-notification/layouts-notification.module';
 import { ExternalAccessDocumentsModule } from './modules/external-access-documents/external-access-documents.module';
@@ -32,9 +36,6 @@ import {
 	CondominiumExists,
 	DocumentTypeExists,
 } from './shared/validators';
-import { ImportDataModule } from './modules/import-data/import-data.module';
-import { GlobalModule } from './modules/global/global.module';
-import { PhysicalPackageModule } from './modules/physical-package/physical-package.module';
 
 @Module({
 	imports: [
@@ -42,6 +43,7 @@ import { PhysicalPackageModule } from './modules/physical-package/physical-packa
 		UserModule,
 		MenuModule,
 		SetupModule,
+		RouteModule,
 		GlobalModule,
 		PersonModule,
 		ProtocolModule,
@@ -50,17 +52,17 @@ import { PhysicalPackageModule } from './modules/physical-package/physical-packa
 		DepartmentModule,
 		OcupationsModule,
 		SubsidiaryModule,
+		ImportDataModule,
 		IntegrationModule,
 		ExternalJwtModule,
 		CondominiumModule,
 		PermissionsModule,
 		NotificationModule,
+		PhysicalPackageModule,
 		NotificationEventsModule,
 		LayoutsNotificationModule,
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
-		ImportDataModule,
-		PhysicalPackageModule,
 	],
 	controllers: [AppController],
 	providers: [

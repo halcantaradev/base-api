@@ -51,6 +51,7 @@ model Pessoa {
   emails_setup                     EmailSetup[]
   rotas                            Rota[]
   malotes_fisicos                  MalotesFisicos[]
+  setup_rotas                      MaloteSetup?
 
   @@map("pessoas")
 }
@@ -121,6 +122,7 @@ model User {
   origem_protocolos              Protocolo[]               @relation(name: "OrigemProtocoloUsuario")
   protocolo_documentos_recebidos ProtocoloDocumento[]
   conexoes_socket                ConexaoSocket[]
+  setup_rotas                    MaloteSetup[]
 
   @@map("usuarios")
 }
@@ -680,9 +682,25 @@ model Rota {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  empresa Pessoa        @relation(fields: [empresa_id], references: [id])
+  setups  MaloteSetup[]
 
   @@map("rotas")
+}
+
+model MaloteSetup {
+  condominio_id      Int      @unique
+  rota_id            Int
+  motorista_id       Int
+  quantidade_malotes Int
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  condominio Pessoa @relation(fields: [condominio_id], references: [id])
+  rota       Rota   @relation(fields: [rota_id], references: [id])
+  motorista  User   @relation(fields: [motorista_id], references: [id])
+
+  @@map("malotes_setup")
 }
 
 model MalotesFisicos {

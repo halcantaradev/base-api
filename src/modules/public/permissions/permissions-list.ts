@@ -574,4 +574,28 @@ export const permissionslist: Array<{
 		key: 'malote-fisico-excluir',
 		message: 'Sem permissão para excluir dados de malote físico',
 	},
+	{
+		label: 'Listar as rotas para selecionar',
+		module: 'Expedição',
+		key: 'setup-malotes-listar-rotas',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
+	{
+		label: 'Listar os motoristas para selecionar',
+		module: 'Expedição',
+		key: 'setup-malotes-listar-motoristas',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
+	{
+		label: 'Listar dados de setup do malote',
+		module: 'Expedição',
+		key: 'setup-malotes-listar',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
+	{
+		label: 'Atualizar dados de setup do malote',
+		module: 'Expedição',
+		key: 'setup-malotes-atualizar',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
 ];

@@ -9,6 +9,7 @@ import {
 	UseGuards,
 	HttpCode,
 	HttpStatus,
+	Query,
 } from '@nestjs/common';
 import { RouteService } from './route.service';
 import { CreateRouteDto } from './dto/create-route.dto';
@@ -22,6 +23,7 @@ import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { RouteListReturn } from './entities/route-list-return.entity';
 import { RouteReturn } from './entities/route-return.entity';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @ApiTags('Rotas')
 @UseGuards(PermissionGuard)
@@ -80,10 +82,18 @@ export class RouteController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAll(@CurrentUser() user: UserAuth) {
+	async findAll(
+		@CurrentUser() user: UserAuth,
+		@Query() pagination: Pagination,
+	) {
+		const data = await this.routeService.findAll(
+			user.empresa_id,
+			pagination,
+		);
+
 		return {
 			success: true,
-			data: await this.routeService.findAll(user.empresa_id),
+			...data,
 		};
 	}
 
@@ -106,10 +116,18 @@ export class RouteController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllActive(@CurrentUser() user: UserAuth) {
+	async findAllActive(
+		@CurrentUser() user: UserAuth,
+		@Query() pagination: Pagination,
+	) {
+		const data = await this.routeService.findAllActive(
+			user.empresa_id,
+			pagination,
+		);
+
 		return {
 			success: true,
-			data: await this.routeService.findAllActive(user.empresa_id),
+			...data,
 		};
 	}
 

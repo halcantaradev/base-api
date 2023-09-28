@@ -3,6 +3,7 @@ import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @Injectable()
 export class RouteService {
@@ -34,6 +35,11 @@ export class RouteService {
 		},
 		id?: number,
 	) {
+		if (!Object.values(dias).filter((dia) => dia).length)
+			throw new BadRequestException(
+				'Selecione pelo menos um dia da semana',
+			);
+
 		const rotas = await this.prisma.rota.findMany({
 			select: this.select,
 			where: {
@@ -87,20 +93,58 @@ export class RouteService {
 		});
 	}
 
-	findAll(empresa_id: number) {
-		return this.prisma.rota.findMany({
-			select: this.select,
-			where: { empresa_id, excluido: false },
-			orderBy: { id: 'asc' },
-		});
+	async findAll(empresa_id: number, pagination: Pagination) {
+		let page;
+
+		if (pagination === null) {
+			page = null;
+		} else if (pagination?.page) {
+			page = pagination.page;
+		}
+
+		const where = { empresa_id, excluido: false };
+
+		return {
+			total: await this.prisma.rota.count({
+				where: {
+					...where,
+				},
+			}),
+			data: await this.prisma.rota.findMany({
+				select: this.select,
+				where,
+				take: page !== null ? (page ? 20 : 100) : undefined,
+				skip: page ? (page - 1) * 20 : undefined,
+				orderBy: { id: 'asc' },
+			}),
+		};
 	}
 
-	findAllActive(empresa_id: number) {
-		return this.prisma.rota.findMany({
-			select: this.select,
-			where: { empresa_id, excluido: false, ativo: true },
-			orderBy: { id: 'asc' },
-		});
+	async findAllActive(empresa_id: number, pagination: Pagination) {
+		let page;
+
+		if (pagination === null) {
+			page = null;
+		} else if (pagination?.page) {
+			page = pagination.page;
+		}
+
+		const where = { empresa_id, excluido: false, ativo: true };
+
+		return {
+			total: await this.prisma.rota.count({
+				where: {
+					...where,
+				},
+			}),
+			data: await this.prisma.rota.findMany({
+				select: this.select,
+				where,
+				take: page !== null ? (page ? 20 : 100) : undefined,
+				skip: page ? (page - 1) * 20 : undefined,
+				orderBy: { id: 'asc' },
+			}),
+		};
 	}
 
 	findOne(id: number, empresa_id: number) {

@@ -11,4 +11,11 @@ export class RouteListReturn extends ReturnEntity.success() {
 		isArray: true,
 	})
 	data: Route[];
+
+	@ApiProperty({
+		description: 'Total de registros',
+		example: 1,
+		readOnly: true,
+	})
+	total: number;
 }

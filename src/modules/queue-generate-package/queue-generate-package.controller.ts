@@ -1,18 +1,12 @@
 import {
 	Controller,
-	Get,
 	Post,
 	Body,
-	Patch,
-	Param,
-	Delete,
 	UseGuards,
 	HttpCode,
 	HttpStatus,
 } from '@nestjs/common';
 import { QueueGeneratePackageService } from './queue-generate-package.service';
-import { CreateQueueGeneratePackageDto } from './dto/create-queue-generate-package.dto';
-import { UpdateQueueGeneratePackageDto } from './dto/update-queue-generate-package.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';

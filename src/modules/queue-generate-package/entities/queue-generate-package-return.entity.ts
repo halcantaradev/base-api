@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { QueueGeneratePackageCondominiumList } from './queue-generate-package-condimium-list';
+import { QueueGeneratePackageCondominiumList } from './queue-generate-package-condominium-list';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 
 export class QueueGeneratePackageReturn extends ReturnEntity.success() {

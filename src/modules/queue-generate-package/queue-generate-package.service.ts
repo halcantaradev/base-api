@@ -1,6 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateQueueGeneratePackageDto } from './dto/create-queue-generate-package.dto';
-import { UpdateQueueGeneratePackageDto } from './dto/update-queue-generate-package.dto';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { FilterQueueGeneratePackageDto } from './dto/filter-queue-generate-package.dto';
 

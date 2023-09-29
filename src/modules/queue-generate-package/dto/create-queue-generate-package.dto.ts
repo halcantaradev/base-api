@@ -3,18 +3,17 @@ import { IsNotEmpty, IsInt } from 'class-validator';
 
 export class CreateQueueGeneratePackageDto {
 	@ApiProperty({
-		description: ' ID`s dos documentos',
+		description: 'Ids dos documentos',
 		example: [1, 2, 3],
 		required: true,
 	})
 	@IsInt({
 		each: true,
 		message:
-			'O campo documentos_ids informado não é válido. Por favor, forneça a id do documento.',
+			'O documento informado não é válido. Por favor, forneça um documento válido.',
 	})
 	@IsNotEmpty({
-		message:
-			'O campo documentos_ids é obrigatório. Por favor, forneça a id do documento.',
+		message: 'O documento é obrigatório. Por favor, forneça um documento.',
 	})
 	documentos_ids: number[];
 }

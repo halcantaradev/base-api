@@ -9,7 +9,6 @@ import {
 	UseGuards,
 	HttpCode,
 	HttpStatus,
-	UseInterceptors,
 } from '@nestjs/common';
 import { QueueGeneratePackageService } from './queue-generate-package.service';
 import { CreateQueueGeneratePackageDto } from './dto/create-queue-generate-package.dto';
@@ -21,8 +20,8 @@ import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { FilterQueueGeneratePackageDto } from './dto/filter-queue-generate-package.dto';
 import { Role } from 'src/shared/decorators/role.decorator';
-import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
 import { QueueGeneratePackageReturn } from './entities/queue-generate-package-return.entity';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
 
 @ApiTags('Fila de geração de malotes')
 @UseGuards(PermissionGuard)
@@ -33,18 +32,8 @@ export class QueueGeneratePackageController {
 		private readonly queueGeneratePackageService: QueueGeneratePackageService,
 	) {}
 
-	@Post()
-	create(
-		@Body() createQueueGeneratePackageDto: CreateQueueGeneratePackageDto,
-	) {
-		return this.queueGeneratePackageService.create(
-			createQueueGeneratePackageDto,
-		);
-	}
-
 	@Post('list')
 	@Role('fila-geracao-malotes-listar')
-	@UseInterceptors(UserCondominiumsAccess)
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({
 		summary: 'Lista os documentos da na fila de geração de malotes',
@@ -54,34 +43,26 @@ export class QueueGeneratePackageController {
 		status: HttpStatus.OK,
 		type: QueueGeneratePackageReturn,
 	})
+	@ApiResponse({
+		description: 'Erro ao listar os documentos da fila',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Erro ao listar os documentos da fila',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
 	async findAll(
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FilterQueueGeneratePackageDto,
 	) {
 		return {
 			success: true,
-			data: await this.queueGeneratePackageService.findAll(user, filters),
+			data: await this.queueGeneratePackageService.findAll(
+				user.empresa_id,
+				filters,
+			),
 		};
-	}
-
-	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.queueGeneratePackageService.findOne(+id);
-	}
-
-	@Patch(':id')
-	update(
-		@Param('id') id: string,
-		@Body() updateQueueGeneratePackageDto: UpdateQueueGeneratePackageDto,
-	) {
-		return this.queueGeneratePackageService.update(
-			+id,
-			updateQueueGeneratePackageDto,
-		);
-	}
-
-	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.queueGeneratePackageService.remove(+id);
 	}
 }

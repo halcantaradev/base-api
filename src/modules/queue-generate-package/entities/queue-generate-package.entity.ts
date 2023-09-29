@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ProtocoloDocumento } from '@prisma/client';
 
 export class QueueGeneratePackage {
 	@ApiProperty({
@@ -49,12 +48,4 @@ export class QueueGeneratePackage {
 		readOnly: true,
 	})
 	updated_at: Date;
-
-	@ApiProperty({
-		description: 'Documento associado a fila',
-		example: 1,
-		required: false,
-		readOnly: true,
-	})
-	documento: ProtocoloDocumento;
 }

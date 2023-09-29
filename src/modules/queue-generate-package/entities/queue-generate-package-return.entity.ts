@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ProtocolDocumentListReturn } from 'src/modules/protocol/entities/protocol-document-list-return.entity';
+import { QueueGeneratePackageCondominiumList } from './queue-generate-package-condimium-list';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
 
-export class QueueGeneratePackageReturn {
+export class QueueGeneratePackageReturn extends ReturnEntity.success() {
 	@ApiProperty({
 		description: 'Dados que serão retornados',
-		type: ProtocolDocumentListReturn,
+		type: QueueGeneratePackageCondominiumList,
+		isArray: true,
 		readOnly: true,
 		required: false,
 	})
-	data: ProtocolDocumentListReturn[];
+	data: QueueGeneratePackageCondominiumList[];
 }

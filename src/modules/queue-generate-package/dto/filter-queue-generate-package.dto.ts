@@ -8,5 +8,5 @@ export class FilterQueueGeneratePackageDto {
 		required: false,
 	})
 	@IsOptional()
-	rota_dia_semana: number;
+	rota_id: number;
 }

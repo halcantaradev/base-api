@@ -36,6 +36,7 @@ import {
 	CondominiumExists,
 	DocumentTypeExists,
 } from './shared/validators';
+import { VirtualPackageModule } from './modules/virtual-package/virtual-package.module';
 
 @Module({
 	imports: [
@@ -63,6 +64,7 @@ import {
 		LayoutsNotificationModule,
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
+		VirtualPackageModule,
 	],
 	controllers: [AppController],
 	providers: [

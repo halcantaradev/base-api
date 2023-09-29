@@ -51,6 +51,8 @@ model Pessoa {
   emails_setup                     EmailSetup[]
   rotas                            Rota[]
   malotes_fisicos                  MalotesFisicos[]
+  condominio_malotes_virtuais      MaloteVirtual[]              @relation("CondominioMalotes")
+  empresa_malotes_virtuais         MaloteVirtual[]              @relation("EmpresaMalotes")
 
   @@map("pessoas")
 }
@@ -595,10 +597,11 @@ model ProtocoloDocumento {
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 
-  condominio     Pessoa        @relation(fields: [condominio_id], references: [id])
-  tipo_documento TipoDocumento @relation(fields: [tipo_documento_id], references: [id])
-  protocolo      Protocolo     @relation(fields: [protocolo_id], references: [id])
-  aceite_usuario User?         @relation(fields: [aceite_usuario_id], references: [id])
+  condominio        Pessoa            @relation(fields: [condominio_id], references: [id])
+  tipo_documento    TipoDocumento     @relation(fields: [tipo_documento_id], references: [id])
+  protocolo         Protocolo         @relation(fields: [protocolo_id], references: [id])
+  aceite_usuario    User?             @relation(fields: [aceite_usuario_id], references: [id])
+  malotes_documento MaloteDocumento[]
 
   @@map("protocolo_documentos")
 }
@@ -687,17 +690,48 @@ model Rota {
 
 model MalotesFisicos {
   id         Int      @id @default(autoincrement())
+  empresa_id Int
   codigo     String
   disponivel Boolean  @default(true)
   situacao   Int      @default(1)
-  empresa_id Int
   ativo      Boolean  @default(true)
   alerta     Boolean  @default(false)
   excluido   Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  empresa          Pessoa          @relation(fields: [empresa_id], references: [id])
+  malotes_virtuais MaloteVirtual[]
 
   @@map("malotes_fisicos")
+}
+
+model MaloteVirtual {
+  id               Int      @id @default(autoincrement())
+  empresa_id       Int
+  condominio_id    Int
+  malote_fisico_id Int?
+  finalizado       Boolean  @default(false)
+  excluido         Boolean  @default(false)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  condominio        Pessoa            @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
+  empresa           Pessoa            @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])
+  malote_fisico     MalotesFisicos?   @relation(fields: [malote_fisico_id], references: [id])
+  documentos_malote MaloteDocumento[]
+
+  @@map("malotes_virtuais")
+}
+
+model MaloteDocumento {
+  id           Int                @id @default(autoincrement())
+  malote_id    Int
+  documento_id Int
+  created_at   DateTime           @default(now())
+  updated_at   DateTime           @updatedAt
+  malote       MaloteVirtual      @relation(fields: [malote_id], references: [id])
+  documento    ProtocoloDocumento @relation(fields: [documento_id], references: [id])
+
+  @@map("malotes_documentos")
 }

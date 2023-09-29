@@ -580,4 +580,28 @@ export const permissionslist: Array<{
 		key: 'fila-geracao-malotes-listar',
 		message: 'Sem permissão para listar fila de geração de malotes',
 	},
+	{
+		label: 'Listar as rotas para selecionar',
+		module: 'Expedição',
+		key: 'setup-malotes-listar-rotas',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
+	{
+		label: 'Listar os motoqueiros para selecionar',
+		module: 'Expedição',
+		key: 'setup-malotes-listar-motoqueiros',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
+	{
+		label: 'Listar dados de setup do malote',
+		module: 'Expedição',
+		key: 'setup-malotes-listar',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
+	{
+		label: 'Atualizar dados de setup do malote',
+		module: 'Expedição',
+		key: 'setup-malotes-atualizar',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
 ];

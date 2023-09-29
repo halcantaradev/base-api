@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SetupPackageDriver {
+export class SetupPackageBiker {
 	@ApiProperty({
-		description: 'Id do motorista',
+		description: 'Id do motoqueiro',
 		example: 1,
 		readOnly: true,
 		required: true,
@@ -10,7 +10,7 @@ export class SetupPackageDriver {
 	id: number;
 
 	@ApiProperty({
-		description: 'Nome do motorista',
+		description: 'Nome do motoqueiro',
 		example: 1,
 		readOnly: true,
 		required: true,

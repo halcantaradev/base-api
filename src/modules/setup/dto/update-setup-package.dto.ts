@@ -28,14 +28,14 @@ export class UpdateSetupPackageDto {
 	})
 	@IsInt({
 		message:
-			'O campo motorista informado não é válido. Por favor, forneça um motorista válido.',
+			'O campo motoqueiro informado não é válido. Por favor, forneça um motoqueiro válido.',
 	})
 	@IsNotEmpty({
 		message:
-			'O campo motorista é obrigatório. Por favor, forneça um motorista.',
+			'O campo motoqueiro é obrigatório. Por favor, forneça um motoqueiro.',
 	})
 	@Type(() => Number)
-	motorista_id: number;
+	motoqueiro_id: number;
 
 	@ApiProperty({
 		description:

@@ -16,7 +16,7 @@ export class SetupPackage {
 		readOnly: true,
 		required: true,
 	})
-	motorista_id: number;
+	motoqueiro_id: number;
 
 	@ApiProperty({
 		description:

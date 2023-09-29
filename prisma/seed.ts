@@ -224,7 +224,7 @@ async function createFilial(empresa: Pessoa) {
 		},
 	});
 
-	if (filial)
+	if (!filial)
 		filial = await prisma.filial.create({
 			data: {
 				nome: 'Filial de Teste',
@@ -242,7 +242,7 @@ async function createDepartamento(empresa: Pessoa, filial: Filial) {
 		},
 	});
 
-	if (departamento)
+	if (!departamento)
 		await prisma.departamento.create({
 			data: {
 				nome: 'Departamento de Teste',

@@ -691,14 +691,14 @@ model Rota {
 model MaloteSetup {
   condominio_id      Int      @unique
   rota_id            Int
-  motorista_id       Int
+  motoqueiro_id       Int
   quantidade_malotes Int
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt
 
   condominio Pessoa @relation(fields: [condominio_id], references: [id])
   rota       Rota   @relation(fields: [rota_id], references: [id])
-  motorista  User   @relation(fields: [motorista_id], references: [id])
+  motoqueiro  User   @relation(fields: [motoqueiro_id], references: [id])
 
   @@map("malotes_setup")
 }

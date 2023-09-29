@@ -1,14 +1,14 @@
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { SetupPackageDriver } from './setup-package-driver.entity';
+import { SetupPackageBiker } from './setup-package-biker.entity';
 
-export class ReturnSetupPackageDriverListEntity extends ReturnEntity.success() {
+export class ReturnSetupPackageBikerListEntity extends ReturnEntity.success() {
 	@ApiProperty({
 		description: 'Dados que serão retornados',
-		type: SetupPackageDriver,
+		type: SetupPackageBiker,
 		isArray: true,
 		readOnly: true,
 		required: false,
 	})
-	data: SetupPackageDriver[];
+	data: SetupPackageBiker[];
 }

@@ -112,7 +112,7 @@ export class SetupService {
 		});
 	}
 
-	async findDriversPackage(empresa_id: number) {
+	async findBikersPackage(empresa_id: number) {
 		return this.prisma.user.findMany({
 			select: {
 				id: true,
@@ -146,13 +146,13 @@ export class SetupService {
 			create: {
 				condominio_id: id,
 				rota_id: updateSetupPackageDto.rota_id,
-				motorista_id: updateSetupPackageDto.motorista_id,
+				motoqueiro_id: updateSetupPackageDto.motoqueiro_id,
 				quantidade_malotes:
 					updateSetupPackageDto.quantidade_malotes || 0,
 			},
 			update: {
 				rota_id: updateSetupPackageDto.rota_id || undefined,
-				motorista_id: updateSetupPackageDto.motorista_id || undefined,
+				motoqueiro_id: updateSetupPackageDto.motoqueiro_id || undefined,
 				quantidade_malotes:
 					updateSetupPackageDto.quantidade_malotes || undefined,
 			},

@@ -21,7 +21,7 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { ReturnSetupSystemEntity } from './entities/return-setup-system.entity';
 import { ReturnSetupPackageEntity } from './entities/return-setup-package.entity';
 import { UpdateSetupPackageDto } from './dto/update-setup-package.dto';
-import { ReturnSetupPackageDriverListEntity } from './entities/return-setup-package-driver.entity';
+import { ReturnSetupPackageBikerListEntity } from './entities/return-setup-package-biker.entity';
 import { ReturnSetupPackageRouteListEntity } from './entities/return-setup-package-route.entity';
 
 @ApiTags('Módulo de Configurações')
@@ -98,23 +98,23 @@ export class SetupController {
 		};
 	}
 
-	@Get('packages/drivers')
-	@Role('setup-malotes-listar-motoristas')
-	@ApiOperation({ summary: 'Lista as motoristas de malotes disponíveis' })
+	@Get('packages/bikers')
+	@Role('setup-malotes-listar-motoqueiros')
+	@ApiOperation({ summary: 'Lista as motoqueiros de malotes disponíveis' })
 	@ApiResponse({
 		description: 'Motoristas listados com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnSetupPackageDriverListEntity,
+		type: ReturnSetupPackageBikerListEntity,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async getDriversPackage(@CurrentUser() user: UserAuth) {
+	async getBikersPackage(@CurrentUser() user: UserAuth) {
 		return {
 			success: true,
-			data: await this.setupService.findDriversPackage(user.empresa_id),
+			data: await this.setupService.findBikersPackage(user.empresa_id),
 		};
 	}
 

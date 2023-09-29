@@ -581,9 +581,9 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar os dados de setup dos malotes',
 	},
 	{
-		label: 'Listar os motoristas para selecionar',
+		label: 'Listar os motoqueiros para selecionar',
 		module: 'Expedição',
-		key: 'setup-malotes-listar-motoristas',
+		key: 'setup-malotes-listar-motoqueiros',
 		message: 'Sem permissão para listar os dados de setup dos malotes',
 	},
 	{

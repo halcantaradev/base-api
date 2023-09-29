@@ -3,18 +3,20 @@ import { QueueGeneratePackageController } from './queue-generate-package.control
 import { QueueGeneratePackageService } from './queue-generate-package.service';
 
 describe('QueueGeneratePackageController', () => {
-  let controller: QueueGeneratePackageController;
+	let controller: QueueGeneratePackageController;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [QueueGeneratePackageController],
-      providers: [QueueGeneratePackageService],
-    }).compile();
+	beforeEach(async () => {
+		const module: TestingModule = await Test.createTestingModule({
+			controllers: [QueueGeneratePackageController],
+			providers: [QueueGeneratePackageService],
+		}).compile();
 
-    controller = module.get<QueueGeneratePackageController>(QueueGeneratePackageController);
-  });
+		controller = module.get<QueueGeneratePackageController>(
+			QueueGeneratePackageController,
+		);
+	});
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+	it('should be defined', () => {
+		expect(controller).toBeDefined();
+	});
 });

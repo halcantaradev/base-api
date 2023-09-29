@@ -13,8 +13,26 @@ export class QueueGeneratePackageService {
 					select: {
 						id: true,
 						nome: true,
-
+						setup_rotas: {
+							select: {
+								rota: true,
+							},
+						},
 						protocolos_documentos_condominio: {
+							include: {
+								tipo_documento: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+								aceite_usuario: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+							},
 							where: {
 								fila_geracao_malote: {
 									some: {
@@ -26,6 +44,7 @@ export class QueueGeneratePackageService {
 					},
 				},
 			},
+
 			where: {
 				condominio: {
 					setup_rotas: {

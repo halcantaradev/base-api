@@ -36,6 +36,7 @@ import {
 	CondominiumExists,
 	DocumentTypeExists,
 } from './shared/validators';
+import { QueueGeneratePackageModule } from './modules/queue-generate-package/queue-generate-package.module';
 
 @Module({
 	imports: [
@@ -63,6 +64,7 @@ import {
 		LayoutsNotificationModule,
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
+		QueueGeneratePackageModule,
 	],
 	controllers: [AppController],
 	providers: [

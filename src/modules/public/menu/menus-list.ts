@@ -143,6 +143,15 @@ export const menulist: Array<{
 		icon: 'container',
 		target: '_self',
 	},
+	{
+		id_relation: 18,
+		permission_key: 'fila-geracao-malotes-listar',
+		relation: 15,
+		label: 'Gerar malotes',
+		url: 'gerar-malotes',
+		icon: 'container',
+		target: '_self',
+	},
 
 	// SEGURANÇA
 	{

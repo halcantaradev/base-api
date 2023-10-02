@@ -79,7 +79,7 @@ export class SetupController {
 	}
 
 	@Get('packages/routes')
-	@Role('setup-malotes-listar-rotas')
+	@Role('setup-malotes-listar')
 	@ApiOperation({ summary: 'Lista as rotas de malotes disponíveis' })
 	@ApiResponse({
 		description: 'Rotas listadas com sucesso',
@@ -99,7 +99,7 @@ export class SetupController {
 	}
 
 	@Get('packages/bikers')
-	@Role('setup-malotes-listar-motoqueiros')
+	@Role('setup-malotes-listar')
 	@ApiOperation({ summary: 'Lista as motoqueiros de malotes disponíveis' })
 	@ApiResponse({
 		description: 'Motoristas listados com sucesso',

@@ -279,14 +279,14 @@ export const permissionslist: Array<{
 	},
 	{
 		label: 'Exibir dados de configuração de notificação',
-		module: 'Notificação',
+		module: 'Configurações do condomínio',
 		key: 'setup-notificacoes-listar',
 		message:
 			'Sem permissão para listar os dados de configurações de notificações',
 	},
 	{
 		label: 'Atualizar dados de configuração de notificação',
-		module: 'Notificação',
+		module: 'Configurações do condomínio',
 		key: 'setup-notificacoes-atualizar',
 		message:
 			'Sem permissão para atualizar os dados de configurações de notificações',
@@ -575,26 +575,14 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para excluir dados de malote físico',
 	},
 	{
-		label: 'Listar as rotas para selecionar',
-		module: 'Expedição',
-		key: 'setup-malotes-listar-rotas',
-		message: 'Sem permissão para listar os dados de setup dos malotes',
-	},
-	{
-		label: 'Listar os motoqueiros para selecionar',
-		module: 'Expedição',
-		key: 'setup-malotes-listar-motoqueiros',
-		message: 'Sem permissão para listar os dados de setup dos malotes',
-	},
-	{
-		label: 'Listar dados de setup do malote',
-		module: 'Expedição',
+		label: 'Exibir dados de configuração dos malotes',
+		module: 'Configurações do condomínio',
 		key: 'setup-malotes-listar',
 		message: 'Sem permissão para listar os dados de setup dos malotes',
 	},
 	{
-		label: 'Atualizar dados de setup do malote',
-		module: 'Expedição',
+		label: 'Atualizar dados de configuração dos malotes',
+		module: 'Configurações do condomínio',
 		key: 'setup-malotes-atualizar',
 		message: 'Sem permissão para listar os dados de setup dos malotes',
 	},

@@ -6,6 +6,7 @@ import {
 	HttpCode,
 	HttpStatus,
 	Param,
+	Patch,
 	Post,
 	UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { Role } from 'src/shared/decorators/role.decorator';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -29,6 +31,7 @@ export class VirtualPackageController {
 	) {}
 
 	@Post()
+	@Role('malotes-virtuais-gerar')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Gerar malote virtual' })
 	@ApiResponse({
@@ -56,9 +59,9 @@ export class VirtualPackageController {
 		);
 	}
 
-	@Get('active')
-	// @Role('departamentos-listar')
-	@ApiOperation({ summary: 'Lista todos os malotes não finalizados' })
+	@Get('pending')
+	@Role('malotes-virtuais-listar-pendentes')
+	@ApiOperation({ summary: 'Lista todos os malotes pendentes' })
 	@ApiResponse({
 		description: 'Malotes listados com sucesso',
 		status: HttpStatus.OK,
@@ -69,28 +72,35 @@ export class VirtualPackageController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllActive(@CurrentUser() user: UserAuth) {
+	async findAllPending(@CurrentUser() user: UserAuth) {
 		return {
 			success: false,
-			data: await this.virtualPackageService.findAllActive(
+			data: await this.virtualPackageService.findAllPending(
 				user.empresa_id,
 			),
 		};
 	}
 
 	@Delete(':id')
-	@ApiOperation({ summary: 'Remover um malote' })
+	@Role('malotes-virtuais-excluir')
+	@ApiOperation({ summary: 'Excluir um malote' })
 	@ApiResponse({
-		description: 'Malote removido sucesso',
+		description: 'Malote excluido com sucesso',
 		status: HttpStatus.OK,
 		type: ReturnEntity.success,
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao remover o malote',
+		description: 'Ocorreu um erro ao excluir o malote',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
 	remove(@Param('id') id: string) {
 		return this.virtualPackageService.remove(+id);
+	}
+
+	@Patch('document/:id')
+	@Role('malotes-virtuais-documentos-estornar')
+	reverseDocumentoMalote(@Param('id') id: string) {
+		return this.virtualPackageService.reverseDoc(+id);
 	}
 }

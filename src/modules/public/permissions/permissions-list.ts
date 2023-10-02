@@ -598,4 +598,28 @@ export const permissionslist: Array<{
 		key: 'setup-malotes-atualizar',
 		message: 'Sem permissão para listar os dados de setup dos malotes',
 	},
+	{
+		label: 'Gerar malotes',
+		module: 'Expedição',
+		key: 'malotes-virtuais-gerar',
+		message: 'Sem permissão para gerar malotes',
+	},
+	{
+		label: 'Listar malotes pendentes',
+		module: 'Expedição',
+		key: 'malotes-virtuais-listar-pendentes',
+		message: 'Sem permissão para listar os malotes pendentes',
+	},
+	{
+		label: 'Excluir um malote gerado',
+		module: 'Expedição',
+		key: 'malotes-virtuais-excluir',
+		message: 'Sem permissão para excluir malotes',
+	},
+	{
+		label: 'Estornar documento de um malote gerado',
+		module: 'Expedição',
+		key: 'malotes-virtuais-documentos-estornar',
+		message: 'Sem permissão para estornar documentos do malote',
+	},
 ];

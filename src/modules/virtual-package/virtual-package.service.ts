@@ -79,7 +79,7 @@ export class VirtualPackageService {
 		return { success: true, message: 'Malote gerado com successo!' };
 	}
 
-	findAllActive(empresa_id: number) {
+	findAllPending(empresa_id: number) {
 		return this.prisma.maloteVirtual.findMany({
 			select: {
 				condominio: { select: { nome: true } },
@@ -93,6 +93,15 @@ export class VirtualPackageService {
 	}
 
 	async remove(id: number) {
+		const malote = await this.prisma.maloteVirtual.findUnique({
+			where: { id },
+		});
+		if (!malote) throw new BadRequestException('Malote não encontrado');
+
+		return { success: true, message: 'Malote removida com sucesso!' };
+	}
+
+	async reverseDoc(id: number) {
 		const malote = await this.prisma.maloteVirtual.findUnique({
 			where: { id },
 		});

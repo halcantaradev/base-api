@@ -54,6 +54,7 @@ model Pessoa {
   condominio_malotes_virtuais      MaloteVirtual[]              @relation("CondominioMalotes")
   empresa_malotes_virtuais         MaloteVirtual[]              @relation("EmpresaMalotes")
   setup_rotas                      MaloteSetup?
+  documento_fila_geracao           DocumentoFilaGeracao[]
 
   @@map("pessoas")
 }
@@ -599,11 +600,12 @@ model ProtocoloDocumento {
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 
-  condominio        Pessoa            @relation(fields: [condominio_id], references: [id])
-  tipo_documento    TipoDocumento     @relation(fields: [tipo_documento_id], references: [id])
-  protocolo         Protocolo         @relation(fields: [protocolo_id], references: [id])
-  aceite_usuario    User?             @relation(fields: [aceite_usuario_id], references: [id])
-  malotes_documento MaloteDocumento[]
+  condominio          Pessoa                 @relation(fields: [condominio_id], references: [id])
+  tipo_documento      TipoDocumento          @relation(fields: [tipo_documento_id], references: [id])
+  protocolo           Protocolo              @relation(fields: [protocolo_id], references: [id])
+  aceite_usuario      User?                  @relation(fields: [aceite_usuario_id], references: [id])
+  malotes_documento   MaloteDocumento[]
+  fila_geracao_malote DocumentoFilaGeracao[]
 
   @@map("protocolo_documentos")
 }
@@ -694,14 +696,14 @@ model Rota {
 model MaloteSetup {
   condominio_id      Int      @unique
   rota_id            Int
-  motoqueiro_id       Int
+  motoqueiro_id      Int
   quantidade_malotes Int
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt
 
   condominio Pessoa @relation(fields: [condominio_id], references: [id])
   rota       Rota   @relation(fields: [rota_id], references: [id])
-  motoqueiro  User   @relation(fields: [motoqueiro_id], references: [id])
+  motoqueiro User   @relation(fields: [motoqueiro_id], references: [id])
 
   @@map("malotes_setup")
 }
@@ -752,4 +754,19 @@ model MaloteDocumento {
   documento    ProtocoloDocumento @relation(fields: [documento_id], references: [id])
 
   @@map("malotes_documentos")
+}
+
+model DocumentoFilaGeracao {
+  id           Int      @id @default(autoincrement())
+  empresa_id   Int
+  documento_id Int
+  gerado       Boolean  @default(false)
+  excluido     Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  documento ProtocoloDocumento @relation(fields: [documento_id], references: [id])
+  empresa   Pessoa             @relation(fields: [empresa_id], references: [id])
+
+  @@map("documentos_fila_geracao")
 }

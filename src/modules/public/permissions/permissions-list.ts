@@ -575,6 +575,12 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para excluir dados de malote físico',
 	},
 	{
+		label: 'Acessar fila de geração de malotes',
+		module: 'Expedição',
+		key: 'fila-geracao-malotes-listar',
+		message: 'Sem permissão para listar fila de geração de malotes',
+	},
+	{
 		label: 'Listar as rotas para selecionar',
 		module: 'Expedição',
 		key: 'setup-malotes-listar-rotas',
@@ -621,5 +627,11 @@ export const permissionslist: Array<{
 		module: 'Expedição',
 		key: 'malotes-virtuais-documentos-estornar',
 		message: 'Sem permissão para estornar documentos do malote',
+	},
+	{
+		label: 'Remover documento da fila',
+		module: 'Expedição',
+		key: 'fila-geracao-malotes-remover-documento',
+		message: 'Sem permissão para remover documento da fila',
 	},
 ];

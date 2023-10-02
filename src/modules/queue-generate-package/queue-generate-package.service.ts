@@ -71,6 +71,12 @@ export class QueueGeneratePackageService {
 	}
 
 	async remove(id: number, empresa_id: number) {
+		if (Number.isNaN(id)) {
+			throw new BadRequestException(
+				'Documento na fila de geração de malotes não encontrado',
+			);
+		}
+
 		const documentQueueExists =
 			await this.prisma.documentoFilaGeracao.findFirst({
 				where: {
@@ -79,7 +85,7 @@ export class QueueGeneratePackageService {
 				},
 			});
 
-		if (!documentQueueExists || Number.isNaN(id)) {
+		if (!documentQueueExists) {
 			throw new BadRequestException(
 				'Documento na fila de geração de malotes não encontrado',
 			);

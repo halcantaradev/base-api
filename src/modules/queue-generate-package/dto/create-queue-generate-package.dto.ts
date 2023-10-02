@@ -5,6 +5,7 @@ export class CreateQueueGeneratePackageDto {
 	@ApiProperty({
 		description: 'Ids dos documentos',
 		example: [1, 2, 3],
+		isArray: true,
 		required: true,
 	})
 	@IsInt({

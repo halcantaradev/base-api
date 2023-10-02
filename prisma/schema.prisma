@@ -52,7 +52,7 @@ model Pessoa {
   rotas                            Rota[]
   malotes_fisicos                  MalotesFisicos[]
   setup_rotas                      MaloteSetup?
-  DocumentoFilaGeracao             DocumentoFilaGeracao[]
+  documento_fila_geracao           DocumentoFilaGeracao[]
 
   @@map("pessoas")
 }

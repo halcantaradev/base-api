@@ -19,7 +19,7 @@ export class QueueGeneratePackage {
 
 	@ApiProperty({
 		description: 'Status da fila',
-		example: 1,
+		example: true,
 		required: false,
 		readOnly: true,
 	})
@@ -27,15 +27,15 @@ export class QueueGeneratePackage {
 
 	@ApiProperty({
 		description: 'Status de exclusão da fila',
-		example: 1,
+		example: true,
 		required: false,
 		readOnly: true,
 	})
 	excluido: boolean;
 
 	@ApiProperty({
-		description: 'Data de criacao da fila',
-		example: 1,
+		description: 'Data de criação da fila',
+		example: new Date(),
 		required: false,
 		readOnly: true,
 	})
@@ -43,7 +43,7 @@ export class QueueGeneratePackage {
 
 	@ApiProperty({
 		description: 'Data de atualização da fila',
-		example: 1,
+		example: new Date(),
 		required: false,
 		readOnly: true,
 	})

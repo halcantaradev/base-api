@@ -748,6 +748,7 @@ model MaloteDocumento {
   id           Int                @id @default(autoincrement())
   malote_id    Int
   documento_id Int
+  estornado    Boolean            @default(false)
   created_at   DateTime           @default(now())
   updated_at   DateTime           @updatedAt
   malote       MaloteVirtual      @relation(fields: [malote_id], references: [id])

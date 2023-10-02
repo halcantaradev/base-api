@@ -1,7 +1,6 @@
 import {
 	Body,
 	Controller,
-	Delete,
 	Get,
 	HttpCode,
 	HttpStatus,
@@ -81,26 +80,28 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Delete(':id')
-	@Role('malotes-virtuais-excluir')
-	@ApiOperation({ summary: 'Excluir um malote' })
+	@Patch(':id/document/:id_document')
+	@Role('malotes-virtuais-documentos-estornar')
+	@ApiOperation({ summary: 'Estorna um malote' })
 	@ApiResponse({
-		description: 'Malote excluido com sucesso',
+		description: 'Malote estornado com sucesso',
 		status: HttpStatus.OK,
 		type: ReturnEntity.success,
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao excluir o malote',
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao estornar o malote',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	remove(@Param('id') id: string) {
-		return this.virtualPackageService.remove(+id);
-	}
-
-	@Patch('document/:id')
-	@Role('malotes-virtuais-documentos-estornar')
-	reverseDocumentoMalote(@Param('id') id: string) {
-		return this.virtualPackageService.reverseDoc(+id);
+	reverseDocumentoMalote(
+		@Param('id') id: string,
+		@Param('id_document') id_document: string,
+	) {
+		return this.virtualPackageService.reverseDoc(+id, +id_document);
 	}
 }

@@ -69,6 +69,15 @@ export class VirtualPackageService {
 			},
 		});
 
+		await this.prisma.documentoFilaGeracao.updateMany({
+			data: {
+				gerado: true,
+			},
+			where: {
+				documento_id: { in: createVirtualPackageDto.documentos_ids },
+			},
+		});
+
 		if (malote && malote.malote_fisico_id) {
 			await this.prisma.malotesFisicos.update({
 				data: { disponivel: false },
@@ -92,20 +101,61 @@ export class VirtualPackageService {
 		});
 	}
 
-	async remove(id: number) {
-		const malote = await this.prisma.maloteVirtual.findUnique({
-			where: { id },
-		});
-		if (!malote) throw new BadRequestException('Malote não encontrado');
+	async reverseDoc(id: number, id_document: number) {
+		if (Number.isNaN(id) || Number.isNaN(id_document))
+			throw new BadRequestException('Documento não encontrado');
 
-		return { success: true, message: 'Malote removida com sucesso!' };
-	}
-
-	async reverseDoc(id: number) {
-		const malote = await this.prisma.maloteVirtual.findUnique({
-			where: { id },
+		const documento = await this.prisma.maloteDocumento.findFirst({
+			select: {
+				id: true,
+			},
+			where: {
+				id: id_document,
+				malote_id: id,
+				estornado: false,
+				malote: { excluido: false },
+			},
 		});
-		if (!malote) throw new BadRequestException('Malote não encontrado');
+
+		if (!documento)
+			throw new BadRequestException('Documento não encontrado');
+
+		await this.prisma.maloteDocumento.update({
+			data: { estornado: true },
+			where: {
+				id: id_document,
+			},
+		});
+
+		await this.prisma.documentoFilaGeracao.updateMany({
+			data: {
+				gerado: false,
+			},
+			where: {
+				documento_id: id_document,
+			},
+		});
+
+		const malote = await this.prisma.maloteVirtual.findUnique({
+			select: {
+				documentos_malote: {
+					select: {
+						id: true,
+					},
+					where: { estornado: false },
+				},
+			},
+			where: { id: id },
+		});
+
+		if (!malote.documentos_malote.length) {
+			await this.prisma.maloteVirtual.update({
+				data: {
+					excluido: true,
+				},
+				where: { id },
+			});
+		}
 
 		return { success: true, message: 'Malote removida com sucesso!' };
 	}

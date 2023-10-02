@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { FilterQueueGeneratePackageDto } from './dto/filter-queue-generate-package.dto';
 
@@ -25,6 +25,9 @@ export class QueueGeneratePackageService {
 										id: true,
 										nome: true,
 									},
+								},
+								fila_geracao_malote: {
+									select: { id: true },
 								},
 								aceite_usuario: {
 									select: {
@@ -55,6 +58,7 @@ export class QueueGeneratePackageService {
 					some: {
 						gerado: false,
 						empresa_id,
+						excluido: false,
 					},
 				},
 			},
@@ -66,7 +70,28 @@ export class QueueGeneratePackageService {
 		return documentos;
 	}
 
-	findOne(id: number) {
-		return `This action returns a #${id} queueGeneratePackage`;
+	async remove(id: number, empresa_id: number) {
+		const documentQueueExists =
+			await this.prisma.documentoFilaGeracao.findFirst({
+				where: {
+					id,
+					empresa_id,
+				},
+			});
+
+		if (!documentQueueExists || Number.isNaN(id)) {
+			throw new BadRequestException(
+				'Documento na fila de geração de malotes não encontrado',
+			);
+		}
+
+		return this.prisma.documentoFilaGeracao.update({
+			where: {
+				id,
+			},
+			data: {
+				excluido: true,
+			},
+		});
 	}
 }

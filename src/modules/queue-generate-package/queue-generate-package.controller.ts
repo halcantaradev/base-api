@@ -5,6 +5,8 @@ import {
 	UseGuards,
 	HttpCode,
 	HttpStatus,
+	Delete,
+	Param,
 } from '@nestjs/common';
 import { QueueGeneratePackageService } from './queue-generate-package.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -57,6 +59,34 @@ export class QueueGeneratePackageController {
 				user.empresa_id,
 				filters,
 			),
+		};
+	}
+
+	@Delete(':id')
+	@Role('fila-geracao-malotes-remover-documento')
+	@ApiOperation({
+		summary: 'Deleta um documento da fila de geração de malotes',
+	})
+	@ApiResponse({
+		description: 'Documento deletado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao deletar o documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async remove(@Param('id') id: string, @CurrentUser() user: UserAuth) {
+		await this.queueGeneratePackageService.remove(+id, user.empresa_id);
+		return {
+			success: true,
+			message: 'Documento deletado com sucesso',
 		};
 	}
 }

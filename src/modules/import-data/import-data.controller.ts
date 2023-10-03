@@ -1,5 +1,4 @@
 import {
-	Body,
 	Controller,
 	HttpCode,
 	HttpStatus,
@@ -21,7 +20,6 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
-import { CreateImportDataDto } from './dto/create-import-data.dto';
 import { ImportDataService } from './import-data.service';
 
 @ApiTags('Importação')

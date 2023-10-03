@@ -18,6 +18,7 @@ import { FilterQueueGeneratePackageDto } from './dto/filter-queue-generate-packa
 import { Role } from 'src/shared/decorators/role.decorator';
 import { QueueGeneratePackageReturn } from './entities/queue-generate-package-return.entity';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { CreateQueueGeneratePackageDto } from './dto/create-queue-generate-package.dto';
 
 @ApiTags('Fila de geração de malotes')
 @UseGuards(PermissionGuard)
@@ -59,6 +60,38 @@ export class QueueGeneratePackageController {
 				user.empresa_id,
 				filters,
 			),
+		};
+	}
+
+	@Post('send-to-queue')
+	@Role('fila-geracao-malotes-adicionar-documento')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({
+		summary: 'Adiciona um documento na fila de geração de malotes',
+	})
+	@ApiResponse({
+		description: 'Documento adicionado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao adicionar o documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async create(
+		@Body() body: CreateQueueGeneratePackageDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		await this.queueGeneratePackageService.create(body, user.empresa_id);
+		return {
+			success: true,
+			message: 'Documento(s) adicionado(s) com sucesso',
 		};
 	}
 

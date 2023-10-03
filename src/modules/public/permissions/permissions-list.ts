@@ -592,4 +592,10 @@ export const permissionslist: Array<{
 		key: 'fila-geracao-malotes-remover-documento',
 		message: 'Sem permissão para remover documento da fila',
 	},
+	{
+		label: 'Adicionar documento na fila de geração de malotes',
+		module: 'Expedição',
+		key: 'fila-geracao-malotes-adicionar-documento',
+		message: 'Sem permissão para adicionar documento na fila',
+	},
 ];

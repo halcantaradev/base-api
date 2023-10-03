@@ -112,7 +112,7 @@ export class ImportDataService {
 		}[],
 		empresa_id: number,
 	) {
-		usuarios.forEach(async (usuario) => {
+		for await (const usuario of usuarios) {
 			const usernameExist = await this.prisma.user.findFirst({
 				where: { username: usuario.usuario },
 			});
@@ -120,34 +120,42 @@ export class ImportDataService {
 				where: { email: usuario.email },
 			});
 
-			if (!usernameExist && !userEmailExist) {
+			if (!usernameExist && !userEmailExist && !!usuario.email) {
 				const userCreated = await this.prisma.user.create({
 					data: {
 						nome: usuario.nome,
 						username: usuario.usuario,
 						email: usuario.email,
-						telefone: usuario.telefone.toString(),
-						ramal: usuario.ramal.toString(),
-						whatsapp: usuario.whatsapp.toString(),
+						telefone: (usuario.telefone || '').toString(),
+						ramal: (usuario.ramal || '').toString(),
+						whatsapp: (usuario.whatsapp || '').toString(),
 						password: PasswordHelper.create('123456'),
-						acessa_todos_departamentos: !usuario.nac,
+						acessa_todos_departamentos: false,
 					},
 				});
 
-				const nac = await this.prisma.departamento.findFirst({
-					where: { nome: usuario.nac },
-				});
+				if (usuario.nac) {
+					const nac = await this.prisma.departamento.findFirst({
+						where: { nome: usuario.nac },
+					});
 
-				await this.prisma.usuarioHasDepartamentos.create({
-					data: {
-						departamento_id: nac.id,
-						usuario_id: userCreated.id,
-					},
-				});
+					await this.prisma.usuarioHasDepartamentos.create({
+						data: {
+							departamento_id: nac.id,
+							usuario_id: userCreated.id,
+						},
+					});
+				}
 
-				const cargo = await this.prisma.cargo.findFirst({
+				let cargo = await this.prisma.cargo.findFirst({
 					where: { nome: usuario.cargo },
 				});
+
+				if (!cargo) {
+					cargo = await this.prisma.cargo.findFirst({
+						where: { nome: 'Não definido' },
+					});
+				}
 
 				await this.prisma.empresasHasUsuarios.create({
 					data: {
@@ -157,14 +165,14 @@ export class ImportDataService {
 					},
 				});
 			}
-		});
+		}
 	}
 
 	async importFiliais(
 		filiais: Prisma.FilialUncheckedCreateInput[],
 		empresa_id: number,
 	) {
-		filiais.forEach(async (filial) => {
+		for await (const filial of filiais) {
 			const filialExists = await this.prisma.filial.findFirst({
 				where: { nome: filial.nome },
 			});
@@ -174,14 +182,14 @@ export class ImportDataService {
 					data: { nome: filial.nome, empresa_id: empresa_id },
 				});
 			}
-		});
+		}
 	}
 
 	async importNacs(
 		nacs: { nome: string; filial: string }[],
 		empresa_id: number,
 	) {
-		nacs.forEach(async (nac) => {
+		for await (const nac of nacs) {
 			const nacExists = await this.prisma.departamento.findFirst({
 				where: { nome: nac.nome },
 			});
@@ -200,13 +208,13 @@ export class ImportDataService {
 					},
 				});
 			}
-		});
+		}
 	}
 
 	async importTipoContratos(
 		tipoContratos: Prisma.TipoContratoCondominioUncheckedCreateInput[],
 	) {
-		tipoContratos.forEach(async (tipoContrato) => {
+		for await (const tipoContrato of tipoContratos) {
 			const tipoContratoExists =
 				await this.prisma.tipoContratoCondominio.findFirst({
 					where: { nome: tipoContrato.nome },
@@ -216,13 +224,13 @@ export class ImportDataService {
 					data: { nome: tipoContrato.nome },
 				});
 			}
-		});
+		}
 	}
 
 	async importCargos(
 		cargos: Prisma.TipoContratoCondominioUncheckedCreateInput[],
 	) {
-		cargos.forEach(async (cargo) => {
+		for await (const cargo of cargos) {
 			const cargoExists = await this.prisma.cargo.findFirst({
 				where: { nome: cargo.nome },
 			});
@@ -231,6 +239,6 @@ export class ImportDataService {
 					data: { nome: cargo.nome },
 				});
 			}
-		});
+		}
 	}
 }

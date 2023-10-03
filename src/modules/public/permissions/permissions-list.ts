@@ -586,4 +586,10 @@ export const permissionslist: Array<{
 		key: 'setup-malotes-atualizar',
 		message: 'Sem permissão para listar os dados de setup dos malotes',
 	},
+	{
+		label: 'Remover documento da fila',
+		module: 'Expedição',
+		key: 'fila-geracao-malotes-remover-documento',
+		message: 'Sem permissão para remover documento da fila',
+	},
 ];

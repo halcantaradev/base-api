@@ -90,7 +90,7 @@ export class IntegrationService {
 						cidade: data.cidade,
 						uf: data.uf,
 						updated_at_origin: new Date(data.updated_at_origin),
-						ativo: !!data.ativo,
+						ativo: data.ativo == 1 ? true : false,
 					},
 					where: {
 						id: condominio.id,
@@ -109,7 +109,7 @@ export class IntegrationService {
 					cidade: data.cidade,
 					uf: data.uf,
 					updated_at_origin: new Date(data.updated_at_origin),
-					ativo: !!data.ativo,
+					ativo: data.ativo == 1 ? true : false,
 					empresa_id,
 				},
 			});

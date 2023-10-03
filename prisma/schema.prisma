@@ -592,9 +592,12 @@ model ProtocoloDocumento {
   aceite_usuario_id Int?
   discriminacao     String
   observacao        String?
+  retorna           Boolean   @default(false)
   data_aceite       DateTime?
   aceito            Boolean   @default(false)
   excluido          Boolean   @default(false)
+  vencimento        DateTime?
+  valor             Float?
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 

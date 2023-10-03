@@ -55,7 +55,6 @@ export class ImportDataController {
 	importData(
 		@UploadedFiles() file: Express.Multer.File[],
 		@CurrentUser() user: UserAuth,
-		@Body() _: CreateImportDataDto,
 	) {
 		return this.importDataService.importData(file[0], user.empresa_id);
 	}

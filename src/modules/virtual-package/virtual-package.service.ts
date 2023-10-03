@@ -10,35 +10,6 @@ export class VirtualPackageService {
 		createVirtualPackageDto: CreateVirtualPackageDto,
 		empresa_id: number,
 	) {
-		const hasDoc = await this.prisma.maloteVirtual.findFirst({
-			where: {
-				empresa_id,
-				condominio_id: createVirtualPackageDto.condominio_id,
-				documentos_malote: {
-					some: {
-						documento_id: {
-							in: createVirtualPackageDto.documentos_ids,
-						},
-					},
-				},
-			},
-		});
-		if (hasDoc)
-			throw new BadRequestException(
-				'Existe um ou mais documentos com malotes já gerados!',
-			);
-
-		const hasDocPending = await this.prisma.protocoloDocumento.findFirst({
-			where: {
-				id: { in: createVirtualPackageDto.documentos_ids },
-				aceito: false,
-			},
-		});
-		if (hasDocPending)
-			throw new BadRequestException(
-				'Existe um ou mais documentos ainda pendente de aceite!',
-			);
-
 		if (createVirtualPackageDto.malote_fisico_id) {
 			const hasMaloteFisico = await this.prisma.malotesFisicos.findFirst({
 				where: {
@@ -46,24 +17,63 @@ export class VirtualPackageService {
 					disponivel: false,
 				},
 			});
+
 			if (hasMaloteFisico)
 				throw new BadRequestException(
 					'O malote fisico informado não pode ser usado!',
 				);
 		}
 
+		const daysSelected = {
+			dom: undefined,
+			seg: undefined,
+			ter: undefined,
+			qua: undefined,
+			qui: undefined,
+			sex: undefined,
+			sab: undefined,
+		};
+
+		Object.keys(daysSelected).map((key, index) => {
+			if (index == createVirtualPackageDto.dia - 1)
+				daysSelected[key] = true;
+		});
+
+		const documentos = await this.prisma.protocoloDocumento.findMany({
+			select: {
+				id: true,
+			},
+			where: {
+				condominio_id: createVirtualPackageDto.condominio_id,
+				condominio: {
+					setup_rotas: {
+						rota: daysSelected,
+					},
+				},
+				fila_geracao_malote: {
+					some: {
+						gerado: false,
+						empresa_id,
+						excluido: false,
+					},
+				},
+			},
+			orderBy: {
+				condominio_id: 'asc',
+			},
+		});
+
 		const malote = await this.prisma.maloteVirtual.create({
 			data: {
 				empresa_id,
 				condominio_id: createVirtualPackageDto.condominio_id,
 				malote_fisico_id: createVirtualPackageDto.malote_fisico_id,
+				data_saida: createVirtualPackageDto.data_saida,
 				documentos_malote: {
 					createMany: {
-						data: createVirtualPackageDto.documentos_ids.map(
-							(doc_id) => ({
-								documento_id: doc_id,
-							}),
-						),
+						data: documentos.map((document) => ({
+							documento_id: document.id,
+						})),
 					},
 				},
 			},
@@ -74,11 +84,13 @@ export class VirtualPackageService {
 				gerado: true,
 			},
 			where: {
-				documento_id: { in: createVirtualPackageDto.documentos_ids },
+				documento_id: { in: documentos.map((document) => document.id) },
+				gerado: false,
+				empresa_id,
 			},
 		});
 
-		if (malote && malote.malote_fisico_id) {
+		if (malote?.malote_fisico_id) {
 			await this.prisma.malotesFisicos.update({
 				data: { disponivel: false },
 				where: { id: malote.malote_fisico_id },
@@ -86,6 +98,24 @@ export class VirtualPackageService {
 		}
 
 		return { success: true, message: 'Malote gerado com successo!' };
+	}
+
+	async findAllPhysicalPackage(empresa_id: number) {
+		const data = await this.prisma.malotesFisicos.findMany({
+			select: {
+				id: true,
+				codigo: true,
+				alerta: true,
+			},
+			where: {
+				empresa_id,
+				disponivel: true,
+				ativo: true,
+				excluido: false,
+			},
+		});
+
+		return data;
 	}
 
 	findAllPending(empresa_id: number) {

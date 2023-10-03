@@ -23,7 +23,7 @@ import { Role } from 'src/shared/decorators/role.decorator';
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
 @UseGuards(JwtAuthGuard)
-@Controller('virtual-package')
+@Controller('virtual-packages')
 export class VirtualPackageController {
 	constructor(
 		private readonly virtualPackageService: VirtualPackageService,
@@ -56,6 +56,35 @@ export class VirtualPackageController {
 			createVirtualPackageDto,
 			user.empresa_id,
 		);
+	}
+
+	@Get('physical-packages')
+	@Role('malotes-virtuais-gerar')
+	@ApiOperation({ summary: 'Lista todos os malotes físicos disponíveis' })
+	@ApiResponse({
+		description: 'Malotes físicos listados com sucesso',
+		status: HttpStatus.OK,
+		// type: PhysicalPackageListReturnEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os malotes físicos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os malotes físicos',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	async findAll(@CurrentUser() user: UserAuth) {
+		const data = await this.virtualPackageService.findAllPhysicalPackage(
+			user.empresa_id,
+		);
+
+		return {
+			success: true,
+			data,
+		};
 	}
 
 	@Get('pending')

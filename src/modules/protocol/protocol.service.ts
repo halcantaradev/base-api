@@ -64,6 +64,7 @@ export class ProtocolService {
 			select: {
 				id: true,
 				nome: true,
+				externo: true,
 			},
 		},
 		retorna_malote_vazio: true,
@@ -518,6 +519,7 @@ export class ProtocolService {
 							nome: true,
 						},
 					},
+					fila_geracao_malote: true,
 					discriminacao: true,
 					data_aceite: true,
 					aceite_usuario: {
@@ -764,6 +766,13 @@ export class ProtocolService {
 							in: documents_ids,
 						},
 						aceito: false,
+						fila_geracao_malote: {
+							none: {
+								documento_id: {
+									in: documents_ids,
+								},
+							},
+						},
 					},
 				},
 			},
@@ -847,6 +856,13 @@ export class ProtocolService {
 							in: documents_ids,
 						},
 						aceito: true,
+						fila_geracao_malote: {
+							none: {
+								documento_id: {
+									in: documents_ids,
+								},
+							},
+						},
 					},
 				},
 			},
@@ -872,7 +888,7 @@ export class ProtocolService {
 			!documentExists.documentos.length
 		) {
 			throw new BadRequestException(
-				'Documento(s) informado(s) não aceitos ou não encontrados',
+				'Documento(s) informado(s) não aceitos, já na fila ou não encontrados',
 			);
 		}
 

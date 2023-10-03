@@ -53,7 +53,22 @@ export class ProtocolService {
 				nome: true,
 			},
 		},
-		documentos: true,
+		documentos: {
+			select: {
+				id: true,
+				aceite_usuario: true,
+				aceito: true,
+				tipo_documento: {
+					select: {
+						id: true,
+						nome: true,
+					},
+				},
+			},
+			where: {
+				excluido: false,
+			},
+		},
 		destino_usuario: {
 			select: {
 				id: true,
@@ -100,6 +115,9 @@ export class ProtocolService {
 		},
 		discriminacao: true,
 		observacao: true,
+		retorna: true,
+		valor: true,
+		vencimento: true,
 		data_aceite: true,
 		aceito: true,
 		created_at: true,
@@ -488,6 +506,9 @@ export class ProtocolService {
 				protocolo_id,
 				discriminacao: createDocumentProtocolDto.discriminacao,
 				observacao: createDocumentProtocolDto.observacao || null,
+				retorna: createDocumentProtocolDto.retorna,
+				vencimento: createDocumentProtocolDto.vencimento,
+				valor: createDocumentProtocolDto.valor,
 				condominio_id: createDocumentProtocolDto.condominio_id,
 				tipo_documento_id: createDocumentProtocolDto.tipo_documento_id,
 			},
@@ -519,6 +540,9 @@ export class ProtocolService {
 							nome: true,
 						},
 					},
+					retorna: true,
+					vencimento: true,
+					valor: true,
 					fila_geracao_malote: true,
 					discriminacao: true,
 					data_aceite: true,
@@ -967,6 +991,9 @@ export class ProtocolService {
 				discriminacao: updateDocumentProtocolDto.discriminacao,
 				observacao: updateDocumentProtocolDto.observacao,
 				condominio_id: updateDocumentProtocolDto.condominio_id,
+				retorna: updateDocumentProtocolDto.retorna,
+				valor: updateDocumentProtocolDto.valor,
+				vencimento: updateDocumentProtocolDto.vencimento,
 				tipo_documento_id: updateDocumentProtocolDto.tipo_documento_id,
 				excluido: exclude,
 			},

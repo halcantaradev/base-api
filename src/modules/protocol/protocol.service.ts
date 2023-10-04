@@ -53,7 +53,22 @@ export class ProtocolService {
 				nome: true,
 			},
 		},
-		documentos: true,
+		documentos: {
+			select: {
+				id: true,
+				aceite_usuario: true,
+				aceito: true,
+				tipo_documento: {
+					select: {
+						id: true,
+						nome: true,
+					},
+				},
+			},
+			where: {
+				excluido: false,
+			},
+		},
 		destino_usuario: {
 			select: {
 				id: true,
@@ -64,6 +79,7 @@ export class ProtocolService {
 			select: {
 				id: true,
 				nome: true,
+				externo: true,
 			},
 		},
 		retorna_malote_vazio: true,
@@ -99,6 +115,9 @@ export class ProtocolService {
 		},
 		discriminacao: true,
 		observacao: true,
+		retorna: true,
+		valor: true,
+		vencimento: true,
 		data_aceite: true,
 		aceito: true,
 		created_at: true,
@@ -487,6 +506,9 @@ export class ProtocolService {
 				protocolo_id,
 				discriminacao: createDocumentProtocolDto.discriminacao,
 				observacao: createDocumentProtocolDto.observacao || null,
+				retorna: createDocumentProtocolDto.retorna,
+				vencimento: createDocumentProtocolDto.vencimento,
+				valor: createDocumentProtocolDto.valor,
 				condominio_id: createDocumentProtocolDto.condominio_id,
 				tipo_documento_id: createDocumentProtocolDto.tipo_documento_id,
 			},
@@ -518,6 +540,10 @@ export class ProtocolService {
 							nome: true,
 						},
 					},
+					retorna: true,
+					vencimento: true,
+					valor: true,
+					fila_geracao_malote: true,
 					discriminacao: true,
 					data_aceite: true,
 					aceite_usuario: {
@@ -764,6 +790,13 @@ export class ProtocolService {
 							in: documents_ids,
 						},
 						aceito: false,
+						fila_geracao_malote: {
+							none: {
+								documento_id: {
+									in: documents_ids,
+								},
+							},
+						},
 					},
 				},
 			},
@@ -847,6 +880,13 @@ export class ProtocolService {
 							in: documents_ids,
 						},
 						aceito: true,
+						fila_geracao_malote: {
+							none: {
+								documento_id: {
+									in: documents_ids,
+								},
+							},
+						},
 					},
 				},
 			},
@@ -872,7 +912,7 @@ export class ProtocolService {
 			!documentExists.documentos.length
 		) {
 			throw new BadRequestException(
-				'Documento(s) informado(s) não aceitos ou não encontrados',
+				'Documento(s) informado(s) não aceitos, já na fila ou não encontrados',
 			);
 		}
 
@@ -951,6 +991,9 @@ export class ProtocolService {
 				discriminacao: updateDocumentProtocolDto.discriminacao,
 				observacao: updateDocumentProtocolDto.observacao,
 				condominio_id: updateDocumentProtocolDto.condominio_id,
+				retorna: updateDocumentProtocolDto.retorna,
+				valor: updateDocumentProtocolDto.valor,
+				vencimento: updateDocumentProtocolDto.vencimento,
 				tipo_documento_id: updateDocumentProtocolDto.tipo_documento_id,
 				excluido: exclude,
 			},
@@ -1162,10 +1205,9 @@ export class ProtocolService {
 					from: process.env.EMAIL_SEND_PROVIDER,
 					subject: `Protocolo ${protocolo_id} enviado para um novo setor`,
 					html: `
-					<p>Protocolo para novo setor com os arquivos:</p> 
-					${documentos.map((documento) => documento.discriminacao)}
+					<p>Novo protocolo de envio de documentos gerado</p>
 					<p>Segue o link para visualizar os dados do protocolo</p> 
-					${link}
+					<a href="${link}">${link}</a>
 					`,
 					setup: {
 						MAIL_SMTP_HOST: setupEmail.host,

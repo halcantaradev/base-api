@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class FirstAccessDto {
 	@ApiProperty({
@@ -13,6 +13,10 @@ export class FirstAccessDto {
 	@IsString({
 		message:
 			'O campo senha informado não é válido. Por favor, forneça uma senha válida.',
+	})
+	@MinLength(6, {
+		message:
+			'O campo senha deve ter pelo menos 6 caracteres. Por favor, forneça uma senha de pelo menos 6 caracteres.',
 	})
 	password: string;
 
@@ -28,6 +32,10 @@ export class FirstAccessDto {
 	@IsString({
 		message:
 			'O campo confirmação de senha informado não é válido. Por favor, forneça uma senha válida.',
+	})
+	@MinLength(6, {
+		message:
+			'O campo confirmação de senha deve ter pelo menos 6 caracteres. Por favor, forneça uma senha de pelo menos 6 caracteres.',
 	})
 	confirmPassword: string;
 }

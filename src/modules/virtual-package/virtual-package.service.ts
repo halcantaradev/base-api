@@ -118,6 +118,19 @@ export class VirtualPackageService {
 		return data;
 	}
 
+	async findSetupData(empresa_id: number) {
+		const data = await this.prisma.sistemaSetup.findFirst({
+			select: {
+				usa_malote_fisico: true,
+			},
+			where: {
+				empresa_id,
+			},
+		});
+
+		return data;
+	}
+
 	findAllPending(empresa_id: number) {
 		return this.prisma.maloteVirtual.findMany({
 			select: {

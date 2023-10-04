@@ -87,6 +87,32 @@ export class VirtualPackageController {
 		};
 	}
 
+	@Get('setup')
+	@Role('malotes-virtuais-gerar')
+	@ApiOperation({
+		summary: 'Lista todos os dados de setup de malotes da empresa',
+	})
+	@ApiResponse({
+		description: 'Dados listados com sucesso',
+		status: HttpStatus.OK,
+		// type: PhysicalPackageListReturnEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findSetupData(@CurrentUser() user: UserAuth) {
+		const data = await this.virtualPackageService.findSetupData(
+			user.empresa_id,
+		);
+
+		return {
+			success: true,
+			data,
+		};
+	}
+
 	@Get('pending')
 	@Role('malotes-virtuais-listar-pendentes')
 	@ApiOperation({ summary: 'Lista todos os malotes pendentes' })

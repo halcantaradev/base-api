@@ -21,9 +21,11 @@ import { CondominiumModule } from './modules/condominium/condominium.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { PermissionsModule } from './modules/public/permissions/permissions.module';
 import { ExternalJwtModule } from './shared/services/external-jwt/external-jwt.module';
+import { VirtualPackageModule } from './modules/virtual-package/virtual-package.module';
 import { PhysicalPackageModule } from './modules/physical-package/physical-package.module';
 import { NotificationEventsModule } from './modules/notification-events/notification-events.module';
 import { LayoutsNotificationModule } from './modules/layouts-notification/layouts-notification.module';
+import { QueueGeneratePackageModule } from './modules/queue-generate-package/queue-generate-package.module';
 import { ExternalAccessDocumentsModule } from './modules/external-access-documents/external-access-documents.module';
 import { ContractTypesCondominiumModule } from './modules/contract-type-condominium/contract-types-condominium.module';
 
@@ -58,9 +60,11 @@ import {
 		CondominiumModule,
 		PermissionsModule,
 		NotificationModule,
+		VirtualPackageModule,
 		PhysicalPackageModule,
 		NotificationEventsModule,
 		LayoutsNotificationModule,
+		QueueGeneratePackageModule,
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
 	],

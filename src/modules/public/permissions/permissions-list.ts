@@ -279,14 +279,14 @@ export const permissionslist: Array<{
 	},
 	{
 		label: 'Exibir dados de configuração de notificação',
-		module: 'Notificação',
+		module: 'Configurações do condomínio',
 		key: 'setup-notificacoes-listar',
 		message:
 			'Sem permissão para listar os dados de configurações de notificações',
 	},
 	{
 		label: 'Atualizar dados de configuração de notificação',
-		module: 'Notificação',
+		module: 'Configurações do condomínio',
 		key: 'setup-notificacoes-atualizar',
 		message:
 			'Sem permissão para atualizar os dados de configurações de notificações',
@@ -579,5 +579,53 @@ export const permissionslist: Array<{
 		module: 'Expedição',
 		key: 'fila-geracao-malotes-listar',
 		message: 'Sem permissão para listar fila de geração de malotes',
+	},
+	{
+		label: 'Exibir dados de configuração dos malotes',
+		module: 'Configurações do condomínio',
+		key: 'setup-malotes-listar',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
+	{
+		label: 'Atualizar dados de configuração dos malotes',
+		module: 'Configurações do condomínio',
+		key: 'setup-malotes-atualizar',
+		message: 'Sem permissão para listar os dados de setup dos malotes',
+	},
+	{
+		label: 'Gerar malotes',
+		module: 'Expedição',
+		key: 'malotes-virtuais-gerar',
+		message: 'Sem permissão para gerar malotes',
+	},
+	{
+		label: 'Listar malotes pendentes',
+		module: 'Expedição',
+		key: 'malotes-virtuais-listar-pendentes',
+		message: 'Sem permissão para listar os malotes pendentes',
+	},
+	{
+		label: 'Excluir um malote gerado',
+		module: 'Expedição',
+		key: 'malotes-virtuais-excluir',
+		message: 'Sem permissão para excluir malotes',
+	},
+	{
+		label: 'Estornar documento de um malote gerado',
+		module: 'Expedição',
+		key: 'malotes-virtuais-documentos-estornar',
+		message: 'Sem permissão para estornar documentos do malote',
+	},
+	{
+		label: 'Remover documento da fila',
+		module: 'Expedição',
+		key: 'fila-geracao-malotes-remover-documento',
+		message: 'Sem permissão para remover documento da fila',
+	},
+	{
+		label: 'Adicionar documento na fila de geração de malotes',
+		module: 'Expedição',
+		key: 'fila-geracao-malotes-adicionar-documento',
+		message: 'Sem permissão para adicionar documento na fila',
 	},
 ];

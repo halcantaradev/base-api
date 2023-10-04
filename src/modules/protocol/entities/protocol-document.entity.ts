@@ -58,6 +58,30 @@ export class ProtocolDocument {
 	observacao: string;
 
 	@ApiProperty({
+		description: 'Documento retorna',
+		example: true,
+		required: false,
+		readOnly: true,
+	})
+	retorna: boolean;
+
+	@ApiProperty({
+		description: 'Valor do documento',
+		example: 12.34,
+		required: true,
+		readOnly: true,
+	})
+	valor: number;
+
+	@ApiProperty({
+		description: 'Data de vencimento do documento',
+		example: new Date(),
+		required: false,
+		readOnly: true,
+	})
+	vencimento: Date;
+
+	@ApiProperty({
 		description: 'Data de aceite do documento',
 		example: '2023-01-01T23:59:59.000Z',
 		required: true,

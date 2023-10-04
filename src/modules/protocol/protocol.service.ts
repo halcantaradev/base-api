@@ -1205,10 +1205,9 @@ export class ProtocolService {
 					from: process.env.EMAIL_SEND_PROVIDER,
 					subject: `Protocolo ${protocolo_id} enviado para um novo setor`,
 					html: `
-					<p>Protocolo para novo setor com os arquivos:</p> 
-					${documentos.map((documento) => documento.discriminacao)}
+					<p>Novo protocolo de envio de documentos gerado</p>
 					<p>Segue o link para visualizar os dados do protocolo</p> 
-					${link}
+					<a href="${link}">${link}</a>
 					`,
 					setup: {
 						MAIL_SMTP_HOST: setupEmail.host,

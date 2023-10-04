@@ -168,4 +168,12 @@ export const layoutConst: Array<{
 		const: '[TOTAL_DOCUMENTOS_PROTOCOLO]',
 		field: '{{{total_documentos_protocolo}}}',
 	},
+
+	// MALOTES
+
+	{
+		label: 'Numero do malote físico',
+		const: '[NUMERO_MALOTE_FISICO]',
+		field: '{{{numero_malote_fisico}}}',
+	},
 ];

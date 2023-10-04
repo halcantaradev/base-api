@@ -63,6 +63,9 @@ export class VirtualPackageService {
 			},
 		});
 
+		if (!documentos.length)
+			throw new BadRequestException('Documentos não encontrados');
+
 		const malote = await this.prisma.maloteVirtual.create({
 			data: {
 				empresa_id,

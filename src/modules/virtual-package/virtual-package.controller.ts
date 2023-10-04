@@ -19,6 +19,8 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
+import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
+import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -64,7 +66,7 @@ export class VirtualPackageController {
 	@ApiResponse({
 		description: 'Malotes físicos listados com sucesso',
 		status: HttpStatus.OK,
-		// type: PhysicalPackageListReturnEntity,
+		type: PhysicalPackageVirtualPackageListReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os malotes físicos',
@@ -95,7 +97,7 @@ export class VirtualPackageController {
 	@ApiResponse({
 		description: 'Dados listados com sucesso',
 		status: HttpStatus.OK,
-		// type: PhysicalPackageListReturnEntity,
+		type: SetupVirtualPackageListReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados',
@@ -137,9 +139,9 @@ export class VirtualPackageController {
 
 	@Patch(':id/document/:id_document')
 	@Role('malotes-virtuais-documentos-estornar')
-	@ApiOperation({ summary: 'Estorna um malote' })
+	@ApiOperation({ summary: 'Estorna um documento do malote' })
 	@ApiResponse({
-		description: 'Malote estornado com sucesso',
+		description: 'Documento do malote estornado com sucesso',
 		status: HttpStatus.OK,
 		type: ReturnEntity.success,
 	})
@@ -149,7 +151,7 @@ export class VirtualPackageController {
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao estornar o malote',
+		description: 'Ocorreu um erro ao estornar o documento do malote',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})

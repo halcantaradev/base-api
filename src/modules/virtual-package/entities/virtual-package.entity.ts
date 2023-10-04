@@ -16,7 +16,7 @@ export class VirtualPackage {
 		example: { codigo: 1 },
 		readOnly: true,
 	})
-	malmalote_fisicoote?: PhysicalPackage;
+	malote_fisico?: PhysicalPackage;
 
 	@ApiProperty({
 		description: 'Finalizado',

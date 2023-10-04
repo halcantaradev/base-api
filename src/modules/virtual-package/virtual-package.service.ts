@@ -68,7 +68,7 @@ export class VirtualPackageService {
 				empresa_id,
 				condominio_id: createVirtualPackageDto.condominio_id,
 				malote_fisico_id: createVirtualPackageDto.malote_fisico_id,
-				data_saida: createVirtualPackageDto.data_saida,
+				data_saida: new Date(),
 				documentos_malote: {
 					createMany: {
 						data: documentos.map((document) => ({

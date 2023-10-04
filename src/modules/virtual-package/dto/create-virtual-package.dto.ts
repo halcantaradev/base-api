@@ -1,13 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import {
-	IsDate,
-	IsInt,
-	IsNotEmpty,
-	IsOptional,
-	Max,
-	Min,
-} from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
 
 export class CreateVirtualPackageDto {
 	@ApiProperty({
@@ -58,20 +50,4 @@ export class CreateVirtualPackageDto {
 		message: 'O campo dia é obrigatório. Por favor, forneça um dia.',
 	})
 	dia: number;
-
-	@ApiProperty({
-		description: 'Data de saída do malote',
-		example: '2023-01-01',
-		required: false,
-	})
-	@IsNotEmpty({
-		message:
-			'O campo data de saída é obrigatório. Por favor, forneça uma data.',
-	})
-	@IsDate({
-		message:
-			'O campo data final informado não é válido. Por favor, forneça uma data final válida.',
-	})
-	@Type(() => Date)
-	data_saida: Date;
 }

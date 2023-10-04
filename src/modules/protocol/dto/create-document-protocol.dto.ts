@@ -1,12 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+	IsDate,
+	IsDateString,
 	IsInt,
 	IsNotEmpty,
+	IsNumber,
 	IsOptional,
 	IsString,
 	Validate,
 } from 'class-validator';
+import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 import { DocumentTypeExists, CondominiumExists } from 'src/shared/validators';
 
 export class CreateDocumentProtocolDto {
@@ -40,6 +44,45 @@ export class CreateDocumentProtocolDto {
 			'O campo discriminação é obrigatório. Por favor, forneça um discriminação.',
 	})
 	discriminacao: string;
+
+	@ApiProperty({
+		description: 'Retorno do documento',
+		example: true,
+		required: true,
+	})
+	@IsOptional()
+	@Transform(BooleanTransformHelper)
+	retorna: boolean;
+
+	@ApiProperty({
+		description: 'Data de vencimento do protocolo',
+		example: new Date(),
+		required: false,
+	})
+	@IsOptional()
+	@IsDateString(
+		{},
+		{
+			message:
+				'O campo data de vencimento deve ser uma data. Por favor, forneça uma data.',
+		},
+	)
+	vencimento?: string;
+
+	@ApiProperty({
+		description: 'Valor do documento',
+		example: 12.34,
+		required: true,
+	})
+	@IsOptional()
+	@IsNumber(
+		{},
+		{
+			message:
+				'O campo valor informado não é válido. Por favor, forneça um valor.',
+		},
+	)
+	valor?: number;
 
 	@ApiProperty({
 		description: 'Observação do documento',

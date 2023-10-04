@@ -574,4 +574,10 @@ export const permissionslist: Array<{
 		key: 'malote-fisico-excluir',
 		message: 'Sem permissão para excluir dados de malote físico',
 	},
+	{
+		label: 'Listar fila de geração de malotes',
+		module: 'Expedição',
+		key: 'fila-geracao-malotes-listar',
+		message: 'Sem permissão para listar fila de geração de malotes',
+	},
 ];

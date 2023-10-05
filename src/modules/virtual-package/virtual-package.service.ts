@@ -121,6 +121,12 @@ export class VirtualPackageService {
 		return data;
 	}
 
+	findOnePrint() {
+		let data;
+
+		return data;
+	}
+
 	async findSetupData(empresa_id: number) {
 		const data = await this.prisma.sistemaSetup.findFirst({
 			select: {

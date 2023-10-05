@@ -7,6 +7,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Res,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -21,6 +22,8 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
 import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
+import { Response } from 'express';
+import { VirtualPackage } from './entities/virtual-package.entity';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -135,6 +138,34 @@ export class VirtualPackageController {
 				user.empresa_id,
 			),
 		};
+	}
+
+	@Get('print/:id')
+	@Role('malotes-virtuais-exibir-dados')
+	@ApiOperation({ summary: 'Imprimir os dados do protocolo' })
+	@ApiResponse({
+		description: 'Protocolo impressa com sucesso',
+		status: HttpStatus.OK,
+		type: () => VirtualPackage,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao imprimir os dados do protocolo',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findOnePrint(
+		@Param('id') id: string,
+		@CurrentUser() user: UserAuth,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		const pdf = await this.virtualPackageService.findOnePrint();
+
+		res.set({
+			'Content-Type': 'application/pdf',
+			'Content-Disposition': 'inline;',
+		});
+
+		return pdf;
 	}
 
 	@Patch(':id/document/:id_document')

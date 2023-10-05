@@ -105,7 +105,7 @@ export class PhysicalPackageService {
 	}
 
 	findOne(id: number) {
-		if (id === null || !Number.isNaN(id)) {
+		if (Number.isNaN(id)) {
 			throw new BadRequestException(
 				'O id do malote físico deve ser informado',
 			);

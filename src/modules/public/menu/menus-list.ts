@@ -147,7 +147,7 @@ export const menulist: Array<{
 		id_relation: 18,
 		permission_key: 'fila-geracao-malotes-listar',
 		relation: 15,
-		label: 'Fila',
+		label: 'Fila geração',
 		url: 'fila-geracao-malote',
 		icon: 'container',
 		target: '_self',

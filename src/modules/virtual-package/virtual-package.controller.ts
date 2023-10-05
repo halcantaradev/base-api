@@ -24,6 +24,8 @@ import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-
 import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
 import { Response } from 'express';
 import { VirtualPackage } from './entities/virtual-package.entity';
+import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
+import { VirtualPackageType } from 'src/shared/consts/report-virtual-package-tyoe.const';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -140,9 +142,9 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Get('print/:id')
-	@Role('malotes-virtuais-exibir-dados')
-	@ApiOperation({ summary: 'Imprimir os dados do protocolo' })
+	@Post('report/:type')
+	@Role('malote-virtual-relatorio-analitico')
+	@ApiOperation({ summary: 'Imprimir relatório do malote gerado' })
 	@ApiResponse({
 		description: 'Protocolo impressa com sucesso',
 		status: HttpStatus.OK,
@@ -154,18 +156,16 @@ export class VirtualPackageController {
 		type: ReturnEntity.error(),
 	})
 	async findOnePrint(
-		@Param('id') id: string,
+		@Param('type') type: string,
 		@CurrentUser() user: UserAuth,
-		@Res({ passthrough: true }) res: Response,
+		@Body() filters: FiltersVirtualPackageDto,
 	) {
-		const pdf = await this.virtualPackageService.findOnePrint();
+		const data = await this.virtualPackageService.findBy(+type, filters);
 
-		res.set({
-			'Content-Type': 'application/pdf',
-			'Content-Disposition': 'inline;',
-		});
-
-		return pdf;
+		return {
+			success: true,
+			data,
+		};
 	}
 
 	@Patch(':id/document/:id_document')

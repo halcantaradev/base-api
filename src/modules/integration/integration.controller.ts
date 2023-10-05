@@ -114,37 +114,43 @@ export class IntegrationController {
 		@Payload('payload') payload: any,
 		@Ctx() context: RmqContext,
 	) {
-		console.log('Dados para sincronismo recebido!');
-
 		try {
-			switch (body.tipo) {
-				case EntidadesSincronimo.CONDOMINIO:
-					await this.integrationService.syncCondominio(
-						body.data,
-						user.empresa_id,
-					);
-					break;
-				case EntidadesSincronimo.UNIDADE:
-					await this.integrationService.syncUnidade(
-						body.data,
-						user.empresa_id,
-					);
-					break;
-			}
+			if (body.data) {
+				console.log('Dados para sincronismo recebidos!');
+				switch (body.tipo) {
+					case EntidadesSincronimo.CONDOMINIO:
+						await this.integrationService.syncCondominio(
+							body.data,
+							user.empresa_id,
+						);
+						break;
+					case EntidadesSincronimo.UNIDADE:
+						await this.integrationService.syncUnidade(
+							body.data,
+							user.empresa_id,
+						);
+						break;
+				}
 
-			if (body.data.current_date_update != undefined) {
-				console.log('Sincronismo finalizado!');
-				await this.integrationService.update(
-					+payload.database_config.id,
-					{
-						data_atualizacao: new Date(
-							body.data.current_date_update,
-						),
-					},
-				);
-
+				if (body.data.current_date_update != undefined) {
+					console.log('Sincronismo finalizado!');
+					await this.integrationService.update(
+						+payload.database_config.id,
+						{
+							data_atualizacao: new Date(
+								body.data.current_date_update,
+							),
+						},
+					);
+					await this.integrationService.sendNotification({
+						end: true,
+					});
+				}
+			} else {
+				console.log('Sem dados para sincronismo!');
 				await this.integrationService.sendNotification({ end: true });
 			}
+
 			return context;
 		} catch (error) {
 			console.log(error);

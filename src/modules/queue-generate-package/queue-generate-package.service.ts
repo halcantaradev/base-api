@@ -49,6 +49,20 @@ export class QueueGeneratePackageService {
 	}
 
 	async findAll(empresa_id: number, filters: FilterQueueGeneratePackageDto) {
+		const daysSelected = {
+			dom: undefined,
+			seg: undefined,
+			ter: undefined,
+			qua: undefined,
+			qui: undefined,
+			sex: undefined,
+			sab: undefined,
+		};
+
+		Object.keys(daysSelected).map((key, index) => {
+			if (index == filters.dia - 1) daysSelected[key] = true;
+		});
+
 		const documentos = await this.prisma.protocoloDocumento.findMany({
 			distinct: ['condominio_id'],
 			select: {
@@ -56,11 +70,6 @@ export class QueueGeneratePackageService {
 					select: {
 						id: true,
 						nome: true,
-						setup_rotas: {
-							select: {
-								rota: true,
-							},
-						},
 						protocolos_documentos_condominio: {
 							include: {
 								tipo_documento: {
@@ -95,7 +104,7 @@ export class QueueGeneratePackageService {
 			where: {
 				condominio: {
 					setup_rotas: {
-						rota_id: filters.rota_id ? filters.rota_id : undefined,
+						rota: daysSelected,
 					},
 				},
 				fila_geracao_malote: {

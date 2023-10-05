@@ -147,7 +147,68 @@ export class VirtualPackageService {
 		});
 	}
 
-	async reverseDoc(id: number, id_document: number) {
+	async receivePackage(id: number, id_document: number, empresa_id: number) {
+		if (Number.isNaN(id) || Number.isNaN(id_document))
+			throw new BadRequestException('Documento não encontrado');
+
+		const documento = await this.prisma.maloteDocumento.findFirst({
+			select: {
+				id: true,
+				malote_id: true,
+			},
+			where: {
+				id: id_document,
+				malote_id: id,
+				estornado: false,
+				finalizado: false,
+				malote: { excluido: false, empresa_id, finalizado: false },
+			},
+		});
+
+		if (!documento)
+			throw new BadRequestException('Documento não encontrado');
+
+		await this.prisma.maloteDocumento.updateMany({
+			data: { finalizado: true },
+			where: {
+				malote_id: id,
+				estornado: false,
+				finalizado: false,
+			},
+		});
+
+		if (documento.malote_id)
+			await this.prisma.malotesFisicos.update({
+				data: { disponivel: true },
+				where: {
+					id: documento.malote_id,
+				},
+			});
+
+		const malote = await this.prisma.maloteVirtual.findUnique({
+			select: {
+				documentos_malote: {
+					select: {
+						id: true,
+					},
+					where: { estornado: false, finalizado: false },
+				},
+			},
+			where: { id: id },
+		});
+
+		if (!malote.documentos_malote.length)
+			await this.prisma.maloteVirtual.update({
+				data: { finalizado: true },
+				where: {
+					id,
+				},
+			});
+
+		return;
+	}
+
+	async reverseDoc(id: number, id_document: number, empresa_id: number) {
 		if (Number.isNaN(id) || Number.isNaN(id_document))
 			throw new BadRequestException('Documento não encontrado');
 
@@ -159,7 +220,8 @@ export class VirtualPackageService {
 				id: id_document,
 				malote_id: id,
 				estornado: false,
-				malote: { excluido: false },
+				finalizado: false,
+				malote: { excluido: false, empresa_id, finalizado: false },
 			},
 		});
 
@@ -203,6 +265,6 @@ export class VirtualPackageService {
 			});
 		}
 
-		return { success: true, message: 'Malote removida com sucesso!' };
+		return;
 	}
 }

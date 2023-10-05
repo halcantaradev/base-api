@@ -730,15 +730,15 @@ model MalotesFisicos {
 }
 
 model MaloteVirtual {
-  id               Int      @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   empresa_id       Int
   condominio_id    Int
   malote_fisico_id Int?
-  finalizado       Boolean  @default(false)
-  excluido         Boolean  @default(false)
+  finalizado       Boolean   @default(false)
+  excluido         Boolean   @default(false)
   data_saida       DateTime?
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
 
   condominio        Pessoa            @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
   empresa           Pessoa            @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])
@@ -753,6 +753,7 @@ model MaloteDocumento {
   malote_id    Int
   documento_id Int
   estornado    Boolean            @default(false)
+  finalizado   Boolean            @default(false)
   created_at   DateTime           @default(now())
   updated_at   DateTime           @updatedAt
   malote       MaloteVirtual      @relation(fields: [malote_id], references: [id])

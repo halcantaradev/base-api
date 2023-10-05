@@ -130,11 +130,38 @@ export class VirtualPackageController {
 	})
 	async findAllPending(@CurrentUser() user: UserAuth) {
 		return {
-			success: false,
+			success: true,
 			data: await this.virtualPackageService.findAllPending(
 				user.empresa_id,
 			),
 		};
+	}
+
+	@Post(':id/receive')
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({ summary: 'Realiza a baixa do malote' })
+	@ApiResponse({
+		description: 'Malotes recebido com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao baixar o malote',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async receivePackage(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Param('id_document') id_document: string,
+	) {
+		await this.virtualPackageService.receivePackage(
+			+id,
+			+id_document,
+			user.empresa_id,
+		);
+
+		return { success: true, message: 'Documento baixado com sucesso!' };
 	}
 
 	@Patch(':id/document/:id_document')
@@ -155,10 +182,17 @@ export class VirtualPackageController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	reverseDocumentoMalote(
+	async reverseDocumentoMalote(
+		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
 		@Param('id_document') id_document: string,
 	) {
-		return this.virtualPackageService.reverseDoc(+id, +id_document);
+		await this.virtualPackageService.reverseDoc(
+			+id,
+			+id_document,
+			user.empresa_id,
+		);
+
+		return { success: true, message: 'Documento estornado com sucesso!' };
 	}
 }

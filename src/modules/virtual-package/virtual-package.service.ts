@@ -125,11 +125,7 @@ export class VirtualPackageService {
 		return data;
 	}
 
-	findBy(
-		empresa_id: number,
-		type: number,
-		filters: FiltersVirtualPackageDto,
-	) {
+	findBy(empresa_id: number, filters: FiltersVirtualPackageDto) {
 		const documentsSelect: Prisma.MaloteVirtualSelect = {
 			data_saida: true,
 			malote_fisico: {
@@ -181,7 +177,7 @@ export class VirtualPackageService {
 
 		return this.prisma.maloteVirtual.findMany({
 			select:
-				type === VirtualPackageType.SINTETICO
+				filters.tipo === VirtualPackageType.SINTETICO
 					? packagesSelect
 					: documentsSelect,
 			where: {

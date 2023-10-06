@@ -1,9 +1,28 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
-import { IsDateString, IsInt, IsOptional } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsDateString, IsInt, IsNotEmpty, IsOptional } from 'class-validator';
+import { VirtualPackageType } from 'src/shared/consts/report-virtual-package-tyoe.const';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class FiltersVirtualPackageDto {
+	@ApiProperty({
+		description: 'Tipo de relatório',
+		enum: VirtualPackageType,
+		example: Object.values(VirtualPackageType),
+		required: false,
+	})
+	@IsNotEmpty({
+		each: true,
+		message:
+			'O campo tipo de relatório informado não é válido. Por favor, forneça um tipo válido.',
+	})
+	@IsInt({
+		message:
+			'O campo tipo de relatório informado não é válido. Por favor, forneça um tipo válido.',
+	})
+	@Type(() => Number)
+	tipo: number;
+
 	@ApiProperty({
 		description: 'Filtro da situação do malote',
 		example: 1,

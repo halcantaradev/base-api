@@ -7,6 +7,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -139,7 +140,7 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Post('report/:type')
+	@Post('report')
 	@Role('malote-virtual-relatorio')
 	@ApiOperation({ summary: 'Imprimir relatório do malote gerado' })
 	@ApiResponse({
@@ -153,13 +154,11 @@ export class VirtualPackageController {
 		type: ReturnEntity.error(),
 	})
 	async findOnePrint(
-		@Param('type') type: string,
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersVirtualPackageDto,
 	) {
 		const data = await this.virtualPackageService.findBy(
 			user.empresa_id,
-			+type,
 			filters,
 		);
 

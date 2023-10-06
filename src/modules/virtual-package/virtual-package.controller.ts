@@ -21,6 +21,8 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
 import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
+import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
+import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -138,6 +140,7 @@ export class VirtualPackageController {
 	}
 
 	@Post(':id/receive')
+	@HttpCode(HttpStatus.OK)
 	@Role('malotes-virtuais-baixar')
 	@ApiOperation({ summary: 'Realiza a baixa do malote' })
 	@ApiResponse({
@@ -164,7 +167,7 @@ export class VirtualPackageController {
 		return { success: true, message: 'Documento baixado com sucesso!' };
 	}
 
-	@Patch(':id/receive/:id_document')
+	@Patch(':id/receive/:id_document/reverse')
 	@Role('malotes-virtuais-documentos-estornar-recebimento')
 	@ApiOperation({
 		summary: 'Estorna a baixa de um documento do malote',
@@ -198,7 +201,136 @@ export class VirtualPackageController {
 		return { success: true, message: 'Baixa estornada com sucesso!' };
 	}
 
-	@Patch(':id/document/:id_document')
+	@Post(':id/new-documents')
+	@HttpCode(HttpStatus.OK)
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({ summary: 'Adiciona um novo documento na baixa do malote' })
+	@ApiResponse({
+		description: 'Documento adicionado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao adicionar o documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async createNewDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Body()
+		createNewDocumentVirtualPackageDto: CreateNewDocumentVirtualPackageDto,
+	) {
+		await this.virtualPackageService.createNewDoc(
+			+id,
+			createNewDocumentVirtualPackageDto,
+			user,
+		);
+
+		return { success: true, message: 'Documento salvo com sucesso!' };
+	}
+
+	@Get(':id/new-documents')
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({ summary: 'Adiciona um novo documento na baixa do malote' })
+	@ApiResponse({
+		description: 'Documento adicionado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao adicionar o documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllNewDocs(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+	) {
+		await this.virtualPackageService.findAllNewDocs(+id, user.empresa_id);
+
+		return { success: true, message: 'Documento salvo com sucesso!' };
+	}
+
+	@Patch(':id/new-documents/:id_document')
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({
+		summary: 'Atualiza um documento adicionado na baixa do malote',
+	})
+	@ApiResponse({
+		description: 'Documento atualizado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar o documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async updateNewDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Param('id_document') id_document: string,
+		@Body()
+		updateNewDocumentVirtualPackageDto: UpdateNewDocumentVirtualPackageDto,
+	) {
+		await this.virtualPackageService.updateNewDoc(
+			+id,
+			+id_document,
+			updateNewDocumentVirtualPackageDto,
+			user,
+		);
+
+		return { success: true, message: 'Documento atualizado com sucesso!' };
+	}
+
+	@Post(':id/new-documents/finalize')
+	@HttpCode(HttpStatus.OK)
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({
+		summary:
+			'Finaliza os novos documentos dentro de um protocolo na baixa do malote',
+	})
+	@ApiResponse({
+		description: 'Documento salvos com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao salvar os documentos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async finalizeNewDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+	) {
+		await this.virtualPackageService.finalizeNewDocs(+id, user);
+
+		return { success: true, message: 'Documento salvo com sucesso!' };
+	}
+
+	@Patch(':id/document/:id_document/reverse')
 	@Role('malotes-virtuais-documentos-estornar')
 	@ApiOperation({ summary: 'Estorna um documento do malote' })
 	@ApiResponse({

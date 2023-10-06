@@ -567,6 +567,7 @@ model Protocolo {
   origem_departamento_id  Int
   destino_usuario_id      Int?
   origem_usuario_id       Int?
+  malote_virtual_id       Int?
   data_finalizado         DateTime?
   retorna_malote_vazio    Boolean   @default(false)
   finalizado              Boolean   @default(false)
@@ -577,6 +578,7 @@ model Protocolo {
   updated_at              DateTime  @updatedAt
 
   empresa              Pessoa               @relation(fields: [empresa_id], references: [id])
+  malote_virtual       MaloteVirtual?       @relation(fields: [malote_virtual_id], references: [id])
   destino_departamento Departamento         @relation(name: "DestinoProtocoloDepartamento", fields: [destino_departamento_id], references: [id])
   origem_departamento  Departamento         @relation(name: "OrigemProtocoloDepartamento", fields: [origem_departamento_id], references: [id])
   destino_usuario      User?                @relation(name: "DestinoProtocoloUsuario", fields: [destino_usuario_id], references: [id])
@@ -745,21 +747,22 @@ model MaloteVirtual {
   empresa           Pessoa            @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])
   malote_fisico     MalotesFisicos?   @relation(fields: [malote_fisico_id], references: [id])
   documentos_malote MaloteDocumento[]
+  protocolos        Protocolo[]
 
   @@map("malotes_virtuais")
 }
 
 model MaloteDocumento {
-  id           Int      @id @default(autoincrement())
-  malote_id    Int
-  documento_id Int
-  estornado    Boolean  @default(false)
-  finalizado   Boolean  @default(false)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
+  id                Int      @id @default(autoincrement())
+  malote_virtual_id Int
+  documento_id      Int
+  estornado         Boolean  @default(false)
+  finalizado        Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 
-  malote    MaloteVirtual      @relation(fields: [malote_id], references: [id])
-  documento ProtocoloDocumento @relation(fields: [documento_id], references: [id])
+  malote_virtual MaloteVirtual      @relation(fields: [malote_virtual_id], references: [id])
+  documento      ProtocoloDocumento @relation(fields: [documento_id], references: [id])
 
   @@map("malotes_documentos")
 }

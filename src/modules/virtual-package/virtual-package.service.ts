@@ -1,6 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
+import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {
@@ -154,14 +157,18 @@ export class VirtualPackageService {
 		const documento = await this.prisma.maloteDocumento.findFirst({
 			select: {
 				id: true,
-				malote_id: true,
+				malote_virtual_id: true,
 			},
 			where: {
 				id: id_document,
-				malote_id: id,
+				malote_virtual_id: id,
 				estornado: false,
 				finalizado: false,
-				malote: { excluido: false, empresa_id, finalizado: false },
+				malote_virtual: {
+					excluido: false,
+					empresa_id,
+					finalizado: false,
+				},
 			},
 		});
 
@@ -171,7 +178,7 @@ export class VirtualPackageService {
 		await this.prisma.maloteDocumento.updateMany({
 			data: { finalizado: true },
 			where: {
-				malote_id: id,
+				malote_virtual_id: id,
 				documento_id: id_document,
 			},
 		});
@@ -221,8 +228,8 @@ export class VirtualPackageService {
 		const documento = await this.prisma.maloteDocumento.findFirst({
 			select: {
 				id: true,
-				malote_id: true,
-				malote: {
+				malote_virtual_id: true,
+				malote_virtual: {
 					select: {
 						finalizado: true,
 					},
@@ -230,10 +237,10 @@ export class VirtualPackageService {
 			},
 			where: {
 				id: id_document,
-				malote_id: id,
+				malote_virtual_id: id,
 				estornado: false,
 				finalizado: true,
-				malote: { excluido: false, empresa_id },
+				malote_virtual: { excluido: false, empresa_id },
 			},
 		});
 
@@ -243,7 +250,7 @@ export class VirtualPackageService {
 		await this.prisma.maloteDocumento.updateMany({
 			data: { finalizado: false },
 			where: {
-				malote_id: id,
+				malote_virtual_id: id,
 				documento_id: id_document,
 			},
 		});
@@ -258,6 +265,195 @@ export class VirtualPackageService {
 		return;
 	}
 
+	async createNewDoc(
+		id: number,
+		receiveNewDocumentVirtualPackageDto: CreateNewDocumentVirtualPackageDto,
+		user: UserAuth,
+	) {
+		if (Number.isNaN(id))
+			throw new BadRequestException('Malote não encontrado');
+
+		const malote = await this.prisma.maloteVirtual.findUnique({
+			select: {
+				condominio_id: true,
+			},
+			where: { id: id },
+		});
+
+		if (!malote) throw new BadRequestException('Malote não encontrado');
+
+		let protocolo = await this.prisma.protocolo.findFirst({
+			where: {
+				malote_virtual_id: id,
+				finalizado: false,
+				excluido: false,
+				ativo: true,
+			},
+		});
+
+		if (!protocolo)
+			protocolo = await this.prisma.protocolo.create({
+				data: {
+					empresa_id: user.empresa_id,
+					tipo: 1,
+					destino_departamento_id:
+						receiveNewDocumentVirtualPackageDto.departamento_id,
+
+					origem_usuario_id: user.id,
+					origem_departamento_id:
+						receiveNewDocumentVirtualPackageDto.departamento_id,
+					ativo: true,
+				},
+			});
+
+		return this.prisma.protocoloDocumento.create({
+			data: {
+				protocolo_id: protocolo.id,
+				discriminacao:
+					receiveNewDocumentVirtualPackageDto.discriminacao,
+				observacao:
+					receiveNewDocumentVirtualPackageDto.observacao || null,
+				retorna: false,
+				condominio_id: malote.condominio_id,
+				tipo_documento_id:
+					receiveNewDocumentVirtualPackageDto.tipo_documento_id,
+			},
+		});
+	}
+
+	async findAllNewDocs(id: number, empresa_id: number) {
+		if (Number.isNaN(id))
+			throw new BadRequestException('Malote não encontrado');
+
+		const malote = await this.prisma.maloteVirtual.findUnique({
+			select: {
+				condominio_id: true,
+			},
+			where: { id: id },
+		});
+
+		if (!malote) throw new BadRequestException('Malote não encontrado');
+
+		const protocolo = await this.prisma.protocolo.findFirst({
+			where: {
+				malote_virtual_id: id,
+				empresa_id: empresa_id,
+				finalizado: false,
+				excluido: false,
+				ativo: true,
+			},
+		});
+
+		if (!protocolo) return [];
+
+		return this.prisma.protocoloDocumento.findMany({
+			select: {
+				discriminacao: true,
+				observacao: true,
+				tipo_documento_id: true,
+			},
+			where: {
+				protocolo_id: protocolo.id,
+				excluido: false,
+			},
+		});
+	}
+
+	async updateNewDoc(
+		id: number,
+		id_document: number,
+		updateNewDocumentVirtualPackageDto: UpdateNewDocumentVirtualPackageDto,
+		user: UserAuth,
+	) {
+		if (Number.isNaN(id))
+			throw new BadRequestException('Malote não encontrado');
+
+		const malote = await this.prisma.maloteVirtual.findFirst({
+			select: {
+				condominio_id: true,
+			},
+			where: { id: id, empresa_id: user.empresa_id },
+		});
+
+		if (!malote) throw new BadRequestException('Malote não encontrado');
+
+		const protocolo = await this.prisma.protocolo.findFirst({
+			where: {
+				malote_virtual_id: id,
+				finalizado: false,
+				excluido: false,
+				ativo: true,
+			},
+		});
+
+		if (!protocolo)
+			throw new BadRequestException('Protocolo não encontrado');
+
+		if (updateNewDocumentVirtualPackageDto.departamento_id)
+			await this.prisma.protocolo.update({
+				data: {
+					destino_departamento_id:
+						updateNewDocumentVirtualPackageDto.departamento_id,
+					origem_usuario_id: user.id,
+				},
+				where: {
+					id,
+				},
+			});
+
+		return this.prisma.protocoloDocumento.update({
+			data: {
+				discriminacao:
+					updateNewDocumentVirtualPackageDto.discriminacao ||
+					undefined,
+				observacao:
+					updateNewDocumentVirtualPackageDto.observacao || null,
+				tipo_documento_id:
+					updateNewDocumentVirtualPackageDto.tipo_documento_id ||
+					undefined,
+			},
+			where: {
+				id: id_document,
+			},
+		});
+	}
+
+	async finalizeNewDocs(id: number, user: UserAuth) {
+		if (Number.isNaN(id))
+			throw new BadRequestException('Malote não encontrado');
+
+		const malote = await this.prisma.maloteVirtual.findUnique({
+			select: {
+				condominio_id: true,
+			},
+			where: { id: id },
+		});
+
+		if (!malote) throw new BadRequestException('Malote não encontrado');
+
+		const protocolo = await this.prisma.protocolo.findFirst({
+			where: {
+				malote_virtual_id: id,
+				finalizado: false,
+				excluido: false,
+				ativo: true,
+			},
+		});
+
+		if (!protocolo)
+			throw new BadRequestException('Protocolo não encontrado');
+
+		return this.prisma.protocolo.update({
+			data: {
+				finalizado: true,
+				origem_usuario_id: user.id,
+			},
+			where: {
+				id,
+			},
+		});
+	}
+
 	async reverseDoc(id: number, id_document: number, empresa_id: number) {
 		if (Number.isNaN(id) || Number.isNaN(id_document))
 			throw new BadRequestException('Documento não encontrado');
@@ -268,10 +464,14 @@ export class VirtualPackageService {
 			},
 			where: {
 				id: id_document,
-				malote_id: id,
+				malote_virtual_id: id,
 				estornado: false,
 				finalizado: false,
-				malote: { excluido: false, empresa_id, finalizado: false },
+				malote_virtual: {
+					excluido: false,
+					empresa_id,
+					finalizado: false,
+				},
 			},
 		});
 

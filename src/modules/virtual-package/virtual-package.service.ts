@@ -298,7 +298,7 @@ export class VirtualPackageService {
 					tipo: 1,
 					destino_departamento_id:
 						receiveNewDocumentVirtualPackageDto.departamento_id,
-
+					malote_virtual_id: id,
 					origem_usuario_id: user.id,
 					origem_departamento_id:
 						receiveNewDocumentVirtualPackageDto.departamento_id,
@@ -348,6 +348,7 @@ export class VirtualPackageService {
 
 		return this.prisma.protocoloDocumento.findMany({
 			select: {
+				id: true,
 				discriminacao: true,
 				observacao: true,
 				tipo_documento_id: true,
@@ -449,7 +450,7 @@ export class VirtualPackageService {
 				origem_usuario_id: user.id,
 			},
 			where: {
-				id,
+				id: protocolo.id,
 			},
 		});
 	}

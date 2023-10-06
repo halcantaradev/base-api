@@ -139,7 +139,7 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Post(':id/receive')
+	@Post(':id/receive/:id_document')
 	@HttpCode(HttpStatus.OK)
 	@Role('malotes-virtuais-baixar')
 	@ApiOperation({ summary: 'Realiza a baixa do malote' })
@@ -257,9 +257,13 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
 	) {
-		await this.virtualPackageService.findAllNewDocs(+id, user.empresa_id);
-
-		return { success: true, message: 'Documento salvo com sucesso!' };
+		return {
+			success: true,
+			data: await this.virtualPackageService.findAllNewDocs(
+				+id,
+				user.empresa_id,
+			),
+		};
 	}
 
 	@Patch(':id/new-documents/:id_document')
@@ -327,7 +331,7 @@ export class VirtualPackageController {
 	) {
 		await this.virtualPackageService.finalizeNewDocs(+id, user);
 
-		return { success: true, message: 'Documento salvo com sucesso!' };
+		return { success: true, message: 'Documentos salvos com sucesso!' };
 	}
 
 	@Patch(':id/document/:id_document/reverse')

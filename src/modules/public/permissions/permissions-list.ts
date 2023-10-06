@@ -617,6 +617,12 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para estornar documentos do malote',
 	},
 	{
+		label: 'Acessar fila de geração de malotes',
+		module: 'Expedição',
+		key: 'fila-geracao-malotes-listar',
+		message: 'Sem permissão para listar fila de geração de malotes',
+	},
+	{
 		label: 'Remover documento da fila',
 		module: 'Expedição',
 		key: 'fila-geracao-malotes-remover-documento',

@@ -629,15 +629,9 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para adicionar documento na fila',
 	},
 	{
-		label: 'Acessar relatórios de malotes analíticos',
+		label: 'Acessar relatórios de malotes',
 		module: 'Expedição',
-		key: 'malote-virtual-relatorio-analitico',
-		message: 'Sem permissão para acessar relatórios de malotes analíticos',
-	},
-	{
-		label: 'Acessar relatórios de malotes sintéticos',
-		module: 'Expedição',
-		key: 'malote-virtual-relatorio-sintetico',
-		message: 'Sem permissão para acessar relatórios de malotes sintéticos',
+		key: 'malote-virtual-relatorio',
+		message: 'Sem permissão para acessar relatórios de malotes',
 	},
 ];

@@ -7,7 +7,6 @@ import {
 	Param,
 	Patch,
 	Post,
-	Res,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -22,10 +21,8 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
 import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
-import { Response } from 'express';
-import { VirtualPackage } from './entities/virtual-package.entity';
 import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
-import { VirtualPackageType } from 'src/shared/consts/report-virtual-package-tyoe.const';
+import { VirtualPackageReportReturnEntity } from './entities/virtual-package-report-return.entity';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -143,15 +140,15 @@ export class VirtualPackageController {
 	}
 
 	@Post('report/:type')
-	@Role('malote-virtual-relatorio-analitico')
+	@Role('malote-virtual-relatorio')
 	@ApiOperation({ summary: 'Imprimir relatório do malote gerado' })
 	@ApiResponse({
-		description: 'Protocolo impressa com sucesso',
+		description: 'Dados de malotes listados com sucesso',
 		status: HttpStatus.OK,
-		type: () => VirtualPackage,
+		type: () => VirtualPackageReportReturnEntity,
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao imprimir os dados do protocolo',
+		description: 'Ocorreu um erro ao listar os dados',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
@@ -160,7 +157,11 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersVirtualPackageDto,
 	) {
-		const data = await this.virtualPackageService.findBy(+type, filters);
+		const data = await this.virtualPackageService.findBy(
+			user.empresa_id,
+			+type,
+			filters,
+		);
 
 		return {
 			success: true,

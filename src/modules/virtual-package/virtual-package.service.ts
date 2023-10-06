@@ -125,7 +125,11 @@ export class VirtualPackageService {
 		return data;
 	}
 
-	async findBy(type: number, filters: FiltersVirtualPackageDto) {
+	findBy(
+		empresa_id: number,
+		type: number,
+		filters: FiltersVirtualPackageDto,
+	) {
 		const documentsSelect: Prisma.MaloteVirtualSelect = {
 			data_saida: true,
 			malote_fisico: {
@@ -173,18 +177,9 @@ export class VirtualPackageService {
 				},
 			},
 			updated_at: true,
-			documentos_malote: {
-				where: {
-					documento: {
-						retorna: filters.documento_retorna
-							? filters.documento_retorna
-							: undefined,
-					},
-				},
-			},
 		};
 
-		const data = await this.prisma.maloteVirtual.findMany({
+		return this.prisma.maloteVirtual.findMany({
 			select:
 				type === VirtualPackageType.SINTETICO
 					? packagesSelect
@@ -214,10 +209,9 @@ export class VirtualPackageService {
 						? setCustomHour(filters.data_retorno[1], 23, 59, 59)
 						: undefined,
 				},
+				empresa_id,
 			},
 		});
-
-		return data;
 	}
 
 	async findSetupData(empresa_id: number) {

@@ -734,6 +734,7 @@ model MaloteVirtual {
   empresa_id       Int
   condominio_id    Int
   malote_fisico_id Int?
+  malote_baixado   Boolean   @default(false)
   finalizado       Boolean   @default(false)
   excluido         Boolean   @default(false)
   data_saida       DateTime?
@@ -749,15 +750,16 @@ model MaloteVirtual {
 }
 
 model MaloteDocumento {
-  id           Int                @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   malote_id    Int
   documento_id Int
-  estornado    Boolean            @default(false)
-  finalizado   Boolean            @default(false)
-  created_at   DateTime           @default(now())
-  updated_at   DateTime           @updatedAt
-  malote       MaloteVirtual      @relation(fields: [malote_id], references: [id])
-  documento    ProtocoloDocumento @relation(fields: [documento_id], references: [id])
+  estornado    Boolean  @default(false)
+  finalizado   Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  malote    MaloteVirtual      @relation(fields: [malote_id], references: [id])
+  documento ProtocoloDocumento @relation(fields: [documento_id], references: [id])
 
   @@map("malotes_documentos")
 }

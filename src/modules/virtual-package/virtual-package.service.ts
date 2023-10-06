@@ -147,7 +147,7 @@ export class VirtualPackageService {
 		});
 	}
 
-	async receivePackage(id: number, id_document: number, empresa_id: number) {
+	async receiveDoc(id: number, id_document: number, empresa_id: number) {
 		if (Number.isNaN(id) || Number.isNaN(id_document))
 			throw new BadRequestException('Documento não encontrado');
 
@@ -172,21 +172,14 @@ export class VirtualPackageService {
 			data: { finalizado: true },
 			where: {
 				malote_id: id,
-				estornado: false,
-				finalizado: false,
+				documento_id: id_document,
 			},
 		});
 
-		if (documento.malote_id)
-			await this.prisma.malotesFisicos.update({
-				data: { disponivel: true },
-				where: {
-					id: documento.malote_id,
-				},
-			});
-
 		const malote = await this.prisma.maloteVirtual.findUnique({
 			select: {
+				malote_fisico_id: true,
+				malote_baixado: true,
 				documentos_malote: {
 					select: {
 						id: true,
@@ -197,13 +190,70 @@ export class VirtualPackageService {
 			where: { id: id },
 		});
 
-		if (!malote.documentos_malote.length)
+		if (!malote.documentos_malote.length) {
 			await this.prisma.maloteVirtual.update({
-				data: { finalizado: true },
+				data: { malote_baixado: true, finalizado: true },
 				where: {
 					id,
 				},
 			});
+
+			if (!malote.malote_baixado)
+				await this.prisma.malotesFisicos.update({
+					data: { disponivel: true },
+					where: {
+						id: malote.malote_fisico_id,
+					},
+				});
+		}
+
+		return;
+	}
+
+	async reverseReceiveDoc(
+		id: number,
+		id_document: number,
+		empresa_id: number,
+	) {
+		if (Number.isNaN(id) || Number.isNaN(id_document))
+			throw new BadRequestException('Documento não encontrado');
+
+		const documento = await this.prisma.maloteDocumento.findFirst({
+			select: {
+				id: true,
+				malote_id: true,
+				malote: {
+					select: {
+						finalizado: true,
+					},
+				},
+			},
+			where: {
+				id: id_document,
+				malote_id: id,
+				estornado: false,
+				finalizado: true,
+				malote: { excluido: false, empresa_id },
+			},
+		});
+
+		if (!documento)
+			throw new BadRequestException('Documento não encontrado');
+
+		await this.prisma.maloteDocumento.updateMany({
+			data: { finalizado: false },
+			where: {
+				malote_id: id,
+				documento_id: id_document,
+			},
+		});
+
+		await this.prisma.maloteVirtual.update({
+			data: { finalizado: false },
+			where: {
+				id,
+			},
+		});
 
 		return;
 	}

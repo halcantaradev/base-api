@@ -150,18 +150,52 @@ export class VirtualPackageController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async receivePackage(
+	async receiveDoc(
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
 		@Param('id_document') id_document: string,
 	) {
-		await this.virtualPackageService.receivePackage(
+		await this.virtualPackageService.receiveDoc(
 			+id,
 			+id_document,
 			user.empresa_id,
 		);
 
 		return { success: true, message: 'Documento baixado com sucesso!' };
+	}
+
+	@Patch(':id/receive/:id_document')
+	@Role('malotes-virtuais-documentos-estornar-recebimento')
+	@ApiOperation({
+		summary: 'Estorna a baixa de um documento do malote',
+	})
+	@ApiResponse({
+		description: 'Baixa estornada com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao estornar a baixa do documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async reverseReceiveDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Param('id_document') id_document: string,
+	) {
+		await this.virtualPackageService.reverseDoc(
+			+id,
+			+id_document,
+			user.empresa_id,
+		);
+
+		return { success: true, message: 'Baixa estornada com sucesso!' };
 	}
 
 	@Patch(':id/document/:id_document')
@@ -182,7 +216,7 @@ export class VirtualPackageController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async reverseDocumentoMalote(
+	async reverseDoc(
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
 		@Param('id_document') id_document: string,

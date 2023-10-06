@@ -140,11 +140,29 @@ export class VirtualPackageService {
 	findAllPending(empresa_id: number) {
 		return this.prisma.maloteVirtual.findMany({
 			select: {
+				id: true,
+				finalizado: true,
+				data_saida: true,
 				condominio: { select: { nome: true } },
 				malote_fisico: { select: { codigo: true } },
-				finalizado: true,
-				id: true,
-				documentos_malote: { select: { documento: true } },
+				documentos_malote: {
+					select: {
+						documento: {
+							select: {
+								id: true,
+								tipo_documento: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+								discriminacao: true,
+								observacao: true,
+								vencimento: true,
+							},
+						},
+					},
+				},
 			},
 			where: { empresa_id, finalizado: false, excluido: false },
 		});
@@ -351,7 +369,12 @@ export class VirtualPackageService {
 				id: true,
 				discriminacao: true,
 				observacao: true,
-				tipo_documento_id: true,
+				tipo_documento: {
+					select: {
+						id: true,
+						nome: true,
+					},
+				},
 			},
 			where: {
 				protocolo_id: protocolo.id,

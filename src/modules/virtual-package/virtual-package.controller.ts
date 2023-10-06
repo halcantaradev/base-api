@@ -23,6 +23,7 @@ import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-
 import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
 import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
 import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
+import { NewDocumentVirtualPackageListReturn } from './entities/new-document-virtual-package-return.entity';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -175,7 +176,7 @@ export class VirtualPackageController {
 	@ApiResponse({
 		description: 'Baixa estornada com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success,
+		type: ReturnEntity.success(),
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
@@ -241,7 +242,7 @@ export class VirtualPackageController {
 	@ApiResponse({
 		description: 'Documento adicionado com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success(),
+		type: NewDocumentVirtualPackageListReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',

@@ -33,21 +33,25 @@ export class VirtualPackage {
 		description: 'Documentos do malote',
 		example: [
 			{
-				id: 1,
-				tipo_documento: { id: 1, nome: 'Tipo Teste' },
-				discriminacao: 'Discriminação Teste',
-				observacao: 'Observação Teste',
-				vencimento: new Date(),
+				documento: {
+					id: 1,
+					tipo_documento: { id: 1, nome: 'Tipo Teste' },
+					discriminacao: 'Discriminação Teste',
+					observacao: 'Observação Teste',
+					vencimento: new Date(),
+				},
 			},
 		],
 		readOnly: true,
 		isArray: true,
 	})
-	documentos_malote: {
-		id: number;
-		tipo_documento?: { id: number; nome: string };
-		discriminacao: string;
-		observacao: string;
-		vencimento: Date;
+	documentos_malote?: {
+		documento: {
+			id: number;
+			tipo_documento?: { id: number; nome: string };
+			discriminacao: string;
+			observacao: string;
+			vencimento: Date;
+		};
 	}[];
 }

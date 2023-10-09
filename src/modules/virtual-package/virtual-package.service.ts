@@ -109,11 +109,35 @@ export class VirtualPackageService {
 	}
 
 	findById(empresa_id: number, id: number) {
-		if (Number.isNaN(id)) {
+		if (Number.isNaN(id))
 			throw new BadRequestException('Malote não encontrado');
-		}
 
 		return this.prisma.maloteVirtual.findFirst({
+			select: {
+				id: true,
+				finalizado: true,
+				data_saida: true,
+				condominio: { select: { nome: true } },
+				malote_fisico: { select: { codigo: true } },
+				documentos_malote: {
+					select: {
+						documento: {
+							select: {
+								id: true,
+								tipo_documento: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+								discriminacao: true,
+								observacao: true,
+								vencimento: true,
+							},
+						},
+					},
+				},
+			},
 			where: {
 				id,
 				empresa_id,
@@ -161,24 +185,6 @@ export class VirtualPackageService {
 				data_saida: true,
 				condominio: { select: { nome: true } },
 				malote_fisico: { select: { codigo: true } },
-				documentos_malote: {
-					select: {
-						documento: {
-							select: {
-								id: true,
-								tipo_documento: {
-									select: {
-										id: true,
-										nome: true,
-									},
-								},
-								discriminacao: true,
-								observacao: true,
-								vencimento: true,
-							},
-						},
-					},
-				},
 			},
 			where: { empresa_id, finalizado: false, excluido: false },
 		});

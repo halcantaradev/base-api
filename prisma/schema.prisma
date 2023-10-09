@@ -126,6 +126,7 @@ model User {
   protocolo_documentos_recebidos ProtocoloDocumento[]
   conexoes_socket                ConexaoSocket[]
   setup_rotas                    MaloteSetup[]
+  malotes_virtuais               MaloteVirtual[]
 
   @@map("usuarios")
 }
@@ -734,6 +735,7 @@ model MalotesFisicos {
 model MaloteVirtual {
   id               Int       @id @default(autoincrement())
   empresa_id       Int
+  usuario_id       Int
   condominio_id    Int
   malote_fisico_id Int?
   malote_baixado   Boolean   @default(false)
@@ -746,6 +748,7 @@ model MaloteVirtual {
   condominio        Pessoa            @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
   empresa           Pessoa            @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])
   malote_fisico     MalotesFisicos?   @relation(fields: [malote_fisico_id], references: [id])
+  usuario           User              @relation(fields: [usuario_id], references: [id])
   documentos_malote MaloteDocumento[]
   protocolos        Protocolo[]
 

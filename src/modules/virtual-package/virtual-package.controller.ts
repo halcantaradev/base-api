@@ -57,10 +57,7 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Body() createVirtualPackageDto: CreateVirtualPackageDto,
 	) {
-		return this.virtualPackageService.create(
-			createVirtualPackageDto,
-			user.empresa_id,
-		);
+		return this.virtualPackageService.create(createVirtualPackageDto, user);
 	}
 
 	@Get('physical-packages')

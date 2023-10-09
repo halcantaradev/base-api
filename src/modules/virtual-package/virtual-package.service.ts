@@ -11,7 +11,7 @@ export class VirtualPackageService {
 
 	async create(
 		createVirtualPackageDto: CreateVirtualPackageDto,
-		empresa_id: number,
+		user: UserAuth,
 	) {
 		if (createVirtualPackageDto.malote_fisico_id) {
 			const hasMaloteFisico = await this.prisma.malotesFisicos.findFirst({
@@ -56,7 +56,7 @@ export class VirtualPackageService {
 				fila_geracao_malote: {
 					some: {
 						gerado: false,
-						empresa_id,
+						empresa_id: user.empresa_id,
 						excluido: false,
 					},
 				},
@@ -71,7 +71,8 @@ export class VirtualPackageService {
 
 		const malote = await this.prisma.maloteVirtual.create({
 			data: {
-				empresa_id,
+				usuario_id: user.id,
+				empresa_id: user.empresa_id,
 				condominio_id: createVirtualPackageDto.condominio_id,
 				malote_fisico_id: createVirtualPackageDto.malote_fisico_id,
 				data_saida: new Date(),
@@ -92,7 +93,7 @@ export class VirtualPackageService {
 			where: {
 				documento_id: { in: documentos.map((document) => document.id) },
 				gerado: false,
-				empresa_id,
+				empresa_id: user.empresa_id,
 			},
 		});
 

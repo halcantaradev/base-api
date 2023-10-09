@@ -18,6 +18,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { FirstAccessDto } from './dto/first-access.dto';
 import { UserFirstAccess } from './entities/user-first-access.entity';
 import { FirstAccessJwtAuthGuard } from './guards/first-access-jwt-auth.guard';
+import { RequestFirstAccessDto } from './dto/request-first-access.dto';
 
 @ApiTags('Autenticação')
 @Controller('auth')
@@ -45,6 +46,62 @@ export class AuthController {
 	@UseGuards(AuthGuard('local'))
 	login(@CurrentUser() user: UserAuth) {
 		return this.authService.login(user);
+	}
+
+	@Get('verify-first-access')
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(FirstAccessJwtAuthGuard)
+	@ApiOperation({
+		summary: 'Requisita primeiro acesso do usuário',
+	})
+	@ApiResponse({
+		description: 'Senha alterada com sucesso',
+		status: HttpStatus.OK,
+		type: LoginEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao realizar a alteração',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async verifyFirstAccess(@CurrentUser() user: UserFirstAccess) {
+		return {
+			success: true,
+			data: await this.authService.verifyFirstAccess(user),
+		};
+	}
+
+	@Post('request-first-access')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({
+		summary: 'Requisita primeiro acesso do usuário',
+	})
+	@ApiResponse({
+		description: 'Senha alterada com sucesso',
+		status: HttpStatus.OK,
+		type: LoginEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao realizar a alteração',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async requestFirstAccess(
+		@Body() requestFirstAccessDto: RequestFirstAccessDto,
+	) {
+		await this.authService.requestFirstAccess(requestFirstAccessDto);
+
+		return { success: true, message: 'Email enviado com sucesso!' };
 	}
 
 	@Post('first-access')

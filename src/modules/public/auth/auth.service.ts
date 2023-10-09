@@ -12,6 +12,7 @@ import { UserFirstAccessPayload } from './entities/user-first-access-payload.ent
 import { FirstAccessDto } from './dto/first-access.dto';
 import { UserFirstAccess } from './entities/user-first-access.entity';
 import { LoginDataDto } from './dto/login-data.dto';
+import { RequestFirstAccessDto } from './dto/request-first-access.dto';
 
 @Injectable()
 export class AuthService {
@@ -52,6 +53,39 @@ export class AuthService {
 				? 'Altere sua senha para continuar!'
 				: 'Login realizado com sucesso!',
 		};
+	}
+
+	async verifyFirstAccess(user: UserFirstAccess) {
+		const userData = await this.prisma.user.findFirst({
+			where: {
+				id: user.id,
+				primeiro_acesso: true,
+			},
+		});
+
+		return !!userData;
+	}
+
+	async requestFirstAccess(requestFirstAccessDto: RequestFirstAccessDto) {
+		const userData = await this.prisma.user.findFirst({
+			where: {
+				username: requestFirstAccessDto.username,
+				primeiro_acesso: true,
+			},
+		});
+
+		if (!userData) return;
+
+		const userPayload: UserFirstAccessPayload = {
+			sub: userData.id,
+			primeiro_acesso: new Date(),
+		};
+
+		const token = await this.jwtService.signAsync(userPayload);
+
+		console.log({ token });
+
+		return;
 	}
 
 	async firstAccess(user: UserFirstAccess, firstAccessDto: FirstAccessDto) {

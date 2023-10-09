@@ -152,6 +152,15 @@ export const menulist: Array<{
 		icon: 'container',
 		target: '_self',
 	},
+	{
+		id_relation: 19,
+		permission_key: 'malotes-virtuais-listar-pendentes',
+		relation: 15,
+		label: 'Malotes gerados',
+		url: 'malotes-gerados',
+		icon: 'container',
+		target: '_self',
+	},
 
 	// SEGURANÇA
 	{

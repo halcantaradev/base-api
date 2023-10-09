@@ -115,6 +115,7 @@ export class AuthService {
 	async getProfile(user: UserAuth) {
 		const empresa = await this.prisma.pessoa.findUnique({
 			select: {
+				id: true,
 				nome: true,
 				temas: { select: { logo: true }, where: { ativo: true } },
 			},
@@ -123,11 +124,16 @@ export class AuthService {
 			},
 		});
 
+		const syncing = await this.prisma.integracaoDatabase.findMany({
+			where: { empresa_id: empresa.id, sincronizando: true },
+		});
+
 		return {
 			nome: user.nome,
 			empresa: empresa.nome,
 			acessa_todos_departamentos: user.acessa_todos_departamentos,
 			temas: empresa.temas,
+			syncing: !!syncing.length,
 		};
 	}
 

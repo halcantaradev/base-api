@@ -65,7 +65,7 @@ export class IntegrationController {
 		type: ReturnEntity.success(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao iniciada com sucesso',
+		description: 'Ocorreu um erro ao iniciar sincronização',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
@@ -94,6 +94,8 @@ export class IntegrationController {
 						Filas.SYNC_INSERT + '-' + process.env.PREFIX_EMPRESA,
 					token: integ.token,
 				});
+
+				await this.integrationService.setSyncing(integ.id, true);
 			}
 			console.log('Sincronismo iniciado');
 			return {
@@ -145,10 +147,17 @@ export class IntegrationController {
 					);
 					await this.integrationService.sendNotification({
 						end: true,
+						data_atualizacao: new Date(
+							body.data.current_date_update,
+						),
 					});
 				}
 			} else {
 				console.log('Sem dados para sincronismo!');
+				await this.integrationService.setSyncing(
+					+payload.database_config.id,
+					false,
+				);
 				await this.integrationService.sendNotification({ end: true });
 			}
 			const channel = context.getChannelRef();
@@ -159,6 +168,30 @@ export class IntegrationController {
 			console.log(error);
 			return context;
 		}
+	}
+
+	@ApiOperation({ summary: 'Retornar data da ultima sincronização' })
+	@ApiResponse({
+		description: 'Data retornada com sucesso!',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao retornar data',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@UseGuards(PermissionGuard)
+	@UseGuards(JwtAuthGuard)
+	@Get('last-update')
+	@Role('integracoes-iniciar-sincronismo')
+	async getLastUpdate(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: (
+				await this.integrationService.getLastUpdate(+user.empresa_id)
+			)._max.data_atualizacao,
+		};
 	}
 
 	@MessagePattern('sync')

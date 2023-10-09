@@ -24,6 +24,7 @@ import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-pac
 import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
 import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
 import { NewDocumentVirtualPackageListReturn } from './entities/new-document-virtual-package-return.entity';
+import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -137,7 +138,7 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Post(':id/receive/:id_document')
+	@Post(':id/receive')
 	@HttpCode(HttpStatus.OK)
 	@Role('malotes-virtuais-baixar')
 	@ApiOperation({ summary: 'Realiza a baixa do malote' })
@@ -154,11 +155,11 @@ export class VirtualPackageController {
 	async receiveDoc(
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
-		@Param('id_document') id_document: string,
+		@Body() receiveVirtualPackageDto: ReceiveVirtualPackageDto,
 	) {
 		await this.virtualPackageService.receiveDoc(
 			+id,
-			+id_document,
+			receiveVirtualPackageDto,
 			user.empresa_id,
 		);
 

@@ -4,6 +4,7 @@ import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
 import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
+import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {
@@ -183,69 +184,95 @@ export class VirtualPackageService {
 		});
 	}
 
-	async receiveDoc(id: number, id_document: number, empresa_id: number) {
-		if (Number.isNaN(id) || Number.isNaN(id_document))
-			throw new BadRequestException('Documento não encontrado');
+	async receiveDoc(
+		id: number,
+		receiveVirtualPackageDto: ReceiveVirtualPackageDto,
+		empresa_id: number,
+	) {
+		if (receiveVirtualPackageDto.documentos_ids.length)
+			await Promise.all(
+				receiveVirtualPackageDto.documentos_ids.map(
+					async (id_document) => {
+						if (Number.isNaN(id) || Number.isNaN(id_document))
+							throw new BadRequestException(
+								'Documento não encontrado',
+							);
 
-		const documento = await this.prisma.maloteDocumento.findFirst({
-			select: {
-				id: true,
-				malote_virtual_id: true,
-			},
-			where: {
-				id: id_document,
-				malote_virtual_id: id,
-				estornado: false,
-				finalizado: false,
-				malote_virtual: {
-					excluido: false,
-					empresa_id,
-					finalizado: false,
-				},
-			},
-		});
+						const documento =
+							await this.prisma.maloteDocumento.findFirst({
+								select: {
+									id: true,
+									malote_virtual_id: true,
+								},
+								where: {
+									documento_id: id_document,
+									malote_virtual_id: id,
+									estornado: false,
+									finalizado: false,
+									malote_virtual: {
+										excluido: false,
+										empresa_id,
+										finalizado: false,
+									},
+								},
+							});
 
-		if (!documento)
-			throw new BadRequestException('Documento não encontrado');
+						if (!documento)
+							throw new BadRequestException(
+								'Documento não encontrado',
+							);
 
-		await this.prisma.maloteDocumento.updateMany({
-			data: { finalizado: true },
-			where: {
-				malote_virtual_id: id,
-				documento_id: id_document,
-			},
-		});
+						await this.prisma.maloteDocumento.updateMany({
+							data: { finalizado: true },
+							where: {
+								malote_virtual_id: id,
+								documento_id: id_document,
+							},
+						});
 
-		const malote = await this.prisma.maloteVirtual.findUnique({
-			select: {
-				malote_fisico_id: true,
-				malote_baixado: true,
-				documentos_malote: {
-					select: {
-						id: true,
+						const malote =
+							await this.prisma.maloteVirtual.findUnique({
+								select: {
+									malote_fisico_id: true,
+									malote_baixado: true,
+									documentos_malote: {
+										select: {
+											id: true,
+										},
+										where: {
+											estornado: false,
+											finalizado: false,
+										},
+									},
+								},
+								where: { id: id },
+							});
+
+						if (!malote.documentos_malote.length) {
+							await this.prisma.maloteVirtual.update({
+								data: {
+									malote_baixado: true,
+									finalizado: true,
+								},
+								where: {
+									id,
+								},
+							});
+
+							if (!malote.malote_baixado)
+								await this.prisma.malotesFisicos.update({
+									data: { disponivel: true },
+									where: {
+										id: malote.malote_fisico_id,
+									},
+								});
+						}
+
+						return;
 					},
-					where: { estornado: false, finalizado: false },
-				},
-			},
-			where: { id: id },
-		});
-
-		if (!malote.documentos_malote.length) {
-			await this.prisma.maloteVirtual.update({
-				data: { malote_baixado: true, finalizado: true },
-				where: {
-					id,
-				},
-			});
-
-			if (!malote.malote_baixado)
-				await this.prisma.malotesFisicos.update({
-					data: { disponivel: true },
-					where: {
-						id: malote.malote_fisico_id,
-					},
-				});
-		}
+				),
+			);
+		else throw new BadRequestException('Documentos não informados');
 
 		return;
 	}

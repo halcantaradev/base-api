@@ -7,19 +7,19 @@ import {
 } from '@nestjs/microservices';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EntidadesSincronimo } from 'src/shared/consts/entidades-sincronismo';
+import { Filas } from 'src/shared/consts/filas.const';
+import { CurrentUserIntegration } from 'src/shared/decorators/current-user-integration.decorator';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { JwtAuthConsumerGuard } from '../public/auth/guards/jwt-auth-consumer.guard';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { SyncDataDto } from './dto/sync-data.dto';
+import { CondominioIntegrationDto } from './dto/types-integration.dto';
 import { IntegrationTokenReturn } from './entities/token-integration-return.entity';
 import { IntegrationService } from './integration.service';
-import { CurrentUserIntegration } from 'src/shared/decorators/current-user-integration.decorator';
-import { Filas } from 'src/shared/consts/filas.const';
-import { JwtAuthConsumerGuard } from '../public/auth/guards/jwt-auth-consumer.guard';
-import { CondominioIntegrationDto } from './dto/types-integration.dto';
 
 @ApiTags('Integração')
 @Controller('integracao')
@@ -79,7 +79,7 @@ export class IntegrationController {
 				user.empresa_id,
 			);
 
-			for (const integ of integracoes) {
+			for await (const integ of integracoes) {
 				await this.integrationService.starSync('sync', {
 					database_config: {
 						id: integ.id,
@@ -116,7 +116,8 @@ export class IntegrationController {
 	) {
 		try {
 			if (body.data) {
-				console.log('Dados para sincronismo recebidos!');
+				console.log('Dados recebidos!');
+
 				switch (body.tipo) {
 					case EntidadesSincronimo.CONDOMINIO:
 						await this.integrationService.syncCondominio(
@@ -150,10 +151,13 @@ export class IntegrationController {
 				console.log('Sem dados para sincronismo!');
 				await this.integrationService.sendNotification({ end: true });
 			}
-
+			const channel = context.getChannelRef();
+			const orginalMessage = context.getMessage();
+			channel.ack(orginalMessage);
 			return context;
 		} catch (error) {
 			console.log(error);
+			return context;
 		}
 	}
 

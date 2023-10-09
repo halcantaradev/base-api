@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ClientRMQ } from '@nestjs/microservices';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
 import { FilaService } from 'src/shared/services/fila/fila.service';
 import { PrismaService } from 'src/shared/services/prisma.service';
-import { UpdateIntegrationDto } from './dto/update-integration.dto';
-import { ClientRMQ } from '@nestjs/microservices';
 import {
 	CondominioIntegrationDto,
 	PessoaUnidadeDto,
 } from './dto/types-integration.dto';
+import { UpdateIntegrationDto } from './dto/update-integration.dto';
 
 @Injectable()
 export class IntegrationService {
@@ -79,7 +79,7 @@ export class IntegrationService {
 			if (
 				condominio.updated_at_origin < new Date(data.updated_at_origin)
 			) {
-				return await this.prisma.pessoa.update({
+				const cond = await this.prisma.pessoa.update({
 					data: {
 						nome: data.nome,
 						cnpj: data.cnpj,
@@ -96,6 +96,8 @@ export class IntegrationService {
 						id: condominio.id,
 					},
 				});
+				this.prisma.$disconnect();
+				return cond;
 			}
 		} else {
 			const cond = await this.prisma.pessoa.create({
@@ -121,6 +123,7 @@ export class IntegrationService {
 					original_pessoa_id: data.uuid,
 				},
 			});
+			this.prisma.$disconnect();
 
 			return cond;
 		}
@@ -147,7 +150,9 @@ export class IntegrationService {
 				await this.prisma.unidade.update({
 					data: {
 						codigo: data.unidade.codigo,
-						updated_at_origin: new Date(data.updated_at_origin),
+						updated_at_origin: new Date(
+							data.unidade.updated_at_origin,
+						),
 						ativo: !!data.ativo,
 					},
 					where: {
@@ -159,23 +164,22 @@ export class IntegrationService {
 			unidade = await this.prisma.unidade.create({
 				data: {
 					codigo: data.unidade.codigo,
-					ativo: !!data.ativo,
+					ativo: !!data.unidade.ativo,
 					original_unidade_id: data.unidade.uuid,
-					updated_at_origin: new Date(data.updated_at_origin),
+					updated_at_origin: new Date(data.unidade.updated_at_origin),
 					condominio_id: condominio.id,
 				},
 			});
 		}
 
-		if (data.unidade.pessoas) {
-			return await this.syncUnidadePessoa(
+		if (data.unidade.pessoas && data.unidade.pessoas.length) {
+			await this.syncUnidadePessoa(
 				data.unidade.pessoas,
 				empresa_id,
 				unidade.id,
 			);
 		}
-
-		return false;
+		this.prisma.$disconnect();
 	}
 
 	syncUnidadePessoa(
@@ -187,7 +191,7 @@ export class IntegrationService {
 			data.map(async (pessoa) => {
 				const pessoaUnidade = await this.prisma.pessoa.findFirst({
 					where: {
-						tipos: { some: { original_pessoa_id: pessoa.uuid } },
+						tipos: { every: { original_pessoa_id: pessoa.uuid } },
 					},
 				});
 				if (pessoaUnidade) {
@@ -195,7 +199,7 @@ export class IntegrationService {
 						pessoaUnidade.updated_at_origin <
 						new Date(pessoa.updated_at_origin)
 					) {
-						await this.prisma.pessoa.update({
+						const pess = await this.prisma.pessoa.update({
 							data: {
 								nome: pessoa.nome,
 								cnpj: pessoa.cnpj,
@@ -214,6 +218,27 @@ export class IntegrationService {
 								id: pessoaUnidade.id,
 							},
 						});
+
+						const tipoPessoa =
+							await this.prisma.tiposPessoa.findFirst({
+								select: { id: true },
+								where: { nome: pessoa.tipo },
+							});
+						await this.prisma.pessoasHasTipos.create({
+							data: {
+								tipo_id: tipoPessoa.id,
+								pessoa_id: pess.id,
+								original_pessoa_id: pessoa.uuid,
+							},
+						});
+						await this.prisma.pessoasHasUnidades.create({
+							data: {
+								pessoa_id: pess.id,
+								unidade_id,
+								pessoa_tipo_id: tipoPessoa.id,
+							},
+						});
+						this.prisma.$disconnect();
 					}
 				} else {
 					const tipoPessoa = await this.prisma.tiposPessoa.findFirst({
@@ -251,6 +276,7 @@ export class IntegrationService {
 							pessoa_tipo_id: tipoPessoa.id,
 						},
 					});
+					this.prisma.$disconnect();
 				}
 
 				return pessoa;

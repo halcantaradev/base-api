@@ -107,6 +107,20 @@ export class VirtualPackageService {
 		return { success: true, message: 'Malote gerado com successo!' };
 	}
 
+	findById(empresa_id: number, id: number) {
+		if (Number.isNaN(id)) {
+			throw new BadRequestException('Malote não encontrado');
+		}
+
+		return this.prisma.maloteVirtual.findFirst({
+			where: {
+				id,
+				empresa_id,
+				excluido: false,
+			},
+		});
+	}
+
 	async findAllPhysicalPackage(empresa_id: number) {
 		const data = await this.prisma.malotesFisicos.findMany({
 			select: {

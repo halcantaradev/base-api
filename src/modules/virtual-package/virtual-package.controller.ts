@@ -89,6 +89,31 @@ export class VirtualPackageController {
 		};
 	}
 
+	@Get(':id')
+	@Role('malotes-virtuais-exibir-dados')
+	@ApiOperation({
+		summary: 'Lista os dados do malote virtual',
+	})
+	@ApiResponse({
+		description: 'Dados listados com sucesso',
+		status: HttpStatus.OK,
+		type: VirtualPackageListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findOne(@CurrentUser() user: UserAuth, @Param('id') id: string) {
+		return {
+			dados: await this.virtualPackageService.findById(
+				user.empresa_id,
+				+id,
+			),
+			success: true,
+		};
+	}
+
 	@Get('setup')
 	@Role('malotes-virtuais-gerar')
 	@ApiOperation({
@@ -363,4 +388,11 @@ export class VirtualPackageController {
 
 		return { success: true, message: 'Documento estornado com sucesso!' };
 	}
+}
+function user(
+	target: VirtualPackageController,
+	propertyKey: 'findOne',
+	parameterIndex: 0,
+): void {
+	throw new Error('Function not implemented.');
 }

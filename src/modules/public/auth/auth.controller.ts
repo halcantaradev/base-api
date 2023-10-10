@@ -13,12 +13,12 @@ import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from '../../../shared/entities/user-auth.entity';
 import { AuthService } from './auth.service';
-import { LoginEntity } from './entities/login.entity';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { FirstAccessDto } from './dto/first-access.dto';
+import { RequestFirstAccessDto } from './dto/request-first-access.dto';
+import { LoginEntity } from './entities/login.entity';
 import { UserFirstAccess } from './entities/user-first-access.entity';
 import { FirstAccessJwtAuthGuard } from './guards/first-access-jwt-auth.guard';
-import { RequestFirstAccessDto } from './dto/request-first-access.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('Autenticação')
 @Controller('auth')
@@ -52,20 +52,20 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(FirstAccessJwtAuthGuard)
 	@ApiOperation({
-		summary: 'Requisita primeiro acesso do usuário',
+		summary: 'Valida token de primeiro acesso do usuário',
 	})
 	@ApiResponse({
-		description: 'Senha alterada com sucesso',
+		description: 'Token validado com sucesso',
 		status: HttpStatus.OK,
 		type: LoginEntity,
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao validar os campos enviados',
+		description: 'Ocorreu um erro ao validar o token',
 		status: HttpStatus.BAD_REQUEST,
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao realizar a alteração',
+		description: 'Ocorreu um erro ao validar token',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
@@ -82,7 +82,7 @@ export class AuthController {
 		summary: 'Requisita primeiro acesso do usuário',
 	})
 	@ApiResponse({
-		description: 'Senha alterada com sucesso',
+		description: 'Requisição atendida',
 		status: HttpStatus.OK,
 		type: LoginEntity,
 	})
@@ -92,7 +92,7 @@ export class AuthController {
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao realizar a alteração',
+		description: 'Ocorreu um erro ao realizar a ação',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})

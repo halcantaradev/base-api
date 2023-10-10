@@ -4,21 +4,27 @@ import {
 	UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
+import { EmailService } from 'src/shared/services/email.service';
+import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { PrismaService } from 'src/shared/services/prisma.service';
-import { UserPayload } from './entities/user-payload.entity';
 import { UserAuth } from '../../../shared/entities/user-auth.entity';
-import { UserFirstAccessPayload } from './entities/user-first-access-payload.entity';
 import { FirstAccessDto } from './dto/first-access.dto';
-import { UserFirstAccess } from './entities/user-first-access.entity';
 import { LoginDataDto } from './dto/login-data.dto';
 import { RequestFirstAccessDto } from './dto/request-first-access.dto';
+import { UserFirstAccessPayload } from './entities/user-first-access-payload.entity';
+import { UserFirstAccess } from './entities/user-first-access.entity';
+import { UserPayload } from './entities/user-payload.entity';
 
 @Injectable()
 export class AuthService {
 	constructor(
 		private jwtService: JwtService,
 		private readonly prisma: PrismaService,
+		private readonly emailService: EmailService,
+		private readonly handleBarService: HandlebarsService,
 	) {}
 
 	login(user: LoginDataDto) {
@@ -68,6 +74,7 @@ export class AuthService {
 
 	async requestFirstAccess(requestFirstAccessDto: RequestFirstAccessDto) {
 		const userData = await this.prisma.user.findFirst({
+			include: { empresas: { select: { empresa_id: true } } },
 			where: {
 				username: requestFirstAccessDto.username,
 				primeiro_acesso: true,
@@ -83,7 +90,36 @@ export class AuthService {
 
 		const token = await this.jwtService.signAsync(userPayload);
 
-		console.log({ token });
+		const setupEmail = await this.prisma.emailSetup.findFirst({
+			where: {
+				empresa_id: userData.empresas[0].empresa_id,
+				padrao: true,
+			},
+		});
+
+		const url = process.env.API_URL + '/login/first-access/' + token;
+
+		let html: Buffer | string = await readFileSync(
+			resolve('./src/shared/layouts/primeiro-acesso.html'),
+		);
+
+		html = this.handleBarService.compile(html.toString(), {
+			url,
+		});
+
+		await this.emailService.send({
+			from: process.env.EMAIL_SEND_PROVIDER,
+			html,
+			subject: 'Primeiro Acesso!',
+			to: userData.email,
+			setup: {
+				MAIL_SMTP_HOST: setupEmail.host,
+				MAIL_SMTP_PORT: setupEmail.port,
+				MAIL_SMTP_SECURE: setupEmail.secure,
+				MAIL_SMTP_USER: setupEmail.user,
+				MAIL_SMTP_PASS: setupEmail.password,
+			},
+		});
 
 		return;
 	}

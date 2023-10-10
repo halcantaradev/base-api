@@ -66,11 +66,11 @@ export class ImportDataService {
 					  })
 					: null;
 
-				const tipoContrato = condominio.tipo_contrato
-					? await this.prisma.tipoContratoCondominio.findFirst({
-							where: { nome: condominio.tipo_contrato },
-					  })
-					: null;
+				// const tipoContrato = condominio.tipo_contrato
+				// 	? await this.prisma.tipoContratoCondominio.findFirst({
+				// 			where: { nome: condominio.tipo_contrato },
+				// 	  })
+				// 	: null;
 
 				const condominioDepExist = nac
 					? await this.prisma.condominioHasDepartamentos.findFirst({
@@ -89,12 +89,12 @@ export class ImportDataService {
 					});
 				}
 
-				await this.prisma.pessoa.update({
-					data: {
-						tipo_contrato_id: tipoContrato ? tipoContrato.id : null,
-					},
-					where: { id: condominioExists.pessoa_id },
-				});
+				// await this.prisma.pessoa.update({
+				// 	data: {
+				// 		tipo_contrato_id: tipoContrato ? tipoContrato.id : null,
+				// 	},
+				// 	where: { id: condominioExists.pessoa_id },
+				// });
 			}
 		});
 	}

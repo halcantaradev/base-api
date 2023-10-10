@@ -8,10 +8,11 @@ datasource db {
 }
 
 model Pessoa {
-  id                Int       @id @default(autoincrement())
-  nome              String
-  cnpj              String?
-  empresa_id        Int?
+  id         Int     @id @default(autoincrement())
+  nome       String
+  cnpj       String?
+  empresa_id Int?
+
   numero            String?
   endereco          String?
   cep               String?
@@ -20,6 +21,7 @@ model Pessoa {
   uf                String?
   categoria_id      Int?
   tipo_contrato_id  Int?
+  importado         Boolean   @default(true)
   ativo             Boolean   @default(true)
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt

@@ -11,6 +11,7 @@ import { Condominium } from './entities/condominium.entity';
 import { Residence } from './entities/residence.entity';
 import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
 import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
+import { CreateCondominiumDto } from './dto/create-condominium.dto';
 
 @Injectable()
 export class CondominiumService {
@@ -18,6 +19,27 @@ export class CondominiumService {
 		private readonly pessoaService: PersonService,
 		private readonly prisma: PrismaService,
 	) {}
+
+	async create(
+		empresa_id: number,
+		createCondominiumDto: CreateCondominiumDto,
+	) {
+		return this.prisma.pessoa.create({
+			data: {
+				empresa_id,
+				nome: createCondominiumDto.nome,
+				cnpj: createCondominiumDto.cnpj,
+				cep: createCondominiumDto.cep,
+				endereco: createCondominiumDto.endereco,
+				bairro: createCondominiumDto.bairro,
+				cidade: createCondominiumDto.cidade,
+				uf: createCondominiumDto.uf,
+				numero: createCondominiumDto.numero,
+
+				categoria_id: createCondominiumDto.categoria_id,
+			},
+		});
+	}
 
 	private async getFilterList(
 		filters: FiltersCondominiumDto,

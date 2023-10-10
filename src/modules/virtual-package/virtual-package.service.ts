@@ -117,10 +117,20 @@ export class VirtualPackageService {
 				id: true,
 				finalizado: true,
 				data_saida: true,
-				condominio: { select: { nome: true } },
+				condominio: {
+					select: {
+						nome: true,
+						setup_rotas: {
+							select: { motoqueiro: { select: { nome: true } } },
+						},
+					},
+				},
+				usuario: { select: { nome: true } },
 				malote_fisico: { select: { codigo: true } },
 				documentos_malote: {
 					select: {
+						finalizado: true,
+						estornado: true,
 						documento: {
 							select: {
 								id: true,
@@ -183,7 +193,17 @@ export class VirtualPackageService {
 				id: true,
 				finalizado: true,
 				data_saida: true,
-				condominio: { select: { nome: true } },
+				condominio: {
+					select: {
+						nome: true,
+						setup_rotas: {
+							select: {
+								motoqueiro: true,
+							},
+						},
+					},
+				},
+
 				malote_fisico: { select: { codigo: true } },
 			},
 			where: { empresa_id, finalizado: false, excluido: false },

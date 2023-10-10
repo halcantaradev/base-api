@@ -155,7 +155,7 @@ export class VirtualPackageController {
 	})
 	async findOne(@CurrentUser() user: UserAuth, @Param('id') id: string) {
 		return {
-			dados: await this.virtualPackageService.findById(
+			data: await this.virtualPackageService.findById(
 				user.empresa_id,
 				+id,
 			),

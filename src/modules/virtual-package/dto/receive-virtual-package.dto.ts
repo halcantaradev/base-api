@@ -4,7 +4,7 @@ import { IsInt, IsNotEmpty } from 'class-validator';
 export class ReceiveVirtualPackageDto {
 	@ApiProperty({
 		description: 'Id dos documentos',
-		example: 1,
+		example: [1, 2],
 		required: true,
 	})
 	@IsInt({

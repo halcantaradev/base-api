@@ -24,10 +24,28 @@ export class Condominium extends Person {
 
 	@ApiProperty({
 		description: 'Dados do contrato do condominio',
-		type: ContractsCondominiumType,
+		example: [
+			{
+				tipo_contrato: {
+					id: 1,
+					nome: 'Contrato de Teste I',
+					ativo: true,
+				},
+			},
+			{
+				tipo_contrato: {
+					id: 2,
+					nome: 'Contrato de Teste II',
+					ativo: true,
+				},
+			},
+		],
+		isArray: true,
 		required: false,
 	})
-	tipo_contrato?: ContractsCondominiumType;
+	condominios_tipos_contratos?: {
+		tipo_contrato: ContractsCondominiumType;
+	}[];
 
 	@ApiProperty({
 		description: 'Dados dos responsáveis do condomínio',

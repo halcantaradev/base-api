@@ -33,10 +33,10 @@ export class AuthService {
 		if (user.primeiro_acesso) {
 			const userPayload: UserFirstAccessPayload = {
 				sub: user.id,
-				primeiro_acesso: new Date(),
+				primeiro_acesso: user.primeiro_acesso,
 			};
 
-			token = this.jwtService.sign(userPayload);
+			token = this.jwtService.sign(userPayload, { expiresIn: '20m' });
 		} else {
 			const userPayload: UserPayload = {
 				sub: user.id,
@@ -45,6 +45,7 @@ export class AuthService {
 				cargo_id: user.cargo_id,
 				departamentos_ids: user.departamentos_ids,
 				acessa_todos_departamentos: user.acessa_todos_departamentos,
+				primeiro_acesso: user.primeiro_acesso,
 			};
 
 			token = this.jwtService.sign(userPayload);
@@ -85,10 +86,12 @@ export class AuthService {
 
 		const userPayload: UserFirstAccessPayload = {
 			sub: userData.id,
-			primeiro_acesso: new Date(),
+			primeiro_acesso: userData.primeiro_acesso,
 		};
 
-		const token = await this.jwtService.signAsync(userPayload);
+		const token = await this.jwtService.signAsync(userPayload, {
+			expiresIn: '20m',
+		});
 
 		const setupEmail = await this.prisma.emailSetup.findFirst({
 			where: {

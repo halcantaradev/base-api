@@ -20,7 +20,6 @@ model Pessoa {
   cidade            String?
   uf                String?
   categoria_id      Int?
-  tipo_contrato_id  Int?
   importado         Boolean   @default(true)
   ativo             Boolean   @default(true)
   created_at        DateTime  @default(now())
@@ -36,14 +35,13 @@ model Pessoa {
   departamentos                    Departamento[]
   notificacoes                     Notificacao[]
   departamentos_condominio         CondominioHasDepartamentos[]
-  empresas_pessoa                  EmpresaHasPessoas[]          @relation("EmpresaEmpresaPessoa")
-  pessoas_empresa                  EmpresaHasPessoas[]          @relation("PessoaEmpresaPessoa")
+  empresas_pessoa                  EmpresaHasPessoas[]           @relation("EmpresaEmpresaPessoa")
+  pessoas_empresa                  EmpresaHasPessoas[]           @relation("PessoaEmpresaPessoa")
   LayoutsNotificacao               LayoutsNotificacao[]
   condominio_administracao         CondomimioAdministracao[]
   usuarios_condominio              UsuarioHasCondominios[]
   setup_condominio_notificacoes    NotificacaoSetup?
   setup_empresa_sistema            SistemaSetup[]
-  tipo_contrato                    TipoContratoCondominio?      @relation(fields: [tipo_contrato_id], references: [id])
   tipos_infracoes                  TipoInfracao[]
   filiais_empresa                  Filial[]
   temas                            Tema[]
@@ -51,6 +49,7 @@ model Pessoa {
   protocolos_documentos_condominio ProtocoloDocumento[]
   protocolos_empresa               Protocolo[]
   emails_setup                     EmailSetup[]
+  condominios_tipos_contratos      CondominiosHasTiposContrato[]
 
   @@map("pessoas")
 }
@@ -490,14 +489,27 @@ model UnidadeHasTaxas {
 }
 
 model TipoContratoCondominio {
-  id          Int      @id @default(autoincrement())
-  nome        String
-  ativo       Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  condominios Pessoa[]
+  id                          Int                           @id @default(autoincrement())
+  nome                        String
+  ativo                       Boolean                       @default(true)
+  created_at                  DateTime                      @default(now())
+  updated_at                  DateTime                      @updatedAt
+  condominios_tipos_contratos CondominiosHasTiposContrato[]
 
   @@map("tipos_contratos_condominio")
+}
+
+model CondominiosHasTiposContrato {
+  condominio_id    Int
+  tipo_contrato_id Int
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  condominio    Pessoa                 @relation(fields: [condominio_id], references: [id])
+  tipo_contrato TipoContratoCondominio @relation(fields: [tipo_contrato_id], references: [id])
+
+  @@id([condominio_id, tipo_contrato_id])
+  @@map("condominios_has_tipos_contratos")
 }
 
 model Filial {

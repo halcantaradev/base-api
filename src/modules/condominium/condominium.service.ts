@@ -115,7 +115,7 @@ export class CondominiumService {
 			},
 		}));
 
-		const filtersSelected: Array<any> = [
+		const filtersSelected: Prisma.PessoaWhereInput[] = [
 			filters.categoria_id && !Number.isNaN(+filters.categoria_id)
 				? {
 						categoria_id: +filters.categoria_id,
@@ -138,7 +138,7 @@ export class CondominiumService {
 										.toString()
 										.normalize('NFC')
 										.replace(/[\u0300-\u036f]/g, ''),
-									mode: 'insensitive',
+									mode: Prisma.QueryMode.insensitive,
 								},
 							},
 							!Number.isNaN(+filters.condominio)
@@ -156,7 +156,7 @@ export class CondominiumService {
 								? {
 										bairro: {
 											contains: filters.endereco,
-											mode: 'insensitive',
+											mode: Prisma.QueryMode.insensitive,
 										},
 								  }
 								: null,
@@ -164,7 +164,7 @@ export class CondominiumService {
 								? {
 										endereco: {
 											contains: filters.endereco,
-											mode: 'insensitive',
+											mode: Prisma.QueryMode.insensitive,
 										},
 								  }
 								: null,
@@ -172,7 +172,7 @@ export class CondominiumService {
 								? {
 										cidade: {
 											contains: filters.endereco,
-											mode: 'insensitive',
+											mode: Prisma.QueryMode.insensitive,
 										},
 								  }
 								: null,
@@ -180,7 +180,7 @@ export class CondominiumService {
 								? {
 										uf: {
 											contains: filters.endereco,
-											mode: 'insensitive',
+											mode: Prisma.QueryMode.insensitive,
 										},
 								  }
 								: null,
@@ -188,7 +188,7 @@ export class CondominiumService {
 								? {
 										cep: {
 											contains: filters.endereco,
-											mode: 'insensitive',
+											mode: Prisma.QueryMode.insensitive,
 										},
 								  }
 								: null,
@@ -235,7 +235,9 @@ export class CondominiumService {
 							!filters.departamentos_ids?.length &&
 							!ativo
 								? {
-										departamentos_condominio: { none: {} },
+										departamentos_condominio: {
+											none: {},
+										},
 								  }
 								: null,
 							userData.acessa_todos_departamentos ||
@@ -329,12 +331,15 @@ export class CondominiumService {
 						},
 					},
 				},
-				tipo_contrato: {
+				condominios_tipos_contratos: {
 					select: {
-						id: true,
-						nome: true,
-						ativo: true,
-						created_at: true,
+						tipo_contrato: {
+							select: {
+								id: true,
+								nome: true,
+								ativo: true,
+							},
+						},
 					},
 				},
 			},
@@ -358,7 +363,17 @@ export class CondominiumService {
 			await this.pessoaService.findAll(
 				'condominio',
 				{
-					tipo_contrato: true,
+					condominios_tipos_contratos: {
+						select: {
+							tipo_contrato: {
+								select: {
+									id: true,
+									nome: true,
+									ativo: true,
+								},
+							},
+						},
+					},
 					departamentos_condominio: {
 						select: {
 							departamento_id: true,
@@ -501,12 +516,15 @@ export class CondominiumService {
 						cargo: { select: { nome: true, sindico: true } },
 					},
 				},
-				tipo_contrato: {
+				condominios_tipos_contratos: {
 					select: {
-						id: true,
-						nome: true,
-						ativo: true,
-						created_at: true,
+						tipo_contrato: {
+							select: {
+								id: true,
+								nome: true,
+								ativo: true,
+							},
+						},
 					},
 				},
 				usuarios_condominio: {
@@ -693,7 +711,7 @@ export class CondominiumService {
 
 	async linkContract(
 		condominio_id: number,
-		tipo_contrato_id: number,
+		tipos_contratos_ids: number[],
 		user: UserAuth,
 	) {
 		const condominio = await this.findOne(condominio_id, user);
@@ -703,13 +721,17 @@ export class CondominiumService {
 				'Ocorreu um erro ao vincular o contrato',
 			);
 
-		await this.prisma.pessoa.update({
-			data: {
-				tipo_contrato_id,
-			},
+		await this.prisma.condominiosHasTiposContrato.deleteMany({
 			where: {
-				id: condominio_id,
+				condominio_id,
 			},
+		});
+
+		await this.prisma.condominiosHasTiposContrato.createMany({
+			data: tipos_contratos_ids.map((id) => ({
+				tipo_contrato_id: id,
+				condominio_id,
+			})),
 		});
 
 		return;

@@ -305,7 +305,7 @@ export class CondominiumController {
 	) {
 		await this.condominioService.linkContract(
 			+condominio_id,
-			body.tipo_contrato_id,
+			body.tipos_contratos_ids,
 			user,
 		);
 

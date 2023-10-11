@@ -680,6 +680,7 @@ model CondominioHasTipoInfracao {
   fundamentacao    String   @db.Text
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
+  excluido   Boolean  @default(false)
 
   condominio    Pessoa       @relation(fields: [condominio_id], references: [id])
   tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])

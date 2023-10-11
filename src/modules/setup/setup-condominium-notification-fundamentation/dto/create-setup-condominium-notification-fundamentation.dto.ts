@@ -23,11 +23,7 @@ export class CreateSetupCondominiumNotificationFundamentationDto {
 		example: 'lei n 01 teste',
 		required: true,
 	})
-	@IsString({
-		message:
-			'O campo fundamentação legal não é válido. Por favor, forneça uma fundamentação legal válido.',
-	})
-	@Type(() => Number)
+	@Type(() => String)
 	@IsNotEmpty({
 		message: 'O campo fundamentação legal é obrigatório.',
 	})

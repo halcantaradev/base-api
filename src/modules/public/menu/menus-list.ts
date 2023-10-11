@@ -42,7 +42,7 @@ export const menulist: Array<{
 		url: 'notificacoes/modelos',
 		icon: 'add',
 		target: '_self',
-		ativo: false,
+		ativo: true,
 	},
 	// CONDOMINIO
 	{

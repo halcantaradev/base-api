@@ -191,7 +191,7 @@ export class VirtualPackageController {
 		return { success: true, message: 'Documento baixado com sucesso!' };
 	}
 
-	@Patch(':id/receive/:id_document/reverse')
+	@Patch(':id/reverse')
 	@Role('malotes-virtuais-documentos-estornar-recebimento')
 	@ApiOperation({
 		summary: 'Estorna a baixa de um documento do malote',
@@ -214,13 +214,9 @@ export class VirtualPackageController {
 	async reverseReceiveDoc(
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
-		@Param('id_document') id_document: string,
+		@Body() body: ReceiveVirtualPackageDto,
 	) {
-		await this.virtualPackageService.reverseDoc(
-			+id,
-			+id_document,
-			user.empresa_id,
-		);
+		await this.virtualPackageService.reverseDoc(+id, user.empresa_id);
 
 		return { success: true, message: 'Baixa estornada com sucesso!' };
 	}

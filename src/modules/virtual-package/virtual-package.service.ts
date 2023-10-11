@@ -546,9 +546,10 @@ export class VirtualPackageService {
 		});
 	}
 
-	async reverseDoc(id: number, id_document: number, empresa_id: number) {
-		if (Number.isNaN(id) || Number.isNaN(id_document))
+	async reverseDoc(ids: number, empresa_id: number) {
+		if (Number.isNaN(ids) || Number.isNaN(ids)) {
 			throw new BadRequestException('Documento não encontrado');
+		}
 
 		const documento = await this.prisma.maloteDocumento.findFirst({
 			select: {

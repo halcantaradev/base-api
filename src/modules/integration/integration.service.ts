@@ -221,9 +221,7 @@ export class IntegrationService {
 							},
 						},
 					});
-					if (pessoaUnidade && pessoaUnidade.id == 1) {
-						console.log(pessoaUnidade);
-					}
+
 					if (pessoaUnidade) {
 						if (
 							pessoaUnidade.updated_at_origin <

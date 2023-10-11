@@ -49,6 +49,7 @@ model Pessoa {
   protocolos_documentos_condominio ProtocoloDocumento[]
   protocolos_empresa               Protocolo[]
   emails_setup                     EmailSetup[]
+  tipo_infracao                    CondominioHasTipoInfracao[]
   condominios_tipos_contratos      CondominiosHasTiposContrato[]
 
   @@map("pessoas")
@@ -183,7 +184,8 @@ model TipoInfracao {
 
   notificacoes Notificacao[]
 
-  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  empresa    Pessoa                      @relation(fields: [empresa_id], references: [id])
+  condominio CondominioHasTipoInfracao[]
 
   @@map("tipos_infracao")
 }
@@ -671,4 +673,19 @@ model NotificacaoEvento {
   updated_at DateTime @updatedAt
 
   @@map("notificacoes_eventos")
+}
+
+model CondominioHasTipoInfracao {
+  id               Int      @id @default(autoincrement())
+  condominio_id    Int
+  tipo_infracao_id Int
+  fundamentacao    String   @db.Text
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  excluido   Boolean  @default(false)
+
+  condominio    Pessoa       @relation(fields: [condominio_id], references: [id])
+  tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])
+
+  @@map("condominios_has_tipos_infracoes")
 }

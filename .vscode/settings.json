@@ -1,9 +1,4 @@
 {
     "editor.formatOnSave": false,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    },
-    "cSpell.words": [
-        "cnpj"
-    ]
+    "editor.codeActionsOnSave": {"source.fixAll.eslint": true},    
 }

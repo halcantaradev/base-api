@@ -146,11 +146,16 @@ export class VirtualPackageController {
 	@ApiResponse({
 		description: 'Dados de malotes listados com sucesso',
 		status: HttpStatus.OK,
-		type: () => VirtualPackageReportReturnEntity,
+		type: VirtualPackageReportReturnEntity,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.BAD_REQUEST,
 		type: ReturnEntity.error(),
 	})
 	async findOnePrint(

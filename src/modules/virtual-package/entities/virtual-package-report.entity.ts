@@ -4,7 +4,7 @@ import { ProtocolDocument } from 'src/modules/protocol/entities/protocol-documen
 
 export class VirtualPackageReport {
 	@ApiProperty({
-		description: 'Id do departamento',
+		description: 'Código do malote',
 		example: { codigo: '000002' },
 		readOnly: true,
 	})
@@ -33,13 +33,7 @@ export class VirtualPackageReport {
 
 	@ApiProperty({
 		description: 'Documentos do malote',
-		example: [
-			{
-				id: 1,
-				discriminacao: 'Teste',
-				retorna: false,
-			},
-		],
+		type: ProtocolDocument,
 		readOnly: true,
 		isArray: true,
 	})

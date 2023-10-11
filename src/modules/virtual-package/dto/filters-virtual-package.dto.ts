@@ -28,6 +28,7 @@ export class FiltersVirtualPackageDto {
 		example: 1,
 		required: false,
 	})
+	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	situacao?: boolean;
 
@@ -104,7 +105,7 @@ export class FiltersVirtualPackageDto {
 		example: true,
 		required: false,
 	})
-	@IsOptional()
 	@Transform(BooleanTransformHelper)
+	@IsOptional()
 	documento_retorna?: boolean;
 }

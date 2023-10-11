@@ -52,9 +52,9 @@ export class UpdateSetupSystemDto {
 	})
 	@Validate(IsBooleanType, {
 		message:
-			'O campo usa malote físico é obrigatório. Por favor, forneça um valor.',
+			'O campo obriga malote físico é obrigatório. Por favor, forneça um valor.',
 	})
 	@Transform(BooleanTransformHelper)
 	@IsOptional()
-	usa_malote_fisico: boolean;
+	obriga_malote_fisico: boolean;
 }

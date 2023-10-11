@@ -213,7 +213,7 @@ export class VirtualPackageService {
 	async findSetupData(empresa_id: number) {
 		const data = await this.prisma.sistemaSetup.findFirst({
 			select: {
-				usa_malote_fisico: true,
+				obriga_malote_fisico: true,
 			},
 			where: {
 				empresa_id,

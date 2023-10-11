@@ -24,6 +24,7 @@ import { DepartmentListReturn } from './entities/department-list-return.entity';
 import { DepartmentReturn } from './entities/department-return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { FiltersDepartmentDto } from './dto/filters-department.dto';
+import { ValidationNacDepartmentPipe } from './pipes/validate-nac-department.pipe';
 
 @ApiTags('Departamentos')
 @UseGuards(PermissionGuard)
@@ -53,7 +54,8 @@ export class DepartmentController {
 	})
 	async create(
 		@CurrentUser() user: UserAuth,
-		@Body() createDepartmentDto: CreateDepartmentDto,
+		@Body(new ValidationNacDepartmentPipe())
+		createDepartmentDto: CreateDepartmentDto,
 	) {
 		await this.departmentService.create(
 			user.empresa_id,
@@ -201,7 +203,8 @@ export class DepartmentController {
 	async update(
 		@Param('id') id: string,
 		@CurrentUser() user: UserAuth,
-		@Body() updateDepartmentDto: UpdateDepartmentDto,
+		@Body(new ValidationNacDepartmentPipe())
+		updateDepartmentDto: UpdateDepartmentDto,
 	) {
 		return {
 			success: true,

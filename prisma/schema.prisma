@@ -444,7 +444,7 @@ model SistemaSetup {
   empresa_id               Int      @unique
   salario_minimo_base      Float
   sancao                   String   @db.Text
-  usa_malote_fisico        Boolean  @default(false)
+  obriga_malote_fisico     Boolean  @default(false)
   texto_padrao_notificacao String   @db.Text
   created_at               DateTime @default(now())
   updated_at               DateTime @updatedAt
@@ -730,15 +730,15 @@ model MalotesFisicos {
 }
 
 model MaloteVirtual {
-  id               Int      @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   empresa_id       Int
   condominio_id    Int
   malote_fisico_id Int?
-  finalizado       Boolean  @default(false)
-  excluido         Boolean  @default(false)
+  finalizado       Boolean   @default(false)
+  excluido         Boolean   @default(false)
   data_saida       DateTime?
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
 
   condominio        Pessoa            @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
   empresa           Pessoa            @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])

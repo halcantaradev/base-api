@@ -12,6 +12,7 @@ import { Residence } from './entities/residence.entity';
 import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
 import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
 import { CreateCondominiumDto } from './dto/create-condominium.dto';
+import { UpdateCondominiumDto } from './dto/update-condominium.dto';
 
 @Injectable()
 export class CondominiumService {
@@ -24,6 +25,49 @@ export class CondominiumService {
 		empresa_id: number,
 		createCondominiumDto: CreateCondominiumDto,
 	) {
+		const cnpjAlreadyExists = await this.prisma.pessoa.findFirst({
+			where: {
+				cnpj: createCondominiumDto.cnpj,
+			},
+		});
+
+		if (cnpjAlreadyExists) {
+			throw new BadRequestException(
+				'O CNPJ do condomínio já existe, por favor verifique os dados',
+			);
+		}
+
+		const nomeAlreadyExists = await this.prisma.pessoa.findFirst({
+			where: {
+				nome: createCondominiumDto.nome,
+			},
+		});
+
+		if (nomeAlreadyExists) {
+			throw new BadRequestException(
+				'O nome do condomínio já existe, por favor verifique os dados',
+			);
+		}
+
+		const departamento = await this.prisma.departamento.findFirst({
+			where: {
+				id: createCondominiumDto.departamento_id,
+			},
+		});
+
+		const condominioId = await this.prisma.tiposPessoa.findFirst({
+			where: {
+				nome: 'condominio',
+			},
+		});
+
+		const tipos_contratos =
+			await this.prisma.tipoContratoCondominio.findMany({
+				where: {
+					id: { in: createCondominiumDto.tipos_contratos_ids },
+				},
+			});
+
 		return this.prisma.pessoa.create({
 			data: {
 				empresa_id,
@@ -35,8 +79,99 @@ export class CondominiumService {
 				cidade: createCondominiumDto.cidade,
 				uf: createCondominiumDto.uf,
 				numero: createCondominiumDto.numero,
-
 				categoria_id: createCondominiumDto.categoria_id,
+				importado: createCondominiumDto.importado,
+				tipos: {
+					create: [
+						{
+							tipo_id: condominioId.id,
+						},
+					],
+				},
+				departamentos_condominio: {
+					create: [{ departamento_id: departamento.id }],
+				},
+				condominios_tipos_contratos: {
+					createMany: {
+						data: tipos_contratos.map((contrato) => ({
+							tipo_contrato_id: contrato.id,
+						})),
+					},
+				},
+			},
+		});
+	}
+
+	async update(empresa_id: number, id: number, body: UpdateCondominiumDto) {
+		if (Number.isNaN(id)) {
+			throw new BadRequestException('Condomínio não encontrado');
+		}
+		const condominioExists = await this.prisma.pessoa.findFirst({
+			where: {
+				id,
+				empresa_id,
+			},
+		});
+
+		if (!condominioExists) {
+			throw new BadRequestException('Condomínio não encontrado');
+		}
+
+		const deparmentExists = await this.prisma.departamento.findFirst({
+			where: {
+				id: body.departamento_id,
+			},
+		});
+
+		if (!deparmentExists) {
+			throw new BadRequestException(
+				'Departamento não encontrado, por favor escolha um departamento valido',
+			);
+		}
+
+		const contractsExists =
+			await this.prisma.tipoContratoCondominio.findMany({
+				where: {
+					id: { in: body.tipos_contratos_ids },
+				},
+			});
+
+		if (!contractsExists.length) {
+			throw new BadRequestException(
+				'Tipo de contrato não encontrado, por favor escolha um tipo de contrato valido',
+			);
+		}
+
+		return this.prisma.pessoa.update({
+			data: {
+				nome: body.nome,
+				cnpj: body.cnpj,
+				cep: body.cep,
+				endereco: body.endereco,
+				bairro: body.bairro,
+				cidade: body.cidade,
+				uf: body.uf,
+				numero: body.numero,
+				categoria_id: body.categoria_id,
+				departamentos_condominio: {
+					deleteMany: { condominio_id: id },
+					create: {
+						departamento_id: body.departamento_id,
+					},
+				},
+				condominios_tipos_contratos: {
+					deleteMany: {
+						condominio_id: id,
+					},
+					createMany: {
+						data: contractsExists.map((contrato) => ({
+							tipo_contrato_id: contrato.id,
+						})),
+					},
+				},
+			},
+			where: {
+				id,
 			},
 		});
 	}
@@ -301,9 +436,11 @@ export class CondominiumService {
 		return this.pessoaService.findAll(
 			'condominio',
 			{
+				importado: true,
 				departamentos_condominio: {
 					select: {
 						departamento_id: true,
+
 						departamento: {
 							select: {
 								id: true,
@@ -502,6 +639,7 @@ export class CondominiumService {
 			id,
 			'condominio',
 			{
+				categoria_id: true,
 				departamentos_condominio: {
 					select: {
 						departamento_id: true,

@@ -519,6 +519,11 @@ export const permissionslist: Array<{
 		module: 'Condomínios',
 		key: 'condominios-cadastrar',
 		message: 'Sem permissão para cadastrar condomínio',
-		active: false,
+	},
+	{
+		label: 'Atualizar condomínio',
+		module: 'Condomínios',
+		key: 'condominios-atualizar',
+		message: 'Sem permissão para atualizar condomínio',
 	},
 ];

@@ -43,17 +43,29 @@ export class CreateCondominiumDto implements Prisma.PessoaCreateManyInput {
 
 	@ApiProperty({
 		description: 'Id do tipo de contrato',
-		example: 1,
+		example: [1, 2],
 	})
 	@IsInt({
+		each: true,
 		message:
 			'O campo tipo de contrato informado não é válido. Por favor, forneça um tipo de contrato válido.',
 	})
 	@IsOptional()
-	tipo_contrato_id?: number;
+	tipos_contratos_ids?: number[];
 
 	@ApiProperty({
-		description: 'Numero do condomínio',
+		description: 'Id do departamento',
+		example: 1,
+	})
+	@IsInt({
+		message:
+			'O campo id do departamento informado não é valido. Por favor, forneça um id do valido.',
+	})
+	@IsOptional()
+	departamento_id?: number;
+
+	@ApiProperty({
+		description: 'Número do condomínio',
 		example: 1,
 	})
 	@IsString({
@@ -131,6 +143,7 @@ export class CreateCondominiumDto implements Prisma.PessoaCreateManyInput {
 		message:
 			'O campo categoria informado não é válido. Por favor, forneça uma categoria válida.',
 	})
+	@IsOptional()
 	categoria_id?: number;
 
 	@ApiProperty({

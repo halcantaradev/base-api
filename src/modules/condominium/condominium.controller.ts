@@ -5,6 +5,7 @@ import {
 	HttpCode,
 	HttpStatus,
 	Param,
+	Patch,
 	Post,
 	Put,
 	Query,
@@ -36,6 +37,7 @@ import { LinkTypeContractDto } from './dto/link-type-contract.dto';
 import { ReportCondominiumDto } from './dto/report-condominium.dto';
 import { ReportCondominiumReturn } from './entities/report-condominium-return.entity';
 import { CreateCondominiumDto } from './dto/create-condominium.dto';
+import { UpdateCondominiumDto } from './dto/update-condominium.dto';
 
 @ApiTags('Condomínios')
 @UseGuards(PermissionGuard)
@@ -73,7 +75,7 @@ export class CondominiumController {
 		);
 		return {
 			success: true,
-			message: 'Condomínio criado com sucesso',
+			message: 'Condominium cadastrado com sucesso!',
 		};
 	}
 
@@ -243,6 +245,31 @@ export class CondominiumController {
 		return {
 			success: true,
 			data: await this.condominioService.findResponsible(+id, user),
+		};
+	}
+
+	@Patch(':id')
+	@Role('condominios-atualizar')
+	@ApiOperation({ summary: 'Atualiza os dados de um condomínio' })
+	@ApiResponse({
+		description: 'Condominium atualizado com sucesso',
+		status: HttpStatus.OK,
+		type: CondominiumReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar os dados do condomínio',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async update(
+		@CurrentUser() user: UserAuth,
+		@Body() body: UpdateCondominiumDto,
+		@Param('id') id: string,
+	) {
+		await this.condominioService.update(user.empresa_id, +id, body);
+		return {
+			success: true,
+			message: 'Condomínio atualizado com sucesso!',
 		};
 	}
 

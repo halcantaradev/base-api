@@ -635,18 +635,17 @@ export class VirtualPackageService {
 		});
 	}
 
-	async reverseDoc(ids: number, empresa_id: number) {
-		if (Number.isNaN(ids) || Number.isNaN(ids)) {
+	async reverseDoc(empresa_id: number, documentos_ids: number[]) {
+		if (Number.isNaN(documentos_ids) || Number.isNaN(documentos_ids)) {
 			throw new BadRequestException('Documento não encontrado');
 		}
 
-		const documento = await this.prisma.maloteDocumento.findFirst({
+		const documento = await this.prisma.maloteDocumento.findMany({
 			select: {
 				id: true,
 			},
 			where: {
-				id: id_document,
-				malote_virtual_id: id,
+				malote_virtual_id: { in: documentos_ids },
 				estornado: false,
 				finalizado: false,
 				malote_virtual: {
@@ -657,13 +656,14 @@ export class VirtualPackageService {
 			},
 		});
 
-		if (!documento)
+		if (!documento) {
 			throw new BadRequestException('Documento não encontrado');
+		}
 
-		await this.prisma.maloteDocumento.update({
+		await this.prisma.maloteDocumento.updateMany({
 			data: { estornado: true },
 			where: {
-				id: id_document,
+				id: { in: documento.map((d) => d.id) },
 			},
 		});
 
@@ -672,11 +672,11 @@ export class VirtualPackageService {
 				gerado: false,
 			},
 			where: {
-				documento_id: id_document,
+				documento_id: { in: documento.map((d) => d.id) },
 			},
 		});
 
-		const malote = await this.prisma.maloteVirtual.findUnique({
+		const malote = await this.prisma.maloteVirtual.findMany({
 			select: {
 				documentos_malote: {
 					select: {
@@ -685,15 +685,15 @@ export class VirtualPackageService {
 					where: { estornado: false },
 				},
 			},
-			where: { id: id },
+			where: { id: { in: documentos_ids } },
 		});
 
-		if (!malote.documentos_malote.length) {
-			await this.prisma.maloteVirtual.update({
+		if (!malote.length) {
+			await this.prisma.maloteVirtual.updateMany({
 				data: {
 					excluido: true,
 				},
-				where: { id },
+				where: { id: { in: documentos_ids } },
 			});
 		}
 

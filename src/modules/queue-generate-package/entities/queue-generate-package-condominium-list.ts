@@ -23,4 +23,12 @@ export class QueueGeneratePackageCondominiumList {
 		isArray: true,
 	})
 	protocolos_documentos_condominio: ProtocolDocument[];
+
+	@ApiProperty({
+		description:
+			'Identifica se está igual ou acima do limite de malotes físicos alocados no condomínio',
+		example: true,
+		readOnly: true,
+	})
+	alerta_limite_malote: boolean;
 }

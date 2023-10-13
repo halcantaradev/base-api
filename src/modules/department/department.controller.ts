@@ -117,7 +117,9 @@ export class DepartmentController {
 		@CurrentUser() user: UserAuth,
 		@Query('usuario_id') usuario_id?: string,
 		@Query('busca') busca?: string,
+		@Query('externo') externo?: boolean,
 	) {
+		console.log(externo);
 		return {
 			success: true,
 			data: await this.departmentService.findAll(
@@ -125,6 +127,7 @@ export class DepartmentController {
 				{
 					busca,
 					ativo: true,
+					externo: externo === true ? externo : undefined,
 				},
 				+usuario_id,
 			),

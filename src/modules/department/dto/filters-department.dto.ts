@@ -31,6 +31,19 @@ export class FiltersDepartmentDto {
 	nac?: boolean;
 
 	@ApiProperty({
+		description: 'Departamento é externo',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo externo informado não é válido. Por favor, forneça uma informação valida.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	externo?: boolean;
+
+	@ApiProperty({
 		description: 'Status do departamento',
 		example: true,
 		required: false,

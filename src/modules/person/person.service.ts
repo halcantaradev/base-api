@@ -83,6 +83,7 @@ export class PersonService {
 				cidade: true,
 				uf: true,
 				ativo: true,
+				categoria_id: true,
 				...select,
 			},
 			where: {

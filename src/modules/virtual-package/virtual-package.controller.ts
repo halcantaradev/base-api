@@ -7,6 +7,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -21,6 +22,8 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
 import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
+import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
+import { VirtualPackageReportReturnEntity } from './entities/virtual-package-report-return.entity';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -134,6 +137,39 @@ export class VirtualPackageController {
 			data: await this.virtualPackageService.findAllPending(
 				user.empresa_id,
 			),
+		};
+	}
+
+	@Post('report')
+	@Role('malote-virtual-relatorio')
+	@ApiOperation({ summary: 'Imprimir relatório do malote gerado' })
+	@ApiResponse({
+		description: 'Dados de malotes listados com sucesso',
+		status: HttpStatus.OK,
+		type: VirtualPackageReportReturnEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	async findOnePrint(
+		@CurrentUser() user: UserAuth,
+		@Body() filters: FiltersVirtualPackageDto,
+	) {
+		const data = await this.virtualPackageService.findBy(
+			user.empresa_id,
+			filters,
+		);
+
+		return {
+			success: true,
+			data,
 		};
 	}
 

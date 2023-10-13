@@ -628,4 +628,10 @@ export const permissionslist: Array<{
 		key: 'fila-geracao-malotes-adicionar-documento',
 		message: 'Sem permissão para adicionar documento na fila',
 	},
+	{
+		label: 'Acessar relatórios de malotes',
+		module: 'Expedição',
+		key: 'malote-virtual-relatorio',
+		message: 'Sem permissão para acessar relatórios de malotes',
+	},
 ];

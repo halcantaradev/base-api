@@ -1,3 +1,4 @@
+import { setCustomHour } from 'src/shared/helpers/date.helper';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
@@ -5,6 +6,9 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
 import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
 import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
+import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
+import { VirtualPackageType } from 'src/shared/consts/report-virtual-package-tyoe.const';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class VirtualPackageService {
@@ -174,10 +178,95 @@ export class VirtualPackageService {
 		return data;
 	}
 
+	findBy(empresa_id: number, filters: FiltersVirtualPackageDto) {
+		const documentsSelect: Prisma.MaloteVirtualSelect = {
+			data_saida: true,
+			malote_fisico: {
+				select: {
+					codigo: true,
+				},
+			},
+			condominio: {
+				select: {
+					id: true,
+					nome: true,
+				},
+			},
+			documentos_malote: {
+				select: {
+					documento: {
+						select: {
+							id: true,
+							discriminacao: true,
+							retorna: true,
+						},
+					},
+				},
+				where: {
+					documento: {
+						retorna: filters.documento_retorna
+							? filters.documento_retorna
+							: undefined,
+					},
+				},
+			},
+		};
+
+		const packagesSelect: Prisma.MaloteVirtualSelect = {
+			data_saida: true,
+			malote_fisico: {
+				select: {
+					codigo: true,
+				},
+			},
+			condominio: {
+				select: {
+					id: true,
+					nome: true,
+				},
+			},
+			updated_at: true,
+		};
+
+		return this.prisma.maloteVirtual.findMany({
+			select:
+				filters.tipo === VirtualPackageType.SINTETICO
+					? packagesSelect
+					: documentsSelect,
+			where: {
+				condominio_id: filters.condominios_ids?.length
+					? { in: filters.condominios_ids }
+					: undefined,
+				created_at: {
+					gte: filters.data_emissao[0]
+						? setCustomHour(filters.data_emissao[0], 0, 0, 0)
+						: undefined,
+					lte: filters.data_emissao[1]
+						? setCustomHour(filters.data_emissao[1], 23, 59, 59)
+						: undefined,
+				},
+				malote_fisico_id: filters.malote_fisico_ids?.length
+					? { in: filters.malote_fisico_ids }
+					: undefined,
+				finalizado: filters.situacao ? filters.situacao : undefined,
+				id: filters.codigo ? filters.codigo : undefined,
+				updated_at: {
+					gte: filters.data_retorno[0]
+						? setCustomHour(filters.data_retorno[0], 0, 0, 0)
+						: undefined,
+					lte: filters.data_retorno[1]
+						? setCustomHour(filters.data_retorno[1], 23, 59, 59)
+						: undefined,
+				},
+				empresa_id,
+			},
+		});
+	}
+
 	async findSetupData(empresa_id: number) {
 		const data = await this.prisma.sistemaSetup.findFirst({
 			select: {
-				usa_malote_fisico: true,
+				obriga_malote_fisico: true,
 			},
 			where: {
 				empresa_id,

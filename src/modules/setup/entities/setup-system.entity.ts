@@ -27,5 +27,5 @@ export class SetupSystem {
 		example: true,
 		required: false,
 	})
-	usa_malote_fisico: boolean;
+	obriga_malote_fisico: boolean;
 }

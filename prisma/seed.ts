@@ -6,11 +6,11 @@ import {
 	Unidade,
 } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { Contact } from 'src/shared/consts/contact.const';
+import { menulist } from '../src/modules/public/menu/menus-list';
+import { permissionslist } from '../src/modules/public/permissions/permissions-list';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
-import { permissionslist } from '../src/modules/public/permissions/permissions-list';
-import { menulist } from '../src/modules/public/menu/menus-list';
-import { Contact } from 'src/shared/consts/contact.const';
 
 async function createEmpresa() {
 	let tipoEmpresa = await prisma.tiposPessoa.findUnique({

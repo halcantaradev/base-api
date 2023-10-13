@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsInt } from 'class-validator';
+import {
+	IsString,
+	IsNotEmpty,
+	IsOptional,
+	IsInt,
+	MinLength,
+} from 'class-validator';
 import { Prisma } from './../../../../node_modules/.prisma/client/index.d';
 import { Transform } from 'class-transformer';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
@@ -27,6 +33,7 @@ export class CreateCondominiumDto implements Prisma.PessoaCreateManyInput {
 		message:
 			'O campo cnpj informado não é válido. Por favor, forneça um cnpj válido.',
 	})
+	@MinLength(14)
 	@IsOptional()
 	cnpj?: string;
 

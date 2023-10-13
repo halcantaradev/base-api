@@ -25,16 +25,20 @@ export class CondominiumService {
 		empresa_id: number,
 		createCondominiumDto: CreateCondominiumDto,
 	) {
-		const cnpjAlreadyExists = await this.prisma.pessoa.findFirst({
-			where: {
-				cnpj: createCondominiumDto.cnpj,
-			},
-		});
-
-		if (cnpjAlreadyExists) {
-			throw new BadRequestException(
-				'O CNPJ do condomínio já existe, por favor verifique os dados',
-			);
+		if (
+			createCondominiumDto.cnpj !== null &&
+			createCondominiumDto.cnpj !== undefined
+		) {
+			const cnpjAlreadyExists = await this.prisma.pessoa.findFirst({
+				where: {
+					cnpj: createCondominiumDto.cnpj,
+				},
+			});
+			if (cnpjAlreadyExists) {
+				throw new BadRequestException(
+					'O CNPJ do condomínio já existe, por favor verifique os dados',
+				);
+			}
 		}
 
 		const nomeAlreadyExists = await this.prisma.pessoa.findFirst({
@@ -48,12 +52,14 @@ export class CondominiumService {
 				'O nome do condomínio já existe, por favor verifique os dados',
 			);
 		}
-
-		const departamento = await this.prisma.departamento.findFirst({
-			where: {
-				id: createCondominiumDto.departamento_id,
-			},
-		});
+		let departamento;
+		if (createCondominiumDto.departamento_id) {
+			departamento = await this.prisma.departamento.findFirst({
+				where: {
+					id: createCondominiumDto.departamento_id,
+				},
+			});
+		}
 
 		const condominioId = await this.prisma.tiposPessoa.findFirst({
 			where: {
@@ -61,12 +67,16 @@ export class CondominiumService {
 			},
 		});
 
-		const tipos_contratos =
-			await this.prisma.tipoContratoCondominio.findMany({
-				where: {
-					id: { in: createCondominiumDto.tipos_contratos_ids },
+		let tipos_contratos;
+		if (createCondominiumDto.tipos_contratos_ids) {
+			tipos_contratos = await this.prisma.tipoContratoCondominio.findMany(
+				{
+					where: {
+						id: { in: createCondominiumDto.tipos_contratos_ids },
+					},
 				},
-			});
+			);
+		}
 
 		return this.prisma.pessoa.create({
 			data: {
@@ -81,23 +91,29 @@ export class CondominiumService {
 				numero: createCondominiumDto.numero,
 				categoria_id: createCondominiumDto.categoria_id,
 				importado: createCondominiumDto.importado,
-				tipos: {
-					create: [
-						{
-							tipo_id: condominioId.id,
-						},
-					],
-				},
-				departamentos_condominio: {
-					create: [{ departamento_id: departamento.id }],
-				},
-				condominios_tipos_contratos: {
-					createMany: {
-						data: tipos_contratos.map((contrato) => ({
-							tipo_contrato_id: contrato.id,
-						})),
-					},
-				},
+				tipos: condominioId.id
+					? {
+							create: [
+								{
+									tipo_id: condominioId.id,
+								},
+							],
+					  }
+					: undefined,
+				departamentos_condominio: departamento
+					? {
+							create: [{ departamento_id: departamento.id }],
+					  }
+					: undefined,
+				condominios_tipos_contratos: tipos_contratos
+					? {
+							createMany: {
+								data: tipos_contratos.map((contrato) => ({
+									tipo_contrato_id: contrato.id,
+								})),
+							},
+					  }
+					: undefined,
 			},
 		});
 	}
@@ -117,29 +133,49 @@ export class CondominiumService {
 			throw new BadRequestException('Condomínio não encontrado');
 		}
 
-		const deparmentExists = await this.prisma.departamento.findFirst({
+		const nomeAlreadyExists = await this.prisma.pessoa.findFirst({
 			where: {
-				id: body.departamento_id,
+				nome: body.nome,
+				id: {
+					not: id,
+				},
 			},
 		});
 
-		if (!deparmentExists) {
+		if (nomeAlreadyExists) {
 			throw new BadRequestException(
-				'Departamento não encontrado, por favor escolha um departamento valido',
+				'Este nome de condomínio não pode ser utilizado, por favor verifique suas informações',
 			);
 		}
-
-		const contractsExists =
-			await this.prisma.tipoContratoCondominio.findMany({
+		let deparmentExists;
+		if (body.departamento_id) {
+			deparmentExists = await this.prisma.departamento.findFirst({
 				where: {
-					id: { in: body.tipos_contratos_ids },
+					id: body.departamento_id,
 				},
 			});
 
-		if (!contractsExists.length) {
-			throw new BadRequestException(
-				'Tipo de contrato não encontrado, por favor escolha um tipo de contrato valido',
+			if (!deparmentExists) {
+				throw new BadRequestException(
+					'Departamento não encontrado, por favor escolha um departamento valido',
+				);
+			}
+		}
+
+		let contractsExists;
+		if (body.tipos_contratos_ids.length) {
+			contractsExists = await this.prisma.tipoContratoCondominio.findMany(
+				{
+					where: {
+						id: { in: body.tipos_contratos_ids },
+					},
+				},
 			);
+			if (!contractsExists.length) {
+				throw new BadRequestException(
+					'Tipo de contrato não encontrado, por favor escolha um tipo de contrato valido',
+				);
+			}
 		}
 
 		return this.prisma.pessoa.update({
@@ -155,19 +191,23 @@ export class CondominiumService {
 				categoria_id: body.categoria_id,
 				departamentos_condominio: {
 					deleteMany: { condominio_id: id },
-					create: {
-						departamento_id: body.departamento_id,
-					},
+					create: deparmentExists?.id
+						? {
+								departamento_id: deparmentExists.id,
+						  }
+						: undefined,
 				},
 				condominios_tipos_contratos: {
 					deleteMany: {
 						condominio_id: id,
 					},
-					createMany: {
-						data: contractsExists.map((contrato) => ({
-							tipo_contrato_id: contrato.id,
-						})),
-					},
+					createMany: contractsExists?.length
+						? {
+								data: contractsExists.map((contrato) => ({
+									tipo_contrato_id: contrato.id,
+								})),
+						  }
+						: undefined,
 				},
 			},
 			where: {

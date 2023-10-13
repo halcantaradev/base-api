@@ -445,7 +445,7 @@ model SistemaSetup {
   empresa_id               Int      @unique
   salario_minimo_base      Float
   sancao                   String   @db.Text
-  usa_malote_fisico        Boolean  @default(false)
+  obriga_malote_fisico     Boolean  @default(false)
   texto_padrao_notificacao String   @db.Text
   created_at               DateTime @default(now())
   updated_at               DateTime @updatedAt

@@ -10,22 +10,24 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { Role } from 'src/shared/decorators/role.decorator';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
-import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
-import { VirtualPackageService } from './virtual-package.service';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
-import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { Role } from 'src/shared/decorators/role.decorator';
-import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
-import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
 import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
+import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
+import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
 import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
 import { NewDocumentVirtualPackageListReturn } from './entities/new-document-virtual-package-return.entity';
 import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
 import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-package.dto';
+import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
+import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
+import { VirtualPackageReportReturnEntity } from './entities/virtual-package-report-return.entity';
+import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
+import { VirtualPackageService } from './virtual-package.service';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -139,6 +141,39 @@ export class VirtualPackageController {
 		};
 	}
 
+	@Post('report')
+	@Role('malote-virtual-relatorio')
+	@ApiOperation({ summary: 'Imprimir relatório do malote gerado' })
+	@ApiResponse({
+		description: 'Dados de malotes listados com sucesso',
+		status: HttpStatus.OK,
+		type: VirtualPackageReportReturnEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	async findOnePrint(
+		@CurrentUser() user: UserAuth,
+		@Body() filters: FiltersVirtualPackageDto,
+	) {
+		const data = await this.virtualPackageService.findBy(
+			user.empresa_id,
+			filters,
+		);
+
+		return {
+			success: true,
+			data,
+		};
+	}
+
 	@Get(':id')
 	@Role('malotes-virtuais-exibir-dados')
 	@ApiOperation({
@@ -152,6 +187,11 @@ export class VirtualPackageController {
 	@ApiResponse({
 		description: 'Ocorreu um erro ao listar os dados',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.BAD_REQUEST,
 		type: ReturnEntity.error(),
 	})
 	async findOne(@CurrentUser() user: UserAuth, @Param('id') id: string) {
@@ -172,6 +212,11 @@ export class VirtualPackageController {
 		description: 'Malotes recebido com sucesso',
 		status: HttpStatus.OK,
 		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao baixar o malote',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao baixar o malote',
@@ -358,37 +403,5 @@ export class VirtualPackageController {
 		await this.virtualPackageService.finalizeNewDocs(+id, user);
 
 		return { success: true, message: 'Documentos salvos com sucesso!' };
-	}
-
-	@Patch(':id/document/:id_document/reverse')
-	@Role('malotes-virtuais-documentos-estornar')
-	@ApiOperation({ summary: 'Estorna um documento do malote' })
-	@ApiResponse({
-		description: 'Documento do malote estornado com sucesso',
-		status: HttpStatus.OK,
-		type: ReturnEntity.success,
-	})
-	@ApiResponse({
-		description: 'Ocorreu um erro ao validar os campos enviados',
-		status: HttpStatus.BAD_REQUEST,
-		type: ReturnEntity.error(),
-	})
-	@ApiResponse({
-		description: 'Ocorreu um erro ao estornar o documento do malote',
-		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		type: ReturnEntity.error(),
-	})
-	async reverseDoc(
-		@CurrentUser() user: UserAuth,
-		@Param('id') id: string,
-		@Param('id_document') id_document: string,
-	) {
-		await this.virtualPackageService.reverseDoc(
-			+id,
-			+id_document,
-			user.empresa_id,
-		);
-
-		return { success: true, message: 'Documento estornado com sucesso!' };
 	}
 }

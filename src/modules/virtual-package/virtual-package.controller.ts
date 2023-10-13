@@ -25,6 +25,7 @@ import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-vi
 import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
 import { NewDocumentVirtualPackageListReturn } from './entities/new-document-virtual-package-return.entity';
 import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
+import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -214,9 +215,14 @@ export class VirtualPackageController {
 	async reverseReceiveDoc(
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
-		@Body() body: ReceiveVirtualPackageDto,
+		@Body()
+		reverseReceiveVirtualPackageDto: ReverseReceiveVirtualPackageDto,
 	) {
-		await this.virtualPackageService.reverseDoc(+id, user.empresa_id);
+		await this.virtualPackageService.reverseReceiveDoc(
+			+id,
+			reverseReceiveVirtualPackageDto,
+			user.empresa_id,
+		);
 
 		return { success: true, message: 'Baixa estornada com sucesso!' };
 	}

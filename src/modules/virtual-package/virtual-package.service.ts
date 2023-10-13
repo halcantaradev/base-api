@@ -5,6 +5,7 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
 import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
 import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
+import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {
@@ -215,103 +216,95 @@ export class VirtualPackageService {
 		receiveVirtualPackageDto: ReceiveVirtualPackageDto,
 		empresa_id: number,
 	) {
-		if (receiveVirtualPackageDto.documentos_ids.length)
-			await Promise.all(
-				receiveVirtualPackageDto.documentos_ids.map(
-					async (id_document) => {
-						if (Number.isNaN(id) || Number.isNaN(id_document))
-							throw new BadRequestException(
-								'Documento não encontrado',
-							);
+		if (Number.isNaN(id))
+			throw new BadRequestException('Documento não encontrado');
 
-						const documento =
-							await this.prisma.maloteDocumento.findFirst({
-								select: {
-									id: true,
-									malote_virtual_id: true,
-								},
-								where: {
-									documento_id: id_document,
-									malote_virtual_id: id,
-									estornado: false,
-									finalizado: false,
-									malote_virtual: {
-										excluido: false,
-										empresa_id,
-										finalizado: false,
-									},
-								},
-							});
+		const documents = await this.prisma.maloteDocumento.findMany({
+			select: {
+				id: true,
+				malote_virtual_id: true,
+			},
+			where: {
+				documento_id: {
+					in: receiveVirtualPackageDto.documentos_ids,
+				},
+				malote_virtual_id: id,
+				estornado: false,
+				finalizado: false,
+				malote_virtual: {
+					excluido: false,
+					empresa_id,
+					finalizado: false,
+				},
+			},
+		});
 
-						if (!documento)
-							throw new BadRequestException(
-								'Documento não encontrado',
-							);
-
-						await this.prisma.maloteDocumento.updateMany({
-							data: { finalizado: true },
-							where: {
-								malote_virtual_id: id,
-								documento_id: id_document,
-							},
-						});
-
-						const malote =
-							await this.prisma.maloteVirtual.findUnique({
-								select: {
-									malote_fisico_id: true,
-									malote_baixado: true,
-									documentos_malote: {
-										select: {
-											id: true,
-										},
-										where: {
-											estornado: false,
-											finalizado: false,
-										},
-									},
-								},
-								where: { id: id },
-							});
-
-						if (!malote.documentos_malote.length) {
-							await this.prisma.maloteVirtual.update({
-								data: {
-									malote_baixado: true,
-									finalizado: true,
-								},
-								where: {
-									id,
-								},
-							});
-
-							if (!malote.malote_baixado)
-								await this.prisma.malotesFisicos.update({
-									data: { disponivel: true },
-									where: {
-										id: malote.malote_fisico_id,
-									},
-								});
-						}
-
-						return;
-					},
-				),
+		if (!documents.length)
+			throw new BadRequestException(
+				'Documento(s) informado(s) não recebido(s) ou não encontrado(s)',
 			);
-		else throw new BadRequestException('Documentos não informados');
+
+		const documents_ids_accept = documents.map((document) => document.id);
+
+		await this.prisma.maloteDocumento.updateMany({
+			data: { finalizado: true },
+			where: {
+				malote_virtual_id: id,
+				id: {
+					in: documents_ids_accept,
+				},
+			},
+		});
+
+		const malote = await this.prisma.maloteVirtual.findUnique({
+			select: {
+				malote_fisico_id: true,
+				malote_baixado: true,
+				documentos_malote: {
+					select: {
+						id: true,
+					},
+					where: {
+						estornado: false,
+						finalizado: false,
+					},
+				},
+			},
+			where: { id: id },
+		});
+
+		if (!malote.documentos_malote.length) {
+			await this.prisma.maloteVirtual.update({
+				data: {
+					malote_baixado: true,
+					finalizado: true,
+				},
+				where: {
+					id,
+				},
+			});
+
+			if (!malote.malote_baixado)
+				await this.prisma.malotesFisicos.update({
+					data: { disponivel: true },
+					where: {
+						id: malote.malote_fisico_id,
+					},
+				});
+		}
 
 		return;
 	}
 
 	async reverseReceiveDoc(
 		id: number,
-		id_document: number,
+		reverseReceiveVirtualPackageDto: ReverseReceiveVirtualPackageDto,
 		empresa_id: number,
 	) {
-		if (Number.isNaN(id) || Number.isNaN(id_document))
+		if (Number.isNaN(id))
 			throw new BadRequestException('Documento não encontrado');
 
-		const documento = await this.prisma.maloteDocumento.findFirst({
+		const documents = await this.prisma.maloteDocumento.findMany({
 			select: {
 				id: true,
 				malote_virtual_id: true,
@@ -322,22 +315,29 @@ export class VirtualPackageService {
 				},
 			},
 			where: {
-				id: id_document,
+				id: { in: reverseReceiveVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
 				estornado: false,
 				finalizado: true,
-				malote_virtual: { excluido: false, empresa_id },
+				malote_virtual: {
+					excluido: false,
+					empresa_id,
+				},
 			},
 		});
 
-		if (!documento)
-			throw new BadRequestException('Documento não encontrado');
+		if (!documents.length)
+			throw new BadRequestException(
+				'Documento(s) informado(s) não recebido(s) ou não encontrado(s)',
+			);
+
+		const documents_ids_accept = documents.map((document) => document.id);
 
 		await this.prisma.maloteDocumento.updateMany({
 			data: { finalizado: false },
 			where: {
 				malote_virtual_id: id,
-				documento_id: id_document,
+				documento_id: { in: documents_ids_accept },
 			},
 		});
 
@@ -546,8 +546,8 @@ export class VirtualPackageService {
 		});
 	}
 
-	async reverseDoc(ids: number, empresa_id: number) {
-		if (Number.isNaN(ids) || Number.isNaN(ids)) {
+	async reverseDoc(id: number, id_document: number, empresa_id: number) {
+		if (Number.isNaN(id) || Number.isNaN(id)) {
 			throw new BadRequestException('Documento não encontrado');
 		}
 

@@ -10,6 +10,7 @@ import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-p
 import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
 import { VirtualPackageType } from 'src/shared/consts/report-virtual-package-tyoe.const';
 import { Prisma } from '@prisma/client';
+import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {
@@ -635,17 +636,21 @@ export class VirtualPackageService {
 		});
 	}
 
-	async reverseDoc(id: number, id_document: number, empresa_id: number) {
+	async reverseDoc(
+		id: number,
+		reverseVirtualPackageDto: ReverseVirtualPackageDto,
+		empresa_id: number,
+	) {
 		if (Number.isNaN(id) || Number.isNaN(id)) {
 			throw new BadRequestException('Documento não encontrado');
 		}
 
-		const documento = await this.prisma.maloteDocumento.findFirst({
+		const documents = await this.prisma.maloteDocumento.findMany({
 			select: {
 				id: true,
 			},
 			where: {
-				id: id_document,
+				id: { in: reverseVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
 				estornado: false,
 				finalizado: false,
@@ -657,13 +662,17 @@ export class VirtualPackageService {
 			},
 		});
 
-		if (!documento)
-			throw new BadRequestException('Documento não encontrado');
+		if (!documents.length)
+			throw new BadRequestException(
+				'Documento(s) informado(s) não gerado(s) ou não encontrado(s)',
+			);
 
-		await this.prisma.maloteDocumento.update({
+		const documents_ids_accept = documents.map((document) => document.id);
+
+		await this.prisma.maloteDocumento.updateMany({
 			data: { estornado: true },
 			where: {
-				id: id_document,
+				id: { in: documents_ids_accept },
 			},
 		});
 
@@ -672,7 +681,8 @@ export class VirtualPackageService {
 				gerado: false,
 			},
 			where: {
-				documento_id: id_document,
+				documento_id: { in: documents_ids_accept },
+				excluido: false,
 			},
 		});
 

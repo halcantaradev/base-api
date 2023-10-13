@@ -28,6 +28,7 @@ import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-
 import { VirtualPackageReportReturnEntity } from './entities/virtual-package-report-return.entity';
 import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
 import { VirtualPackageService } from './virtual-package.service';
+import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -204,6 +205,38 @@ export class VirtualPackageController {
 		};
 	}
 
+	@Patch(':id/reverse')
+	@Role('malotes-virtuais-documentos-estornar')
+	@ApiOperation({ summary: 'Estorna um documento do malote' })
+	@ApiResponse({
+		description: 'Documento do malote estornado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao estornar o documento do malote',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async reverseDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Body() reverseVirtualPackageDto: ReverseVirtualPackageDto,
+	) {
+		await this.virtualPackageService.reverseDoc(
+			+id,
+			reverseVirtualPackageDto,
+			user.empresa_id,
+		);
+
+		return { success: true, message: 'Documento estornado com sucesso!' };
+	}
+
 	@Post(':id/receive')
 	@HttpCode(HttpStatus.OK)
 	@Role('malotes-virtuais-baixar')
@@ -237,7 +270,7 @@ export class VirtualPackageController {
 		return { success: true, message: 'Documento baixado com sucesso!' };
 	}
 
-	@Patch(':id/reverse')
+	@Patch(':id/receive/reverse')
 	@Role('malotes-virtuais-documentos-estornar-recebimento')
 	@ApiOperation({
 		summary: 'Estorna a baixa de um documento do malote',

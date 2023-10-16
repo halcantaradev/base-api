@@ -514,4 +514,16 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para importar dados',
 		active: false,
 	},
+	{
+		label: 'Cadastrar condomínio',
+		module: 'Condomínios',
+		key: 'condominios-cadastrar',
+		message: 'Sem permissão para cadastrar condomínio',
+	},
+	{
+		label: 'Atualizar condomínio',
+		module: 'Condomínios',
+		key: 'condominios-atualizar',
+		message: 'Sem permissão para atualizar condomínio',
+	},
 ];

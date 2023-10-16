@@ -5,6 +5,7 @@ import {
 	HttpCode,
 	HttpStatus,
 	Param,
+	Patch,
 	Post,
 	Put,
 	Query,
@@ -35,6 +36,8 @@ import { UsersCondominiumReturn } from './entities/users-condominium-return.enti
 import { LinkTypeContractDto } from './dto/link-type-contract.dto';
 import { ReportCondominiumDto } from './dto/report-condominium.dto';
 import { ReportCondominiumReturn } from './entities/report-condominium-return.entity';
+import { CreateCondominiumDto } from './dto/create-condominium.dto';
+import { UpdateCondominiumDto } from './dto/update-condominium.dto';
 
 @ApiTags('Condomínios')
 @UseGuards(PermissionGuard)
@@ -44,6 +47,39 @@ export class CondominiumController {
 	constructor(private readonly condominioService: CondominiumService) {}
 
 	@Post()
+	@Role('condominios-cadastrar')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ summary: 'Cadastra um novo o condomínio' })
+	@ApiResponse({
+		description: 'Condomínio criado com sucesso',
+		status: HttpStatus.OK,
+		type: CondominiumReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao cadastrar o condomínio',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async create(
+		@CurrentUser() user: UserAuth,
+		@Body() createCondominiumDto: CreateCondominiumDto,
+	) {
+		await this.condominioService.create(
+			user.empresa_id,
+			createCondominiumDto,
+		);
+		return {
+			success: true,
+			message: 'Condomínio cadastrado com sucesso!',
+		};
+	}
+
+	@Post('list')
 	@Role('condominios-listar')
 	@UseInterceptors(UserCondominiumsAccess)
 	@HttpCode(HttpStatus.OK)
@@ -209,6 +245,31 @@ export class CondominiumController {
 		return {
 			success: true,
 			data: await this.condominioService.findResponsible(+id, user),
+		};
+	}
+
+	@Patch(':id')
+	@Role('condominios-atualizar')
+	@ApiOperation({ summary: 'Atualiza os dados de um condomínio' })
+	@ApiResponse({
+		description: 'Condominium atualizado com sucesso',
+		status: HttpStatus.OK,
+		type: CondominiumReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar os dados do condomínio',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async update(
+		@CurrentUser() user: UserAuth,
+		@Body() body: UpdateCondominiumDto,
+		@Param('id') id: string,
+	) {
+		await this.condominioService.update(user.empresa_id, +id, body);
+		return {
+			success: true,
+			message: 'Condomínio atualizado com sucesso!',
 		};
 	}
 

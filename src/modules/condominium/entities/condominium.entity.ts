@@ -48,6 +48,13 @@ export class Condominium extends Person {
 	}[];
 
 	@ApiProperty({
+		description: 'Identifica se o condominio foi importado',
+		example: true,
+		required: false,
+	})
+	importado: boolean;
+
+	@ApiProperty({
 		description: 'Dados dos responsáveis do condomínio',
 		type: UsuariosCondominio,
 		required: false,

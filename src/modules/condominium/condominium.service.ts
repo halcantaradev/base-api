@@ -11,6 +11,8 @@ import { Condominium } from './entities/condominium.entity';
 import { Residence } from './entities/residence.entity';
 import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
 import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
+import { CreateCondominiumDto } from './dto/create-condominium.dto';
+import { UpdateCondominiumDto } from './dto/update-condominium.dto';
 
 @Injectable()
 export class CondominiumService {
@@ -18,6 +20,206 @@ export class CondominiumService {
 		private readonly pessoaService: PersonService,
 		private readonly prisma: PrismaService,
 	) {}
+
+	async create(
+		empresa_id: number,
+		createCondominiumDto: CreateCondominiumDto,
+	) {
+		if (
+			createCondominiumDto.cnpj !== null &&
+			createCondominiumDto.cnpj !== undefined
+		) {
+			const cnpjAlreadyExists = await this.prisma.pessoa.findFirst({
+				where: {
+					cnpj: createCondominiumDto.cnpj,
+				},
+			});
+			if (cnpjAlreadyExists) {
+				throw new BadRequestException(
+					'O CNPJ do condomínio já existe, por favor verifique os dados',
+				);
+			}
+		}
+
+		const nomeAlreadyExists = await this.prisma.pessoa.findFirst({
+			where: {
+				nome: createCondominiumDto.nome,
+			},
+		});
+
+		if (nomeAlreadyExists) {
+			throw new BadRequestException(
+				'O nome do condomínio já existe, por favor verifique os dados',
+			);
+		}
+		let departamento;
+		if (createCondominiumDto.departamento_id) {
+			departamento = await this.prisma.departamento.findFirst({
+				where: {
+					id: createCondominiumDto.departamento_id,
+					empresa_id,
+				},
+			});
+		}
+
+		const condominioId = await this.prisma.tiposPessoa.findFirst({
+			where: {
+				nome: 'condominio',
+			},
+		});
+
+		let tipos_contratos;
+		if (createCondominiumDto.tipos_contratos_ids) {
+			tipos_contratos = await this.prisma.tipoContratoCondominio.findMany(
+				{
+					where: {
+						id: { in: createCondominiumDto.tipos_contratos_ids },
+					},
+				},
+			);
+		}
+
+		return this.prisma.pessoa.create({
+			data: {
+				empresa_id,
+				nome: createCondominiumDto.nome,
+				cnpj: createCondominiumDto.cnpj,
+				cep: createCondominiumDto.cep,
+				endereco: createCondominiumDto.endereco,
+				bairro: createCondominiumDto.bairro,
+				cidade: createCondominiumDto.cidade,
+				uf: createCondominiumDto.uf,
+				numero: createCondominiumDto.numero,
+				categoria_id: createCondominiumDto.categoria_id,
+				importado: createCondominiumDto.importado,
+				tipos: condominioId.id
+					? {
+							create: [
+								{
+									tipo_id: condominioId.id,
+								},
+							],
+					  }
+					: undefined,
+				departamentos_condominio: departamento
+					? {
+							create: [{ departamento_id: departamento.id }],
+					  }
+					: undefined,
+				condominios_tipos_contratos: tipos_contratos
+					? {
+							createMany: {
+								data: tipos_contratos.map((contrato) => ({
+									tipo_contrato_id: contrato.id,
+								})),
+							},
+					  }
+					: undefined,
+			},
+		});
+	}
+
+	async update(empresa_id: number, id: number, body: UpdateCondominiumDto) {
+		if (Number.isNaN(id)) {
+			throw new BadRequestException('Condomínio não encontrado');
+		}
+		const condominioExists = await this.prisma.pessoa.findFirst({
+			where: {
+				id,
+				empresa_id,
+				importado: false,
+			},
+		});
+
+		if (!condominioExists) {
+			throw new BadRequestException(
+				'Condomínio não encontrado ou não pode ser editado!',
+			);
+		}
+
+		const nomeAlreadyExists = await this.prisma.pessoa.findFirst({
+			where: {
+				nome: body.nome,
+				id: {
+					not: id,
+				},
+			},
+		});
+
+		if (nomeAlreadyExists) {
+			throw new BadRequestException(
+				'Este nome de condomínio não pode ser utilizado, por favor verifique suas informações',
+			);
+		}
+		let deparmentExists;
+		if (body.departamento_id) {
+			deparmentExists = await this.prisma.departamento.findFirst({
+				where: {
+					id: body.departamento_id,
+					empresa_id,
+				},
+			});
+
+			if (!deparmentExists) {
+				throw new BadRequestException(
+					'Departamento não encontrado, por favor escolha um departamento valido',
+				);
+			}
+		}
+
+		let contractsExists;
+		if (body.tipos_contratos_ids.length) {
+			contractsExists = await this.prisma.tipoContratoCondominio.findMany(
+				{
+					where: {
+						id: { in: body.tipos_contratos_ids },
+					},
+				},
+			);
+			if (!contractsExists.length) {
+				throw new BadRequestException(
+					'Tipo de contrato não encontrado, por favor escolha um tipo de contrato valido',
+				);
+			}
+		}
+
+		return this.prisma.pessoa.update({
+			data: {
+				nome: body.nome,
+				cnpj: body.cnpj,
+				cep: body.cep,
+				endereco: body.endereco,
+				bairro: body.bairro,
+				cidade: body.cidade,
+				uf: body.uf,
+				numero: body.numero,
+				categoria_id: body.categoria_id,
+				departamentos_condominio: {
+					deleteMany: { condominio_id: id },
+					create: deparmentExists?.id
+						? {
+								departamento_id: deparmentExists.id,
+						  }
+						: undefined,
+				},
+				condominios_tipos_contratos: {
+					deleteMany: {
+						condominio_id: id,
+					},
+					createMany: contractsExists?.length
+						? {
+								data: contractsExists.map((contrato) => ({
+									tipo_contrato_id: contrato.id,
+								})),
+						  }
+						: undefined,
+				},
+			},
+			where: {
+				id,
+			},
+		});
+	}
 
 	private async getFilterList(
 		filters: FiltersCondominiumDto,
@@ -107,6 +309,12 @@ export class CondominiumService {
 						},
 				  }
 				: null,
+
+			filters.importado !== null
+				? {
+						importado: filters.importado,
+				  }
+				: undefined,
 			filters.condominio
 				? {
 						OR: [
@@ -480,6 +688,8 @@ export class CondominiumService {
 			id,
 			'condominio',
 			{
+				importado: true,
+				categoria_id: true,
 				departamentos_condominio: {
 					select: {
 						departamento_id: true,

@@ -36,6 +36,7 @@ export class PersonService {
 					cnpj: true,
 					numero: true,
 					endereco: true,
+					importado: true,
 					cep: true,
 					bairro: true,
 					cidade: true,

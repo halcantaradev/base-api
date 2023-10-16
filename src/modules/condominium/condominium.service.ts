@@ -476,11 +476,9 @@ export class CondominiumService {
 		return this.pessoaService.findAll(
 			'condominio',
 			{
-				importado: true,
 				departamentos_condominio: {
 					select: {
 						departamento_id: true,
-
 						departamento: {
 							select: {
 								id: true,
@@ -679,6 +677,7 @@ export class CondominiumService {
 			id,
 			'condominio',
 			{
+				importado: true,
 				categoria_id: true,
 				departamentos_condominio: {
 					select: {

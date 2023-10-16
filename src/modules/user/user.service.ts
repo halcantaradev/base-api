@@ -112,6 +112,7 @@ export class UserService {
 							},
 					  }
 					: undefined,
+				ativo: createUserDto.ativo,
 			},
 		});
 

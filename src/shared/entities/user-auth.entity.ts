@@ -17,4 +17,6 @@ export class UserAuth {
 	departamentos_ids: number[];
 
 	acessa_todos_departamentos: boolean;
+
+	primeiro_acesso: boolean;
 }

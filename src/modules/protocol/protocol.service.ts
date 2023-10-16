@@ -543,7 +543,24 @@ export class ProtocolService {
 					retorna: true,
 					vencimento: true,
 					valor: true,
-					fila_geracao_malote: true,
+					fila_geracao_malote: {
+						where: {
+							excluido: false,
+						},
+					},
+					malotes_documento: {
+						select: {
+							malote: {
+								select: {
+									id: true,
+									finalizado: true,
+								},
+							},
+						},
+						where: {
+							estornado: false,
+						},
+					},
 					discriminacao: true,
 					data_aceite: true,
 					aceite_usuario: {

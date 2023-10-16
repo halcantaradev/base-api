@@ -75,7 +75,7 @@ export class CondominiumController {
 		);
 		return {
 			success: true,
-			message: 'Condominium cadastrado com sucesso!',
+			message: 'Condomínio cadastrado com sucesso!',
 		};
 	}
 

@@ -38,17 +38,6 @@ export class CreateCondominiumDto implements Prisma.PessoaCreateManyInput {
 	cnpj?: string;
 
 	@ApiProperty({
-		description: 'Id da empresa',
-		example: 1,
-	})
-	@IsInt({
-		message:
-			'O campo empresa informado não é válido. Por favor, forneça uma empresa válida.',
-	})
-	@IsOptional()
-	empresa_id?: number;
-
-	@ApiProperty({
 		description: 'Id do tipo de contrato',
 		example: [1, 2],
 	})

@@ -57,6 +57,7 @@ export class CondominiumService {
 			departamento = await this.prisma.departamento.findFirst({
 				where: {
 					id: createCondominiumDto.departamento_id,
+					empresa_id,
 				},
 			});
 		}
@@ -155,6 +156,7 @@ export class CondominiumService {
 			deparmentExists = await this.prisma.departamento.findFirst({
 				where: {
 					id: body.departamento_id,
+					empresa_id,
 				},
 			});
 

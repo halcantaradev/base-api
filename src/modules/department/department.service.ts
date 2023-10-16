@@ -76,6 +76,7 @@ export class DepartmentService {
 					  }
 					: undefined,
 				empresa_id: user.empresa_id,
+				externo: filters.externo != null ? filters.externo : undefined,
 				OR: filters.busca
 					? [
 							{

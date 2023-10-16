@@ -25,6 +25,7 @@ import { DepartmentReturn } from './entities/department-return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { FiltersDepartmentDto } from './dto/filters-department.dto';
 import { ValidationNacDepartmentPipe } from './pipes/validate-nac-department.pipe';
+import { FiltersActiveDepartmentDto } from './dto/filters-active-department.dto';
 
 @ApiTags('Departamentos')
 @UseGuards(PermissionGuard)
@@ -115,18 +116,19 @@ export class DepartmentController {
 	})
 	async findAllActiveByUser(
 		@CurrentUser() user: UserAuth,
-		@Query('usuario_id') usuario_id?: string,
-		@Query('busca') busca?: string,
+		@Query() filters?: FiltersActiveDepartmentDto,
 	) {
 		return {
 			success: true,
 			data: await this.departmentService.findAll(
 				user,
 				{
-					busca,
+					busca: filters.busca,
 					ativo: true,
+					externo:
+						filters.externo === true ? filters.externo : undefined,
 				},
-				+usuario_id,
+				filters.usuario_id,
 			),
 		};
 	}

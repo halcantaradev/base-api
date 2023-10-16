@@ -126,11 +126,14 @@ export class CondominiumService {
 			where: {
 				id,
 				empresa_id,
+				importado: false,
 			},
 		});
 
 		if (!condominioExists) {
-			throw new BadRequestException('Condomínio não encontrado');
+			throw new BadRequestException(
+				'Condomínio não encontrado ou não pode ser editado!',
+			);
 		}
 
 		const nomeAlreadyExists = await this.prisma.pessoa.findFirst({
@@ -304,6 +307,12 @@ export class CondominiumService {
 						},
 				  }
 				: null,
+
+			filters.importado !== null
+				? {
+						importado: filters.importado,
+				  }
+				: undefined,
 			filters.condominio
 				? {
 						OR: [

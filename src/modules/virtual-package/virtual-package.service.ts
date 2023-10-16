@@ -128,6 +128,7 @@ export class VirtualPackageService {
 	findBy(empresa_id: number, filters: FiltersVirtualPackageDto) {
 		const documentsSelect: Prisma.MaloteVirtualSelect = {
 			data_saida: true,
+			data_retorno: true,
 			malote_fisico: {
 				select: {
 					codigo: true,

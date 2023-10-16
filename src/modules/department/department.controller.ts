@@ -55,7 +55,7 @@ export class DepartmentController {
 	})
 	async create(
 		@CurrentUser() user: UserAuth,
-		@Body()
+		@Body(new ValidationNacDepartmentPipe())
 		createDepartmentDto: CreateDepartmentDto,
 	) {
 		await this.departmentService.create(

@@ -120,4 +120,24 @@ export class ProtocolDocument {
 		readOnly: true,
 	})
 	total_anexos?: number;
+
+	@ApiProperty({
+		description: 'Total de malotes virtuais não finalizados do documento',
+		example: [
+			{
+				malote: {
+					id: 1,
+					finalizado: true,
+				},
+			},
+		],
+		required: true,
+		readOnly: true,
+	})
+	malotes_documento?: {
+		malote: {
+			id: number;
+			finalizado: boolean;
+		};
+	}[];
 }

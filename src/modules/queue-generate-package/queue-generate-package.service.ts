@@ -97,6 +97,27 @@ export class QueueGeneratePackageService {
 								},
 							},
 						},
+						setup_rotas: {
+							select: {
+								quantidade_malotes: true,
+							},
+						},
+						condominio_malotes_virtuais: {
+							select: {
+								id: true,
+								malote_fisico: {
+									select: {
+										id: true,
+										codigo: true,
+									},
+								},
+							},
+							where: {
+								malote_fisico_id: { not: null },
+								finalizado: false,
+								excluido: false,
+							},
+						},
 					},
 				},
 			},
@@ -120,7 +141,19 @@ export class QueueGeneratePackageService {
 			},
 		});
 
-		return documentos;
+		return documentos.map((documento) => {
+			return {
+				condominio: {
+					...documento.condominio,
+					condominio_malotes_virtuais: undefined,
+					setup_rotas: undefined,
+					alerta_limite_malote:
+						documento.condominio.condominio_malotes_virtuais
+							.length >=
+						documento.condominio.setup_rotas.quantidade_malotes,
+				},
+			};
+		});
 	}
 
 	async remove(id: number, empresa_id: number) {

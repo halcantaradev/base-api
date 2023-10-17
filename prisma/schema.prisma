@@ -742,6 +742,7 @@ model MaloteVirtual {
   finalizado       Boolean   @default(false)
   excluido         Boolean   @default(false)
   data_saida       DateTime?
+  data_retorno     DateTime?
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 

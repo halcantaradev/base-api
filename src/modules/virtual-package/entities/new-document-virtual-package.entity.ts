@@ -9,21 +9,21 @@ export class NewDocumentVirtualPackage {
 	id: number;
 
 	@ApiProperty({
-		description: 'Discriminação do malote virtual',
+		description: 'Discriminação do novo documento do malote virtual',
 		example: 'Discriminação Teste',
 		readOnly: true,
 	})
 	discriminacao: string;
 
 	@ApiProperty({
-		description: 'Observação do malote virtual',
+		description: 'Observação do novo documento do malote virtual',
 		example: 'Observação Teste',
 		readOnly: true,
 	})
 	observacao?: string;
 
 	@ApiProperty({
-		description: 'Documentos do malote virtual',
+		description: 'Tipo do novo documento do malote virtual',
 		example: { id: 1, nome: 'Tipo Teste' },
 		readOnly: true,
 		isArray: true,

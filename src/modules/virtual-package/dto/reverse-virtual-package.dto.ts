@@ -3,14 +3,14 @@ import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class ReverseVirtualPackageDto {
 	@ApiProperty({
-		description: 'Id dos documentos',
+		description: 'Ids dos documentos',
 		example: [1, 2],
 		required: true,
 	})
 	@IsInt({
 		each: true,
 		message:
-			'Os documentos informado não é válido. Por favor, forneça documentos válidos.',
+			'Os documentos informados não são válidos. Por favor, forneça documentos válidos.',
 	})
 	@IsNotEmpty({
 		message:

@@ -149,6 +149,7 @@ export class DepartmentController {
 	async findAllActive(
 		@CurrentUser() user: UserAuth,
 		@Query('busca') busca?: string,
+		@Query('externo') externo?: boolean,
 	) {
 		return {
 			success: true,
@@ -157,6 +158,7 @@ export class DepartmentController {
 				{
 					busca,
 					ativo: true,
+					externo: externo === true ? externo : undefined,
 				},
 				undefined,
 				true,

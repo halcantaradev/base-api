@@ -23,6 +23,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 			);
 		}
 
+		if (user.primeiro_acesso) {
+			throw new UnauthorizedException(
+				'Você não está logado, faça login novamente!',
+			);
+		}
+
 		return super.handleRequest(err, user, info, context, status);
 	}
 }

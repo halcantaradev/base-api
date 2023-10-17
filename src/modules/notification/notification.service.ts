@@ -45,7 +45,7 @@ export class NotificationService {
 				unidade_id: createNotificationDto.unidade_id,
 				tipo_infracao_id: createNotificationDto.tipo_infracao_id,
 				tipo_registro: createNotificationDto.tipo_registro,
-				data_emissao: createNotificationDto.data_emissao,
+				data_emissao: new Date(),
 				data_infracao: createNotificationDto.data_infracao,
 				fundamentacao_legal: createNotificationDto.fundamentacao_legal,
 				codigo: `${codigo}/${new Date().getFullYear()}`,
@@ -821,6 +821,23 @@ export class NotificationService {
 			},
 		});
 
+		const unidade = await this.prisma.unidade.findUnique({
+			where: { id: validateNotificationDto.unidade_id },
+		});
+
+		let fundamentacao_legal_cond = null;
+		if (unidade) {
+			fundamentacao_legal_cond = (
+				await this.prisma.condominioHasTipoInfracao.findFirst({
+					where: {
+						tipo_infracao_id:
+							validateNotificationDto.tipo_infracao_id,
+						condominio_id: unidade.condominio_id,
+						excluido: false,
+					},
+				})
+			)?.fundamentacao;
+		}
 		const fundamentacao_legal = (
 			await this.prisma.tipoInfracao.findFirst({
 				where: {
@@ -828,12 +845,15 @@ export class NotificationService {
 				},
 			})
 		)?.fundamentacao_legal;
-		if (!setup)
+
+		if (!setup) {
 			return {
 				tipo_registro: validateNotificationDto.tipo_registro,
 				valor_multa: null,
-				fundamentacao_legal,
+				fundamentacao_legal:
+					fundamentacao_legal_cond || fundamentacao_legal,
 			};
+		}
 
 		if (setup.primeira_reincidencia) {
 			const notificacoes = await this.prisma.notificacao.findMany({
@@ -925,7 +945,8 @@ export class NotificationService {
 						!notificacoes.length
 							? validateNotificationDto.tipo_registro
 							: 2,
-					fundamentacao_legal,
+					fundamentacao_legal:
+						fundamentacao_legal_cond || fundamentacao_legal,
 				};
 			}
 
@@ -951,19 +972,26 @@ export class NotificationService {
 					return {
 						valor_multa: format(valor_multa),
 						tipo_registro: 2,
-						fundamentacao_legal,
+						fundamentacao_legal:
+							fundamentacao_legal_cond || fundamentacao_legal,
 					};
 				}
 
 				return {
 					valor_multa: 0,
 					tipo_registro: 2,
-					fundamentacao_legal,
+					fundamentacao_legal:
+						fundamentacao_legal_cond || fundamentacao_legal,
 				};
 			}
 		}
 
-		return { valor_multa: null, tipo_registro: 1, fundamentacao_legal };
+		return {
+			valor_multa: null,
+			tipo_registro: 1,
+			fundamentacao_legal:
+				fundamentacao_legal_cond || fundamentacao_legal,
+		};
 	}
 
 	async findAll(): Promise<ReturnNotificationListEntity> {
@@ -1075,7 +1103,6 @@ export class NotificationService {
 				unidade_id: updateNotificationDto.unidade_id,
 				tipo_infracao_id: updateNotificationDto.tipo_infracao_id,
 				tipo_registro: updateNotificationDto.tipo_registro,
-				data_emissao: updateNotificationDto.data_emissao,
 				data_infracao: updateNotificationDto.data_infracao,
 				fundamentacao_legal: updateNotificationDto.fundamentacao_legal,
 				detalhes_infracao: updateNotificationDto.detalhes_infracao,

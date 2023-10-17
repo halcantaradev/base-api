@@ -123,4 +123,17 @@ export class FiltersCondominiumDto extends FiltersCondominiumActiveDto {
 	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	ativo?: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o condomínio foi importado',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo importado informado não é válido. Por favor, forneça um formato válido.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	importado?: boolean;
 }

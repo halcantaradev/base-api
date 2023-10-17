@@ -634,4 +634,16 @@ export const permissionslist: Array<{
 		key: 'malote-virtual-relatorio',
 		message: 'Sem permissão para acessar relatórios de malotes',
 	},
+	{
+		label: 'Cadastrar condomínio',
+		module: 'Condomínios',
+		key: 'condominios-cadastrar',
+		message: 'Sem permissão para cadastrar condomínio',
+	},
+	{
+		label: 'Atualizar condomínio',
+		module: 'Condomínios',
+		key: 'condominios-atualizar',
+		message: 'Sem permissão para atualizar condomínio',
+	},
 ];

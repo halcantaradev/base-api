@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/modules/user/user.module';
 import { FilaModule } from 'src/shared/services/fila/fila.module';
 import { LoggerService } from 'src/shared/services/logger.service';
+import { HandlebarsService } from 'src/shared/services/handlebars.service';
 @Module({
 	imports: [
 		PassportModule,
@@ -26,6 +27,7 @@ import { LoggerService } from 'src/shared/services/logger.service';
 		PrismaService,
 		JwtStrategy,
 		LoggerService,
+		HandlebarsService,
 	],
 })
 export class AuthModule {}

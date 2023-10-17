@@ -15,9 +15,8 @@ async function bootstrap() {
 						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
 					],
 					queue: Filas.SYNC_INSERT + '-' + process.env.PREFIX_EMPRESA,
-					noAck: true,
-					persistent: false,
-					queueOptions: {},
+					noAck: false,
+					prefetchCount: 1,
 				},
 			},
 		);

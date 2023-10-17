@@ -8,10 +8,11 @@ datasource db {
 }
 
 model Pessoa {
-  id                Int       @id @default(autoincrement())
-  nome              String
-  cnpj              String?
-  empresa_id        Int?
+  id         Int     @id @default(autoincrement())
+  nome       String
+  cnpj       String?
+  empresa_id Int?
+
   numero            String?
   endereco          String?
   cep               String?
@@ -19,7 +20,7 @@ model Pessoa {
   cidade            String?
   uf                String?
   categoria_id      Int?
-  tipo_contrato_id  Int?
+  importado         Boolean   @default(true)
   ativo             Boolean   @default(true)
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
@@ -34,14 +35,13 @@ model Pessoa {
   departamentos                    Departamento[]
   notificacoes                     Notificacao[]
   departamentos_condominio         CondominioHasDepartamentos[]
-  empresas_pessoa                  EmpresaHasPessoas[]          @relation("EmpresaEmpresaPessoa")
-  pessoas_empresa                  EmpresaHasPessoas[]          @relation("PessoaEmpresaPessoa")
+  empresas_pessoa                  EmpresaHasPessoas[]           @relation("EmpresaEmpresaPessoa")
+  pessoas_empresa                  EmpresaHasPessoas[]           @relation("PessoaEmpresaPessoa")
   LayoutsNotificacao               LayoutsNotificacao[]
   condominio_administracao         CondomimioAdministracao[]
   usuarios_condominio              UsuarioHasCondominios[]
   setup_condominio_notificacoes    NotificacaoSetup?
   setup_empresa_sistema            SistemaSetup[]
-  tipo_contrato                    TipoContratoCondominio?      @relation(fields: [tipo_contrato_id], references: [id])
   tipos_infracoes                  TipoInfracao[]
   filiais_empresa                  Filial[]
   temas                            Tema[]
@@ -51,10 +51,12 @@ model Pessoa {
   emails_setup                     EmailSetup[]
   rotas                            Rota[]
   malotes_fisicos                  MalotesFisicos[]
-  condominio_malotes_virtuais      MaloteVirtual[]              @relation("CondominioMalotes")
-  empresa_malotes_virtuais         MaloteVirtual[]              @relation("EmpresaMalotes")
+  condominio_malotes_virtuais      MaloteVirtual[]               @relation("CondominioMalotes")
+  empresa_malotes_virtuais         MaloteVirtual[]               @relation("EmpresaMalotes")
   setup_rotas                      MaloteSetup?
   documento_fila_geracao           DocumentoFilaGeracao[]
+  tipo_infracao                    CondominioHasTipoInfracao[]
+  condominios_tipos_contratos      CondominiosHasTiposContrato[]
 
   @@map("pessoas")
 }
@@ -191,7 +193,8 @@ model TipoInfracao {
 
   notificacoes Notificacao[]
 
-  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  empresa    Pessoa                      @relation(fields: [empresa_id], references: [id])
+  condominio CondominioHasTipoInfracao[]
 
   @@map("tipos_infracao")
 }
@@ -499,14 +502,27 @@ model UnidadeHasTaxas {
 }
 
 model TipoContratoCondominio {
-  id          Int      @id @default(autoincrement())
-  nome        String
-  ativo       Boolean  @default(true)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  condominios Pessoa[]
+  id                          Int                           @id @default(autoincrement())
+  nome                        String
+  ativo                       Boolean                       @default(true)
+  created_at                  DateTime                      @default(now())
+  updated_at                  DateTime                      @updatedAt
+  condominios_tipos_contratos CondominiosHasTiposContrato[]
 
   @@map("tipos_contratos_condominio")
+}
+
+model CondominiosHasTiposContrato {
+  condominio_id    Int
+  tipo_contrato_id Int
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  condominio    Pessoa                 @relation(fields: [condominio_id], references: [id])
+  tipo_contrato TipoContratoCondominio @relation(fields: [tipo_contrato_id], references: [id])
+
+  @@id([condominio_id, tipo_contrato_id])
+  @@map("condominios_has_tipos_contratos")
 }
 
 model Filial {
@@ -550,6 +566,7 @@ model IntegracaoDatabase {
   token            String?
   data_atualizacao DateTime?
   ativo            Boolean   @default(true)
+  sincronizando    Boolean   @default(false)
   excluido         Boolean   @default(false)
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
@@ -775,4 +792,19 @@ model DocumentoFilaGeracao {
   empresa   Pessoa             @relation(fields: [empresa_id], references: [id])
 
   @@map("documentos_fila_geracao")
+}
+
+model CondominioHasTipoInfracao {
+  id               Int      @id @default(autoincrement())
+  condominio_id    Int
+  tipo_infracao_id Int
+  fundamentacao    String   @db.Text
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  excluido         Boolean  @default(false)
+
+  condominio    Pessoa       @relation(fields: [condominio_id], references: [id])
+  tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])
+
+  @@map("condominios_has_tipos_infracoes")
 }

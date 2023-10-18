@@ -362,9 +362,7 @@ export class CondominiumController {
 		@Query() pagination: Pagination,
 	) {
 		const dados = await this.condominioService.findAllResidences(
-			{
-				...body,
-			},
+			body,
 			user,
 			pagination,
 		);

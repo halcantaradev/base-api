@@ -162,7 +162,7 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
-		id_relation: 19,
+		id_relation: 20,
 		permission_key: 'malotes-virtuais-listar-pendentes',
 		relation: 15,
 		label: 'Malotes gerados',

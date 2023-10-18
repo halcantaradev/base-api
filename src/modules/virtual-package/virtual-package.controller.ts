@@ -29,6 +29,7 @@ import { VirtualPackageReportReturnEntity } from './entities/virtual-package-rep
 import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
 import { VirtualPackageService } from './virtual-package.service';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
+import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -120,7 +121,7 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Get('pending')
+	@Post('pending')
 	@Role('malotes-virtuais-listar-pendentes')
 	@ApiOperation({ summary: 'Lista todos os malotes pendentes' })
 	@ApiResponse({
@@ -133,11 +134,15 @@ export class VirtualPackageController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllPending(@CurrentUser() user: UserAuth) {
+	async findAllPending(
+		@CurrentUser() user: UserAuth,
+		@Body() filter: FiltersSearchVirtualPackageDto,
+	) {
 		return {
 			success: true,
 			data: await this.virtualPackageService.findAllPending(
 				user.empresa_id,
+				filter,
 			),
 		};
 	}

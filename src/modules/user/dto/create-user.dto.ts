@@ -174,4 +174,17 @@ export class CreateUserDto {
 			'O campo departamentos é obrigatório. Por favor, forneça um departamento.',
 	})
 	departamentos: number[];
+
+	@ApiProperty({
+		description: 'Status do usuário',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo status informado não é válido. Por favor, forneça um status válido.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	ativo: boolean;
 }

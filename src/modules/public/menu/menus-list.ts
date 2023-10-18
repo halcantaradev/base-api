@@ -62,6 +62,15 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
+		id_relation: 19,
+		permission_key: 'condominios-cadastrar',
+		relation: 7,
+		label: 'Cadastrar',
+		url: 'condominios/cadastrar',
+		icon: 'unordered_list_outline',
+		target: '_self',
+	},
+	{
 		id_relation: 9,
 		relation: 1,
 		label: 'Tipos de infração',
@@ -153,7 +162,7 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
-		id_relation: 19,
+		id_relation: 20,
 		permission_key: 'malotes-virtuais-listar-pendentes',
 		relation: 15,
 		label: 'Malotes gerados',

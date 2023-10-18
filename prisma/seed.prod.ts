@@ -128,7 +128,6 @@ async function createUser(empresa: Pessoa) {
 		});
 
 		return user;
-		console.log('Usuário criado');
 	} else {
 		console.log('Usuário já cadastrado');
 	}

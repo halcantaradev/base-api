@@ -6,8 +6,8 @@ import {
 	TiposPessoa,
 	Unidade,
 } from '@prisma/client';
-const prisma = new PrismaClient();
 import { Contact } from '../src/shared/consts/contact.const';
+const prisma = new PrismaClient();
 
 async function findEmpresa(): Promise<Pessoa> {
 	const empresa = await prisma.pessoa.findFirst({

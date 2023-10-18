@@ -36,6 +36,7 @@ export class PersonService {
 					cnpj: true,
 					numero: true,
 					endereco: true,
+					importado: true,
 					cep: true,
 					bairro: true,
 					cidade: true,
@@ -83,6 +84,7 @@ export class PersonService {
 				cidade: true,
 				uf: true,
 				ativo: true,
+				categoria_id: true,
 				...select,
 			},
 			where: {

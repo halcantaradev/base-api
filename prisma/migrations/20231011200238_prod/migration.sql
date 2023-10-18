@@ -15,10 +15,6 @@ ADD COLUMN     "finalizado" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "malote_virtual_id" INTEGER NOT NULL;
 
 -- AlterTable
-ALTER TABLE "malotes_virtuais" ADD COLUMN     "malote_baixado" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "usuario_id" INTEGER NOT NULL;
-
--- AlterTable
 ALTER TABLE "protocolos" ADD COLUMN     "malote_virtual_id" INTEGER;
 
 -- AddForeignKey

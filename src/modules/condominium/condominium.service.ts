@@ -930,6 +930,7 @@ export class CondominiumService {
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
+		console.log(pagination);
 		if (!body.condominios_ids.length)
 			throw new BadRequestException('Selecione um condomínio válido');
 
@@ -944,6 +945,7 @@ export class CondominiumService {
 			select: {
 				id: true,
 				codigo: true,
+				created_at: true,
 				condominos: {
 					select: {
 						condomino: { select: { nome: true, id: true } },
@@ -1051,7 +1053,9 @@ export class CondominiumService {
 		});
 
 		return {
-			data: unidades,
+			data: unidades.map((residence) => ({
+				...residence,
+			})),
 			total_pages,
 		};
 	}

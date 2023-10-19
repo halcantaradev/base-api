@@ -62,7 +62,7 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
-		id_relation: 15,
+		id_relation: 19,
 		permission_key: 'condominios-cadastrar',
 		relation: 7,
 		label: 'Cadastrar',

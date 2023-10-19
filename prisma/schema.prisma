@@ -776,7 +776,7 @@ model MaloteDocumento {
   id                Int      @id @default(autoincrement())
   malote_virtual_id Int
   documento_id      Int
-  estornado         Boolean  @default(false)
+  excluido          Boolean  @default(false)
   finalizado        Boolean  @default(false)
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt

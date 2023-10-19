@@ -12,6 +12,7 @@ import { VirtualPackageType } from 'src/shared/consts/report-virtual-package-tyo
 import { Prisma } from '@prisma/client';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @Injectable()
 export class VirtualPackageService {
@@ -136,8 +137,9 @@ export class VirtualPackageService {
 				malote_fisico: { select: { codigo: true } },
 				documentos_malote: {
 					select: {
+						id: true,
 						finalizado: true,
-						estornado: true,
+						excluido: true,
 						documento: {
 							select: {
 								id: true,
@@ -152,6 +154,9 @@ export class VirtualPackageService {
 								vencimento: true,
 							},
 						},
+					},
+					where: {
+						excluido: false,
 					},
 				},
 			},
@@ -181,7 +186,7 @@ export class VirtualPackageService {
 		return data;
 	}
 
-	findBy(empresa_id: number, filters: FiltersVirtualPackageDto) {
+	findBy(empresa_id: number, filter: FiltersVirtualPackageDto) {
 		const documentsSelect: Prisma.MaloteVirtualSelect = {
 			data_saida: true,
 			data_retorno: true,
@@ -206,13 +211,6 @@ export class VirtualPackageService {
 						},
 					},
 				},
-				where: {
-					documento: {
-						retorna: filters.documento_retorna
-							? filters.documento_retorna
-							: undefined,
-					},
-				},
 			},
 		};
 
@@ -232,38 +230,69 @@ export class VirtualPackageService {
 			updated_at: true,
 		};
 
+		const where: Prisma.MaloteVirtualWhereInput = {
+			empresa_id,
+			finalizado: filter.finalizado,
+			excluido: false,
+			id: filter.codigo,
+			created_at:
+				filter.tipo_data == 1 && filter.data_filtro
+					? {
+							gte: setCustomHour(filter.data_filtro[0], 0, 0, 0),
+							lte: setCustomHour(
+								filter.data_filtro[1],
+								23,
+								59,
+								59,
+							),
+					  }
+					: undefined,
+			data_saida:
+				filter.tipo_data == 2 && filter.data_filtro
+					? {
+							gte: setCustomHour(filter.data_filtro[0], 0, 0, 0),
+							lte: setCustomHour(
+								filter.data_filtro[1],
+								23,
+								59,
+								59,
+							),
+					  }
+					: undefined,
+			data_retorno:
+				filter.tipo_data == 3 && filter.data_filtro
+					? {
+							gte: setCustomHour(filter.data_filtro[0], 0, 0, 0),
+							lte: setCustomHour(
+								filter.data_filtro[1],
+								23,
+								59,
+								59,
+							),
+					  }
+					: undefined,
+			malote_fisico: filter.codigo_malote_fisico
+				? {
+						codigo: {
+							contains: filter.codigo_malote_fisico,
+							mode: 'insensitive',
+						},
+				  }
+				: undefined,
+			condominio_id: filter.condominios_ids
+				? { in: filter.condominios_ids }
+				: undefined,
+			usuario_id: filter.usuario_ids
+				? { in: filter.usuario_ids }
+				: undefined,
+		};
+
 		return this.prisma.maloteVirtual.findMany({
 			select:
-				filters.tipo === VirtualPackageType.SINTETICO
+				filter.tipo === VirtualPackageType.SINTETICO
 					? packagesSelect
 					: documentsSelect,
-			where: {
-				condominio_id: filters.condominios_ids?.length
-					? { in: filters.condominios_ids }
-					: undefined,
-				created_at: {
-					gte: filters.data_emissao[0]
-						? setCustomHour(filters.data_emissao[0], 0, 0, 0)
-						: undefined,
-					lte: filters.data_emissao[1]
-						? setCustomHour(filters.data_emissao[1], 23, 59, 59)
-						: undefined,
-				},
-				malote_fisico_id: filters.malote_fisico_ids?.length
-					? { in: filters.malote_fisico_ids }
-					: undefined,
-				finalizado: filters.situacao ? filters.situacao : undefined,
-				id: filters.codigo ? filters.codigo : undefined,
-				updated_at: {
-					gte: filters.data_retorno[0]
-						? setCustomHour(filters.data_retorno[0], 0, 0, 0)
-						: undefined,
-					lte: filters.data_retorno[1]
-						? setCustomHour(filters.data_retorno[1], 23, 59, 59)
-						: undefined,
-				},
-				empresa_id,
-			},
+			where,
 		});
 	}
 
@@ -280,8 +309,68 @@ export class VirtualPackageService {
 		return data;
 	}
 
-	findAllPending(empresa_id: number, filter: FiltersSearchVirtualPackageDto) {
-		return this.prisma.maloteVirtual.findMany({
+	async findAllPending(
+		empresa_id: number,
+		filter: FiltersSearchVirtualPackageDto,
+		pagination?: Pagination,
+	) {
+		const where: Prisma.MaloteVirtualWhereInput = {
+			empresa_id,
+			finalizado: filter.finalizado,
+			excluido: false,
+			id: filter.codigo,
+			created_at:
+				filter.tipo_data == 1 && filter.data_filtro
+					? {
+							gte: setCustomHour(filter.data_filtro[0], 0, 0, 0),
+							lte: setCustomHour(
+								filter.data_filtro[1],
+								23,
+								59,
+								59,
+							),
+					  }
+					: undefined,
+			data_saida:
+				filter.tipo_data == 2 && filter.data_filtro
+					? {
+							gte: setCustomHour(filter.data_filtro[0], 0, 0, 0),
+							lte: setCustomHour(
+								filter.data_filtro[1],
+								23,
+								59,
+								59,
+							),
+					  }
+					: undefined,
+			data_retorno:
+				filter.tipo_data == 3 && filter.data_filtro
+					? {
+							gte: setCustomHour(filter.data_filtro[0], 0, 0, 0),
+							lte: setCustomHour(
+								filter.data_filtro[1],
+								23,
+								59,
+								59,
+							),
+					  }
+					: undefined,
+			malote_fisico: filter.codigo_malote_fisico
+				? {
+						codigo: {
+							contains: filter.codigo_malote_fisico,
+							mode: 'insensitive',
+						},
+				  }
+				: undefined,
+			condominio_id: filter.condominios_ids
+				? { in: filter.condominios_ids }
+				: undefined,
+			usuario_id: filter.usuario_ids
+				? { in: filter.usuario_ids }
+				: undefined,
+		};
+		const malotes = await this.prisma.maloteVirtual.findMany({
 			select: {
 				id: true,
 				finalizado: true,
@@ -299,78 +388,20 @@ export class VirtualPackageService {
 				malote_fisico: { select: { codigo: true } },
 				usuario: { select: { nome: true } },
 			},
-			where: {
-				empresa_id,
-				finalizado: filter.finalizado,
-				excluido: false,
-				id: filter.codigo,
-				created_at:
-					filter.tipo_data == 1 && filter.data_filtro
-						? {
-								gte: setCustomHour(
-									filter.data_filtro[0],
-									0,
-									0,
-									0,
-								),
-								lte: setCustomHour(
-									filter.data_filtro[1],
-									23,
-									59,
-									59,
-								),
-						  }
-						: undefined,
-				data_saida:
-					filter.tipo_data == 2 && filter.data_filtro
-						? {
-								gte: setCustomHour(
-									filter.data_filtro[0],
-									0,
-									0,
-									0,
-								),
-								lte: setCustomHour(
-									filter.data_filtro[1],
-									23,
-									59,
-									59,
-								),
-						  }
-						: undefined,
-				data_retorno:
-					filter.tipo_data == 3 && filter.data_filtro
-						? {
-								gte: setCustomHour(
-									filter.data_filtro[0],
-									0,
-									0,
-									0,
-								),
-								lte: setCustomHour(
-									filter.data_filtro[1],
-									23,
-									59,
-									59,
-								),
-						  }
-						: undefined,
-				malote_fisico: filter.codigo_malote_fisico
-					? {
-							codigo: {
-								contains: filter.codigo_malote_fisico,
-								mode: 'insensitive',
-							},
-					  }
-					: undefined,
-				condominio_id: filter.condominios_ids
-					? { in: filter.condominios_ids }
-					: undefined,
-				usuario_id: filter.usuario_ids
-					? { in: filter.usuario_ids }
-					: undefined,
-			},
+			where,
+			take: pagination?.page ? 20 : 100,
+			skip: pagination?.page ? (pagination?.page - 1) * 20 : undefined,
 		});
+
+		const total_pages = await this.prisma.maloteVirtual.count({
+			where,
+		});
+
+		return {
+			success: true,
+			data: malotes,
+			total_pages,
+		};
 	}
 
 	async receiveDoc(
@@ -378,8 +409,9 @@ export class VirtualPackageService {
 		receiveVirtualPackageDto: ReceiveVirtualPackageDto,
 		empresa_id: number,
 	) {
-		if (Number.isNaN(id))
+		if (Number.isNaN(id)) {
 			throw new BadRequestException('Documento não encontrado');
+		}
 
 		const documents = await this.prisma.maloteDocumento.findMany({
 			select: {
@@ -387,11 +419,11 @@ export class VirtualPackageService {
 				malote_virtual_id: true,
 			},
 			where: {
-				documento_id: {
+				id: {
 					in: receiveVirtualPackageDto.documentos_ids,
 				},
 				malote_virtual_id: id,
-				estornado: false,
+				excluido: false,
 				finalizado: false,
 				malote_virtual: {
 					excluido: false,
@@ -403,7 +435,7 @@ export class VirtualPackageService {
 
 		if (!documents.length)
 			throw new BadRequestException(
-				'Documento(s) informado(s) não recebido(s) ou não encontrado(s)',
+				'Documento(s) informado(s) já baixado(s) ou não encontrado(s)',
 			);
 
 		const documents_ids_accept = documents.map((document) => document.id);
@@ -418,7 +450,7 @@ export class VirtualPackageService {
 			},
 		});
 
-		const malote = await this.prisma.maloteVirtual.findUnique({
+		const malote = await this.prisma.maloteVirtual.findFirst({
 			select: {
 				malote_fisico_id: true,
 				finalizado: true,
@@ -427,12 +459,12 @@ export class VirtualPackageService {
 						id: true,
 					},
 					where: {
-						estornado: false,
+						excluido: false,
 						finalizado: false,
 					},
 				},
 			},
-			where: { id: id },
+			where: { id },
 		});
 
 		if (!malote.documentos_malote.length) {
@@ -445,16 +477,41 @@ export class VirtualPackageService {
 				},
 			});
 
-			if (!malote.finalizado)
+			if (!malote.finalizado && malote.malote_fisico_id) {
+				const malote_fisico =
+					await this.prisma.malotesFisicos.findFirst({
+						select: {
+							id: true,
+						},
+						where: {
+							id: malote.malote_fisico_id,
+							disponivel: false,
+							malotes_virtuais: {
+								every: {
+									documentos_malote: {
+										every: {
+											finalizado: false,
+										},
+									},
+								},
+							},
+						},
+					});
+
+				console.log(malote_fisico);
 				await this.prisma.malotesFisicos.update({
 					data: { disponivel: true },
 					where: {
 						id: malote.malote_fisico_id,
 					},
 				});
+			}
 		}
 
-		return;
+		return {
+			success: true,
+			message: 'Documento(s) baixado(s) com sucesso!',
+		};
 	}
 
 	async reverseReceiveDoc(
@@ -478,7 +535,7 @@ export class VirtualPackageService {
 			where: {
 				id: { in: reverseReceiveVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
-				estornado: false,
+				excluido: false,
 				finalizado: true,
 				malote_virtual: {
 					excluido: false,
@@ -489,7 +546,7 @@ export class VirtualPackageService {
 
 		if (!documents.length)
 			throw new BadRequestException(
-				'Documento(s) informado(s) não recebido(s) ou não encontrado(s)',
+				'Documento(s) informado(s) não pode ser estornado(s) ou não encontrado(s)',
 			);
 
 		const documents_ids_accept = documents.map((document) => document.id);
@@ -498,7 +555,7 @@ export class VirtualPackageService {
 			data: { finalizado: false },
 			where: {
 				malote_virtual_id: id,
-				documento_id: { in: documents_ids_accept },
+				id: { in: documents_ids_accept },
 			},
 		});
 
@@ -712,7 +769,7 @@ export class VirtualPackageService {
 		reverseVirtualPackageDto: ReverseVirtualPackageDto,
 		empresa_id: number,
 	) {
-		if (Number.isNaN(id) || Number.isNaN(id)) {
+		if (Number.isNaN(id) || Number.isNaN(empresa_id)) {
 			throw new BadRequestException('Documento não encontrado');
 		}
 
@@ -723,7 +780,7 @@ export class VirtualPackageService {
 			where: {
 				id: { in: reverseVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
-				estornado: false,
+				excluido: false,
 				finalizado: false,
 				malote_virtual: {
 					excluido: false,
@@ -741,7 +798,7 @@ export class VirtualPackageService {
 		const documents_ids_accept = documents.map((document) => document.id);
 
 		await this.prisma.maloteDocumento.updateMany({
-			data: { estornado: true },
+			data: { excluido: true },
 			where: {
 				id: { in: documents_ids_accept },
 			},
@@ -763,7 +820,7 @@ export class VirtualPackageService {
 					select: {
 						id: true,
 					},
-					where: { estornado: false },
+					where: { excluido: false },
 				},
 			},
 			where: { id: id },

@@ -7,6 +7,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -30,6 +31,7 @@ import { VirtualPackageListReturn } from './entities/virtual-package-return.enti
 import { VirtualPackageService } from './virtual-package.service';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -136,15 +138,14 @@ export class VirtualPackageController {
 	})
 	async findAllPending(
 		@CurrentUser() user: UserAuth,
-		@Body() filter: FiltersSearchVirtualPackageDto,
+		@Body() filters: FiltersSearchVirtualPackageDto,
+		@Query() pagination: Pagination,
 	) {
-		return {
-			success: true,
-			data: await this.virtualPackageService.findAllPending(
-				user.empresa_id,
-				filter,
-			),
-		};
+		return this.virtualPackageService.findAllPending(
+			user.empresa_id,
+			filters,
+			pagination,
+		);
 	}
 
 	@Post('report')
@@ -266,13 +267,11 @@ export class VirtualPackageController {
 		@Param('id') id: string,
 		@Body() receiveVirtualPackageDto: ReceiveVirtualPackageDto,
 	) {
-		await this.virtualPackageService.receiveDoc(
+		return this.virtualPackageService.receiveDoc(
 			+id,
 			receiveVirtualPackageDto,
 			user.empresa_id,
 		);
-
-		return { success: true, message: 'Documento baixado com sucesso!' };
 	}
 
 	@Patch(':id/receive/reverse')

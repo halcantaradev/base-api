@@ -558,7 +558,7 @@ export class ProtocolService {
 							},
 						},
 						where: {
-							estornado: false,
+							excluido: false,
 						},
 					},
 					discriminacao: true,

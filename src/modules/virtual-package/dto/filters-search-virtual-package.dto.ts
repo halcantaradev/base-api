@@ -92,7 +92,7 @@ export class FiltersSearchVirtualPackageDto {
 
 	@ApiProperty({
 		description: 'Filtro por tipo de data',
-		example: [1, 2],
+		example: 1,
 		required: false,
 	})
 	@IsNotEmpty({

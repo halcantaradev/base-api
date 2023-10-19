@@ -646,4 +646,22 @@ export const permissionslist: Array<{
 		key: 'condominios-atualizar',
 		message: 'Sem permissão para atualizar condomínio',
 	},
+	{
+		label: 'Estornar recebimento de um malote',
+		module: 'Expedição',
+		key: 'malotes-virtuais-documentos-estornar-recebimento',
+		message: 'Sem permissão para estornar recebimento de malote',
+	},
+	{
+		label: 'Baixa de um malote',
+		module: 'Expedição',
+		key: 'malotes-virtuais-baixar',
+		message: 'Sem permissão para baixar malote',
+	},
+	{
+		label: 'Exibir dados de um malote',
+		module: 'Expedição',
+		key: 'malotes-virtuais-exibir-dados',
+		message: 'Sem permissão para exibir dados do malote',
+	},
 ];

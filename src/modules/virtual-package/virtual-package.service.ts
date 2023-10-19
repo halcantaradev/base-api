@@ -498,7 +498,6 @@ export class VirtualPackageService {
 						},
 					});
 
-				console.log(malote_fisico);
 				await this.prisma.malotesFisicos.update({
 					data: { disponivel: true },
 					where: {

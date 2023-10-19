@@ -664,4 +664,10 @@ export const permissionslist: Array<{
 		key: 'malotes-virtuais-exibir-dados',
 		message: 'Sem permissão para exibir dados do malote',
 	},
+	{
+		label: 'Listar malote físico',
+		module: 'Expedição',
+		key: 'malote-fisico-listar',
+		message: 'Sem permissão para listar malote físico',
+	},
 ];

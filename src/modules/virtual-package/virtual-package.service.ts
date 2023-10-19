@@ -775,6 +775,7 @@ export class VirtualPackageService {
 		const documents = await this.prisma.maloteDocumento.findMany({
 			select: {
 				id: true,
+				documento: true,
 			},
 			where: {
 				id: { in: reverseVirtualPackageDto.documentos_ids },
@@ -791,10 +792,12 @@ export class VirtualPackageService {
 
 		if (!documents.length)
 			throw new BadRequestException(
-				'Documento(s) baixados(s) nao podem ser estornado(s)',
+				'Documentos baixados não podem ser excluídos',
 			);
 
-		const documents_ids_accept = documents.map((document) => document.id);
+		const documents_ids_accept = documents.map(
+			(document) => document.documento.id,
+		);
 
 		await this.prisma.maloteDocumento.updateMany({
 			data: { excluido: true },

@@ -26,6 +26,7 @@ export class QueueGeneratePackageService {
 						documento_id: {
 							in: createQueueGeneratePackageDto.documentos_ids,
 						},
+						excluido: false,
 					},
 				},
 				condominio: {

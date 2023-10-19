@@ -62,6 +62,11 @@ export class PermissionGuard implements CanActivate {
 								empresa_id: request.user.empresa_id,
 							});
 
+						if (!permission)
+							throw new ForbiddenException(
+								`Permissão "${roleKey}" não encontrada!`,
+							);
+
 						if (
 							permission &&
 							!permission.cargos.length &&

@@ -791,7 +791,7 @@ export class VirtualPackageService {
 
 		if (!documents.length)
 			throw new BadRequestException(
-				'Documento(s) informado(s) não gerado(s) ou não encontrado(s)',
+				'Documento(s) baixados(s) nao podem ser estornado(s)',
 			);
 
 		const documents_ids_accept = documents.map((document) => document.id);

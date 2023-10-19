@@ -240,7 +240,7 @@ export class VirtualPackageController {
 			user.empresa_id,
 		);
 
-		return { success: true, message: 'Documento estornado com sucesso!' };
+		return { success: true, message: 'Documento excluído com sucesso!' };
 	}
 
 	@Post(':id/receive')

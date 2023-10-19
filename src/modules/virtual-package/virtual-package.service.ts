@@ -795,6 +795,8 @@ export class VirtualPackageService {
 				'Documentos baixados não podem ser excluídos',
 			);
 
+		const documents_ids_package = documents.map((document) => document.id);
+
 		const documents_ids_accept = documents.map(
 			(document) => document.documento.id,
 		);
@@ -802,7 +804,7 @@ export class VirtualPackageService {
 		await this.prisma.maloteDocumento.updateMany({
 			data: { excluido: true },
 			where: {
-				id: { in: documents_ids_accept },
+				id: { in: documents_ids_package },
 			},
 		});
 

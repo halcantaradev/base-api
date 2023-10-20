@@ -943,6 +943,7 @@ export class CondominiumService {
 		const unidades = await this.prisma.unidade.findMany({
 			select: {
 				id: true,
+
 				codigo: true,
 				condominos: {
 					select: {

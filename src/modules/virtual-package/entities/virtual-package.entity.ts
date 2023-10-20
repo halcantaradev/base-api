@@ -1,7 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Condominium } from 'src/modules/condominium/entities/condominium.entity';
-import { PhysicalPackage } from 'src/modules/physical-package/entities/physical-package.entity';
-import { ProtocolDocument } from 'src/modules/protocol/entities/protocol-document.entity';
 
 export class VirtualPackage {
 	@ApiProperty({
@@ -12,30 +9,49 @@ export class VirtualPackage {
 	id: number;
 
 	@ApiProperty({
-		description: 'Id do departamento',
-		example: { codigo: 1 },
+		description: 'Dados do malote físico',
+		example: { codigo: 'teste' },
 		readOnly: true,
 	})
-	malote_fisico?: PhysicalPackage;
+	malote_fisico?: { codigo: string };
 
 	@ApiProperty({
-		description: 'Finalizado',
+		description: 'Identifica se o malote foi finalizado',
 		example: false,
 		readOnly: true,
 	})
 	finalizado: boolean;
 
 	@ApiProperty({
-		description: 'Finalizado',
-		example: { nome: 'Teste' },
+		description: 'Condomínio do malote',
+		example: { nome: 'Condomínio Teste' },
 		readOnly: true,
 	})
-	condominio: Condominium;
+	condominio: { nome: string };
 
 	@ApiProperty({
-		description: 'Finalizado',
+		description: 'Documentos do malote',
+		example: [
+			{
+				documento: {
+					id: 1,
+					tipo_documento: { id: 1, nome: 'Tipo Teste' },
+					discriminacao: 'Discriminação Teste',
+					observacao: 'Observação Teste',
+					vencimento: new Date(),
+				},
+			},
+		],
 		readOnly: true,
 		isArray: true,
 	})
-	documentos_malote: ProtocolDocument;
+	documentos_malote?: {
+		documento: {
+			id: number;
+			tipo_documento?: { id: number; nome: string };
+			discriminacao: string;
+			observacao: string;
+			vencimento: Date;
+		};
+	}[];
 }

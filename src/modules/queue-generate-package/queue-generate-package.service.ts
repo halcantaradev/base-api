@@ -81,6 +81,9 @@ export class QueueGeneratePackageService {
 								},
 								fila_geracao_malote: {
 									select: { id: true },
+									where: {
+										excluido: false,
+									},
 								},
 								aceite_usuario: {
 									select: {
@@ -169,6 +172,7 @@ export class QueueGeneratePackageService {
 				where: {
 					id,
 					empresa_id,
+					excluido: false,
 				},
 			});
 

@@ -550,7 +550,7 @@ export class ProtocolService {
 					},
 					malotes_documento: {
 						select: {
-							malote: {
+							malote_virtual: {
 								select: {
 									id: true,
 									finalizado: true,
@@ -558,7 +558,7 @@ export class ProtocolService {
 							},
 						},
 						where: {
-							estornado: false,
+							excluido: false,
 						},
 					},
 					discriminacao: true,

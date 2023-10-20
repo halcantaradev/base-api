@@ -281,7 +281,7 @@ export class ProtocolController {
 
 	@Post(':id/documents/accept')
 	@HttpCode(HttpStatus.OK)
-	@Role('protocolos-documento-aceitar')
+	@Role('protocolos-documentos-aceitar')
 	@ApiOperation({ summary: 'Aceita os documentos de um protocolo' })
 	@ApiResponse({
 		description: 'Documentos aceitos com sucesso',

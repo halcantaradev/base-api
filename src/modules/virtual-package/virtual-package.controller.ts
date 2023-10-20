@@ -11,19 +11,27 @@ import {
 	UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { Role } from 'src/shared/decorators/role.decorator';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
+import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
 import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
-import { VirtualPackageService } from './virtual-package.service';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
-import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { Role } from 'src/shared/decorators/role.decorator';
-import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
-import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
 import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
+import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
+import { NewDocumentVirtualPackageListReturn } from './entities/new-document-virtual-package-return.entity';
+import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
+import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-package.dto';
+import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
+import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
 import { VirtualPackageReportReturnEntity } from './entities/virtual-package-report-return.entity';
+import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
+import { VirtualPackageService } from './virtual-package.service';
+import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
+import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -57,10 +65,7 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Body() createVirtualPackageDto: CreateVirtualPackageDto,
 	) {
-		return this.virtualPackageService.create(
-			createVirtualPackageDto,
-			user.empresa_id,
-		);
+		return this.virtualPackageService.create(createVirtualPackageDto, user);
 	}
 
 	@Get('physical-packages')
@@ -118,7 +123,7 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Get('pending')
+	@Post('pending')
 	@Role('malotes-virtuais-listar-pendentes')
 	@ApiOperation({ summary: 'Lista todos os malotes pendentes' })
 	@ApiResponse({
@@ -131,13 +136,16 @@ export class VirtualPackageController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllPending(@CurrentUser() user: UserAuth) {
-		return {
-			success: false,
-			data: await this.virtualPackageService.findAllPending(
-				user.empresa_id,
-			),
-		};
+	async findAllPending(
+		@CurrentUser() user: UserAuth,
+		@Body() filters: FiltersSearchVirtualPackageDto,
+		@Query() pagination: Pagination,
+	) {
+		return this.virtualPackageService.findAllPending(
+			user.empresa_id,
+			filters,
+			pagination,
+		);
 	}
 
 	@Post('report')
@@ -173,7 +181,37 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Patch(':id/document/:id_document')
+	@Get(':id')
+	@Role('malotes-virtuais-exibir-dados')
+	@ApiOperation({
+		summary: 'Lista os dados do malote virtual',
+	})
+	@ApiResponse({
+		description: 'Dados listados com sucesso',
+		status: HttpStatus.OK,
+		type: VirtualPackageListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	async findOne(@CurrentUser() user: UserAuth, @Param('id') id: string) {
+		return {
+			data: await this.virtualPackageService.findById(
+				user.empresa_id,
+				+id,
+			),
+			success: true,
+		};
+	}
+
+	@Patch(':id/reverse')
 	@Role('malotes-virtuais-documentos-estornar')
 	@ApiOperation({ summary: 'Estorna um documento do malote' })
 	@ApiResponse({
@@ -191,10 +229,216 @@ export class VirtualPackageController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	reverseDocumentoMalote(
+	async reverseDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Body() reverseVirtualPackageDto: ReverseVirtualPackageDto,
+	) {
+		await this.virtualPackageService.reverseDoc(
+			+id,
+			reverseVirtualPackageDto,
+			user.empresa_id,
+		);
+
+		return { success: true, message: 'Documento excluído com sucesso!' };
+	}
+
+	@Post(':id/receive')
+	@HttpCode(HttpStatus.OK)
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({ summary: 'Realiza a baixa do malote' })
+	@ApiResponse({
+		description: 'Malotes recebido com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao baixar o malote',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao baixar o malote',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async receiveDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Body() receiveVirtualPackageDto: ReceiveVirtualPackageDto,
+	) {
+		return this.virtualPackageService.receiveDoc(
+			+id,
+			receiveVirtualPackageDto,
+			user.empresa_id,
+		);
+	}
+
+	@Patch(':id/receive/reverse')
+	@Role('malotes-virtuais-documentos-estornar-recebimento')
+	@ApiOperation({
+		summary: 'Estorna a baixa de um documento do malote',
+	})
+	@ApiResponse({
+		description: 'Baixa estornada com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao estornar a baixa do documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async reverseReceiveDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Body()
+		reverseReceiveVirtualPackageDto: ReverseReceiveVirtualPackageDto,
+	) {
+		await this.virtualPackageService.reverseReceiveDoc(
+			+id,
+			reverseReceiveVirtualPackageDto,
+			user.empresa_id,
+		);
+
+		return { success: true, message: 'Baixa estornada com sucesso!' };
+	}
+
+	@Post(':id/new-documents')
+	@HttpCode(HttpStatus.OK)
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({ summary: 'Adiciona um novo documento na baixa do malote' })
+	@ApiResponse({
+		description: 'Documento adicionado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao adicionar o documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async createNewDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Body()
+		createNewDocumentVirtualPackageDto: CreateNewDocumentVirtualPackageDto,
+	) {
+		await this.virtualPackageService.createNewDoc(
+			+id,
+			createNewDocumentVirtualPackageDto,
+			user,
+		);
+
+		return { success: true, message: 'Documento salvo com sucesso!' };
+	}
+
+	@Get(':id/new-documents')
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({ summary: 'Adiciona um novo documento na baixa do malote' })
+	@ApiResponse({
+		description: 'Documento adicionado com sucesso',
+		status: HttpStatus.OK,
+		type: NewDocumentVirtualPackageListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao adicionar o documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllNewDocs(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+	) {
+		return {
+			success: true,
+			data: await this.virtualPackageService.findAllNewDocs(
+				+id,
+				user.empresa_id,
+			),
+		};
+	}
+
+	@Patch(':id/new-documents/:id_document')
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({
+		summary: 'Atualiza um documento adicionado na baixa do malote',
+	})
+	@ApiResponse({
+		description: 'Documento atualizado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar o documento',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async updateNewDoc(
+		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
 		@Param('id_document') id_document: string,
+		@Body()
+		updateNewDocumentVirtualPackageDto: UpdateNewDocumentVirtualPackageDto,
 	) {
-		return this.virtualPackageService.reverseDoc(+id, +id_document);
+		await this.virtualPackageService.updateNewDoc(
+			+id,
+			+id_document,
+			updateNewDocumentVirtualPackageDto,
+			user,
+		);
+
+		return { success: true, message: 'Documento atualizado com sucesso!' };
+	}
+
+	@Post(':id/new-documents/finalize')
+	@HttpCode(HttpStatus.OK)
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({
+		summary:
+			'Finaliza os novos documentos dentro de um protocolo na baixa do malote',
+	})
+	@ApiResponse({
+		description: 'Documento salvos com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao salvar os documentos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async finalizeNewDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+	) {
+		await this.virtualPackageService.finalizeNewDocs(+id, user);
+
+		return { success: true, message: 'Documentos salvos com sucesso!' };
 	}
 }

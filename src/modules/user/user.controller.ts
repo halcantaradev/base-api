@@ -42,6 +42,7 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Post()
+	@Role('usuarios-cadastrar')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Cria um novo usuário' })
 	@ApiResponse({

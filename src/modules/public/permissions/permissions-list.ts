@@ -617,12 +617,6 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para estornar documentos do malote',
 	},
 	{
-		label: 'Acessar fila de geração de malotes',
-		module: 'Expedição',
-		key: 'fila-geracao-malotes-listar',
-		message: 'Sem permissão para listar fila de geração de malotes',
-	},
-	{
 		label: 'Remover documento da fila',
 		module: 'Expedição',
 		key: 'fila-geracao-malotes-remover-documento',
@@ -651,5 +645,29 @@ export const permissionslist: Array<{
 		module: 'Condomínios',
 		key: 'condominios-atualizar',
 		message: 'Sem permissão para atualizar condomínio',
+	},
+	{
+		label: 'Estornar recebimento de um malote',
+		module: 'Expedição',
+		key: 'malotes-virtuais-documentos-estornar-recebimento',
+		message: 'Sem permissão para estornar recebimento de malote',
+	},
+	{
+		label: 'Baixa de um malote',
+		module: 'Expedição',
+		key: 'malotes-virtuais-baixar',
+		message: 'Sem permissão para baixar malote',
+	},
+	{
+		label: 'Exibir dados de um malote',
+		module: 'Expedição',
+		key: 'malotes-virtuais-exibir-dados',
+		message: 'Sem permissão para exibir dados do malote',
+	},
+	{
+		label: 'Listar malote físico',
+		module: 'Expedição',
+		key: 'malote-fisico-listar',
+		message: 'Sem permissão para listar malote físico',
 	},
 ];

@@ -945,6 +945,7 @@ export class CondominiumService {
 				id: true,
 
 				codigo: true,
+				created_at: true,
 				condominos: {
 					select: {
 						condomino: { select: { nome: true, id: true } },

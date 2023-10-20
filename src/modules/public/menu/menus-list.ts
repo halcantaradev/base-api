@@ -71,6 +71,15 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
+		id_relation: 20,
+		permission_key: 'unidades-listar',
+		relation: 7,
+		label: 'Unidades',
+		url: 'unidades',
+		icon: 'unordered_list_outline',
+		target: '_self',
+	},
+	{
 		id_relation: 9,
 		relation: 1,
 		label: 'Tipos de infração',

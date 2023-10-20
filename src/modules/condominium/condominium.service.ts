@@ -842,6 +842,9 @@ export class CondominiumService {
 						},
 					},
 					{
+						condominios: {
+							none: {},
+						},
 						departamentos: {
 							some: {
 								departamento: {

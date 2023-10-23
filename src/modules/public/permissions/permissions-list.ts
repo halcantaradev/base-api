@@ -670,4 +670,10 @@ export const permissionslist: Array<{
 		key: 'malote-fisico-listar',
 		message: 'Sem permissão para listar malote físico',
 	},
+	{
+		label: 'Listar do malote gerado',
+		module: 'Expedição',
+		key: 'malotes-virtuais-listar-documentos',
+		message: 'Sem permissão para listar documentos do malote gerado',
+	},
 ];

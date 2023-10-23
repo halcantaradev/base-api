@@ -71,7 +71,7 @@ export const menulist: Array<{
 		target: '_self',
 	},
 	{
-		id_relation: 20,
+		id_relation: 21,
 		permission_key: 'unidades-listar',
 		relation: 7,
 		label: 'Unidades',

@@ -505,7 +505,7 @@ export class ProtocolController {
 	}
 
 	@Put(':id/document/reversal')
-	@Role('protocolos-documento-estornar')
+	@Role('protocolos-documentos-estornar')
 	@ApiOperation({ summary: 'Estorna um documento' })
 	@ApiResponse({
 		description: 'Documento estornado com sucesso',

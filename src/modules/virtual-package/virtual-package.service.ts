@@ -841,4 +841,46 @@ export class VirtualPackageService {
 
 		return;
 	}
+
+	async findDocs(empresa_id: number, id: number, pagination: Pagination) {
+		if (Number.isNaN(id) || Number.isNaN(empresa_id)) {
+			throw new BadRequestException('Malote não encontrado');
+		}
+
+		const virtualPackageExists = await this.prisma.maloteVirtual.findFirst({
+			where: {
+				empresa_id,
+				id,
+				excluido: false,
+			},
+		});
+
+		if (!virtualPackageExists) {
+			throw new BadRequestException('Malote não encontrado');
+		}
+
+		const total_pages = await this.prisma.maloteDocumento.count({
+			where: {
+				malote_virtual_id: id,
+				excluido: false,
+			},
+		});
+
+		const data = await this.prisma.maloteDocumento.findMany({
+			include: {
+				documento: true,
+			},
+			where: {
+				malote_virtual_id: id,
+				excluido: false,
+			},
+			take: pagination?.page ? 1 : 100,
+			skip: pagination?.page ? (pagination?.page - 1) * 1 : undefined,
+		});
+
+		return {
+			data,
+			total_pages,
+		};
+	}
 }

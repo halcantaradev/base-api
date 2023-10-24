@@ -211,6 +211,42 @@ export class VirtualPackageController {
 		};
 	}
 
+	@Get(':id/documents')
+	@Role('malotes-virtuais-listar-documentos')
+	@ApiOperation({
+		summary: 'Lista os documentos do malote virtual',
+	})
+	@ApiResponse({
+		description: 'Dados listados com sucesso',
+		status: HttpStatus.OK,
+		type: VirtualPackageListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	async listDocuments(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Query() pagination: Pagination,
+	) {
+		const dados = await this.virtualPackageService.findDocs(
+			user.empresa_id,
+			+id,
+			pagination,
+		);
+		return {
+			sucess: true,
+			...dados,
+		};
+	}
+
 	@Patch(':id/reverse')
 	@Role('malotes-virtuais-documentos-estornar')
 	@ApiOperation({ summary: 'Estorna um documento do malote' })

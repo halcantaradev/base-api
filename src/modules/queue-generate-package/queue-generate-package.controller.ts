@@ -91,7 +91,7 @@ export class QueueGeneratePackageController {
 		await this.queueGeneratePackageService.create(body, user.empresa_id);
 		return {
 			success: true,
-			message: 'Documento(s) adicionado(s) com sucesso',
+			message: 'Documento(s) foram enviados com êxito para a fila',
 		};
 	}
 

@@ -69,13 +69,12 @@ export class FiltersSearchVirtualPackageDto {
 		example: true,
 		required: false,
 	})
-	@Validate(IsBooleanType, {
+	@IsInt({
 		message:
 			'O campo situação informado não é válido. Por favor, forneça uma situação válida.',
 	})
-	@Transform(BooleanTransformHelper)
 	@IsOptional()
-	finalizado?: boolean;
+	situacao?: number;
 
 	@ApiProperty({
 		description: 'Filtro por usuário',

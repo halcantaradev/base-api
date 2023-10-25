@@ -13,6 +13,7 @@ import { Prisma } from '@prisma/client';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
+import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {
@@ -123,7 +124,7 @@ export class VirtualPackageService {
 		return this.prisma.maloteVirtual.findFirst({
 			select: {
 				id: true,
-				finalizado: true,
+				situacao: true,
 				data_saida: true,
 				condominio: {
 					select: {
@@ -232,7 +233,7 @@ export class VirtualPackageService {
 
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id,
-			finalizado: filter.finalizado,
+			situacao: filter.situacao,
 			excluido: false,
 			id: filter.codigo,
 			created_at:
@@ -316,7 +317,7 @@ export class VirtualPackageService {
 	) {
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id,
-			finalizado: filter.finalizado,
+			situacao: filter.situacao,
 			excluido: false,
 			id: filter.codigo,
 			created_at:
@@ -373,7 +374,7 @@ export class VirtualPackageService {
 		const malotes = await this.prisma.maloteVirtual.findMany({
 			select: {
 				id: true,
-				finalizado: true,
+				situacao: true,
 				data_saida: true,
 				condominio: {
 					select: {
@@ -404,6 +405,38 @@ export class VirtualPackageService {
 		};
 	}
 
+	async receivePackageDoc(
+		receivePackageVirtualPackageDto: ReceivePackageVirtualPackageDto,
+		empresa_id: number,
+	) {
+		const virtualPackages = await this.prisma.maloteVirtual.findMany({
+			where: {
+				id: {
+					in: receivePackageVirtualPackageDto.malotes_virtuais_ids,
+				},
+				situacao: 1,
+				excluido: false,
+				empresa_id,
+			},
+		});
+
+		if (!virtualPackages.length)
+			throw new BadRequestException(
+				'Malote(s) informado(s) já recebido(s) ou não encontrado(s)',
+			);
+
+		const packages_ids_accept = virtualPackages.map(
+			(virtualPackage) => virtualPackage.id,
+		);
+
+		await this.prisma.maloteVirtual.updateMany({
+			data: { situacao: 2 },
+			where: {
+				id: { in: packages_ids_accept },
+			},
+		});
+	}
+
 	async receiveDoc(
 		id: number,
 		receiveVirtualPackageDto: ReceiveVirtualPackageDto,
@@ -428,7 +461,7 @@ export class VirtualPackageService {
 				malote_virtual: {
 					excluido: false,
 					empresa_id,
-					finalizado: false,
+					situacao: 1,
 				},
 			},
 		});
@@ -453,7 +486,7 @@ export class VirtualPackageService {
 		const malote = await this.prisma.maloteVirtual.findFirst({
 			select: {
 				malote_fisico_id: true,
-				finalizado: true,
+				situacao: true,
 				documentos_malote: {
 					select: {
 						id: true,
@@ -470,14 +503,14 @@ export class VirtualPackageService {
 		if (!malote.documentos_malote.length) {
 			await this.prisma.maloteVirtual.update({
 				data: {
-					finalizado: true,
+					situacao: 4,
 				},
 				where: {
 					id,
 				},
 			});
 
-			if (!malote.finalizado && malote.malote_fisico_id) {
+			if (!malote.situacao && malote.malote_fisico_id) {
 				const malote_fisico =
 					await this.prisma.malotesFisicos.findFirst({
 						select: {
@@ -527,7 +560,7 @@ export class VirtualPackageService {
 				malote_virtual_id: true,
 				malote_virtual: {
 					select: {
-						finalizado: true,
+						situacao: true,
 					},
 				},
 			},
@@ -559,7 +592,7 @@ export class VirtualPackageService {
 		});
 
 		await this.prisma.maloteVirtual.update({
-			data: { finalizado: false },
+			data: { situacao: 1 },
 			where: {
 				id,
 			},
@@ -785,7 +818,7 @@ export class VirtualPackageService {
 				malote_virtual: {
 					excluido: false,
 					empresa_id,
-					finalizado: false,
+					situacao: 1,
 				},
 			},
 		});

@@ -553,7 +553,7 @@ export class ProtocolService {
 							malote_virtual: {
 								select: {
 									id: true,
-									finalizado: true,
+									situacao: true,
 								},
 							},
 						},

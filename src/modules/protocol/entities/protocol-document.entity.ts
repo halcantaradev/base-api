@@ -127,7 +127,7 @@ export class ProtocolDocument {
 			{
 				malote: {
 					id: 1,
-					finalizado: true,
+					situacao: 1,
 				},
 			},
 		],
@@ -137,7 +137,7 @@ export class ProtocolDocument {
 	malotes_documento?: {
 		malote: {
 			id: number;
-			finalizado: boolean;
+			situacao: number;
 		};
 	}[];
 }

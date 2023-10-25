@@ -16,11 +16,11 @@ export class VirtualPackage {
 	malote_fisico?: { codigo: string };
 
 	@ApiProperty({
-		description: 'Identifica se o malote foi finalizado',
-		example: false,
+		description: 'Identifica a situação do malote',
+		example: 1,
 		readOnly: true,
 	})
-	finalizado: boolean;
+	situacao: number;
 
 	@ApiProperty({
 		description: 'Condomínio do malote',

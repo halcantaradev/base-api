@@ -1,12 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import {
-	IsDate,
-	IsDateString,
-	IsInt,
-	IsOptional,
-	isDateString,
-} from 'class-validator';
+import { IsDateString, IsInt, IsOptional } from 'class-validator';
 
 export class FilterNotificationDto {
 	@ApiProperty({
@@ -55,6 +48,17 @@ export class FilterNotificationDto {
 			'O campo tipo de notificação não é válido. Por favor, selecione um tipo válido',
 	})
 	tipo_registro: number;
+
+	@ApiProperty({
+		description: 'Prazo para interpor recurso da notificação',
+		example: 1,
+	})
+	@IsOptional()
+	@IsInt({
+		message:
+			'O campo prazo de recurso não é válido. Por favor, selecione um valor válido',
+	})
+	prazo_recurso: number;
 
 	@ApiProperty({
 		description: 'Id dos consultores',

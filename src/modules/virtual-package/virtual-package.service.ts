@@ -13,6 +13,7 @@ import { Prisma } from '@prisma/client';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
+import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {
@@ -404,27 +405,34 @@ export class VirtualPackageService {
 		};
 	}
 
-	async receivePackageDoc(id: number, empresa_id: number) {
-		if (Number.isNaN(id)) {
-			throw new BadRequestException('Malote não encontrado');
-		}
-
-		const malote = await this.prisma.maloteVirtual.findFirst({
-			select: {
-				malote_fisico_id: true,
-				situacao: true,
+	async receivePackageDoc(
+		receivePackageVirtualPackageDto: ReceivePackageVirtualPackageDto,
+		empresa_id: number,
+	) {
+		const virtualPackages = await this.prisma.maloteVirtual.findMany({
+			where: {
+				id: {
+					in: receivePackageVirtualPackageDto.malotes_virtuais_ids,
+				},
+				situacao: 1,
+				excluido: false,
+				empresa_id,
 			},
-			where: { id, empresa_id, situacao: 1 },
 		});
 
-		if (!malote) {
-			throw new BadRequestException('Malote não encontrado');
-		}
+		if (!virtualPackages.length)
+			throw new BadRequestException(
+				'Malote(s) informado(s) já recebido(s) ou não encontrado(s)',
+			);
 
-		await this.prisma.maloteVirtual.update({
+		const packages_ids_accept = virtualPackages.map(
+			(virtualPackage) => virtualPackage.id,
+		);
+
+		await this.prisma.maloteVirtual.updateMany({
 			data: { situacao: 2 },
 			where: {
-				id,
+				id: { in: packages_ids_accept },
 			},
 		});
 	}

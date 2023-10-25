@@ -1,5 +1,5 @@
 export function setCustomHour(
-	date: string,
+	date: string | Date,
 	hour = 0,
 	minute = 0,
 	second = 0,

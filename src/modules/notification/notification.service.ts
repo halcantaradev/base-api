@@ -374,7 +374,7 @@ export class NotificationService {
 										!!(await this.prisma.notificacao.findFirst(
 											{
 												where: {
-													data_infracao: {
+													data_emissao: {
 														gte:
 															filtro.prazo_recurso ==
 															1
@@ -544,7 +544,7 @@ export class NotificationService {
 						notificacoes: {
 							select: {
 								id: true,
-								data_infracao: true,
+								data_emissao: true,
 							},
 							where: filtro
 								? {
@@ -735,10 +735,10 @@ export class NotificationService {
 
 						if (
 							(filtro.prazo_recurso == 1 &&
-								notification.data_infracao >=
+								notification.data_emissao >=
 									setCustomHour(dia)) ||
 							(filtro.prazo_recurso == 2 &&
-								notification.data_infracao <
+								notification.data_emissao <
 									setCustomHour(dia)) ||
 							!!setup_condominio?.prazo_interpor_recurso
 						) {
@@ -1429,7 +1429,7 @@ export class NotificationService {
 		const notificationList = await this.prisma.notificacao.findMany({
 			select: {
 				id: true,
-				data_infracao: true,
+				data_emissao: true,
 			},
 			where: {
 				unidade_id,
@@ -1505,14 +1505,14 @@ export class NotificationService {
 			notificationList.forEach((notification) => {
 				if (
 					filtro.prazo_recurso == 1 &&
-					notification.data_infracao >= setCustomHour(dia)
+					notification.data_emissao >= setCustomHour(dia)
 				) {
 					notifications_ids.push(notification.id);
 				}
 
 				if (
 					filtro.prazo_recurso == 2 &&
-					notification.data_infracao < setCustomHour(dia)
+					notification.data_emissao < setCustomHour(dia)
 				) {
 					notifications_ids_expired.push(notification.id);
 					notifications_ids.push(notification.id);
@@ -1520,7 +1520,7 @@ export class NotificationService {
 			});
 		} else {
 			notificationList.forEach((notification) => {
-				if (notification.data_infracao < setCustomHour(dia)) {
+				if (notification.data_emissao < setCustomHour(dia)) {
 					notifications_ids_expired.push(notification.id);
 				}
 

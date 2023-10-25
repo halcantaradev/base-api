@@ -724,12 +724,7 @@ export class VirtualPackageService {
 		});
 	}
 
-	async updateNewDoc(
-		id: number,
-		id_document: number,
-		updateNewDocumentVirtualPackageDto: UpdateNewDocumentVirtualPackageDto,
-		user: UserAuth,
-	) {
+	async removeNewDoc(id: number, id_document: number, user: UserAuth) {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Malote não encontrado');
 
@@ -742,39 +737,21 @@ export class VirtualPackageService {
 
 		if (!malote) throw new BadRequestException('Malote não encontrado');
 
-		const protocolo = await this.prisma.protocolo.findFirst({
-			where: {
-				finalizado: false,
-				excluido: false,
-				ativo: true,
-			},
+		const documentoMalote = await this.prisma.maloteDocumento.findFirst({
+			where: { documento_id: id_document, malote_virtual_id: id },
 		});
 
-		if (!protocolo)
-			throw new BadRequestException('Protocolo não encontrado');
+		if (!documentoMalote)
+			throw new BadRequestException('Documento = não encontrado');
 
-		if (updateNewDocumentVirtualPackageDto.departamento_id)
-			await this.prisma.protocolo.update({
-				data: {
-					destino_departamento_id:
-						updateNewDocumentVirtualPackageDto.departamento_id,
-					origem_usuario_id: user.id,
-				},
-				where: {
-					id,
-				},
-			});
+		await this.prisma.maloteDocumento.update({
+			data: { excluido: true },
+			where: { id: documentoMalote.id },
+		});
 
 		return this.prisma.protocoloDocumento.update({
 			data: {
-				discriminacao:
-					updateNewDocumentVirtualPackageDto.discriminacao ||
-					undefined,
-				observacao:
-					updateNewDocumentVirtualPackageDto.observacao || null,
-				tipo_documento_id:
-					updateNewDocumentVirtualPackageDto.tipo_documento_id ||
-					undefined,
+				excluido: true,
 			},
 			where: {
 				id: id_document,

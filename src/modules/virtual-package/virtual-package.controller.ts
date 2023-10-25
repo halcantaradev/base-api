@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpCode,
 	HttpStatus,
@@ -477,13 +478,13 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Patch(':id/new-documents/:id_document')
+	@Delete(':id/new-documents/:id_document')
 	@Role('malotes-virtuais-baixar')
 	@ApiOperation({
-		summary: 'Atualiza um documento adicionado na baixa do malote',
+		summary: 'Remove um documento adicionado na baixa do malote',
 	})
 	@ApiResponse({
-		description: 'Documento atualizado com sucesso',
+		description: 'Documento removido com sucesso',
 		status: HttpStatus.OK,
 		type: ReturnEntity.success(),
 	})
@@ -493,7 +494,7 @@ export class VirtualPackageController {
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao atualizar o documento',
+		description: 'Ocorreu um erro ao remover o documento',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
@@ -501,15 +502,8 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
 		@Param('id_document') id_document: string,
-		@Body()
-		updateNewDocumentVirtualPackageDto: UpdateNewDocumentVirtualPackageDto,
 	) {
-		await this.virtualPackageService.updateNewDoc(
-			+id,
-			+id_document,
-			updateNewDocumentVirtualPackageDto,
-			user,
-		);
+		await this.virtualPackageService.removeNewDoc(+id, +id_document, user);
 
 		return { success: true, message: 'Documento atualizado com sucesso!' };
 	}

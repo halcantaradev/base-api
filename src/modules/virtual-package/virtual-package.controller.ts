@@ -279,12 +279,43 @@ export class VirtualPackageController {
 		return { success: true, message: 'Documento excluído com sucesso!' };
 	}
 
+	@Post(':id/receive-package')
+	@HttpCode(HttpStatus.OK)
+	@Role('malotes-virtuais-baixar')
+	@ApiOperation({ summary: 'Realiza o recebimento do malote' })
+	@ApiResponse({
+		description: 'Malotes recebido com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao receber o malote',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao receber o malote',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async receivePackageDoc(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+	) {
+		await this.virtualPackageService.receivePackageDoc(
+			+id,
+			user.empresa_id,
+		);
+
+		return { success: true, message: 'Malote recebido com sucesso' };
+	}
+
 	@Post(':id/receive')
 	@HttpCode(HttpStatus.OK)
 	@Role('malotes-virtuais-baixar')
 	@ApiOperation({ summary: 'Realiza a baixa do malote' })
 	@ApiResponse({
-		description: 'Malotes recebido com sucesso',
+		description: 'Malotes baixado com sucesso',
 		status: HttpStatus.OK,
 		type: ReturnEntity.success(),
 	})

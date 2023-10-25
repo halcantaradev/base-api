@@ -404,6 +404,31 @@ export class VirtualPackageService {
 		};
 	}
 
+	async receivePackageDoc(id: number, empresa_id: number) {
+		if (Number.isNaN(id)) {
+			throw new BadRequestException('Malote não encontrado');
+		}
+
+		const malote = await this.prisma.maloteVirtual.findFirst({
+			select: {
+				malote_fisico_id: true,
+				situacao: true,
+			},
+			where: { id, empresa_id, situacao: 1 },
+		});
+
+		if (!malote) {
+			throw new BadRequestException('Malote não encontrado');
+		}
+
+		await this.prisma.maloteVirtual.update({
+			data: { situacao: 2 },
+			where: {
+				id,
+			},
+		});
+	}
+
 	async receiveDoc(
 		id: number,
 		receiveVirtualPackageDto: ReceiveVirtualPackageDto,

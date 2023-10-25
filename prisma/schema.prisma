@@ -755,7 +755,7 @@ model MaloteVirtual {
   usuario_id       Int
   condominio_id    Int
   malote_fisico_id Int?
-  finalizado       Boolean   @default(false)
+  situacao         Int       @default(1)
   excluido         Boolean   @default(false)
   data_saida       DateTime?
   data_retorno     DateTime?

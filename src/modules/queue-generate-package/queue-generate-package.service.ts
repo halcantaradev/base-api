@@ -118,7 +118,7 @@ export class QueueGeneratePackageService {
 							},
 							where: {
 								malote_fisico_id: { not: null },
-								finalizado: false,
+								situacao: 1,
 								excluido: false,
 							},
 						},

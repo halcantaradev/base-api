@@ -812,6 +812,7 @@ export class ProtocolService {
 								documento_id: {
 									in: documents_ids,
 								},
+								excluido: false,
 							},
 						},
 					},
@@ -902,6 +903,7 @@ export class ProtocolService {
 								documento_id: {
 									in: documents_ids,
 								},
+								excluido: false,
 							},
 						},
 					},

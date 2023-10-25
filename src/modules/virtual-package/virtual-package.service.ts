@@ -610,6 +610,8 @@ export class VirtualPackageService {
 		receiveNewDocumentVirtualPackageDto: CreateProtocolVirtualPackageDto,
 		user: UserAuth,
 	) {
+		console.log(receiveNewDocumentVirtualPackageDto);
+
 		if (Number.isNaN(id)) {
 			throw new BadRequestException('Malote não encontrado');
 		}
@@ -625,7 +627,6 @@ export class VirtualPackageService {
 
 		let protocolo = await this.prisma.protocolo.findFirst({
 			where: {
-				malote_virtual_id: id,
 				finalizado: false,
 				excluido: false,
 				ativo: true,
@@ -641,10 +642,10 @@ export class VirtualPackageService {
 					situacao: 3,
 					destino_departamento_id:
 						receiveNewDocumentVirtualPackageDto.departamento_id,
-					malote_virtual_id: id,
 					origem_usuario_id: user.id,
 					origem_departamento_id:
 						receiveNewDocumentVirtualPackageDto.departamento_id,
+					data_finalizado: new Date(),
 					ativo: true,
 				},
 			});
@@ -658,10 +659,26 @@ export class VirtualPackageService {
 				retorna: false,
 				condominio_id: malote.condominio_id,
 				tipo_documento_id: doc.tipo_documento_id,
+				aceite_usuario_id: user.id,
+				data_aceite: new Date(),
 			}),
 		);
 
-		return this.prisma.protocoloDocumento.createMany({ data });
+		await this.prisma.protocoloDocumento.createMany({ data });
+		const docs = await this.prisma.protocoloDocumento.findMany({
+			select: { id: true },
+			where: { protocolo_id: protocolo.id },
+		});
+
+		const maloteDocs = await this.prisma.maloteDocumento.createMany({
+			data: docs.map((doc) => ({
+				documento_id: doc.id,
+				malote_virtual_id: id,
+				finalizado: true,
+			})),
+		});
+
+		return maloteDocs;
 	}
 
 	async findAllNewDocs(id: number, empresa_id: number) {
@@ -679,7 +696,6 @@ export class VirtualPackageService {
 
 		const protocolo = await this.prisma.protocolo.findFirst({
 			where: {
-				malote_virtual_id: id,
 				empresa_id: empresa_id,
 				finalizado: false,
 				excluido: false,
@@ -728,7 +744,6 @@ export class VirtualPackageService {
 
 		const protocolo = await this.prisma.protocolo.findFirst({
 			where: {
-				malote_virtual_id: id,
 				finalizado: false,
 				excluido: false,
 				ativo: true,
@@ -782,7 +797,6 @@ export class VirtualPackageService {
 
 		const protocolo = await this.prisma.protocolo.findFirst({
 			where: {
-				malote_virtual_id: id,
 				finalizado: false,
 				excluido: false,
 				ativo: true,
@@ -906,30 +920,32 @@ export class VirtualPackageService {
 			},
 		});
 
-		const data = await this.prisma.maloteDocumento.findMany({
+		const gerados = await this.prisma.maloteDocumento.findMany({
 			include: {
 				documento: true,
 			},
 			where: {
 				malote_virtual_id: id,
 				excluido: false,
+				documento: { fila_geracao_malote: { some: {} } },
 			},
-			take: pagination?.page ? 1 : 100,
+			take: pagination?.page ? 10 : 100,
 			skip: pagination?.page ? (pagination?.page - 1) * 1 : undefined,
 		});
 
-		const novos = await this.prisma.protocoloDocumento.findMany({
+		const novos = await this.prisma.maloteDocumento.findMany({
+			include: {
+				documento: true,
+			},
 			where: {
-				protocolo: {
-					malote_virtual_id: id,
-				},
+				malote_virtual_id: id,
 				excluido: false,
+				documento: { fila_geracao_malote: { none: {} } },
 			},
 		});
 
 		return {
-			data,
-			novos,
+			data: { gerados, novos },
 			total_pages,
 		};
 	}

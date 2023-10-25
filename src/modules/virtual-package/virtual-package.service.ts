@@ -3,7 +3,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
 import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
 import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
 import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-package.dto';
@@ -13,7 +12,7 @@ import { Prisma } from '@prisma/client';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
-import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
+import { CreateProtocolVirtualPackageDto } from './dto/create-new-protocol-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {
@@ -531,6 +530,10 @@ export class VirtualPackageService {
 						},
 					});
 
+				if (!malote_fisico) {
+					throw new BadRequestException('Malote não encontrado');
+				}
+
 				await this.prisma.malotesFisicos.update({
 					data: { disponivel: true },
 					where: {
@@ -603,11 +606,12 @@ export class VirtualPackageService {
 
 	async createNewDoc(
 		id: number,
-		receiveNewDocumentVirtualPackageDto: CreateNewDocumentVirtualPackageDto,
+		receiveNewDocumentVirtualPackageDto: CreateProtocolVirtualPackageDto,
 		user: UserAuth,
 	) {
-		if (Number.isNaN(id))
+		if (Number.isNaN(id)) {
 			throw new BadRequestException('Malote não encontrado');
+		}
 
 		const malote = await this.prisma.maloteVirtual.findUnique({
 			select: {
@@ -632,6 +636,8 @@ export class VirtualPackageService {
 				data: {
 					empresa_id: user.empresa_id,
 					tipo: 1,
+					finalizado: true,
+					situacao: 3,
 					destino_departamento_id:
 						receiveNewDocumentVirtualPackageDto.departamento_id,
 					malote_virtual_id: id,
@@ -642,19 +648,19 @@ export class VirtualPackageService {
 				},
 			});
 
-		return this.prisma.protocoloDocumento.create({
-			data: {
+		const data = receiveNewDocumentVirtualPackageDto.documentos.map(
+			(doc) => ({
 				protocolo_id: protocolo.id,
-				discriminacao:
-					receiveNewDocumentVirtualPackageDto.discriminacao,
-				observacao:
-					receiveNewDocumentVirtualPackageDto.observacao || null,
+				aceito: true,
+				discriminacao: doc.discriminacao,
+				observacao: doc.observacao || null,
 				retorna: false,
 				condominio_id: malote.condominio_id,
-				tipo_documento_id:
-					receiveNewDocumentVirtualPackageDto.tipo_documento_id,
-			},
-		});
+				tipo_documento_id: doc.tipo_documento_id,
+			}),
+		);
+
+		return this.prisma.protocoloDocumento.createMany({ data });
 	}
 
 	async findAllNewDocs(id: number, empresa_id: number) {
@@ -911,9 +917,59 @@ export class VirtualPackageService {
 			skip: pagination?.page ? (pagination?.page - 1) * 1 : undefined,
 		});
 
+		const novos = await this.prisma.protocoloDocumento.findMany({
+			where: {
+				protocolo: {
+					malote_virtual_id: id,
+				},
+				excluido: false,
+			},
+		});
+
 		return {
 			data,
+			novos,
 			total_pages,
 		};
+	}
+
+	async makePhysicalPackageAvailable(empresa_id: number, id: number) {
+		if (Number.isNaN(id) || Number.isNaN(empresa_id)) {
+			throw new BadRequestException('Malote não encontrado');
+		}
+
+		const virtualPackageExists = await this.prisma.maloteVirtual.findFirst({
+			where: {
+				empresa_id,
+				id,
+				malote_disponibilizado: false,
+				excluido: false,
+				malote_fisico: {
+					disponivel: false,
+				},
+			},
+		});
+
+		if (!virtualPackageExists) {
+			throw new BadRequestException(
+				'Malote não encontrado ou malote já foi liberado',
+			);
+		}
+
+		return this.prisma.maloteVirtual.update({
+			data: {
+				malote_disponibilizado: true,
+				malote_fisico: {
+					update: {
+						disponivel: true,
+						ativo: true,
+						excluido: false,
+					},
+				},
+			},
+			where: {
+				id,
+			},
+		});
 	}
 }

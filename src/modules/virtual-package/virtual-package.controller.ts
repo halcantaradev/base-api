@@ -32,7 +32,7 @@ import { VirtualPackageService } from './virtual-package.service';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
-import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
+import { CreateProtocolVirtualPackageDto } from './dto/create-new-protocol-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -244,6 +244,40 @@ export class VirtualPackageController {
 		};
 	}
 
+	@Patch(':id/make-physical-package-avaliable')
+	@Role('malotes-fisico-liberar')
+	@ApiOperation({
+		summary: 'Libera um malote para uso no sistema',
+	})
+	@ApiResponse({
+		description: 'Malote liberado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao liberar o malote',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao liberar o malote',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	async makePhysicalPackageAvailable(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+	) {
+		await this.virtualPackageService.makePhysicalPackageAvailable(
+			user.empresa_id,
+			+id,
+		);
+		return {
+			success: true,
+			message: 'Malote liberado com sucesso!',
+		};
+	}
+
 	@Get(':id/documents')
 	@Role('malotes-virtuais-listar-documentos')
 	@ApiOperation({
@@ -401,7 +435,7 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
 		@Body()
-		createNewDocumentVirtualPackageDto: CreateNewDocumentVirtualPackageDto,
+		createNewDocumentVirtualPackageDto: CreateProtocolVirtualPackageDto,
 	) {
 		await this.virtualPackageService.createNewDoc(
 			+id,

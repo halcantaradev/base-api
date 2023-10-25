@@ -750,17 +750,18 @@ model MalotesFisicos {
 }
 
 model MaloteVirtual {
-  id               Int       @id @default(autoincrement())
-  empresa_id       Int
-  usuario_id       Int
-  condominio_id    Int
-  malote_fisico_id Int?
-  situacao         Int       @default(1)
-  excluido         Boolean   @default(false)
-  data_saida       DateTime?
-  data_retorno     DateTime?
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
+  id                     Int       @id @default(autoincrement())
+  empresa_id             Int
+  usuario_id             Int
+  condominio_id          Int
+  malote_fisico_id       Int?
+  malote_disponibilizado Boolean   @default(false)
+  finalizado             Boolean   @default(false)
+  excluido               Boolean   @default(false)
+  data_saida             DateTime?
+  data_retorno           DateTime?
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
 
   condominio        Pessoa            @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
   empresa           Pessoa            @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])

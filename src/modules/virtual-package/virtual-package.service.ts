@@ -1,19 +1,18 @@
-import { setCustomHour } from 'src/shared/helpers/date.helper';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/shared/services/prisma.service';
-import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
+import { Prisma } from '@prisma/client';
+import { VirtualPackageType } from 'src/shared/consts/report-virtual-package-tyoe.const';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
+import { setCustomHour } from 'src/shared/helpers/date.helper';
+import { PrismaService } from 'src/shared/services/prisma.service';
+import { CreateProtocolVirtualPackageDto } from './dto/create-new-protocol-virtual-package.dto';
+import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
+import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
+import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
+import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
 import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
 import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-package.dto';
-import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
-import { VirtualPackageType } from 'src/shared/consts/report-virtual-package-tyoe.const';
-import { Prisma } from '@prisma/client';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
-import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
-import { Pagination } from 'src/shared/entities/pagination.entity';
-import { CreateProtocolVirtualPackageDto } from './dto/create-new-protocol-virtual-package.dto';
-import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {

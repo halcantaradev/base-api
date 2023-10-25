@@ -14,26 +14,25 @@ import {
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { Role } from 'src/shared/decorators/role.decorator';
+import { Pagination } from 'src/shared/entities/pagination.entity';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
+import { CreateProtocolVirtualPackageDto } from './dto/create-new-protocol-virtual-package.dto';
 import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
+import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
 import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
-import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
-import { NewDocumentVirtualPackageListReturn } from './entities/new-document-virtual-package-return.entity';
+import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
 import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
 import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-package.dto';
+import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
+import { NewDocumentVirtualPackageListReturn } from './entities/new-document-virtual-package-return.entity';
 import { PhysicalPackageVirtualPackageListReturn } from './entities/physical-package-virtual-package-return.entity';
 import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-return.entity';
 import { VirtualPackageReportReturnEntity } from './entities/virtual-package-report-return.entity';
 import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
 import { VirtualPackageService } from './virtual-package.service';
-import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
-import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
-import { Pagination } from 'src/shared/entities/pagination.entity';
-import { CreateProtocolVirtualPackageDto } from './dto/create-new-protocol-virtual-package.dto';
-import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)

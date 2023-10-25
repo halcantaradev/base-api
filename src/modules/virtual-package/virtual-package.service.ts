@@ -13,6 +13,7 @@ import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { CreateProtocolVirtualPackageDto } from './dto/create-new-protocol-virtual-package.dto';
+import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {

@@ -17,7 +17,6 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
-import { CreateNewDocumentVirtualPackageDto } from './dto/create-new-document-virtual-package.dto';
 import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
 import { FiltersVirtualPackageDto } from './dto/filters-virtual-package.dto';
 import { UpdateNewDocumentVirtualPackageDto } from './dto/update-new-document-virtual-package.dto';
@@ -33,6 +32,7 @@ import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { CreateProtocolVirtualPackageDto } from './dto/create-new-protocol-virtual-package.dto';
+import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)

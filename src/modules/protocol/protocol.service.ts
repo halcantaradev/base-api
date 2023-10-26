@@ -149,6 +149,12 @@ export class ProtocolService {
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
+		const protocolo_malote = filtersProtocolDto.tipo_protocolo
+			? filtersProtocolDto.tipo_protocolo == 2
+				? true
+				: false
+			: undefined;
+
 		return await this.prisma.protocolo.findMany({
 			select: this.select,
 			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
@@ -160,6 +166,7 @@ export class ProtocolService {
 				id: !Number.isNaN(+filtersProtocolDto.id)
 					? +filtersProtocolDto.id
 					: undefined,
+				protocolo_malote,
 				finalizado:
 					filtersProtocolDto.finalizado !== undefined
 						? filtersProtocolDto.finalizado
@@ -257,6 +264,12 @@ export class ProtocolService {
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
+		const protocolo_malote = filtersProtocolDto.tipo_protocolo
+			? filtersProtocolDto.tipo_protocolo == 2
+				? true
+				: false
+			: undefined;
+
 		return this.prisma.protocolo.findMany({
 			select: this.select,
 			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
@@ -268,7 +281,7 @@ export class ProtocolService {
 				id: !Number.isNaN(+filtersProtocolDto.id)
 					? +filtersProtocolDto.id
 					: undefined,
-
+				protocolo_malote,
 				destino_departamento_id:
 					filtersProtocolDto.destino_departamento_ids
 						? {

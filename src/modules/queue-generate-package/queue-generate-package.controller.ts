@@ -63,7 +63,7 @@ export class QueueGeneratePackageController {
 		};
 	}
 
-	@Post('send-to-queue')
+	@Post()
 	@Role('fila-geracao-malotes-adicionar-documento')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({
@@ -89,6 +89,7 @@ export class QueueGeneratePackageController {
 		@CurrentUser() user: UserAuth,
 	) {
 		await this.queueGeneratePackageService.create(body, user.empresa_id);
+
 		return {
 			success: true,
 			message: 'Documento(s) foram enviados com êxito para a fila',
@@ -117,6 +118,7 @@ export class QueueGeneratePackageController {
 	})
 	async remove(@Param('id') id: string, @CurrentUser() user: UserAuth) {
 		await this.queueGeneratePackageService.remove(+id, user.empresa_id);
+
 		return {
 			success: true,
 			message: 'Documento deletado com sucesso',

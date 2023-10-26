@@ -29,6 +29,9 @@ export class QueueGeneratePackageService {
 						excluido: false,
 					},
 				},
+				protocolo: {
+					protocolo_malote: false,
+				},
 				condominio: {
 					empresa_id,
 				},

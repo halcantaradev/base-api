@@ -609,8 +609,6 @@ export class VirtualPackageService {
 		receiveNewDocumentVirtualPackageDto: CreateProtocolVirtualPackageDto,
 		user: UserAuth,
 	) {
-		console.log(receiveNewDocumentVirtualPackageDto);
-
 		if (Number.isNaN(id)) {
 			throw new BadRequestException('Malote não encontrado');
 		}
@@ -624,13 +622,26 @@ export class VirtualPackageService {
 
 		if (!malote) throw new BadRequestException('Malote não encontrado');
 
-		let protocolo = await this.prisma.protocolo.findFirst({
+		const novos = await this.prisma.maloteDocumento.findFirst({
+			include: {
+				documento: true,
+			},
 			where: {
-				finalizado: false,
+				malote_virtual_id: id,
 				excluido: false,
-				ativo: true,
+				documento: { fila_geracao_malote: { none: {} } },
 			},
 		});
+
+		let protocolo: Prisma.ProtocoloWhereUniqueInput;
+		if (novos) {
+			protocolo = await this.prisma.protocolo.findFirst({
+				select: { id: true },
+				where: {
+					id: novos.documento.protocolo_id,
+				},
+			});
+		}
 
 		if (!protocolo)
 			protocolo = await this.prisma.protocolo.create({
@@ -663,11 +674,11 @@ export class VirtualPackageService {
 			}),
 		);
 
-		await this.prisma.protocoloDocumento.createMany({ data });
-		const docs = await this.prisma.protocoloDocumento.findMany({
-			select: { id: true },
-			where: { protocolo_id: protocolo.id },
-		});
+		const docs = await Promise.all(
+			data.map((item) =>
+				this.prisma.protocoloDocumento.create({ data: item }),
+			),
+		);
 
 		const maloteDocs = await this.prisma.maloteDocumento.createMany({
 			data: docs.map((doc) => ({

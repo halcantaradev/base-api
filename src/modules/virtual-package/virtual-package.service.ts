@@ -431,7 +431,7 @@ export class VirtualPackageService {
 		);
 
 		await this.prisma.maloteVirtual.updateMany({
-			data: { situacao: 2 },
+			data: { situacao: 2, situacao_anterior: 1 },
 			where: {
 				id: { in: packages_ids_accept },
 			},
@@ -1000,7 +1000,12 @@ export class VirtualPackageService {
 
 				await this.prisma.maloteVirtual.update({
 					data: {
-						situacao: 3,
+						situacao_anterior:
+							virtualPackage.situacao !== 4
+								? virtualPackage.situacao
+								: undefined,
+						situacao: virtualPackage.situacao !== 4 ? 3 : undefined,
+						protocolado_baixado: virtualPackage.situacao == 4,
 					},
 					where: {
 						id: virtualPackage.id,

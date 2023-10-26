@@ -930,10 +930,25 @@ export class VirtualPackageService {
 				id: {
 					in: createProtocolVirtualPackageDto.malotes_virtuais_ids,
 				},
+				OR: [
+					{
+						situacao: { in: [1, 2] },
+						documentos_malote: {
+							every: {
+								OR: [{ finalizado: false }, { excluido: true }],
+							},
+						},
+					},
+					{
+						situacao: 4,
+						documentos_malote: {
+							every: {
+								OR: [{ finalizado: true }, { excluido: false }],
+							},
+						},
+					},
+				],
 				situacao: 2,
-				malote_fisico_id: {
-					not: null,
-				},
 				excluido: false,
 				empresa_id: user.empresa_id,
 			},
@@ -971,7 +986,11 @@ export class VirtualPackageService {
 				await this.prisma.protocoloDocumento.create({
 					data: {
 						protocolo_id: protocolo.id,
-						discriminacao: `Malote Virtual: ${virtualPackage.id}; Malote Físico: ${virtualPackage.malote_fisico.codigo}`,
+						discriminacao: `Malote Virtual: ${
+							virtualPackage.id
+						}; Malote Físico: ${
+							virtualPackage.malote_fisico.codigo || 'N/A'
+						}`,
 						observacao: '',
 						retorna: false,
 						condominio_id: virtualPackage.condominio_id,

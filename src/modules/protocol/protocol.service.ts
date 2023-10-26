@@ -41,6 +41,7 @@ export class ProtocolService {
 	select: Prisma.ProtocoloSelect = {
 		id: true,
 		tipo: true,
+		protocolo_malote: true,
 		origem_usuario: {
 			select: {
 				id: true,
@@ -136,6 +137,8 @@ export class ProtocolService {
 				origem_departamento_id:
 					createProtocolDto.origem_departamento_id,
 				retorna_malote_vazio: createProtocolDto.retorna_malote_vazio,
+				protocolo_malote:
+					createProtocolDto.protocolo_malote || undefined,
 				ativo: true,
 			},
 		});
@@ -312,7 +315,6 @@ export class ProtocolService {
 						  }
 						: undefined,
 				tipo: filtersProtocolDto.tipo || undefined,
-
 				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao
 					? {
@@ -451,6 +453,9 @@ export class ProtocolService {
 		if (!protocolo || protocolo.situacao != 1) {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
+
+		if (protocolo.protocolo_malote)
+			throw new BadRequestException('Protocolo não pode ser alterado');
 
 		protocolo = await this.prisma.protocolo.update({
 			data: {
@@ -728,6 +733,7 @@ export class ProtocolService {
 								: null,
 							usuario: item?.protocolo?.origem_usuario?.nome,
 							tipo: item?.tipo_documento?.nome,
+							protocolo_malote: protocol.protocolo_malote,
 							discriminacao: item?.discriminacao,
 							recebido: item.data_aceite
 								? new Intl.DateTimeFormat('pt-BR').format(
@@ -747,6 +753,7 @@ export class ProtocolService {
 						: null,
 					usuario: item?.protocolo?.origem_usuario?.nome,
 					tipo: item?.tipo_documento?.nome,
+					protocolo_malote: protocol.protocolo_malote,
 					discriminacao: item?.discriminacao,
 					recebido: item.data_aceite
 						? new Intl.DateTimeFormat('pt-BR').format(

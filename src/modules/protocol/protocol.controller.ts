@@ -113,16 +113,16 @@ export class ProtocolController {
 		};
 	}
 
-	@Post('accept')
+	@Post('list/accept')
 	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-listar-documentos')
 	@ApiOperation({
-		summary: 'Lista os documentos de um protocolo',
+		summary: 'Lista os protocolos para serem aceitos',
 	})
 	@ApiResponse({
 		description: 'Protocolo listado com sucesso',
 		status: HttpStatus.OK,
-		type: ProtocolDocumentListReturn,
+		type: ProtocolListReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
@@ -130,7 +130,7 @@ export class ProtocolController {
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao listar os documentos',
+		description: 'Ocorreu um erro ao listar os protocolos',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})

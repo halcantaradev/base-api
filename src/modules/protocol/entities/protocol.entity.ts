@@ -19,6 +19,14 @@ export class Protocol {
 	tipo?: number;
 
 	@ApiProperty({
+		description: 'Identifica se o protocolo é um protocolo de malote',
+		example: true,
+		required: true,
+		readOnly: true,
+	})
+	protocolo_malote?: boolean;
+
+	@ApiProperty({
 		description: 'Situação do protocolo',
 		example: 1,
 		required: true,

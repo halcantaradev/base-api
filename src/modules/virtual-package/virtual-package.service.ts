@@ -752,7 +752,7 @@ export class VirtualPackageService {
 		});
 
 		if (!documentoMalote)
-			throw new BadRequestException('Documento = não encontrado');
+			throw new BadRequestException('Documento não encontrado');
 
 		await this.prisma.maloteDocumento.update({
 			data: { excluido: true },

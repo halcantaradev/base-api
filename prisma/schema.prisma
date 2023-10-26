@@ -587,6 +587,7 @@ model Protocolo {
   origem_usuario_id       Int?
   malote_virtual_id       Int?
   data_finalizado         DateTime?
+  protocolo_malote        Boolean   @default(false)
   retorna_malote_vazio    Boolean   @default(false)
   finalizado              Boolean   @default(false)
   situacao                Int       @default(1)
@@ -609,8 +610,9 @@ model Protocolo {
 model ProtocoloDocumento {
   id                Int       @id @default(autoincrement())
   protocolo_id      Int
-  tipo_documento_id Int
+  tipo_documento_id Int?
   condominio_id     Int
+  malote_virtual_id Int?
   aceite_usuario_id Int?
   discriminacao     String
   observacao        String?
@@ -624,9 +626,10 @@ model ProtocoloDocumento {
   updated_at        DateTime  @updatedAt
 
   condominio          Pessoa                 @relation(fields: [condominio_id], references: [id])
-  tipo_documento      TipoDocumento          @relation(fields: [tipo_documento_id], references: [id])
+  tipo_documento      TipoDocumento?         @relation(fields: [tipo_documento_id], references: [id])
   protocolo           Protocolo              @relation(fields: [protocolo_id], references: [id])
   aceite_usuario      User?                  @relation(fields: [aceite_usuario_id], references: [id])
+  malote_virtual      MaloteVirtual?         @relation(fields: [malote_virtual_id], references: [id])
   malotes_documento   MaloteDocumento[]
   fila_geracao_malote DocumentoFilaGeracao[]
 
@@ -762,12 +765,13 @@ model MaloteVirtual {
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 
-  condominio        Pessoa            @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
-  empresa           Pessoa            @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])
-  malote_fisico     MalotesFisicos?   @relation(fields: [malote_fisico_id], references: [id])
-  usuario           User              @relation(fields: [usuario_id], references: [id])
-  documentos_malote MaloteDocumento[]
-  protocolos        Protocolo[]
+  condominio           Pessoa               @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
+  empresa              Pessoa               @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])
+  malote_fisico        MalotesFisicos?      @relation(fields: [malote_fisico_id], references: [id])
+  usuario              User                 @relation(fields: [usuario_id], references: [id])
+  documentos_malote    MaloteDocumento[]
+  protocolos           Protocolo[]
+  documentos_protocolo ProtocoloDocumento[]
 
   @@map("malotes_virtuais")
 }

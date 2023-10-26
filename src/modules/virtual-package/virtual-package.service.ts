@@ -14,6 +14,7 @@ import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { ReceivePackageVirtualPackageDto } from './dto/receive-package-virtual-package.dto';
+import { CreateProtocolVirtualPackageDto } from './dto/create-protocol-virtual-package.dto';
 
 @Injectable()
 export class VirtualPackageService {
@@ -915,5 +916,78 @@ export class VirtualPackageService {
 			data,
 			total_pages,
 		};
+	}
+
+	async createPackageProtocol(
+		createProtocolVirtualPackageDto: CreateProtocolVirtualPackageDto,
+		user: UserAuth,
+	) {
+		const virtualPackages = await this.prisma.maloteVirtual.findMany({
+			include: {
+				malote_fisico: true,
+			},
+			where: {
+				id: {
+					in: createProtocolVirtualPackageDto.malotes_virtuais_ids,
+				},
+				situacao: 2,
+				malote_fisico_id: {
+					not: null,
+				},
+				excluido: false,
+				empresa_id: user.empresa_id,
+			},
+		});
+
+		if (!virtualPackages.length)
+			throw new BadRequestException(
+				'Malote(s) informado(s) não pode(m) ser utilizado(s)',
+			);
+
+		const protocolo = await this.prisma.protocolo.create({
+			data: {
+				tipo: createProtocolVirtualPackageDto.tipo,
+				destino_departamento_id:
+					createProtocolVirtualPackageDto.destino_departamento_id,
+				destino_usuario_id:
+					createProtocolVirtualPackageDto.destino_usuario_id,
+				origem_usuario_id: user.id,
+				origem_departamento_id:
+					createProtocolVirtualPackageDto.origem_departamento_id,
+				protocolo_malote: true,
+				ativo: true,
+				empresa_id: user.empresa_id,
+				finalizado: true,
+			},
+		});
+
+		if (!protocolo)
+			throw new BadRequestException(
+				'Ocorreu um erro ao protocolar o(s) malotes(s)',
+			);
+
+		await Promise.all(
+			virtualPackages.map(async (virtualPackage) => {
+				await this.prisma.protocoloDocumento.create({
+					data: {
+						protocolo_id: protocolo.id,
+						discriminacao: `Malote Virtual: ${virtualPackage.id}; Malote Físico: ${virtualPackage.malote_fisico.codigo}`,
+						observacao: '',
+						retorna: false,
+						condominio_id: virtualPackage.condominio_id,
+						malote_virtual_id: virtualPackage.id,
+					},
+				});
+
+				await this.prisma.maloteVirtual.update({
+					data: {
+						situacao: 3,
+					},
+					where: {
+						id: virtualPackage.id,
+					},
+				});
+			}),
+		);
 	}
 }

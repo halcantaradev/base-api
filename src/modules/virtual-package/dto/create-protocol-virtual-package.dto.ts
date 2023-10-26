@@ -1,14 +1,9 @@
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsOptional, Validate } from 'class-validator';
-import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
-import {
-	UserExists,
-	IsBooleanType,
-	DepartmentExists,
-} from 'src/shared/validators';
+import { DepartmentExists, UserExists } from 'src/shared/validators';
 
-export class CreateProtocolDto {
+export class CreateProtocolVirtualPackageDto {
 	@ApiProperty({
 		description: 'Tipo do protocolo',
 		example: 1,
@@ -73,28 +68,18 @@ export class CreateProtocolDto {
 	destino_usuario_id: number;
 
 	@ApiProperty({
-		description: 'Identifica se o protocolo retorna malote vazio',
-		example: true,
-		required: false,
+		description: 'Id dos malotes',
+		example: [1, 2],
+		required: true,
 	})
-	@Validate(IsBooleanType, {
+	@IsInt({
+		each: true,
 		message:
-			'O campo retornar malote vazio informado não é válido. Por favor, forneça um valor válido.',
+			'Os malotes informado não são válidos. Por favor, forneça malotes válidos.',
 	})
-	@Transform(BooleanTransformHelper)
-	@IsOptional()
-	retorna_malote_vazio?: boolean;
-
-	@ApiProperty({
-		description: 'Identifica se o protocolo é um protocolo malote',
-		example: true,
-		required: false,
-	})
-	@Validate(IsBooleanType, {
+	@IsNotEmpty({
 		message:
-			'O campo protocolo malote informado não é válido. Por favor, forneça um valor válido.',
+			'O campo de malotes é obrigatório. Por favor, forneça um malote.',
 	})
-	@Transform(BooleanTransformHelper)
-	@IsOptional()
-	protocolo_malote?: boolean;
+	malotes_virtuais_ids: number[];
 }

@@ -974,8 +974,6 @@ export class VirtualPackageService {
 			},
 		});
 
-		console.log(virtualPackages);
-
 		if (!virtualPackages.length)
 			throw new BadRequestException(
 				'Malote(s) informado(s) não pode(m) ser utilizado(s)',

@@ -910,7 +910,20 @@ export class ProtocolService {
 	) {
 		const documentExists = await this.prisma.protocolo.findFirst({
 			select: {
+				protocolo_malote: true,
 				documentos: {
+					include: {
+						malote_virtual: {
+							select: {
+								id: true,
+								situacao: true,
+								situacao_anterior: true,
+								documentos_malote: {
+									select: { finalizado: true },
+								},
+							},
+						},
+					},
 					where: {
 						id: {
 							in: documents_ids,
@@ -951,6 +964,30 @@ export class ProtocolService {
 			throw new BadRequestException(
 				'Documento(s) informado(s) não aceitos, já na fila ou não encontrados',
 			);
+		}
+
+		if (documentExists.protocolo_malote) {
+			let canReverse = true;
+			const packageNotReserse: number[] = [];
+			documentExists.documentos.forEach((doc) => {
+				if (
+					doc.malote_virtual.documentos_malote.length !=
+						doc.malote_virtual.documentos_malote.filter(
+							(d) => d.finalizado,
+						).length &&
+					doc.malote_virtual.situacao_anterior < 4
+				) {
+					canReverse = false;
+					packageNotReserse.push(doc.malote_virtual.id);
+				}
+			});
+
+			if (!canReverse)
+				throw new BadRequestException(
+					`O(s) malote(s): ${packageNotReserse.join(
+						', ',
+					)}, não podem ser estornados, pois contém documentos baixados`,
+				);
 		}
 
 		const documents_ids_reverse = documentExists.documentos.map(

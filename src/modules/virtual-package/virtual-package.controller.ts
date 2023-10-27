@@ -33,6 +33,7 @@ import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-
 import { VirtualPackageReportReturnEntity } from './entities/virtual-package-report-return.entity';
 import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
 import { VirtualPackageService } from './virtual-package.service';
+import { CreateNewDocumenteProtocolVirtualPackageDto } from './dto/create-new-document-protocol-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -467,7 +468,7 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
 		@Body()
-		createNewDocumentVirtualPackageDto: CreateProtocolVirtualPackageDto,
+		createNewDocumentVirtualPackageDto: CreateNewDocumenteProtocolVirtualPackageDto,
 	) {
 		await this.virtualPackageService.createNewDoc(
 			+id,

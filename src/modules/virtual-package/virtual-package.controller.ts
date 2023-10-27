@@ -406,7 +406,7 @@ export class VirtualPackageController {
 		return this.virtualPackageService.receiveDoc(
 			+id,
 			receiveVirtualPackageDto,
-			user.empresa_id,
+			user,
 		);
 	}
 

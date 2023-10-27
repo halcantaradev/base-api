@@ -126,6 +126,7 @@ export class VirtualPackageService {
 				id: true,
 				situacao: true,
 				data_saida: true,
+				protocolado_baixado: true,
 				condominio: {
 					select: {
 						nome: true,
@@ -217,6 +218,7 @@ export class VirtualPackageService {
 
 		const packagesSelect: Prisma.MaloteVirtualSelect = {
 			data_saida: true,
+			protocolado_baixado: true,
 			malote_fisico: {
 				select: {
 					codigo: true,
@@ -376,6 +378,7 @@ export class VirtualPackageService {
 				id: true,
 				situacao: true,
 				data_saida: true,
+				protocolado_baixado: true,
 				condominio: {
 					select: {
 						nome: true,
@@ -440,7 +443,7 @@ export class VirtualPackageService {
 	async receiveDoc(
 		id: number,
 		receiveVirtualPackageDto: ReceiveVirtualPackageDto,
-		empresa_id: number,
+		user: UserAuth,
 	) {
 		if (Number.isNaN(id)) {
 			throw new BadRequestException('Documento não encontrado');
@@ -460,8 +463,48 @@ export class VirtualPackageService {
 				finalizado: false,
 				malote_virtual: {
 					excluido: false,
-					empresa_id,
-					situacao: 1,
+					empresa_id: user.empresa_id,
+					// OR: [
+					// 	{
+					// 		situacao: { in: [1, 2] },
+					// 	},
+					// 	{
+					// 		situacao: 3,
+					// 		// documentos_malote: {
+					// 		// 	every: {
+					// 		// 		OR: [
+					// 		// 			{
+					// 		// 				finalizado: true,
+					// 		// 				excluido: false,
+					// 		// 			},
+					// 		// 			{
+					// 		// 				excluido: true,
+					// 		// 			},
+					// 		// 		],
+					// 		// 	},
+					// 		// },
+					// 		// documentos_protocolo: {
+					// 		// 	every: {
+					// 		// 		OR: [
+					// 		// 			{
+					// 		// 				aceito: true,
+					// 		// 				excluido: false,
+					// 		// 				protocolo:
+					// 		// 					!user.acessa_todos_departamentos
+					// 		// 						? {
+					// 		// 								destino_departamento_id:
+					// 		// 									{
+					// 		// 										in: user.departamentos_ids,
+					// 		// 									},
+					// 		// 						  }
+					// 		// 						: undefined,
+					// 		// 			},
+					// 		// 			{ excluido: true },
+					// 		// 		],
+					// 		// 	},
+					// 		// },
+					// 	},
+					// ],
 				},
 			},
 		});
@@ -503,7 +546,11 @@ export class VirtualPackageService {
 		if (!malote.documentos_malote.length) {
 			await this.prisma.maloteVirtual.update({
 				data: {
-					situacao: 4,
+					protocolado_baixado:
+						malote.situacao == 3 ? true : undefined,
+					situacao: malote.situacao == 3 ? undefined : 4,
+					situacao_anterior:
+						malote.situacao == 3 ? undefined : malote.situacao,
 				},
 				where: {
 					id,
@@ -558,15 +605,21 @@ export class VirtualPackageService {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Documento não encontrado');
 
+		const virtualPackage = await this.prisma.maloteVirtual.findFirst({
+			select: {
+				situacao: true,
+				situacao_anterior: true,
+				protocolado_baixado: true,
+			},
+			where: {
+				id,
+			},
+		});
+
 		const documents = await this.prisma.maloteDocumento.findMany({
 			select: {
 				id: true,
 				malote_virtual_id: true,
-				malote_virtual: {
-					select: {
-						situacao: true,
-					},
-				},
 			},
 			where: {
 				id: { in: reverseReceiveVirtualPackageDto.documentos_ids },
@@ -580,7 +633,10 @@ export class VirtualPackageService {
 			},
 		});
 
-		if (!documents.length)
+		if (
+			!documents.length ||
+			(virtualPackage.situacao == 4 && virtualPackage.protocolado_baixado)
+		)
 			throw new BadRequestException(
 				'Documento(s) informado(s) não pode ser estornado(s) ou não encontrado(s)',
 			);
@@ -596,7 +652,15 @@ export class VirtualPackageService {
 		});
 
 		await this.prisma.maloteVirtual.update({
-			data: { situacao: 1 },
+			data: {
+				situacao: virtualPackage.protocolado_baixado
+					? 3
+					: virtualPackage.situacao_anterior || undefined,
+				situacao_anterior: virtualPackage.protocolado_baixado
+					? undefined
+					: null,
+				protocolado_baixado: false,
+			},
 			where: {
 				id,
 			},
@@ -968,7 +1032,6 @@ export class VirtualPackageService {
 						},
 					},
 				],
-				situacao: 2,
 				excluido: false,
 				empresa_id: user.empresa_id,
 			},
@@ -978,6 +1041,7 @@ export class VirtualPackageService {
 			throw new BadRequestException(
 				'Malote(s) informado(s) não pode(m) ser utilizado(s)',
 			);
+
 		const protocolo = await this.prisma.protocolo.create({
 			data: {
 				tipo: createProtocolVirtualPackageDto.tipo,
@@ -1006,7 +1070,7 @@ export class VirtualPackageService {
 						discriminacao: `Malote Virtual: ${
 							virtualPackage.id
 						}; Malote Físico: ${
-							virtualPackage.malote_fisico.codigo || 'N/A'
+							virtualPackage.malote_fisico?.codigo || 'N/A'
 						}`,
 						observacao: '',
 						retorna: false,

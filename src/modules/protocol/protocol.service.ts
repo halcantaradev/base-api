@@ -919,7 +919,10 @@ export class ProtocolService {
 								situacao: true,
 								situacao_anterior: true,
 								documentos_malote: {
-									select: { finalizado: true },
+									select: {
+										finalizado: true,
+										excluido: true,
+									},
 								},
 							},
 						},
@@ -969,11 +972,12 @@ export class ProtocolService {
 		if (documentExists.protocolo_malote) {
 			let canReverse = true;
 			const packageNotReserse: number[] = [];
+
 			documentExists.documentos.forEach((doc) => {
 				if (
 					doc.malote_virtual.documentos_malote.length !=
 						doc.malote_virtual.documentos_malote.filter(
-							(d) => d.finalizado,
+							(d) => (!d.finalizado && !d.excluido) || d.excluido,
 						).length &&
 					doc.malote_virtual.situacao_anterior < 4
 				) {

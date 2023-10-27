@@ -585,7 +585,6 @@ model Protocolo {
   origem_departamento_id  Int
   destino_usuario_id      Int?
   origem_usuario_id       Int?
-  malote_virtual_id       Int?
   data_finalizado         DateTime?
   protocolo_malote        Boolean   @default(false)
   retorna_malote_vazio    Boolean   @default(false)
@@ -597,7 +596,6 @@ model Protocolo {
   updated_at              DateTime  @updatedAt
 
   empresa              Pessoa               @relation(fields: [empresa_id], references: [id])
-  malote_virtual       MaloteVirtual?       @relation(fields: [malote_virtual_id], references: [id])
   destino_departamento Departamento         @relation(name: "DestinoProtocoloDepartamento", fields: [destino_departamento_id], references: [id])
   origem_departamento  Departamento         @relation(name: "OrigemProtocoloDepartamento", fields: [origem_departamento_id], references: [id])
   destino_usuario      User?                @relation(name: "DestinoProtocoloUsuario", fields: [destino_usuario_id], references: [id])
@@ -753,26 +751,26 @@ model MalotesFisicos {
 }
 
 model MaloteVirtual {
-  id                  Int       @id @default(autoincrement())
-  empresa_id          Int
-  usuario_id          Int
-  condominio_id       Int
-  malote_fisico_id    Int?
-  situacao            Int       @default(1)
-  situacao_anterior   Int?
-  protocolado_baixado Boolean   @default(false)
-  excluido            Boolean   @default(false)
-  data_saida          DateTime?
-  data_retorno        DateTime?
-  created_at          DateTime  @default(now())
-  updated_at          DateTime  @updatedAt
+  id                     Int       @id @default(autoincrement())
+  empresa_id             Int
+  usuario_id             Int
+  condominio_id          Int
+  malote_fisico_id       Int?
+  malote_disponibilizado Boolean   @default(false)
+  situacao               Int       @default(1)
+  situacao_anterior      Int?
+  protocolado_baixado    Boolean   @default(false)
+  excluido               Boolean   @default(false)
+  data_saida             DateTime?
+  data_retorno           DateTime?
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
 
   condominio           Pessoa               @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
   empresa              Pessoa               @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])
   malote_fisico        MalotesFisicos?      @relation(fields: [malote_fisico_id], references: [id])
   usuario              User                 @relation(fields: [usuario_id], references: [id])
   documentos_malote    MaloteDocumento[]
-  protocolos           Protocolo[]
   documentos_protocolo ProtocoloDocumento[]
 
   @@map("malotes_virtuais")

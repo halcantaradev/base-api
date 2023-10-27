@@ -1,3 +1,4 @@
+import { menulist } from './../public/menu/menus-list';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePhysicalPackageDto } from './dto/create-physical-package.dto';
 import { UpdatePhysicalPackageDto } from './dto/update-physical-package.dto';
@@ -110,9 +111,40 @@ export class PhysicalPackageService {
 				'O id do malote físico deve ser informado',
 			);
 		}
-		return this.prisma.malotesFisicos.findUnique({
+		return this.prisma.maloteVirtual.findFirst({
+			include: {
+				malote_fisico: true,
+				condominio: {
+					select: {
+						nome: true,
+						endereco: true,
+						numero: true,
+						bairro: true,
+						setup_rotas: {
+							select: {
+								motoqueiro: {
+									select: {
+										nome: true,
+										telefone: true,
+										whatsapp: true,
+									},
+								},
+							},
+						},
+					},
+				},
+				_count: {
+					select: {
+						documentos_malote: true,
+					},
+				},
+			},
 			where: {
-				id,
+				malote_fisico_id: id,
+				excluido: false,
+			},
+			orderBy: {
+				id: 'desc',
 			},
 		});
 	}

@@ -60,7 +60,7 @@ export class PersonService {
 		select: Prisma.PessoaSelect = {},
 		where: Prisma.PessoaWhereInput = {},
 	): Promise<any> {
-		const contatos = await this.prisma.contato.findFirst({
+		const contatos = await this.prisma.contato.findMany({
 			select: {
 				contato: true,
 				tipo: true,

@@ -41,6 +41,7 @@ export class ProtocolService {
 	select: Prisma.ProtocoloSelect = {
 		id: true,
 		tipo: true,
+		protocolo_malote: true,
 		origem_usuario: {
 			select: {
 				id: true,
@@ -95,6 +96,7 @@ export class ProtocolService {
 	selectDocuments: Prisma.ProtocoloDocumentoSelect = {
 		id: true,
 		protocolo_id: true,
+		malote_virtual_id: true,
 		tipo_documento: {
 			select: {
 				id: true,
@@ -136,6 +138,8 @@ export class ProtocolService {
 				origem_departamento_id:
 					createProtocolDto.origem_departamento_id,
 				retorna_malote_vazio: createProtocolDto.retorna_malote_vazio,
+				protocolo_malote:
+					createProtocolDto.protocolo_malote || undefined,
 				ativo: true,
 			},
 		});
@@ -146,6 +150,12 @@ export class ProtocolService {
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
+		const protocolo_malote = filtersProtocolDto.tipo_protocolo
+			? filtersProtocolDto.tipo_protocolo == 2
+				? true
+				: false
+			: undefined;
+
 		return await this.prisma.protocolo.findMany({
 			select: this.select,
 			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
@@ -157,6 +167,7 @@ export class ProtocolService {
 				id: !Number.isNaN(+filtersProtocolDto.id)
 					? +filtersProtocolDto.id
 					: undefined,
+				protocolo_malote,
 				finalizado:
 					filtersProtocolDto.finalizado !== undefined
 						? filtersProtocolDto.finalizado
@@ -254,6 +265,12 @@ export class ProtocolService {
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
+		const protocolo_malote = filtersProtocolDto.tipo_protocolo
+			? filtersProtocolDto.tipo_protocolo == 2
+				? true
+				: false
+			: undefined;
+
 		return this.prisma.protocolo.findMany({
 			select: this.select,
 			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
@@ -265,7 +282,7 @@ export class ProtocolService {
 				id: !Number.isNaN(+filtersProtocolDto.id)
 					? +filtersProtocolDto.id
 					: undefined,
-
+				protocolo_malote,
 				destino_departamento_id:
 					filtersProtocolDto.destino_departamento_ids
 						? {
@@ -312,7 +329,6 @@ export class ProtocolService {
 						  }
 						: undefined,
 				tipo: filtersProtocolDto.tipo || undefined,
-
 				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao
 					? {
@@ -728,6 +744,7 @@ export class ProtocolService {
 								: null,
 							usuario: item?.protocolo?.origem_usuario?.nome,
 							tipo: item?.tipo_documento?.nome,
+							protocolo_malote: protocol.protocolo_malote,
 							discriminacao: item?.discriminacao,
 							recebido: item.data_aceite
 								? new Intl.DateTimeFormat('pt-BR').format(
@@ -747,6 +764,7 @@ export class ProtocolService {
 						: null,
 					usuario: item?.protocolo?.origem_usuario?.nome,
 					tipo: item?.tipo_documento?.nome,
+					protocolo_malote: protocol.protocolo_malote,
 					discriminacao: item?.discriminacao,
 					recebido: item.data_aceite
 						? new Intl.DateTimeFormat('pt-BR').format(
@@ -892,7 +910,23 @@ export class ProtocolService {
 	) {
 		const documentExists = await this.prisma.protocolo.findFirst({
 			select: {
+				protocolo_malote: true,
 				documentos: {
+					include: {
+						malote_virtual: {
+							select: {
+								id: true,
+								situacao: true,
+								situacao_anterior: true,
+								documentos_malote: {
+									select: {
+										finalizado: true,
+										excluido: true,
+									},
+								},
+							},
+						},
+					},
 					where: {
 						id: {
 							in: documents_ids,
@@ -933,6 +967,31 @@ export class ProtocolService {
 			throw new BadRequestException(
 				'Documento(s) informado(s) não aceitos, já na fila ou não encontrados',
 			);
+		}
+
+		if (documentExists.protocolo_malote) {
+			let canReverse = true;
+			const packageNotReserse: number[] = [];
+
+			documentExists.documentos.forEach((doc) => {
+				if (
+					doc.malote_virtual.documentos_malote.length !=
+						doc.malote_virtual.documentos_malote.filter(
+							(d) => (!d.finalizado && !d.excluido) || d.excluido,
+						).length &&
+					doc.malote_virtual.situacao != 4
+				) {
+					canReverse = false;
+					packageNotReserse.push(doc.malote_virtual.id);
+				}
+			});
+
+			if (!canReverse)
+				throw new BadRequestException(
+					`O(s) malote(s): ${packageNotReserse.join(
+						', ',
+					)}, não podem ser estornados, pois contém documentos baixados`,
+				);
 		}
 
 		const documents_ids_reverse = documentExists.documentos.map(
@@ -996,6 +1055,9 @@ export class ProtocolService {
 		if (!protocolo || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
+		if (protocolo.protocolo_malote && !exclude)
+			throw new BadRequestException('Documento não pode ser alterado');
+
 		const document = await this.findDocumentById(
 			protocolo_id,
 			document_id,
@@ -1005,7 +1067,26 @@ export class ProtocolService {
 		if (!document || Number.isNaN(document_id) || document.aceito)
 			throw new BadRequestException('Documento não encontrado');
 
-		return this.prisma.protocoloDocumento.update({
+		if (protocolo.protocolo_malote && exclude) {
+			const hasReceivedDocuments =
+				!!(await this.prisma.maloteDocumento.findFirst({
+					where: {
+						id: document.malote_virtual_id,
+						excluido: false,
+						finalizado: true,
+						malote_virtual: {
+							situacao_anterior: { notIn: [3, 4] },
+						},
+					},
+				}));
+
+			if (hasReceivedDocuments)
+				throw new BadRequestException(
+					'Não é possível remover, pois o malote possui documentos baixados',
+				);
+		}
+
+		const documentUpdated = await this.prisma.protocoloDocumento.update({
 			data: {
 				discriminacao: updateDocumentProtocolDto.discriminacao,
 				observacao: updateDocumentProtocolDto.observacao,
@@ -1020,6 +1101,40 @@ export class ProtocolService {
 				id: document_id,
 			},
 		});
+
+		if (protocolo.protocolo_malote && exclude) {
+			const virtualPackage = await this.prisma.maloteVirtual.findFirst({
+				select: {
+					situacao: true,
+					situacao_anterior: true,
+					protocolado_baixado: true,
+				},
+				where: {
+					id: document.malote_virtual_id,
+				},
+			});
+
+			await this.prisma.maloteVirtual.update({
+				data: {
+					situacao:
+						virtualPackage.protocolado_baixado &&
+						[3, 4].includes(virtualPackage.situacao)
+							? undefined
+							: virtualPackage.situacao_anterior,
+					situacao_anterior:
+						virtualPackage.protocolado_baixado &&
+						[3, 4].includes(virtualPackage.situacao)
+							? undefined
+							: null,
+					protocolado_baixado: false,
+				},
+				where: {
+					id: document.malote_virtual_id,
+				},
+			});
+		}
+
+		return documentUpdated;
 	}
 
 	async findAllCondominiums(

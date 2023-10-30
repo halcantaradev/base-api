@@ -84,4 +84,17 @@ export class CreateProtocolDto {
 	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	retorna_malote_vazio?: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o protocolo é um protocolo malote',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo protocolo malote informado não é válido. Por favor, forneça um valor válido.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	protocolo_malote?: boolean;
 }

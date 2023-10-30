@@ -33,6 +33,7 @@ import { SetupVirtualPackageListReturn } from './entities/setup-virtual-package-
 import { VirtualPackageReportReturnEntity } from './entities/virtual-package-report-return.entity';
 import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
 import { VirtualPackageService } from './virtual-package.service';
+import { CreateNewDocumenteProtocolVirtualPackageDto } from './dto/create-new-document-protocol-virtual-package.dto';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -214,6 +215,38 @@ export class VirtualPackageController {
 		return { success: true, message: 'Malote(s) recebido(s) com sucesso' };
 	}
 
+	@Post('protocol')
+	@HttpCode(HttpStatus.OK)
+	@Role('protocolos-cadastrar')
+	@ApiOperation({ summary: 'Cria um protocolo de malotes' })
+	@ApiResponse({
+		description: 'Protocolo criado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao criar o protocolo',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao criar o protocolo',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async createPackageProtocol(
+		@CurrentUser() user: UserAuth,
+		@Body()
+		createProtocolVirtualPackageDto: CreateProtocolVirtualPackageDto,
+	) {
+		await this.virtualPackageService.createPackageProtocol(
+			createProtocolVirtualPackageDto,
+			user,
+		);
+
+		return { success: true, message: 'Protocolo criado com sucesso' };
+	}
+
 	@Get(':id')
 	@Role('malotes-virtuais-exibir-dados')
 	@ApiOperation({
@@ -373,7 +406,7 @@ export class VirtualPackageController {
 		return this.virtualPackageService.receiveDoc(
 			+id,
 			receiveVirtualPackageDto,
-			user.empresa_id,
+			user,
 		);
 	}
 
@@ -435,7 +468,7 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
 		@Body()
-		createNewDocumentVirtualPackageDto: CreateProtocolVirtualPackageDto,
+		createNewDocumentVirtualPackageDto: CreateNewDocumenteProtocolVirtualPackageDto,
 	) {
 		await this.virtualPackageService.createNewDoc(
 			+id,

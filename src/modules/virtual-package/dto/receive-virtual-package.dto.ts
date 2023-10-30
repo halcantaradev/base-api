@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsOptional, Validate } from 'class-validator';
+import {
+	IsInt,
+	IsNotEmpty,
+	IsOptional,
+	IsString,
+	Validate,
+} from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 import { IsBooleanType } from 'src/shared/validators';
 
@@ -33,4 +39,16 @@ export class ReceiveVirtualPackageDto {
 	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	recebido: boolean;
+
+	@ApiProperty({
+		description: 'Fundamentação legal infrigida na notificação',
+		example: 'LEI DE TESTE DO ARTIGO TESTE N° TESTE',
+		required: true,
+	})
+	@IsOptional()
+	@IsString({
+		message:
+			'O campo fundamentação legal informado não é válido. Por favor, forneça uma fundamentação legal válida.',
+	})
+	justificativa?: string;
 }

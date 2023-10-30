@@ -141,6 +141,7 @@ export class VirtualPackageService {
 					select: {
 						id: true,
 						situacao: true,
+						justificativa: true,
 						excluido: true,
 						documento: {
 							select: {
@@ -215,6 +216,7 @@ export class VirtualPackageService {
 			},
 			documentos_malote: {
 				select: {
+					justificativa: true,
 					documento: {
 						select: {
 							id: true,
@@ -537,7 +539,11 @@ export class VirtualPackageService {
 		const documents_ids_accept = documents.map((document) => document.id);
 
 		await this.prisma.maloteDocumento.updateMany({
-			data: { situacao: receiveVirtualPackageDto.recebido ? 2 : 3 },
+			data: {
+				situacao: receiveVirtualPackageDto.recebido ? 2 : 3,
+				justificativa:
+					receiveVirtualPackageDto?.justificativa || undefined,
+			},
 			where: {
 				malote_virtual_id: id,
 				id: {
@@ -664,7 +670,7 @@ export class VirtualPackageService {
 		const documents_ids_accept = documents.map((document) => document.id);
 
 		await this.prisma.maloteDocumento.updateMany({
-			data: { situacao: 1 },
+			data: { situacao: 1, justificativa: null },
 			where: {
 				malote_virtual_id: id,
 				id: { in: documents_ids_accept },

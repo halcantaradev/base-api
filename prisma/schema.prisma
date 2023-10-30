@@ -782,6 +782,7 @@ model MaloteDocumento {
   documento_id      Int
   excluido          Boolean  @default(false)
   situacao          Int      @default(1)
+  justificativa     String?
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
 

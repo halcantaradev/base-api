@@ -201,6 +201,16 @@ export class VirtualPackageService {
 				select: {
 					id: true,
 					nome: true,
+					departamentos_condominio: {
+						select: {
+							departamento: {
+								select: {
+									id: true,
+									nome: true,
+								},
+							},
+						},
+					},
 				},
 			},
 			documentos_malote: {
@@ -382,6 +392,16 @@ export class VirtualPackageService {
 				condominio: {
 					select: {
 						nome: true,
+						departamentos_condominio: {
+							select: {
+								departamento: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+							},
+						},
 						setup_rotas: {
 							select: {
 								motoqueiro: true,
@@ -464,47 +484,47 @@ export class VirtualPackageService {
 				malote_virtual: {
 					excluido: false,
 					empresa_id: user.empresa_id,
-					// OR: [
-					// 	{
-					// 		situacao: { in: [1, 2] },
-					// 	},
-					// 	{
-					// 		situacao: 3,
-					// 		// documentos_malote: {
-					// 		// 	every: {
-					// 		// 		OR: [
-					// 		// 			{
-					// 		// 				finalizado: true,
-					// 		// 				excluido: false,
-					// 		// 			},
-					// 		// 			{
-					// 		// 				excluido: true,
-					// 		// 			},
-					// 		// 		],
-					// 		// 	},
-					// 		// },
-					// 		// documentos_protocolo: {
-					// 		// 	every: {
-					// 		// 		OR: [
-					// 		// 			{
-					// 		// 				aceito: true,
-					// 		// 				excluido: false,
-					// 		// 				protocolo:
-					// 		// 					!user.acessa_todos_departamentos
-					// 		// 						? {
-					// 		// 								destino_departamento_id:
-					// 		// 									{
-					// 		// 										in: user.departamentos_ids,
-					// 		// 									},
-					// 		// 						  }
-					// 		// 						: undefined,
-					// 		// 			},
-					// 		// 			{ excluido: true },
-					// 		// 		],
-					// 		// 	},
-					// 		// },
-					// 	},
-					// ],
+					OR: [
+						{
+							situacao: { in: [1, 2] },
+						},
+						{
+							situacao: 3,
+							documentos_malote: {
+								every: {
+									OR: [
+										{
+											finalizado: true,
+											excluido: false,
+										},
+										{
+											excluido: true,
+										},
+									],
+								},
+							},
+							documentos_protocolo: {
+								every: {
+									OR: [
+										{
+											aceito: true,
+											excluido: false,
+											protocolo:
+												!user.acessa_todos_departamentos
+													? {
+															destino_departamento_id:
+																{
+																	in: user.departamentos_ids,
+																},
+													  }
+													: undefined,
+										},
+										{ excluido: true },
+									],
+								},
+							},
+						},
+					],
 				},
 			},
 		});
@@ -1014,6 +1034,14 @@ export class VirtualPackageService {
 				id: {
 					in: createProtocolVirtualPackageDto.malotes_virtuais_ids,
 				},
+				condominio: {
+					departamentos_condominio: {
+						some: {
+							departamento_id:
+								createProtocolVirtualPackageDto.destino_departamento_id,
+						},
+					},
+				},
 				OR: [
 					{
 						situacao: { in: [1, 2] },
@@ -1058,10 +1086,12 @@ export class VirtualPackageService {
 				finalizado: true,
 			},
 		});
+
 		if (!protocolo)
 			throw new BadRequestException(
 				'Ocorreu um erro ao protocolar o(s) malotes(s)',
 			);
+
 		await Promise.all(
 			virtualPackages.map(async (virtualPackage) => {
 				await this.prisma.protocoloDocumento.create({

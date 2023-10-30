@@ -920,7 +920,7 @@ export class ProtocolService {
 								situacao_anterior: true,
 								documentos_malote: {
 									select: {
-										finalizado: true,
+										situacao: true,
 										excluido: true,
 									},
 								},
@@ -977,7 +977,9 @@ export class ProtocolService {
 				if (
 					doc.malote_virtual.documentos_malote.length !=
 						doc.malote_virtual.documentos_malote.filter(
-							(d) => (!d.finalizado && !d.excluido) || d.excluido,
+							(d) =>
+								(![2, 3].includes(d.situacao) && !d.excluido) ||
+								d.excluido,
 						).length &&
 					doc.malote_virtual.situacao != 4
 				) {
@@ -1073,7 +1075,7 @@ export class ProtocolService {
 					where: {
 						id: document.malote_virtual_id,
 						excluido: false,
-						finalizado: true,
+						situacao: { in: [2, 3] },
 						malote_virtual: {
 							situacao_anterior: { notIn: [3, 4] },
 						},

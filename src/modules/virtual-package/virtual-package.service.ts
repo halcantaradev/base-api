@@ -140,7 +140,7 @@ export class VirtualPackageService {
 				documentos_malote: {
 					select: {
 						id: true,
-						finalizado: true,
+						situacao: true,
 						excluido: true,
 						documento: {
 							select: {
@@ -480,7 +480,7 @@ export class VirtualPackageService {
 				},
 				malote_virtual_id: id,
 				excluido: false,
-				finalizado: false,
+				situacao: 1,
 				malote_virtual: {
 					excluido: false,
 					empresa_id: user.empresa_id,
@@ -494,7 +494,7 @@ export class VirtualPackageService {
 								every: {
 									OR: [
 										{
-											finalizado: true,
+											situacao: { in: [2, 3] },
 											excluido: false,
 										},
 										{
@@ -537,7 +537,7 @@ export class VirtualPackageService {
 		const documents_ids_accept = documents.map((document) => document.id);
 
 		await this.prisma.maloteDocumento.updateMany({
-			data: { finalizado: true },
+			data: { situacao: receiveVirtualPackageDto.recebido ? 2 : 3 },
 			where: {
 				malote_virtual_id: id,
 				id: {
@@ -556,7 +556,7 @@ export class VirtualPackageService {
 					},
 					where: {
 						excluido: false,
-						finalizado: false,
+						situacao: 1,
 					},
 				},
 			},
@@ -590,7 +590,7 @@ export class VirtualPackageService {
 								every: {
 									documentos_malote: {
 										every: {
-											finalizado: false,
+											situacao: 1,
 										},
 									},
 								},
@@ -645,7 +645,7 @@ export class VirtualPackageService {
 				id: { in: reverseReceiveVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
 				excluido: false,
-				finalizado: true,
+				situacao: { in: [2, 3] },
 				malote_virtual: {
 					excluido: false,
 					empresa_id,
@@ -664,7 +664,7 @@ export class VirtualPackageService {
 		const documents_ids_accept = documents.map((document) => document.id);
 
 		await this.prisma.maloteDocumento.updateMany({
-			data: { finalizado: false },
+			data: { situacao: 1 },
 			where: {
 				malote_virtual_id: id,
 				id: { in: documents_ids_accept },
@@ -907,7 +907,7 @@ export class VirtualPackageService {
 				id: { in: reverseVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
 				excluido: false,
-				finalizado: false,
+				situacao: 1,
 				malote_virtual: {
 					excluido: false,
 					empresa_id,
@@ -1047,7 +1047,7 @@ export class VirtualPackageService {
 						situacao: { in: [1, 2] },
 						documentos_malote: {
 							every: {
-								OR: [{ finalizado: false }, { excluido: true }],
+								OR: [{ situacao: 1 }, { excluido: true }],
 							},
 						},
 					},
@@ -1055,7 +1055,10 @@ export class VirtualPackageService {
 						situacao: 4,
 						documentos_malote: {
 							every: {
-								OR: [{ finalizado: true }, { excluido: false }],
+								OR: [
+									{ situacao: { in: [2, 3] } },
+									{ excluido: false },
+								],
 							},
 						},
 					},

@@ -979,7 +979,7 @@ export class ProtocolService {
 						doc.malote_virtual.documentos_malote.filter(
 							(d) => (!d.finalizado && !d.excluido) || d.excluido,
 						).length &&
-					doc.malote_virtual.situacao_anterior < 4
+					doc.malote_virtual.situacao != 4
 				) {
 					canReverse = false;
 					packageNotReserse.push(doc.malote_virtual.id);
@@ -1126,6 +1126,7 @@ export class ProtocolService {
 						[3, 4].includes(virtualPackage.situacao)
 							? undefined
 							: null,
+					protocolado_baixado: false,
 				},
 				where: {
 					id: document.malote_virtual_id,

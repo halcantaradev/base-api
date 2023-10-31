@@ -828,6 +828,7 @@ export class ProtocolService {
 							in: documents_ids,
 						},
 						aceito: false,
+						rejeitado: false,
 						fila_geracao_malote: {
 							none: {
 								documento_id: {
@@ -935,7 +936,7 @@ export class ProtocolService {
 						id: {
 							in: documents_ids,
 						},
-						aceito: true,
+
 						fila_geracao_malote: {
 							none: {
 								documento_id: {
@@ -944,6 +945,16 @@ export class ProtocolService {
 								excluido: false,
 							},
 						},
+						OR: [
+							{
+								aceito: true,
+								rejeitado: false,
+							},
+							{
+								aceito: false,
+								rejeitado: true,
+							},
+						],
 					},
 				},
 			},
@@ -1010,6 +1021,8 @@ export class ProtocolService {
 			},
 			data: {
 				aceito: false,
+				rejeitado: false,
+				motivo_rejeitado: null,
 				aceite_usuario_id: null,
 				data_aceite: null,
 			},
@@ -1403,6 +1416,13 @@ export class ProtocolService {
 						rota: `protocolos/detalhes/${protocolo.id}`,
 					};
 					break;
+				case TypeNotificationProtocol.REJEITADO_DOCUMENTO_PROTOCOLO:
+					notification = {
+						titulo: `Protocolo ${protocolo.id} foi rejeitado`,
+						conteudo: `Documentos foram rejeitados pelo departamento de destino, clique aqui para visualizar`,
+						rota: `protocolos/detalhes/${protocolo.id}`,
+					};
+					break;
 			}
 
 			if (!usuario_id) {
@@ -1465,7 +1485,7 @@ export class ProtocolService {
 
 		if (!documentsExists?.length) {
 			throw new BadRequestException(
-				'Documentos enviados são inválidos, lembre-se somente documentos pendentes podem ser rejeitados!',
+				'Os documentos enviados são inválidos, somente documentos pendentes podem ser rejeitados!',
 			);
 		}
 
@@ -1484,6 +1504,46 @@ export class ProtocolService {
 				motivo_rejeitado: body.motivo_rejeitado,
 			},
 		});
+
+		const protocolTotalDocuments = await this.prisma.protocolo.findFirst({
+			where: {
+				documentos: {
+					every: {
+						excluido: false,
+						rejeitado: true,
+					},
+				},
+			},
+		});
+
+		let protocolo;
+
+		if (protocolTotalDocuments) {
+			protocolo = await this.prisma.protocolo.update({
+				where: {
+					id: protocolo_id,
+				},
+				data: {
+					situacao: 4,
+				},
+			});
+		} else {
+			protocolo = await this.prisma.protocolo.findFirst({
+				where: {
+					id: protocolo_id,
+					excluido: false,
+				},
+			});
+		}
+
+		await this.sendNotification(
+			protocolo,
+			protocolo.origem_departamento_id,
+			user.empresa_id,
+			protocolo.destino_usuario_id,
+			TypeNotificationProtocol.REJEITADO_DOCUMENTO_PROTOCOLO,
+		);
+
 		return {
 			success: true,
 			message: 'Os documento(s) foram rejeitados!',

@@ -21,6 +21,7 @@ export class QueueGeneratePackageService {
 					in: createQueueGeneratePackageDto.documentos_ids,
 				},
 				aceito: true,
+				rejeitado: false,
 				fila_geracao_malote: {
 					none: {
 						documento_id: {

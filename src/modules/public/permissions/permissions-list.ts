@@ -683,4 +683,10 @@ export const permissionslist: Array<{
 		message:
 			'Sem permissão para liberar malote fisico em uso pelo malote gerado',
 	},
+	{
+		label: 'Rejeitar documento do protocolo',
+		module: 'Protocolos',
+		key: 'protocolos-documentos-rejeitar',
+		message: 'Sem permissão para rejeitar documento do protocolo',
+	},
 ];

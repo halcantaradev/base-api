@@ -955,17 +955,35 @@ export class CondominiumService {
 						tipo: { select: { descricao: true } },
 					},
 					where: {
-						condomino: body.busca
-							? {
-									nome: {
-										contains: body.busca
+						OR: [
+							{
+								condomino: body.busca
+									? {
+											nome: {
+												contains: body.busca
+													.toString()
+													.normalize('NFD')
+													.replace(
+														/[\u0300-\u036f]/g,
+														'',
+													),
+												mode: 'insensitive',
+											},
+									  }
+									: undefined,
+							},
+							{
+								unidade: {
+									codigo: {
+										contains: (body.busca || '')
 											.toString()
 											.normalize('NFD')
 											.replace(/[\u0300-\u036f]/g, ''),
 										mode: 'insensitive',
 									},
-							  }
-							: undefined,
+								},
+							},
+						],
 					},
 				},
 				ativo: true,

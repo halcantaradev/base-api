@@ -5,6 +5,7 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { uploadFileOrigin } from './constants/upload-file-origin.constant';
 import { S3Service } from 'src/shared/services/s3.service';
 import { UploadFileDto } from './dto/upload-file.dto';
+import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 
 @Injectable()
 export class UploadFileService {
@@ -22,7 +23,7 @@ export class UploadFileService {
 					}`;
 					const url = await this.s3Service.upload(
 						file.buffer,
-						keyName,
+						`${FilesOrigin.EXTENSO[params.origin]}/${keyName}`,
 					);
 
 					await this.prisma.arquivo.create({

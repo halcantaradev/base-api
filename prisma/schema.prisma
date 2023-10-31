@@ -784,7 +784,8 @@ model MaloteDocumento {
   malote_virtual_id Int
   documento_id      Int
   excluido          Boolean  @default(false)
-  finalizado        Boolean  @default(false)
+  situacao          Int      @default(1)
+  justificativa     String?
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
 

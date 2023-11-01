@@ -683,4 +683,10 @@ export const permissionslist: Array<{
 		message:
 			'Sem permissão para liberar malote fisico em uso pelo malote gerado',
 	},
+	{
+		label: 'Enviar email',
+		module: 'Notificação',
+		key: 'notificacoes-enviar-emails',
+		message: 'Sem permissão para enviar emails',
+	},
 ];

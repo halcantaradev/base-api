@@ -34,7 +34,7 @@ export class ExternalAccessDocumentsService {
 				data.data.id,
 			);
 
-			pdf = await this.pdfService.getPDF(notificacao.data.doc_gerado);
+			pdf = await this.pdfService.getPDF(notificacao.doc_gerado);
 
 			pdfs = await this.notificationService.getPDFFiles(data.data.id);
 		}

@@ -36,6 +36,7 @@ import { ReturnNotificationListEntity } from './entities/return-notification-lis
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ReturnValidatedNotificationEntity } from './entities/return-validated-notification.entity';
 import { NotificationService } from './notification.service';
+import { SendMailNotificationDto } from './dto/send-mail-notification.dto';
 
 @ApiTags('Notificações')
 @Controller('notifications')
@@ -226,8 +227,11 @@ export class NotificationController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	findOne(@Param('id') id: string) {
-		return this.notificationService.findOneById(+id);
+	async findOne(@Param('id') id: string) {
+		return {
+			success: true,
+			data: await this.notificationService.findOneById(+id),
+		};
 	}
 
 	@Patch(':id')
@@ -288,10 +292,14 @@ export class NotificationController {
 		@Res({ passthrough: true }) res: Response,
 	) {
 		const notificacao = await this.notificationService.findOneById(+id);
+
 		if (!notificacao) {
 			throw new BadRequestException('Notificação não encontrada');
 		}
-		const pdf = await this.pdfService.getPDF(notificacao.data.doc_gerado);
+
+		if (!notificacao.doc_gerado) return '';
+
+		const pdf = await this.pdfService.getPDF(notificacao.doc_gerado);
 
 		const layout = this.layoutService.replaceLayoutVars(
 			this.layoutService.getTemplate('annex-notification.html'),
@@ -366,5 +374,61 @@ export class NotificationController {
 	})
 	async remove(@Param('id') id: number) {
 		return this.notificationService.inativate(+id);
+	}
+
+	@Get(':id/emails')
+	@Role('notificacoes-exibir-dados')
+	@ApiOperation({
+		summary: 'Lista os emails para enviar os dados de uma notificação',
+	})
+	@ApiResponse({
+		description: 'Emails listados com sucesso',
+		status: HttpStatus.OK,
+		type: () => ReturnNotificationEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os emails disponíveis',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findEmails(@CurrentUser() user: UserAuth, @Param('id') id: string) {
+		return {
+			success: true,
+			data: await this.notificationService.findEmailsById(
+				+id,
+				user.empresa_id,
+			),
+		};
+	}
+
+	@Post(':id/emails')
+	@Role('notificacoes-exibir-dados')
+	@ApiOperation({
+		summary:
+			'Envia um email com os dados de uma notificação para os endereços informados',
+	})
+	@ApiResponse({
+		description: 'Emails enviados com sucesso',
+		status: HttpStatus.OK,
+		type: () => ReturnNotificationEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao enviar os emails',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async sendEmails(
+		@CurrentUser() user: UserAuth,
+		@Param('id') id: string,
+		@Body() sendMailNotificationDto: SendMailNotificationDto,
+	) {
+		return {
+			success: true,
+			data: await this.notificationService.sendMail(
+				+id,
+				sendMailNotificationDto,
+				user.empresa_id,
+			),
+		};
 	}
 }

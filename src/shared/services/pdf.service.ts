@@ -3,7 +3,7 @@ import { generatePdf } from 'html-pdf-node';
 import { PDFDocument } from 'pdf-lib';
 @Injectable()
 export class PdfService {
-	getPDF(html: string): Promise<Buffer> {
+	getPDF(html = ''): Promise<Buffer> {
 		return new Promise((resolve, reject) => {
 			generatePdf(
 				{ content: html, url: '' },

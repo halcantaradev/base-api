@@ -17,6 +17,8 @@ export class IntegrationService {
 		private readonly filaService: FilaService,
 		@Inject('NOTIFICACAO_CONSUMER_SERVICE')
 		private readonly notificationService?: ClientRMQ,
+		@Inject('SYNC_ERROR_LOG_SERvICE')
+		private readonly syncErrorLogService?: ClientRMQ,
 	) {}
 
 	findAllByEmpresa(empresa_id: number) {
@@ -320,6 +322,14 @@ export class IntegrationService {
 		return new Promise((res, rej) => {
 			this.notificationService
 				.emit('synchronism', payload)
+				.subscribe({ next: () => res(true), error: (err) => rej(err) });
+		});
+	}
+
+	sendErrorLog(payload: any) {
+		return new Promise((res, rej) => {
+			this.notificationService
+				.emit('sync-error-log', payload)
 				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});
 	}

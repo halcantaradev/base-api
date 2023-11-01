@@ -165,7 +165,10 @@ export class IntegrationController {
 			channel.ack(orginalMessage);
 			return context;
 		} catch (error) {
+			console.log('========= Falha na sincronização =========');
 			console.log(error);
+			console.log('==========================================');
+			this.integrationService.sendErrorLog({ body, payload });
 			return context;
 		}
 	}

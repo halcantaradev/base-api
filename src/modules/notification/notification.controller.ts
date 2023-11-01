@@ -25,7 +25,6 @@ import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominium
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { PdfService } from 'src/shared/services/pdf.service';
-import { LayoutsNotificationService } from '../layouts-notification/layouts-notification.service';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
@@ -48,7 +47,6 @@ export class NotificationController {
 		private readonly layoutService: LayoutConstsService,
 		private readonly handleBarService: HandlebarsService,
 		private readonly pdfService: PdfService,
-		private readonly layoutNotificationServe: LayoutsNotificationService,
 	) {}
 
 	@Post()
@@ -74,28 +72,15 @@ export class NotificationController {
 		@Body() createNotificationDto: CreateNotificationDto,
 		@CurrentUser() user: UserAuth,
 	) {
-		const layoutPadrao = await this.layoutNotificationServe.findOne(
-			createNotificationDto.layout_id,
-			user.empresa_id,
-		);
-
-		const layout = this.layoutService.replaceLayoutVars(
-			layoutPadrao.modelo,
-		);
-
 		const notificacao = await this.notificationService.create(
 			createNotificationDto,
 			user,
 		);
 
-		const dataToPrint = await this.notificationService.dataToHandle(
+		await this.notificationService.generateDoc(
+			createNotificationDto.layout_id,
+			user.empresa_id,
 			notificacao.data.id,
-		);
-
-		const html = this.handleBarService.compile(layout, dataToPrint);
-		await this.notificationService.updateLayoutUsado(
-			notificacao.data.id,
-			html,
 		);
 
 		return notificacao;
@@ -257,21 +242,16 @@ export class NotificationController {
 		@Body() updateNotificationDto: UpdateNotificationDto,
 		@CurrentUser() user: UserAuth,
 	) {
-		const layoutPadrao = await this.layoutNotificationServe.findOne(
+		const notificacao = await this.notificationService.update(
+			+id,
+			updateNotificationDto,
+		);
+		await this.notificationService.generateDoc(
 			updateNotificationDto.layout_id,
 			user.empresa_id,
+			notificacao.data.id,
 		);
-
-		const layout = this.layoutService.replaceLayoutVars(
-			layoutPadrao.modelo,
-		);
-
-		const dataToPrint = await this.notificationService.dataToHandle(+id);
-		updateNotificationDto.doc_gerado = this.handleBarService.compile(
-			layout,
-			dataToPrint,
-		);
-		return this.notificationService.update(+id, updateNotificationDto);
+		return notificacao;
 	}
 
 	@Get('print/:id')
@@ -290,14 +270,22 @@ export class NotificationController {
 	async findOnePrint(
 		@Param('id') id: string,
 		@Res({ passthrough: true }) res: Response,
+		@CurrentUser() user: UserAuth,
 	) {
-		const notificacao = await this.notificationService.findOneById(+id);
-
+		let notificacao = await this.notificationService.findOneById(+id);
 		if (!notificacao) {
 			throw new BadRequestException('Notificação não encontrada');
 		}
 
-		if (!notificacao.doc_gerado) return '';
+		if (!notificacao.doc_gerado) {
+			await this.notificationService.generateDoc(
+				notificacao.layout_id,
+				user.empresa_id,
+				notificacao.id,
+			);
+		}
+
+		notificacao = await this.notificationService.findOneById(+id);
 
 		const pdf = await this.pdfService.getPDF(notificacao.doc_gerado);
 

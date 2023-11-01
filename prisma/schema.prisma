@@ -617,11 +617,14 @@ model ProtocoloDocumento {
   retorna           Boolean   @default(false)
   data_aceite       DateTime?
   aceito            Boolean   @default(false)
+  rejeitado         Boolean   @default(false)
+  motivo_rejeitado  String?
   excluido          Boolean   @default(false)
   vencimento        DateTime?
-  valor             Float?
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+
+  valor      Float?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   condominio          Pessoa                 @relation(fields: [condominio_id], references: [id])
   tipo_documento      TipoDocumento?         @relation(fields: [tipo_documento_id], references: [id])

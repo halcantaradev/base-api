@@ -24,6 +24,7 @@ import { Protocol } from './entities/protocol.entity';
 import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 import { TypeNotificationProtocol } from './enums/type-notification-protocol.enum';
 import { defaultLogo } from 'src/shared/consts/default-logo.base64';
+import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
 
 @Injectable()
 export class ProtocolService {
@@ -558,6 +559,8 @@ export class ProtocolService {
 					},
 					retorna: true,
 					vencimento: true,
+					rejeitado: true,
+					motivo_rejeitado: true,
 					valor: true,
 					fila_geracao_malote: {
 						where: {
@@ -825,6 +828,7 @@ export class ProtocolService {
 							in: documents_ids,
 						},
 						aceito: false,
+						rejeitado: false,
 						fila_geracao_malote: {
 							none: {
 								documento_id: {
@@ -874,6 +878,7 @@ export class ProtocolService {
 			},
 			data: {
 				aceito: true,
+
 				aceite_usuario_id: user.id,
 				data_aceite: new Date(),
 			},
@@ -931,7 +936,7 @@ export class ProtocolService {
 						id: {
 							in: documents_ids,
 						},
-						aceito: true,
+
 						fila_geracao_malote: {
 							none: {
 								documento_id: {
@@ -940,6 +945,16 @@ export class ProtocolService {
 								excluido: false,
 							},
 						},
+						OR: [
+							{
+								aceito: true,
+								rejeitado: false,
+							},
+							{
+								aceito: false,
+								rejeitado: true,
+							},
+						],
 					},
 				},
 			},
@@ -1008,6 +1023,8 @@ export class ProtocolService {
 			},
 			data: {
 				aceito: false,
+				rejeitado: false,
+				motivo_rejeitado: null,
 				aceite_usuario_id: null,
 				data_aceite: null,
 			},
@@ -1401,6 +1418,13 @@ export class ProtocolService {
 						rota: `protocolos/detalhes/${protocolo.id}`,
 					};
 					break;
+				case TypeNotificationProtocol.REJEITADO_DOCUMENTO_PROTOCOLO:
+					notification = {
+						titulo: `Protocolo ${protocolo.id} foi rejeitado`,
+						conteudo: `Documentos foram rejeitados pelo departamento de destino, clique aqui para visualizar`,
+						rota: `protocolos/detalhes/${protocolo.id}`,
+					};
+					break;
 			}
 
 			if (!usuario_id) {
@@ -1421,5 +1445,110 @@ export class ProtocolService {
 		} catch (err) {
 			console.log(err);
 		}
+	}
+
+	async rejectDocuments(
+		protocolo_id: number,
+		body: RejectDocumentProtocolDto,
+		user: UserAuth,
+	) {
+		if (Number.isNaN(protocolo_id)) {
+			throw new BadRequestException('Protocolo não encontrado');
+		}
+
+		if (body.documentos_ids.length === 0) {
+			throw new BadRequestException('Nenhum documento encontrado');
+		}
+
+		const documentsExists = await this.prisma.protocoloDocumento.findMany({
+			where: {
+				protocolo_id,
+				rejeitado: false,
+				excluido: false,
+				aceito: false,
+				id: {
+					in: body.documentos_ids,
+				},
+				protocolo: {
+					destino_departamento: !user.acessa_todos_departamentos
+						? {
+								usuarios: {
+									some: {
+										usuario: {
+											id: user.id,
+										},
+									},
+								},
+						  }
+						: undefined,
+				},
+			},
+		});
+
+		if (!documentsExists?.length) {
+			throw new BadRequestException(
+				'Os documentos enviados são inválidos, somente documentos pendentes podem ser rejeitados!',
+			);
+		}
+
+		await this.prisma.protocoloDocumento.updateMany({
+			where: {
+				protocolo_id,
+				rejeitado: false,
+				excluido: false,
+				aceito: false,
+				id: {
+					in: documentsExists.map((document) => document.id),
+				},
+			},
+			data: {
+				rejeitado: true,
+				motivo_rejeitado: body.motivo_rejeitado,
+			},
+		});
+
+		const protocolTotalDocuments = await this.prisma.protocolo.findFirst({
+			where: {
+				documentos: {
+					every: {
+						excluido: false,
+						rejeitado: true,
+					},
+				},
+			},
+		});
+
+		let protocolo;
+
+		if (protocolTotalDocuments) {
+			protocolo = await this.prisma.protocolo.update({
+				where: {
+					id: protocolo_id,
+				},
+				data: {
+					situacao: 4,
+				},
+			});
+		} else {
+			protocolo = await this.prisma.protocolo.findFirst({
+				where: {
+					id: protocolo_id,
+					excluido: false,
+				},
+			});
+		}
+
+		await this.sendNotification(
+			protocolo,
+			protocolo.origem_departamento_id,
+			user.empresa_id,
+			protocolo.destino_usuario_id,
+			TypeNotificationProtocol.REJEITADO_DOCUMENTO_PROTOCOLO,
+		);
+
+		return {
+			success: true,
+			message: 'Os documento(s) foram rejeitados!',
+		};
 	}
 }

@@ -689,4 +689,10 @@ export const permissionslist: Array<{
 		key: 'notificacoes-enviar-emails',
 		message: 'Sem permissão para enviar emails',
 	},
+	{
+		label: 'Rejeitar documento do protocolo',
+		module: 'Protocolos',
+		key: 'protocolos-documentos-rejeitar',
+		message: 'Sem permissão para rejeitar documento do protocolo',
+	},
 ];

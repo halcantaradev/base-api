@@ -22,6 +22,9 @@ import { defaultLogo } from 'src/shared/consts/default-logo.base64';
 import { ContactType } from 'src/shared/consts/contact-type.const';
 import { Contact } from 'src/shared/consts/contact.const';
 import { SendMailNotificationDto } from './dto/send-mail-notification.dto';
+import { LayoutsNotificationService } from '../layouts-notification/layouts-notification.service';
+import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
+import { HandlebarsService } from 'src/shared/services/handlebars.service';
 
 @Injectable()
 export class NotificationService {
@@ -33,6 +36,9 @@ export class NotificationService {
 		private readonly emailService: EmailService,
 		private readonly externalJtwService: ExternalJwtService,
 		private readonly s3Service: S3Service,
+		private readonly layoutNotificationServe: LayoutsNotificationService,
+		private readonly layoutService: LayoutConstsService,
+		private readonly handleBarService: HandlebarsService,
 	) {}
 
 	async create(createNotificationDto: CreateNotificationDto, user: UserAuth) {
@@ -1766,5 +1772,27 @@ export class NotificationService {
 				}),
 			),
 		);
+	}
+
+	async generateDoc(layout_id: number, empresa_id: number, id: number) {
+		const layoutPadrao = await this.layoutNotificationServe.findOne(
+			layout_id,
+			empresa_id,
+		);
+
+		const layout = this.layoutService.replaceLayoutVars(
+			layoutPadrao.modelo,
+		);
+
+		const notificacao = await this.findOneById(id);
+		const dataToPrint = await this.dataToHandle(notificacao.id);
+
+		const html = this.handleBarService.compile(layout, dataToPrint);
+
+		return {
+			success: true,
+			data: await this.updateLayoutUsado(notificacao.id, html),
+			message: '',
+		};
 	}
 }

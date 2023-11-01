@@ -41,6 +41,7 @@ import { ProtocolDocumentListReturn } from './entities/protocol-document-list-re
 import { AcceptDocumentProtocolDto } from './dto/accept-document-protocol.dto';
 import { ReverseDocumentProtocolDto } from './dto/reverse-document-protocol.dto.ts';
 import { SendEmailProtocolDto } from './dto/send-email-protocol.dto';
+import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -309,6 +310,33 @@ export class ProtocolController {
 			acceptDocumentsProtocolDto.documentos_ids,
 			user,
 		);
+	}
+	@Post(':id/documents/reject')
+	@HttpCode(HttpStatus.OK)
+	@Role('protocolos-documentos-rejeitar')
+	@ApiOperation({ summary: 'Rejeita os documentos de um protocolo' })
+	@ApiResponse({
+		description: 'Os documentos informados foram rejeitados',
+		status: HttpStatus.OK,
+		type: ProtocolReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os documentos enviados',
+
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao rejeitar os documentos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async rejectDocuments(
+		@Param('id') id: string,
+		@Body() body: RejectDocumentProtocolDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		return await this.protocolService.rejectDocuments(+id, body, user);
 	}
 
 	@Get(':id/emails')

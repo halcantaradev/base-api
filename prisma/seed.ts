@@ -7,6 +7,8 @@ import {
 	Unidade,
 } from '@prisma/client';
 import { Contact } from '../src/shared/consts/contact.const';
+import { ContactType } from '../src/shared/consts/contact-type.const';
+
 const prisma = new PrismaClient();
 
 async function findEmpresa(): Promise<Pessoa> {
@@ -74,18 +76,28 @@ async function createCondominio(empresa: Pessoa) {
 	return condominio;
 }
 
-async function createContato(condominio: Pessoa) {
+async function createContato(
+	referencia_id: number,
+	origem: Contact,
+	tipo: ContactType,
+	descricao: string,
+) {
 	const contatos = await prisma.contato.findFirst({
-		where: { referencia_id: condominio.id },
+		where: { referencia_id: referencia_id, origem },
 	});
 
 	if (!contatos) {
 		await prisma.contato.create({
 			data: {
-				descricao: 'Síndico',
-				contato: `exemplo${condominio.id}@gmail.com`,
-				referencia_id: condominio.id,
-				origem: Contact.PESSOA,
+				descricao,
+				contato:
+					(tipo == ContactType.EMAIL &&
+						`exemplo${referencia_id}-${origem}@gmail.com`) ||
+					(tipo == ContactType.TELEFONE && `8540028922`) ||
+					'',
+				referencia_id,
+				origem,
+				tipo,
 			},
 		});
 	}
@@ -108,6 +120,68 @@ async function createUnidade(condominio: Pessoa) {
 	}
 
 	return unidade;
+}
+
+async function createAdmCondominio(condominio: Pessoa) {
+	let sindico = await prisma.condomimioAdministracao.findFirst({
+		where: { nome: `Síndico do condominio ${condominio.id}` },
+	});
+
+	if (!sindico) {
+		const cargo = await createCargoAdmCondominio('Síndico');
+
+		sindico = await prisma.condomimioAdministracao.create({
+			data: {
+				nome: `Síndico do condominio ${condominio.id}`,
+				condominio_id: condominio.id,
+				cargo_id: cargo.id,
+			},
+		});
+	}
+
+	await createContato(
+		sindico.id,
+		Contact.ADMINISTRACAO_CONDOMINIO,
+		ContactType.EMAIL,
+		'Síndico',
+	);
+
+	await createContato(
+		sindico.id,
+		Contact.ADMINISTRACAO_CONDOMINIO,
+		ContactType.TELEFONE,
+		'Síndico',
+	);
+
+	let gerente = await prisma.condomimioAdministracao.findFirst({
+		where: { nome: `Gerente do condominio ${condominio.id}` },
+	});
+
+	if (!gerente) {
+		const cargo = await createCargoAdmCondominio('Gerente');
+
+		gerente = await prisma.condomimioAdministracao.create({
+			data: {
+				nome: `Gerente do condominio ${condominio.id}`,
+				condominio_id: condominio.id,
+				cargo_id: cargo.id,
+			},
+		});
+	}
+
+	await createContato(
+		gerente.id,
+		Contact.ADMINISTRACAO_CONDOMINIO,
+		ContactType.EMAIL,
+		'Gerente',
+	);
+
+	await createContato(
+		sindico.id,
+		Contact.ADMINISTRACAO_CONDOMINIO,
+		ContactType.TELEFONE,
+		'Gerente',
+	);
 }
 
 async function createTipoCondomino() {
@@ -163,6 +237,20 @@ async function createCondominos(
 		});
 	}
 
+	await createContato(
+		proprietario.id,
+		Contact.PESSOA,
+		ContactType.EMAIL,
+		'Proprietário',
+	);
+
+	await createContato(
+		proprietario.id,
+		Contact.PESSOA,
+		ContactType.TELEFONE,
+		'Proprietário',
+	);
+
 	let inquilino = await prisma.pessoa.findFirst({
 		where: { nome: `Antônio morador do apartamento ${unidade.codigo}` },
 	});
@@ -183,6 +271,20 @@ async function createCondominos(
 			},
 		});
 	}
+
+	await createContato(
+		inquilino.id,
+		Contact.PESSOA,
+		ContactType.EMAIL,
+		'Inquilino',
+	);
+
+	await createContato(
+		inquilino.id,
+		Contact.PESSOA,
+		ContactType.TELEFONE,
+		'Inquilino',
+	);
 }
 
 async function createTaxa() {
@@ -201,6 +303,24 @@ async function createTaxa() {
 	}
 
 	return taxa;
+}
+
+async function createCargoAdmCondominio(cargo: string) {
+	let sindico = await prisma.cargosCondominio.findFirst({
+		where: {
+			nome: cargo,
+		},
+	});
+
+	if (!sindico) {
+		sindico = await prisma.cargosCondominio.create({
+			data: {
+				nome: cargo,
+			},
+		});
+	}
+
+	return sindico;
 }
 
 async function createTaxaUnidade(taxa: Taxa, unidade: Unidade) {
@@ -256,6 +376,7 @@ async function createDepartamento(empresa: Pessoa, filial: Filial) {
 
 async function main() {
 	const empresa = await findEmpresa();
+
 	await createCondominio(empresa);
 
 	const condominios = await prisma.pessoa.findMany({
@@ -275,14 +396,23 @@ async function main() {
 
 	await Promise.all([
 		condominios.map(async (condominio) => {
-			await createContato(condominio);
+			await createContato(
+				condominio.id,
+				Contact.PESSOA,
+				ContactType.EMAIL,
+				'Condomínio',
+			);
+
+			await createAdmCondominio(condominio);
 
 			const unidade = await createUnidade(condominio);
+
 			await createCondominos(
 				unidade,
 				tipos.tipoProrietario,
 				tipos.tipoInquilino,
 			);
+
 			await createTaxaUnidade(taxa, unidade);
 		}),
 	]);

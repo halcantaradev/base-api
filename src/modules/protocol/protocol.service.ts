@@ -469,7 +469,7 @@ export class ProtocolService {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
-		if (protocolo.documentos.length > 0) {
+		if (protocolo.situacao != 1 && protocolo.documentos.length > 0) {
 			throw new BadRequestException(
 				'Este protocolo não pode ser editado, pois possui documentos associados.',
 			);

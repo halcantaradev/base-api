@@ -30,7 +30,6 @@ import { GlobalModule } from '../global/global.module';
 						Filas.NOTIFICATION + '-' + process.env.PREFIX_EMPRESA,
 					noAck: true,
 					persistent: true,
-					queueOptions: {},
 				},
 			},
 			{
@@ -40,10 +39,11 @@ import { GlobalModule } from '../global/global.module';
 					urls: [
 						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
 					],
-					queue: 'sync-erro-log-' + process.env.PREFIX_EMPRESA,
+					queue:
+						'gestao-web-sync-erro-log-' +
+						process.env.PREFIX_EMPRESA,
 					noAck: true,
 					persistent: true,
-					queueOptions: {},
 				},
 			},
 		]),

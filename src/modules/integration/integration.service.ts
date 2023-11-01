@@ -342,7 +342,7 @@ export class IntegrationService {
 
 	sendErrorLog(payload: any) {
 		return new Promise((res, rej) => {
-			this.notificationService
+			this.syncErrorLogService
 				.emit('sync-error-log', payload)
 				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});

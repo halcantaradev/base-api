@@ -17,6 +17,7 @@ async function bootstrap() {
 					queue: Filas.SYNC_INSERT + '-' + process.env.PREFIX_EMPRESA,
 					noAck: false,
 					prefetchCount: 1,
+					queueOptions: { durable: false },
 				},
 			},
 		);

@@ -17,7 +17,7 @@ export class IntegrationService {
 		private readonly filaService: FilaService,
 		@Inject('NOTIFICACAO_CONSUMER_SERVICE')
 		private readonly notificationService?: ClientRMQ,
-		@Inject('SYNC_ERROR_LOG_SERvICE')
+		@Inject('SYNC_ERROR_LOG_SERVICE')
 		private readonly syncErrorLogService?: ClientRMQ,
 	) {}
 

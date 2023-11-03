@@ -85,13 +85,15 @@ model Cargo {
 model PessoasHasTipos {
   id                 Int      @id @default(autoincrement())
   pessoa_id          Int
-  original_pessoa_id String?
   tipo_id            Int
+  original_pessoa_id String?
+  integracao_id      Int?
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt
 
-  pessoa Pessoa      @relation(fields: [pessoa_id], references: [id])
-  tipo   TiposPessoa @relation(fields: [tipo_id], references: [id])
+  pessoa     Pessoa              @relation(fields: [pessoa_id], references: [id])
+  tipo       TiposPessoa         @relation(fields: [tipo_id], references: [id])
+  integracao IntegracaoDatabase? @relation(fields: [integracao_id], references: [id])
 
   @@map("pessoas_has_tipo")
 }
@@ -560,7 +562,8 @@ model IntegracaoDatabase {
   created_at       DateTime  @default(now())
   updated_at       DateTime  @updatedAt
 
-  empresa Pessoa @relation(fields: [empresa_id], references: [id])
+  empresa Pessoa            @relation(fields: [empresa_id], references: [id])
+  pessoas PessoasHasTipos[]
 
   @@map("integracoes_database")
 }
@@ -682,7 +685,7 @@ model CondominioHasTipoInfracao {
   fundamentacao    String   @db.Text
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
-  excluido   Boolean  @default(false)
+  excluido         Boolean  @default(false)
 
   condominio    Pessoa       @relation(fields: [condominio_id], references: [id])
   tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])

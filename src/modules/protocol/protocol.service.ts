@@ -674,6 +674,7 @@ export class ProtocolService {
 		const total_documentos = await this.prisma.protocoloDocumento.count({
 			where: {
 				protocolo_id: id,
+				excluido: false,
 			},
 		});
 

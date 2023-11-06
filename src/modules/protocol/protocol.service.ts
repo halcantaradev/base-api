@@ -1161,14 +1161,21 @@ export class ProtocolService {
 		condominiums: number[],
 		user: UserAuth,
 	) {
-		const departamento = await this.prisma.departamento.findFirst({
+		const departamento_origem = await this.prisma.departamento.findFirst({
 			where: {
-				id: filtersProtocolCondominiumDto.departamento_id,
+				id: filtersProtocolCondominiumDto.departamento_origem_id,
 				empresa_id: user.empresa_id,
 			},
 		});
 
-		if (!departamento) return [];
+		const departamento_destino = await this.prisma.departamento.findFirst({
+			where: {
+				id: filtersProtocolCondominiumDto.departamento_destino_id,
+				empresa_id: user.empresa_id,
+			},
+		});
+
+		if (!departamento_origem && !departamento_destino) return [];
 
 		return (
 			await this.pessoaService.findAll(
@@ -1176,7 +1183,8 @@ export class ProtocolService {
 				{},
 				{
 					id:
-						departamento.nac && !user.acessa_todos_departamentos
+						(departamento_origem.nac || departamento_destino.nac) &&
+						!user.acessa_todos_departamentos
 							? {
 									in: condominiums,
 							  }
@@ -1188,12 +1196,25 @@ export class ProtocolService {
 						  }
 						: undefined,
 					departamentos_condominio: {
-						some: departamento.nac
-							? {
-									departamento_id:
-										filtersProtocolCondominiumDto.departamento_id,
-							  }
-							: {},
+						some:
+							departamento_origem.nac || departamento_destino.nac
+								? {
+										OR: [
+											{
+												departamento_id:
+													departamento_origem.nac
+														? filtersProtocolCondominiumDto.departamento_origem_id
+														: undefined,
+											},
+											{
+												departamento_id:
+													departamento_destino.nac
+														? filtersProtocolCondominiumDto.departamento_destino_id
+														: undefined,
+											},
+										],
+								  }
+								: {},
 					},
 					empresa_id: user.empresa_id,
 					ativo: true,

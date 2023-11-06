@@ -469,35 +469,43 @@ export class ProtocolService {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
-		if (protocolo.situacao != 1 && protocolo.documentos.length > 0) {
-			throw new BadRequestException(
-				'Este protocolo não pode ser editado, pois possui documentos associados.',
-			);
+		if (!protocolo.documentos.length) {
+			protocolo = await this.prisma.protocolo.update({
+				data: {
+					tipo: updateProtocolDto.tipo || undefined,
+					destino_departamento_id:
+						updateProtocolDto.destino_departamento_id || undefined,
+					destino_usuario_id: updateProtocolDto.destino_usuario_id,
+					origem_usuario_id: updateProtocolDto.origem_departamento_id
+						? user.id
+						: undefined,
+					origem_departamento_id:
+						updateProtocolDto.origem_departamento_id || undefined,
+					retorna_malote_vazio:
+						updateProtocolDto.retorna_malote_vazio || undefined,
+					ativo: updateProtocolDto.ativo || undefined,
+					finalizado: updateProtocolDto.finalizado || undefined,
+					data_finalizado: updateProtocolDto.finalizado
+						? new Date()
+						: undefined,
+				},
+				where: {
+					id,
+				},
+			});
+		} else {
+			protocolo = await this.prisma.protocolo.update({
+				data: {
+					finalizado: updateProtocolDto.finalizado || undefined,
+					data_finalizado: updateProtocolDto.finalizado
+						? new Date()
+						: undefined,
+				},
+				where: {
+					id,
+				},
+			});
 		}
-
-		protocolo = await this.prisma.protocolo.update({
-			data: {
-				tipo: updateProtocolDto.tipo || undefined,
-				destino_departamento_id:
-					updateProtocolDto.destino_departamento_id || undefined,
-				destino_usuario_id: updateProtocolDto.destino_usuario_id,
-				origem_usuario_id: updateProtocolDto.origem_departamento_id
-					? user.id
-					: undefined,
-				origem_departamento_id:
-					updateProtocolDto.origem_departamento_id || undefined,
-				retorna_malote_vazio:
-					updateProtocolDto.retorna_malote_vazio || undefined,
-				ativo: updateProtocolDto.ativo || undefined,
-				finalizado: updateProtocolDto.finalizado || undefined,
-				data_finalizado: updateProtocolDto.finalizado
-					? new Date()
-					: undefined,
-			},
-			where: {
-				id,
-			},
-		});
 
 		if (protocolo) {
 			this.sendNotification(

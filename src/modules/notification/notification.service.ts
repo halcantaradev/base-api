@@ -19,6 +19,9 @@ import { ReturnNotificationEntity } from './entities/return-notification.entity'
 import { ValidatedNotification } from './entities/validated-notification.entity';
 import { setCustomHour } from 'src/shared/helpers/date.helper';
 import { defaultLogo } from 'src/shared/consts/default-logo.base64';
+import { ContactType } from 'src/shared/consts/contact-type.const';
+import { Contact } from 'src/shared/consts/contact.const';
+import { SendMailNotificationDto } from './dto/send-mail-notification.dto';
 import { LayoutsNotificationService } from '../layouts-notification/layouts-notification.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
@@ -1146,7 +1149,7 @@ export class NotificationService {
 		});
 	}
 
-	async findOneById(id: number): Promise<ReturnNotificationEntity> {
+	async findOneById(id: number) {
 		const notification = await this.prisma.notificacao.findFirst({
 			include: {
 				unidade: {
@@ -1181,10 +1184,7 @@ export class NotificationService {
 			},
 		});
 
-		return {
-			success: true,
-			data: { ...notification, arquivos },
-		};
+		return notification ? { ...notification, arquivos } : null;
 	}
 
 	async update(
@@ -1582,6 +1582,198 @@ export class NotificationService {
 		});
 	}
 
+	async findEmailsById(notification_id: number, empresa_id: number) {
+		const notification = await this.findOneById(notification_id);
+
+		if (!notification || Number.isNaN(notification_id))
+			throw new BadRequestException('Notificação não encontrada');
+
+		const administration =
+			await this.prisma.condomimioAdministracao.findMany({
+				select: {
+					id: true,
+					nome: true,
+					cargo: {
+						select: {
+							nome: true,
+						},
+					},
+				},
+				where: {
+					condominio: {
+						unidades_condominio: {
+							some: {
+								notificacoes: {
+									some: {
+										id: notification_id,
+									},
+								},
+							},
+						},
+						empresa_id,
+					},
+				},
+			});
+
+		const administrationContacts = await this.prisma.contato.findMany({
+			select: {
+				id: true,
+				contato: true,
+				descricao: true,
+				referencia_id: true,
+			},
+			where: {
+				origem: Contact.ADMINISTRACAO_CONDOMINIO,
+				referencia_id: {
+					in: administration.map((adm) => adm.id),
+				},
+				tipo: ContactType.EMAIL,
+			},
+		});
+
+		const residents = await this.prisma.pessoa.findMany({
+			select: {
+				id: true,
+				nome: true,
+				unidades: {
+					select: {
+						tipo: {
+							select: {
+								descricao: true,
+							},
+						},
+					},
+				},
+			},
+			where: {
+				ativo: true,
+				unidades: {
+					some: {
+						unidade_id: notification.unidade_id,
+					},
+				},
+			},
+		});
+
+		const residentsContacts = await this.prisma.contato.findMany({
+			select: {
+				id: true,
+				contato: true,
+				descricao: true,
+				referencia_id: true,
+			},
+			where: {
+				origem: Contact.PESSOA,
+				referencia_id: {
+					in: residents.map((resident) => resident.id),
+				},
+				tipo: ContactType.EMAIL,
+			},
+		});
+
+		return [
+			...administrationContacts.map((contact) => {
+				const admData = administration.find(
+					(adm) => adm.id == contact.referencia_id,
+				);
+
+				return {
+					...contact,
+					referencia_id: undefined,
+					proprietario: {
+						...admData,
+						cargo: undefined,
+						descricao: admData.cargo.nome,
+						tipo: Contact.ADMINISTRACAO_CONDOMINIO,
+					},
+				};
+			}),
+			...residentsContacts.map((contact) => {
+				const residentData = residents.find(
+					(condomino) => condomino.id == contact.referencia_id,
+				);
+
+				return {
+					...contact,
+					referencia_id: undefined,
+					proprietario: {
+						...residentData,
+						unidades: undefined,
+						descricao: residentData.unidades[0].tipo.descricao,
+						tipo: Contact.PESSOA,
+					},
+				};
+			}),
+		];
+	}
+
+	async sendMail(
+		notification_id: number,
+		sendMailNotificationDto: SendMailNotificationDto,
+		empresa_id: number,
+	) {
+		const notification = await this.findOneById(notification_id);
+
+		if (!notification || Number.isNaN(notification_id))
+			throw new BadRequestException('Notificação não encontrada');
+
+		if (
+			!sendMailNotificationDto.contatos_ids.length &&
+			!sendMailNotificationDto.emails.length
+		)
+			throw new BadRequestException(
+				'Nenhum endereço de email selecionado. Por favor, selecione um endereço',
+			);
+
+		const contacts = await this.findEmailsById(notification_id, empresa_id);
+		const contactsList = [
+			...contacts
+				.filter(
+					(contact) =>
+						sendMailNotificationDto?.contatos_ids &&
+						sendMailNotificationDto.contatos_ids.includes(
+							contact.id,
+						),
+				)
+				.map((contact) => contact.contato),
+			...sendMailNotificationDto?.emails,
+		];
+
+		const setupEmail = await this.prisma.emailSetup.findFirst({
+			where: {
+				empresa_id: empresa_id,
+				padrao: true,
+			},
+		});
+
+		const link = this.externalJtwService.generateURLExternal({
+			origin: 'notificacoes',
+			data: { id: notification_id },
+		});
+
+		await Promise.all(
+			contactsList.map((contact) =>
+				this.emailService.send({
+					to: contact,
+					from: process.env.EMAIL_SEND_PROVIDER,
+					subject: `Notificação ${notification_id} emitida`,
+					html: `
+						<p>Nova notificação foi emitida para a unidade ${notification.unidade.codigo}</p>
+						<p>Segue o link para visualizar os dados da notificação</p>
+						<a href="${link}">${link}</a>
+						`,
+					setup: {
+						MAIL_SMTP_HOST: setupEmail.host,
+						MAIL_SMTP_PORT: setupEmail.port,
+						MAIL_SMTP_USER: setupEmail.user,
+						MAIL_SMTP_PASS: setupEmail.password,
+						MAIL_SMTP_SECURE: setupEmail.secure,
+					},
+				}),
+			),
+		);
+	}
+
 	async generateDoc(layout_id: number, empresa_id: number, id: number) {
 		const layoutPadrao = await this.layoutNotificationServe.findOne(
 			layout_id,
@@ -1593,12 +1785,13 @@ export class NotificationService {
 		);
 
 		const notificacao = await this.findOneById(id);
-		const dataToPrint = await this.dataToHandle(notificacao.data.id);
+		const dataToPrint = await this.dataToHandle(notificacao.id);
 
 		const html = this.handleBarService.compile(layout, dataToPrint);
+
 		return {
 			success: true,
-			data: await this.updateLayoutUsado(notificacao.data.id, html),
+			data: await this.updateLayoutUsado(notificacao.id, html),
 			message: '',
 		};
 	}

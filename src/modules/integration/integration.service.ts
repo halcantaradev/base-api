@@ -260,7 +260,6 @@ export class IntegrationService {
 								tipos: {
 									some: {
 										original_pessoa_id: pessoa.uuid,
-										tipo_id: tipoPessoa.id,
 										integracao_id,
 									},
 								},

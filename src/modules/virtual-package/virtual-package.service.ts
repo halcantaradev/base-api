@@ -775,7 +775,7 @@ export class VirtualPackageService {
 			data: docs.map((doc) => ({
 				documento_id: doc.id,
 				malote_virtual_id: id,
-				finalizado: true,
+				situacao: 2,
 			})),
 		});
 
@@ -1000,7 +1000,7 @@ export class VirtualPackageService {
 
 		const gerados = await this.prisma.maloteDocumento.findMany({
 			include: {
-				documento: true,
+				documento: { include: { tipo_documento: true } },
 			},
 			where: {
 				malote_virtual_id: id,
@@ -1013,7 +1013,7 @@ export class VirtualPackageService {
 
 		const novos = await this.prisma.maloteDocumento.findMany({
 			include: {
-				documento: true,
+				documento: { include: { tipo_documento: true } },
 			},
 			where: {
 				malote_virtual_id: id,

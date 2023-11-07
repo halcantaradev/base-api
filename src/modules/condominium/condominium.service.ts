@@ -186,6 +186,7 @@ export class CondominiumService {
 		return this.prisma.pessoa.update({
 			data: {
 				nome: body.nome,
+				ativo: body.ativo,
 				cnpj: body.cnpj,
 				cep: body.cep,
 				endereco: body.endereco,

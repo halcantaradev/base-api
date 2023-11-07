@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { FilterQueueGeneratePackageDto } from './dto/filter-queue-generate-package.dto';
 import { CreateQueueGeneratePackageDto } from './dto/create-queue-generate-package.dto';
+import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
 
 @Injectable()
 export class QueueGeneratePackageService {
@@ -122,7 +123,7 @@ export class QueueGeneratePackageService {
 							},
 							where: {
 								malote_fisico_id: { not: null },
-								situacao: 1,
+								situacao: VirtualPackageSituation.PENDENTE,
 								excluido: false,
 							},
 						},

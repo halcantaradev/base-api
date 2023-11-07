@@ -25,6 +25,9 @@ import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 import { TypeNotificationProtocol } from './enums/type-notification-protocol.enum';
 import { defaultLogo } from 'src/shared/consts/default-logo.base64';
 import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
+import { ProtocolSituation } from 'src/shared/consts/protocol-situation.const';
+import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
+import { VirtualPackageDocumentSituation } from 'src/shared/consts/virtual-package-document-situation.const';
 
 @Injectable()
 export class ProtocolService {
@@ -465,7 +468,7 @@ export class ProtocolService {
 	) {
 		let protocolo = await this.findById(id, user);
 
-		if (!protocolo || protocolo.situacao != 1) {
+		if (!protocolo || protocolo.situacao != ProtocolSituation.PENDENTE) {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
@@ -807,7 +810,7 @@ export class ProtocolService {
 		const arquivos = await this.prisma.arquivo.findMany({
 			where: {
 				ativo: true,
-				origem: 2,
+				origem: FilesOrigin.PROTOCOL,
 				referencia_id: document_id,
 			},
 		});
@@ -898,7 +901,9 @@ export class ProtocolService {
 				id: protocol_id,
 			},
 			data: {
-				situacao: !protocolTotalDocuments.length ? 3 : 2,
+				situacao: !protocolTotalDocuments.length
+					? ProtocolSituation.ACEITO
+					: ProtocolSituation.ACEITO_PARCIALMENTE,
 			},
 		});
 
@@ -993,10 +998,15 @@ export class ProtocolService {
 					doc.malote_virtual.documentos_malote.length !=
 						doc.malote_virtual.documentos_malote.filter(
 							(d) =>
-								(![2, 3].includes(d.situacao) && !d.excluido) ||
+								(![
+									VirtualPackageDocumentSituation.BAIXADO,
+									VirtualPackageDocumentSituation.NAO_RECEBIDO,
+								].includes(d.situacao) &&
+									!d.excluido) ||
 								d.excluido,
 						).length &&
-					doc.malote_virtual.situacao != 4
+					doc.malote_virtual.situacao !=
+						VirtualPackageSituation.BAIXADO
 				) {
 					canReverse = false;
 					packageNotReserse.push(doc.malote_virtual.id);
@@ -1044,7 +1054,9 @@ export class ProtocolService {
 				id: protocol_id,
 			},
 			data: {
-				situacao: !protocolTotalDocuments.length ? 1 : 2,
+				situacao: !protocolTotalDocuments.length
+					? ProtocolSituation.PENDENTE
+					: ProtocolSituation.ACEITO_PARCIALMENTE,
 			},
 		});
 
@@ -1092,9 +1104,19 @@ export class ProtocolService {
 					where: {
 						id: document.malote_virtual_id,
 						excluido: false,
-						situacao: { in: [2, 3] },
+						situacao: {
+							in: [
+								VirtualPackageDocumentSituation.BAIXADO,
+								VirtualPackageDocumentSituation.NAO_RECEBIDO,
+							],
+						},
 						malote_virtual: {
-							situacao_anterior: { notIn: [3, 4] },
+							situacao_anterior: {
+								notIn: [
+									VirtualPackageSituation.PROTOCOLADO,
+									VirtualPackageSituation.BAIXADO,
+								],
+							},
 						},
 					},
 				}));
@@ -1137,12 +1159,18 @@ export class ProtocolService {
 				data: {
 					situacao:
 						virtualPackage.protocolado_baixado &&
-						[3, 4].includes(virtualPackage.situacao)
+						[
+							VirtualPackageSituation.PROTOCOLADO,
+							VirtualPackageSituation.BAIXADO,
+						].includes(virtualPackage.situacao)
 							? undefined
 							: virtualPackage.situacao_anterior,
 					situacao_anterior:
 						virtualPackage.protocolado_baixado &&
-						[3, 4].includes(virtualPackage.situacao)
+						[
+							VirtualPackageSituation.PROTOCOLADO,
+							VirtualPackageSituation.BAIXADO,
+						].includes(virtualPackage.situacao)
 							? undefined
 							: null,
 					protocolado_baixado: false,
@@ -1477,7 +1505,7 @@ export class ProtocolService {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
-		if (body.documentos_ids.length === 0) {
+		if (!body.documentos_ids.length) {
 			throw new BadRequestException('Nenhum documento encontrado');
 		}
 
@@ -1547,7 +1575,7 @@ export class ProtocolService {
 					id: protocolo_id,
 				},
 				data: {
-					situacao: 4,
+					situacao: ProtocolSituation.RECUSADO,
 				},
 			});
 		} else {

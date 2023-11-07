@@ -14,6 +14,9 @@ import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
 import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-package.dto';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { CreateNewDocumenteProtocolVirtualPackageDto } from './dto/create-new-document-protocol-virtual-package.dto';
+import { VirtualPackageDocumentSituation } from 'src/shared/consts/virtual-package-document-situation.const';
+import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
+import { ProtocolSituation } from 'src/shared/consts/protocol-situation.const';
 
 @Injectable()
 export class VirtualPackageService {
@@ -385,6 +388,7 @@ export class VirtualPackageService {
 				? { in: filter.usuario_ids }
 				: undefined,
 		};
+
 		const malotes = await this.prisma.maloteVirtual.findMany({
 			select: {
 				id: true,
@@ -439,7 +443,7 @@ export class VirtualPackageService {
 				id: {
 					in: receivePackageVirtualPackageDto.malotes_virtuais_ids,
 				},
-				situacao: 1,
+				situacao: VirtualPackageSituation.PENDENTE,
 				excluido: false,
 				empresa_id,
 			},
@@ -455,7 +459,10 @@ export class VirtualPackageService {
 		);
 
 		await this.prisma.maloteVirtual.updateMany({
-			data: { situacao: 2, situacao_anterior: 1 },
+			data: {
+				situacao: VirtualPackageSituation.RECEBIDO,
+				situacao_anterior: VirtualPackageSituation.PENDENTE,
+			},
 			where: {
 				id: { in: packages_ids_accept },
 			},
@@ -482,21 +489,31 @@ export class VirtualPackageService {
 				},
 				malote_virtual_id: id,
 				excluido: false,
-				situacao: 1,
+				situacao: VirtualPackageDocumentSituation.PENDENTE,
 				malote_virtual: {
 					excluido: false,
 					empresa_id: user.empresa_id,
 					OR: [
 						{
-							situacao: { in: [1, 2] },
+							situacao: {
+								in: [
+									VirtualPackageSituation.PENDENTE,
+									VirtualPackageSituation.RECEBIDO,
+								],
+							},
 						},
 						{
-							situacao: 3,
+							situacao: VirtualPackageSituation.PROTOCOLADO,
 							documentos_malote: {
 								every: {
 									OR: [
 										{
-											situacao: { in: [2, 3] },
+											situacao: {
+												in: [
+													VirtualPackageDocumentSituation.BAIXADO,
+													VirtualPackageDocumentSituation.NAO_RECEBIDO,
+												],
+											},
 											excluido: false,
 										},
 										{
@@ -540,7 +557,9 @@ export class VirtualPackageService {
 
 		await this.prisma.maloteDocumento.updateMany({
 			data: {
-				situacao: receiveVirtualPackageDto.recebido ? 2 : 3,
+				situacao: receiveVirtualPackageDto.recebido
+					? VirtualPackageDocumentSituation.BAIXADO
+					: VirtualPackageDocumentSituation.NAO_RECEBIDO,
 				justificativa:
 					receiveVirtualPackageDto?.justificativa || undefined,
 			},
@@ -562,7 +581,7 @@ export class VirtualPackageService {
 					},
 					where: {
 						excluido: false,
-						situacao: 1,
+						situacao: VirtualPackageDocumentSituation.PENDENTE,
 					},
 				},
 			},
@@ -573,10 +592,17 @@ export class VirtualPackageService {
 			await this.prisma.maloteVirtual.update({
 				data: {
 					protocolado_baixado:
-						malote.situacao == 3 ? true : undefined,
-					situacao: malote.situacao == 3 ? undefined : 4,
+						malote.situacao == VirtualPackageSituation.PROTOCOLADO
+							? true
+							: undefined,
+					situacao:
+						malote.situacao == VirtualPackageSituation.PROTOCOLADO
+							? undefined
+							: VirtualPackageSituation.BAIXADO,
 					situacao_anterior:
-						malote.situacao == 3 ? undefined : malote.situacao,
+						malote.situacao == VirtualPackageSituation.PROTOCOLADO
+							? undefined
+							: malote.situacao,
 				},
 				where: {
 					id,
@@ -596,7 +622,8 @@ export class VirtualPackageService {
 								every: {
 									documentos_malote: {
 										every: {
-											situacao: 1,
+											situacao:
+												VirtualPackageDocumentSituation.PENDENTE,
 										},
 									},
 								},
@@ -617,16 +644,13 @@ export class VirtualPackageService {
 			}
 		}
 
-		return {
-			success: true,
-			message: 'Documento(s) baixado(s) com sucesso!',
-		};
+		return;
 	}
 
 	async reverseReceiveDoc(
 		id: number,
 		reverseReceiveVirtualPackageDto: ReverseReceiveVirtualPackageDto,
-		empresa_id: number,
+		user: UserAuth,
 	) {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Documento não encontrado');
@@ -651,17 +675,23 @@ export class VirtualPackageService {
 				id: { in: reverseReceiveVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
 				excluido: false,
-				situacao: { in: [2, 3] },
+				situacao: {
+					in: [
+						VirtualPackageDocumentSituation.BAIXADO,
+						VirtualPackageDocumentSituation.NAO_RECEBIDO,
+					],
+				},
 				malote_virtual: {
 					excluido: false,
-					empresa_id,
+					empresa_id: user.empresa_id,
 				},
 			},
 		});
 
 		if (
 			!documents.length ||
-			(virtualPackage.situacao == 4 && virtualPackage.protocolado_baixado)
+			(virtualPackage.situacao == VirtualPackageSituation.BAIXADO &&
+				virtualPackage.protocolado_baixado)
 		)
 			throw new BadRequestException(
 				'Documento(s) informado(s) não pode ser estornado(s) ou não encontrado(s)',
@@ -670,7 +700,10 @@ export class VirtualPackageService {
 		const documents_ids_accept = documents.map((document) => document.id);
 
 		await this.prisma.maloteDocumento.updateMany({
-			data: { situacao: 1, justificativa: null },
+			data: {
+				situacao: VirtualPackageDocumentSituation.PENDENTE,
+				justificativa: null,
+			},
 			where: {
 				malote_virtual_id: id,
 				id: { in: documents_ids_accept },
@@ -680,7 +713,7 @@ export class VirtualPackageService {
 		await this.prisma.maloteVirtual.update({
 			data: {
 				situacao: virtualPackage.protocolado_baixado
-					? 3
+					? VirtualPackageSituation.PROTOCOLADO
 					: virtualPackage.situacao_anterior || undefined,
 				situacao_anterior: virtualPackage.protocolado_baixado
 					? undefined
@@ -740,7 +773,7 @@ export class VirtualPackageService {
 					empresa_id: user.empresa_id,
 					tipo: 1,
 					finalizado: true,
-					situacao: 3,
+					situacao: ProtocolSituation.ACEITO,
 					destino_departamento_id:
 						receiveNewDocumentVirtualPackageDto.departamento_id,
 					origem_usuario_id: user.id,
@@ -913,11 +946,11 @@ export class VirtualPackageService {
 				id: { in: reverseVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
 				excluido: false,
-				situacao: 1,
+				situacao: VirtualPackageDocumentSituation.PENDENTE,
 				malote_virtual: {
 					excluido: false,
 					empresa_id,
-					situacao: 1,
+					situacao: VirtualPackageSituation.PENDENTE,
 				},
 			},
 		});
@@ -1050,19 +1083,37 @@ export class VirtualPackageService {
 				},
 				OR: [
 					{
-						situacao: { in: [1, 2] },
+						situacao: {
+							in: [
+								VirtualPackageSituation.PENDENTE,
+								VirtualPackageSituation.RECEBIDO,
+							],
+						},
 						documentos_malote: {
 							every: {
-								OR: [{ situacao: 1 }, { excluido: true }],
+								OR: [
+									{
+										situacao:
+											VirtualPackageDocumentSituation.PENDENTE,
+									},
+									{ excluido: true },
+								],
 							},
 						},
 					},
 					{
-						situacao: 4,
+						situacao: VirtualPackageSituation.BAIXADO,
 						documentos_malote: {
 							every: {
 								OR: [
-									{ situacao: { in: [2, 3] } },
+									{
+										situacao: {
+											in: [
+												VirtualPackageDocumentSituation.BAIXADO,
+												VirtualPackageDocumentSituation.NAO_RECEBIDO,
+											],
+										},
+									},
 									{ excluido: false },
 								],
 							},
@@ -1120,11 +1171,18 @@ export class VirtualPackageService {
 				await this.prisma.maloteVirtual.update({
 					data: {
 						situacao_anterior:
-							virtualPackage.situacao !== 4
+							virtualPackage.situacao !==
+							VirtualPackageSituation.BAIXADO
 								? virtualPackage.situacao
 								: undefined,
-						situacao: virtualPackage.situacao !== 4 ? 3 : undefined,
-						protocolado_baixado: virtualPackage.situacao == 4,
+						situacao:
+							virtualPackage.situacao !==
+							VirtualPackageSituation.BAIXADO
+								? VirtualPackageSituation.PROTOCOLADO
+								: undefined,
+						protocolado_baixado:
+							virtualPackage.situacao ==
+							VirtualPackageSituation.BAIXADO,
 					},
 					where: {
 						id: virtualPackage.id,

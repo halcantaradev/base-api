@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Get,
 	HttpCode,
 	HttpStatus,
 	Param,
@@ -23,7 +24,35 @@ import { FiltersProtocolDocumentHistoryDto } from './dto/filters-protocol-docume
 export class HistoryController {
 	constructor(private readonly historyService: HistoryService) {}
 
-	@Post('protocol-document/:id')
+	@Get('protocol-documents/situations')
+	@Role('protocolos-documentos-historico')
+	@ApiOperation({ summary: 'Lista os registro de historico do documento' })
+	@ApiResponse({
+		description: 'Registros listados com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolDocumentHistoryListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os registros',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllProtocolDocumentHistorySituation() {
+		const data =
+			await this.historyService.findAllProtocolDocumentHistorySituations();
+
+		return {
+			success: true,
+			data,
+		};
+	}
+
+	@Post('protocol-documents/:id')
 	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-documentos-historico')
 	@ApiOperation({ summary: 'Lista os registro de historico do documento' })

@@ -475,29 +475,43 @@ export class ProtocolService {
 
 		const protocolHasFinalized = protocolo.finalizado;
 
-		protocolo = await this.prisma.protocolo.update({
-			data: {
-				tipo: updateProtocolDto.tipo || undefined,
-				destino_departamento_id:
-					updateProtocolDto.destino_departamento_id || undefined,
-				destino_usuario_id: updateProtocolDto.destino_usuario_id,
-				origem_usuario_id: updateProtocolDto.origem_departamento_id
-					? user.id
-					: undefined,
-				origem_departamento_id:
-					updateProtocolDto.origem_departamento_id || undefined,
-				retorna_malote_vazio:
-					updateProtocolDto.retorna_malote_vazio || undefined,
-				ativo: updateProtocolDto.ativo || undefined,
-				finalizado: updateProtocolDto.finalizado || undefined,
-				data_finalizado: updateProtocolDto.finalizado
-					? new Date()
-					: undefined,
-			},
-			where: {
-				id,
-			},
-		});
+		if (!protocolo.documentos.length) {
+			protocolo = await this.prisma.protocolo.update({
+				data: {
+					tipo: updateProtocolDto.tipo || undefined,
+					destino_departamento_id:
+						updateProtocolDto.destino_departamento_id || undefined,
+					destino_usuario_id: updateProtocolDto.destino_usuario_id,
+					origem_usuario_id: updateProtocolDto.origem_departamento_id
+						? user.id
+						: undefined,
+					origem_departamento_id:
+						updateProtocolDto.origem_departamento_id || undefined,
+					retorna_malote_vazio:
+						updateProtocolDto.retorna_malote_vazio || undefined,
+					ativo: updateProtocolDto.ativo || undefined,
+					finalizado: updateProtocolDto.finalizado || undefined,
+					data_finalizado: updateProtocolDto.finalizado
+						? new Date()
+						: undefined,
+				},
+				where: {
+					id,
+				},
+			});
+		} else {
+			protocolo = await this.prisma.protocolo.update({
+				data: {
+					finalizado: updateProtocolDto.finalizado || undefined,
+					data_finalizado: updateProtocolDto.finalizado
+						? new Date()
+						: undefined,
+				},
+				where: {
+					id,
+				},
+			});
+		}
 
 		if (!protocolHasFinalized && protocolo.finalizado) {
 			const documents = await this.findAllDocuments(id, user);
@@ -702,6 +716,7 @@ export class ProtocolService {
 		const total_documentos = await this.prisma.protocoloDocumento.count({
 			where: {
 				protocolo_id: id,
+				excluido: false,
 			},
 		});
 

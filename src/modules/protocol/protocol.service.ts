@@ -581,6 +581,7 @@ export class ProtocolService {
 							excluido: false,
 						},
 					},
+					malote_virtual_id: true,
 					malotes_documento: {
 						select: {
 							malote_virtual: {

@@ -198,6 +198,7 @@ export class VirtualPackageService {
 					codigo: true,
 				},
 			},
+			id: true,
 			condominio: {
 				select: {
 					id: true,

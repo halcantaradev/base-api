@@ -9,6 +9,7 @@ import { PersonModule } from './modules/person/person.module';
 import { GlobalModule } from './modules/global/global.module';
 import { AuthModule } from './modules/public/auth/auth.module';
 import { MenuModule } from './modules/public/menu/menu.module';
+import { HistoryModule } from './modules/history/history.module';
 import { ProtocolModule } from './modules/protocol/protocol.module';
 import { DocumentsModule } from './modules/documents/documents.module';
 import { OcupationsModule } from './modules/ocupations/ocupations.module';
@@ -48,6 +49,7 @@ import {
 		RouteModule,
 		GlobalModule,
 		PersonModule,
+		HistoryModule,
 		ProtocolModule,
 		DocumentsModule,
 		UploadFileModule,

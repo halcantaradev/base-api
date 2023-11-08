@@ -343,7 +343,7 @@ export class IntegrationService {
 						} else {
 							const pess = await this.prisma.pessoa.create({
 								data: {
-									nome: pessoa.nome,
+									nome: pessoa.nome || 'Sem nome',
 									cnpj: pessoa.cnpj,
 									numero: pessoa.numero,
 									endereco: pessoa.endereco,
@@ -439,7 +439,7 @@ export class IntegrationService {
 	getLastUpdate(empresa_id: number) {
 		return this.prisma.integracaoDatabase.aggregate({
 			_max: { data_atualizacao: true },
-			where: { empresa_id },
+			where: { empresa_id, ativo: true, excluido: false },
 		});
 	}
 }

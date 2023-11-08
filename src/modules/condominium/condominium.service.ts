@@ -1096,12 +1096,25 @@ export class CondominiumService {
 			select: {
 				id: true,
 				codigo: true,
+				condominio: {
+					select: {
+						nome: true,
+					},
+				},
 				condominos: {
 					select: {
-						condomino: { select: { nome: true } },
+						condomino: {
+							select: {
+								nome: true,
+								endereco: true,
+								cidade: true,
+								bairro: true,
+							},
+						},
 						tipo: { select: { descricao: true } },
 					},
 				},
+				created_at: true,
 				ativo: true,
 			},
 			where: {

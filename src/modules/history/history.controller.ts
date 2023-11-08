@@ -1,4 +1,5 @@
 import {
+	Body,
 	Controller,
 	HttpCode,
 	HttpStatus,
@@ -13,6 +14,7 @@ import { PermissionGuard } from '../public/auth/guards/permission.guard';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { ProtocolDocumentHistoryListReturn } from './entities/protocol-document-history-list-return.entity';
+import { FiltersProtocolDocumentHistoryDto } from './dto/filters-protocol-document-history.dto';
 
 @ApiTags('Historicos')
 @UseGuards(PermissionGuard)
@@ -40,9 +42,14 @@ export class HistoryController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findAllProtocolDocumentHistory(@Param('id') document_id: number) {
+	async findAllProtocolDocumentHistory(
+		@Param('id') document_id: number,
+		@Body()
+		filtersProtocolDocumentHistoryDto: FiltersProtocolDocumentHistoryDto,
+	) {
 		const data = await this.historyService.findAllProtocolDocumentHistory(
 			document_id,
+			filtersProtocolDocumentHistoryDto,
 		);
 
 		return {

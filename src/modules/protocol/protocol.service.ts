@@ -28,6 +28,7 @@ import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
 import { ProtocolSituation } from 'src/shared/consts/protocol-situation.const';
 import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
 import { VirtualPackageDocumentSituation } from 'src/shared/consts/virtual-package-document-situation.const';
+import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
 
 @Injectable()
 export class ProtocolService {
@@ -472,6 +473,8 @@ export class ProtocolService {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
+		const protocolHasFinalized = protocolo.finalizado;
+
 		protocolo = await this.prisma.protocolo.update({
 			data: {
 				tipo: updateProtocolDto.tipo || undefined,
@@ -495,6 +498,18 @@ export class ProtocolService {
 				id,
 			},
 		});
+
+		if (!protocolHasFinalized && protocolo.finalizado) {
+			const documents = await this.findAllDocuments(id, user);
+
+			await this.prisma.protocoloDocumentoHistorico.createMany({
+				data: documents.map((document) => ({
+					documento_id: document.id,
+					usuario_id: user.id,
+					situacao: ProtocolHistorySituation.ENVIADO,
+				})),
+			});
+		}
 
 		if (protocolo) {
 			this.sendNotification(
@@ -521,7 +536,7 @@ export class ProtocolService {
 		if (!protocolo || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
-		return this.prisma.protocoloDocumento.create({
+		const document = await this.prisma.protocoloDocumento.create({
 			data: {
 				protocolo_id,
 				discriminacao: createDocumentProtocolDto.discriminacao,
@@ -533,6 +548,18 @@ export class ProtocolService {
 				tipo_documento_id: createDocumentProtocolDto.tipo_documento_id,
 			},
 		});
+
+		await this.prisma.protocoloDocumentoHistorico.create({
+			data: {
+				documento_id: document.id,
+				usuario_id: user.id,
+				situacao: protocolo.finalizado
+					? ProtocolHistorySituation.ENVIADO
+					: ProtocolHistorySituation.CRIADO,
+			},
+		});
+
+		return document;
 	}
 
 	async findAllDocuments(protocolo_id: number, user?: UserAuth) {
@@ -644,10 +671,22 @@ export class ProtocolService {
 			dataToPrint,
 		);
 
-		return this.pdfService.setTitlePDF(
+		const pdf = await this.pdfService.setTitlePDF(
 			`PROTOCOLO_${new Date().getTime()}`,
 			await this.pdfService.getPDF(protocoloFile),
 		);
+
+		const documents = await this.findAllDocuments(protocol_id, user);
+
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents.map((document) => ({
+				documento_id: document.id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.PROTOCOLO_IMPRESSO,
+			})),
+		});
+
+		return pdf;
 	}
 
 	async dataToHandle(id: number) {
@@ -887,6 +926,14 @@ export class ProtocolService {
 			},
 		});
 
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents_ids_accept.map((document_id) => ({
+				documento_id: document_id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.ACEITO,
+			})),
+		});
+
 		const protocolTotalDocuments =
 			await this.prisma.protocoloDocumento.findMany({
 				where: {
@@ -1040,6 +1087,14 @@ export class ProtocolService {
 			},
 		});
 
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents_ids_reverse.map((document_id) => ({
+				documento_id: document_id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.ESTORNO_ACEITE,
+			})),
+		});
+
 		const protocolTotalDocuments =
 			await this.prisma.protocoloDocumento.findMany({
 				where: {
@@ -1128,6 +1183,19 @@ export class ProtocolService {
 		}
 
 		const documentUpdated = await this.prisma.protocoloDocumento.update({
+			select: {
+				vencimento: true,
+				condominio: {
+					select: {
+						nome: true,
+					},
+				},
+				tipo_documento: {
+					select: {
+						nome: true,
+					},
+				},
+			},
 			data: {
 				discriminacao: updateDocumentProtocolDto.discriminacao,
 				observacao: updateDocumentProtocolDto.observacao,
@@ -1142,6 +1210,71 @@ export class ProtocolService {
 				id: document_id,
 			},
 		});
+
+		if (exclude)
+			await this.prisma.protocoloDocumentoHistorico.create({
+				data: {
+					documento_id: document_id,
+					usuario_id: user.id,
+					situacao: ProtocolHistorySituation.EXCLUIDO,
+				},
+			});
+		else if (
+			document.condominio.id != updateDocumentProtocolDto.condominio_id ||
+			document.discriminacao != updateDocumentProtocolDto.discriminacao ||
+			document.observacao != updateDocumentProtocolDto.observacao ||
+			document.retorna != updateDocumentProtocolDto.retorna ||
+			document.vencimento != documentUpdated.vencimento ||
+			document.valor != updateDocumentProtocolDto.valor ||
+			document.tipo_documento.id !=
+				updateDocumentProtocolDto.tipo_documento_id
+		)
+			await this.prisma.protocoloDocumentoHistorico.create({
+				data: {
+					documento_id: document_id,
+					usuario_id: user.id,
+					situacao: ProtocolHistorySituation.ATUALIZADO,
+					descricao: `${
+						document.condominio.id ==
+						updateDocumentProtocolDto.condominio_id
+							? ``
+							: `Observação: ${document.condominio.nome} → ${documentUpdated.condominio.nome}<br>`
+					}${
+						document.discriminacao ==
+						updateDocumentProtocolDto.discriminacao
+							? ``
+							: `Discriminação: ${document.discriminacao} → ${updateDocumentProtocolDto.discriminacao}<br>`
+					}${
+						document.observacao ==
+						updateDocumentProtocolDto.observacao
+							? ``
+							: `Observação: ${document.observacao} → ${updateDocumentProtocolDto.observacao}<br>`
+					}${
+						document.tipo_documento.id ==
+						updateDocumentProtocolDto.tipo_documento_id
+							? ``
+							: `Observação: ${document.tipo_documento.nome} → ${documentUpdated.tipo_documento.nome}<br>`
+					}${
+						document.valor == updateDocumentProtocolDto.valor
+							? ``
+							: `Valor: ${document.valor} → ${updateDocumentProtocolDto.valor}<br>`
+					}${
+						document.vencimento == documentUpdated.vencimento
+							? ``
+							: `Vencimento: ${document.vencimento} → ${documentUpdated.vencimento}<br>`
+					}${
+						document.retorna == updateDocumentProtocolDto.retorna
+							? ``
+							: `Necessário retornar: ${
+									document.retorna ? 'SIM' : 'NÃO'
+							  } → ${
+									updateDocumentProtocolDto.retorna
+										? 'SIM'
+										: 'NÃO'
+							  }<br>`
+					}`,
+				},
+			});
 
 		if (protocolo.protocolo_malote && exclude) {
 			const virtualPackage = await this.prisma.maloteVirtual.findFirst({
@@ -1554,6 +1687,15 @@ export class ProtocolService {
 				rejeitado: true,
 				motivo_rejeitado: body.motivo_rejeitado,
 			},
+		});
+
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documentsExists.map((document) => ({
+				documento_id: document.id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.REJEITADO,
+				descricao: body.motivo_rejeitado,
+			})),
 		});
 
 		const protocolTotalDocuments = await this.prisma.protocolo.findFirst({

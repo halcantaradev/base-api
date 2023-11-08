@@ -3,6 +3,8 @@ import { PrismaService } from 'src/shared/services/prisma.service';
 import { FilterQueueGeneratePackageDto } from './dto/filter-queue-generate-package.dto';
 import { CreateQueueGeneratePackageDto } from './dto/create-queue-generate-package.dto';
 import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
 
 @Injectable()
 export class QueueGeneratePackageService {
@@ -10,11 +12,8 @@ export class QueueGeneratePackageService {
 
 	async create(
 		createQueueGeneratePackageDto: CreateQueueGeneratePackageDto,
-		empresa_id: number,
+		user: UserAuth,
 	) {
-		if (Number.isNaN(empresa_id)) {
-			throw new BadRequestException('Ocorreu um erro ao gerar a fila');
-		}
 		const documents = await this.prisma.protocoloDocumento.findMany({
 			where: {
 				excluido: false,
@@ -35,7 +34,7 @@ export class QueueGeneratePackageService {
 					protocolo_malote: false,
 				},
 				condominio: {
-					empresa_id,
+					empresa_id: user.empresa_id,
 				},
 			},
 		});
@@ -46,12 +45,22 @@ export class QueueGeneratePackageService {
 			);
 		}
 
-		return this.prisma.documentoFilaGeracao.createMany({
+		await this.prisma.documentoFilaGeracao.createMany({
 			data: documents.map((document) => ({
-				empresa_id,
+				empresa_id: user.empresa_id,
 				documento_id: document.id,
 			})),
 		});
+
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents.map((document) => ({
+				documento_id: document.id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.ENVIADO_FILA,
+			})),
+		});
+
+		return;
 	}
 
 	async findAll(empresa_id: number, filters: FilterQueueGeneratePackageDto) {
@@ -165,7 +174,7 @@ export class QueueGeneratePackageService {
 		});
 	}
 
-	async remove(id: number, empresa_id: number) {
+	async remove(id: number, user: UserAuth) {
 		if (Number.isNaN(id)) {
 			throw new BadRequestException(
 				'Documento na fila de geração de malotes não encontrado',
@@ -176,7 +185,7 @@ export class QueueGeneratePackageService {
 			await this.prisma.documentoFilaGeracao.findFirst({
 				where: {
 					id,
-					empresa_id,
+					empresa_id: user.empresa_id,
 					excluido: false,
 				},
 			});
@@ -187,7 +196,7 @@ export class QueueGeneratePackageService {
 			);
 		}
 
-		return this.prisma.documentoFilaGeracao.update({
+		const document = await this.prisma.documentoFilaGeracao.update({
 			where: {
 				id,
 			},
@@ -195,5 +204,15 @@ export class QueueGeneratePackageService {
 				excluido: true,
 			},
 		});
+
+		await this.prisma.protocoloDocumentoHistorico.create({
+			data: {
+				documento_id: id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.ESTORNO_FILA,
+			},
+		});
+
+		return document;
 	}
 }

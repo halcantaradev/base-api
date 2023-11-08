@@ -88,7 +88,7 @@ export class QueueGeneratePackageController {
 		@Body() body: CreateQueueGeneratePackageDto,
 		@CurrentUser() user: UserAuth,
 	) {
-		await this.queueGeneratePackageService.create(body, user.empresa_id);
+		await this.queueGeneratePackageService.create(body, user);
 
 		return {
 			success: true,
@@ -117,7 +117,7 @@ export class QueueGeneratePackageController {
 		type: ReturnEntity.error(),
 	})
 	async remove(@Param('id') id: string, @CurrentUser() user: UserAuth) {
-		await this.queueGeneratePackageService.remove(+id, user.empresa_id);
+		await this.queueGeneratePackageService.remove(+id, user);
 
 		return {
 			success: true,

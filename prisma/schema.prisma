@@ -119,16 +119,17 @@ model User {
   created_at                 DateTime @default(now())
   updated_at                 DateTime @updatedAt
 
-  empresas                       EmpresasHasUsuarios[]
-  permissoes                     UsuarioHasPermissoes[]
-  departamentos                  UsuarioHasDepartamentos[]
-  condominios                    UsuarioHasCondominios[]
-  destino_protocolos             Protocolo[]               @relation(name: "DestinoProtocoloUsuario")
-  origem_protocolos              Protocolo[]               @relation(name: "OrigemProtocoloUsuario")
-  protocolo_documentos_recebidos ProtocoloDocumento[]
-  conexoes_socket                ConexaoSocket[]
-  setup_rotas                    MaloteSetup[]
-  malotes_virtuais               MaloteVirtual[]
+  empresas                        EmpresasHasUsuarios[]
+  permissoes                      UsuarioHasPermissoes[]
+  departamentos                   UsuarioHasDepartamentos[]
+  condominios                     UsuarioHasCondominios[]
+  destino_protocolos              Protocolo[]                   @relation(name: "DestinoProtocoloUsuario")
+  origem_protocolos               Protocolo[]                   @relation(name: "OrigemProtocoloUsuario")
+  protocolo_documentos_recebidos  ProtocoloDocumento[]
+  conexoes_socket                 ConexaoSocket[]
+  setup_rotas                     MaloteSetup[]
+  malotes_virtuais                MaloteVirtual[]
+  protocolo_documentos_historicos ProtocoloDocumentoHistorico[]
 
   @@map("usuarios")
 }
@@ -626,13 +627,14 @@ model ProtocoloDocumento {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  condominio          Pessoa                 @relation(fields: [condominio_id], references: [id])
-  tipo_documento      TipoDocumento?         @relation(fields: [tipo_documento_id], references: [id])
-  protocolo           Protocolo              @relation(fields: [protocolo_id], references: [id])
-  aceite_usuario      User?                  @relation(fields: [aceite_usuario_id], references: [id])
-  malote_virtual      MaloteVirtual?         @relation(fields: [malote_virtual_id], references: [id])
+  condominio          Pessoa                        @relation(fields: [condominio_id], references: [id])
+  tipo_documento      TipoDocumento?                @relation(fields: [tipo_documento_id], references: [id])
+  protocolo           Protocolo                     @relation(fields: [protocolo_id], references: [id])
+  aceite_usuario      User?                         @relation(fields: [aceite_usuario_id], references: [id])
+  malote_virtual      MaloteVirtual?                @relation(fields: [malote_virtual_id], references: [id])
   malotes_documento   MaloteDocumento[]
   fila_geracao_malote DocumentoFilaGeracao[]
+  historico           ProtocoloDocumentoHistorico[]
 
   @@map("protocolo_documentos")
 }
@@ -823,4 +825,19 @@ model CondominioHasTipoInfracao {
   tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])
 
   @@map("condominios_has_tipos_infracoes")
+}
+
+model ProtocoloDocumentoHistorico {
+  id           Int      @id @default(autoincrement())
+  documento_id Int
+  situacao     Int
+  descricao    String?  @db.Text
+  usuario_id   Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  usuario             User               @relation(fields: [usuario_id], references: [id])
+  protocolo_documento ProtocoloDocumento @relation(fields: [documento_id], references: [id])
+
+  @@map("malote_documento_historicos")
 }

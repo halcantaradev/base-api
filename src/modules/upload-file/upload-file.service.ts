@@ -6,6 +6,7 @@ import { uploadFileOrigin } from './constants/upload-file-origin.constant';
 import { S3Service } from 'src/shared/services/s3.service';
 import { UploadFileDto } from './dto/upload-file.dto';
 import { FilesOrigin } from 'src/shared/consts/file-origin.const';
+import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
 
 @Injectable()
 export class UploadFileService {
@@ -14,8 +15,12 @@ export class UploadFileService {
 		private readonly s3Service: S3Service,
 	) {}
 
-	async saveFiles(params: UploadFileDto, files: Express.Multer.File[]) {
-		if (await this.validateReference(params.reference_id, params.origin))
+	async saveFiles(
+		params: UploadFileDto,
+		files: Express.Multer.File[],
+		user_id: number,
+	) {
+		if (await this.validateReference(params.reference_id, params.origin)) {
 			await Promise.all(
 				files.map(async (file, index) => {
 					const keyName = `${uuidv4()}${
@@ -44,13 +49,20 @@ export class UploadFileService {
 					});
 				}),
 			);
-		else
+
+			await this.registerHistory(
+				files.map((file) => file.originalname),
+				params.reference_id,
+				params.origin,
+				user_id,
+			);
+		} else
 			throw new BadRequestException(
 				'Ocorreu um erro ao salvar o arquivo',
 			);
 	}
 
-	async removeFiles(ids: number[]) {
+	async removeFiles(ids: number[], user_id: number) {
 		const result = await this.prisma.arquivo.updateMany({
 			data: {
 				ativo: false,
@@ -61,6 +73,22 @@ export class UploadFileService {
 				},
 			},
 		});
+
+		if (result) {
+			const files = await this.prisma.arquivo.findMany({
+				where: {
+					id: { in: ids },
+				},
+			});
+
+			await this.registerHistory(
+				files.map((file) => file.nome),
+				files[0].referencia_id,
+				files[0].origem,
+				user_id,
+				true,
+			);
+		}
 
 		return !!result;
 	}
@@ -76,5 +104,35 @@ export class UploadFileService {
 		});
 
 		return !!retorno;
+	}
+
+	async registerHistory(
+		files: string[],
+		reference_id: number,
+		origin: number,
+		user_id: number,
+		remove = false,
+	) {
+		switch (origin) {
+			case FilesOrigin.PROTOCOL:
+				let text = '';
+				files.forEach((file) => {
+					text += `<li>${file}</li>`;
+				});
+
+				await this.prisma.protocoloDocumentoHistorico.create({
+					data: {
+						documento_id: reference_id,
+						usuario_id: user_id,
+						situacao: ProtocolHistorySituation.ATUALIZADO,
+						descricao: `${
+							remove ? 'Anexos removidos' : 'Anexos adicionados'
+						}:<br><ul>${text}<ul>`,
+					},
+				});
+				break;
+			default:
+				break;
+		}
 	}
 }

@@ -19,6 +19,8 @@ export class IntegrationService {
 		private readonly notificationService?: ClientRMQ,
 		@Inject('SYNC_ERROR_LOG_SERVICE')
 		private readonly syncErrorLogService?: ClientRMQ,
+		@Inject('SYNC_GENERIC_LOG_SERVICE')
+		private readonly syncGenericLogService?: ClientRMQ,
 	) {}
 
 	findAllByEmpresa(empresa_id: number) {
@@ -140,6 +142,25 @@ export class IntegrationService {
 
 				return condominio;
 			} else {
+				const condLog = await this.prisma.pessoa.findFirst({
+					where: {
+						tipos: {
+							some: {
+								original_pessoa_id: data.uuid,
+								tipo_id: tipoPessoa.id,
+							},
+						},
+					},
+				});
+
+				if (condLog) {
+					await this.sendGenericLog({
+						existente: condLog,
+						data,
+						integracao_id,
+					});
+				}
+
 				const cond = await this.prisma.pessoa.create({
 					data: {
 						nome: data.nome,
@@ -403,6 +424,14 @@ export class IntegrationService {
 		return new Promise((res, rej) => {
 			this.syncErrorLogService
 				.emit('sync-error-log', payload)
+				.subscribe({ next: () => res(true), error: (err) => rej(err) });
+		});
+	}
+
+	sendGenericLog(payload: any) {
+		return new Promise((res, rej) => {
+			this.syncGenericLogService
+				.emit('sync-generic-log', payload)
 				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});
 	}

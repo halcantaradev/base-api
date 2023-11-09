@@ -250,7 +250,9 @@ export class VirtualPackageService {
 			empresa_id,
 			situacao: filter.situacao,
 			excluido: false,
-			id: filter.codigo,
+			id: filter.malotes_virtuais_ids?.length
+				? { in: filter.malotes_virtuais_ids }
+				: filter.codigo,
 			created_at:
 				filter.tipo_data == 1 && filter.data_filtro
 					? {

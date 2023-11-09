@@ -231,6 +231,7 @@ export class VirtualPackageService {
 
 		const packagesSelect: Prisma.MaloteVirtualSelect = {
 			data_saida: true,
+			data_retorno: true,
 			protocolado_baixado: true,
 			malote_fisico: {
 				select: {
@@ -451,16 +452,19 @@ export class VirtualPackageService {
 				'Malote(s) informado(s) já recebido(s) ou não encontrado(s)',
 			);
 
-		const packages_ids_accept = virtualPackages.map(
-			(virtualPackage) => virtualPackage.id,
+		await Promise.all(
+			virtualPackages.map(
+				async (pack) =>
+					await this.prisma.maloteVirtual.update({
+						data: {
+							situacao: 2,
+							situacao_anterior: pack.situacao,
+							data_retorno: new Date(),
+						},
+						where: { id: pack.id },
+					}),
+			),
 		);
-
-		await this.prisma.maloteVirtual.updateMany({
-			data: { situacao: 2, situacao_anterior: 1 },
-			where: {
-				id: { in: packages_ids_accept },
-			},
-		});
 	}
 
 	async receiveDoc(

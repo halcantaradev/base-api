@@ -144,17 +144,13 @@ export class VirtualPackageService {
 						justificativa: true,
 						excluido: true,
 						documento: {
-							select: {
-								id: true,
+							include: {
 								tipo_documento: {
 									select: {
 										id: true,
 										nome: true,
 									},
 								},
-								discriminacao: true,
-								observacao: true,
-								vencimento: true,
 							},
 						},
 					},
@@ -451,7 +447,7 @@ export class VirtualPackageService {
 
 		if (!virtualPackages.length)
 			throw new BadRequestException(
-				'Malote(s) informado(s) já recebido(s) ou não encontrado(s)',
+				'Malote(s) informado(s) já retornado(s) ou não encontrado(s)',
 			);
 
 		await Promise.all(

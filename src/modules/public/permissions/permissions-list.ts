@@ -647,10 +647,10 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para atualizar condomínio',
 	},
 	{
-		label: 'Estornar recebimento de um malote',
+		label: 'Estornar retorno de um malote',
 		module: 'Expedição',
-		key: 'malotes-virtuais-documentos-estornar-recebimento',
-		message: 'Sem permissão para estornar recebimento de malote',
+		key: 'malotes-virtuais-documentos-estornar-retorno',
+		message: 'Sem permissão para estornar retorno de malote',
 	},
 	{
 		label: 'Baixa de um malote',

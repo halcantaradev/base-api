@@ -540,7 +540,7 @@ export class VirtualPackageController {
 	) {
 		await this.virtualPackageService.removeNewDoc(+id, +id_document, user);
 
-		return { success: true, message: 'Documento atualizado com sucesso!' };
+		return { success: true, message: 'Documento removido com sucesso!' };
 	}
 
 	@Post(':id/new-documents/finalize')

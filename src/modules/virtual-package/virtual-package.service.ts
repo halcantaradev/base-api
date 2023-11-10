@@ -774,7 +774,7 @@ export class VirtualPackageService {
 			),
 		);
 
-		const maloteDocs = await this.prisma.maloteDocumento.createMany({
+		await this.prisma.maloteDocumento.createMany({
 			data: docs.map((doc) => ({
 				documento_id: doc.id,
 				malote_virtual_id: id,
@@ -782,7 +782,7 @@ export class VirtualPackageService {
 			})),
 		});
 
-		return maloteDocs;
+		return docs;
 	}
 
 	async findAllNewDocs(id: number, empresa_id: number) {

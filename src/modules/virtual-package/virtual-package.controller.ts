@@ -473,13 +473,15 @@ export class VirtualPackageController {
 		@Body()
 		createNewDocumentVirtualPackageDto: CreateNewDocumenteProtocolVirtualPackageDto,
 	) {
-		await this.virtualPackageService.createNewDoc(
-			+id,
-			createNewDocumentVirtualPackageDto,
-			user,
-		);
-
-		return { success: true, message: 'Documento salvo com sucesso!' };
+		return {
+			success: true,
+			message: 'Documento salvo com sucesso!',
+			data: await this.virtualPackageService.createNewDoc(
+				+id,
+				createNewDocumentVirtualPackageDto,
+				user,
+			),
+		};
 	}
 
 	@Get(':id/new-documents')

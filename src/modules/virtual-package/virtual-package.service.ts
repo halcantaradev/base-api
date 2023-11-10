@@ -381,6 +381,16 @@ export class VirtualPackageService {
 			condominio_id: filter.condominios_ids
 				? { in: filter.condominios_ids }
 				: undefined,
+
+			condominio: filter.departmento_destino_id
+				? {
+						departamentos_condominio: {
+							some: {
+								departamento_id: filter.departmento_destino_id,
+							},
+						},
+				  }
+				: undefined,
 			usuario_id: filter.usuario_ids
 				? { in: filter.usuario_ids }
 				: undefined,

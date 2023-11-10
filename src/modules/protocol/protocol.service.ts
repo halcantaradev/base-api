@@ -25,6 +25,7 @@ import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 import { TypeNotificationProtocol } from './enums/type-notification-protocol.enum';
 import { defaultLogo } from 'src/shared/consts/default-logo.base64';
 import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
+import { CreateVirtualPackageProtocolDto } from './dto/create-virtual-package-protocol.dto';
 
 @Injectable()
 export class ProtocolService {
@@ -1586,5 +1587,70 @@ export class ProtocolService {
 			success: true,
 			message: 'Os documento(s) foram rejeitados!',
 		};
+	}
+
+	async createVirtualPackage(
+		protocolo_id: number,
+		createVirtualPackageProtocolDto: CreateVirtualPackageProtocolDto,
+		user: UserAuth,
+	) {
+		const virtualPackages = await this.prisma.maloteVirtual.findMany({
+			include: {
+				malote_fisico: true,
+			},
+			where: {
+				id: {
+					in: CreateDocumentProtocolDto.malotes_virtuais_ids,
+				},
+				condominio: {
+					departamentos_condominio: {
+						some: {
+							departamento_id:
+								CreateDocumentProtocolDto.destino_departamento_id,
+						},
+					},
+				},
+				OR: [
+					{
+						situacao: { in: [1, 2] },
+						documentos_malote: {
+							every: {
+								OR: [{ situacao: 1 }, { excluido: true }],
+							},
+						},
+					},
+					{
+						situacao: 4,
+						documentos_malote: {
+							every: {
+								OR: [
+									{ situacao: { in: [2, 3] } },
+									{ excluido: false },
+								],
+							},
+						},
+					},
+				],
+				excluido: false,
+				empresa_id: user.empresa_id,
+			},
+		});
+		this.virtualPackages.map;
+		await this.prisma.protocoloDocumento.create({
+			data: {
+				protocolo_id,
+				discriminacao: `Malote Virtual: ${
+					virtualPackage.id
+				}; Malote Físico: ${
+					virtualPackage.malote_fisico?.codigo || 'N/A'
+				}`,
+				observacao: '',
+				retorna: false,
+				condominio_id: virtualPackage.condominio_id,
+				malote_virtual_id: virtualPackage.id,
+			},
+		});
+
+		return;
 	}
 }

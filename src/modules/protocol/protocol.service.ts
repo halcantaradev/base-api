@@ -127,8 +127,8 @@ export class ProtocolService {
 		updated_at: true,
 	};
 
-	create(createProtocolDto: CreateProtocolDto, user: UserAuth) {
-		return this.prisma.protocolo.create({
+	async create(createProtocolDto: CreateProtocolDto, user: UserAuth) {
+		const protocol = await this.prisma.protocolo.create({
 			data: {
 				empresa_id: user.empresa_id,
 				tipo: createProtocolDto.tipo,
@@ -144,6 +144,54 @@ export class ProtocolService {
 				ativo: true,
 			},
 		});
+
+		if (createProtocolDto.documentos_ids) {
+			await Promise.all(
+				createProtocolDto.documentos_ids.map(async (id) => {
+					let document =
+						await this.prisma.protocoloDocumento.findFirst({
+							where: {
+								id,
+							},
+						});
+
+					document = await this.prisma.protocoloDocumento.create({
+						data: {
+							...document,
+							id: undefined,
+							protocolo_id: protocol.id,
+							created_at: undefined,
+							updated_at: undefined,
+						},
+					});
+
+					const files = await this.prisma.arquivo.findMany({
+						where: {
+							ativo: true,
+							origem: FilesOrigin.PROTOCOL,
+							referencia_id: id,
+						},
+					});
+
+					if (files.length) {
+						await Promise.all(
+							files.map(async (file) => {
+								await this.prisma.arquivo.create({
+									data: {
+										...file,
+										referencia_id: document.id,
+										created_at: undefined,
+										updated_at: undefined,
+									},
+								});
+							}),
+						);
+					}
+				}),
+			);
+		}
+
+		return protocol;
 	}
 
 	async findBy(

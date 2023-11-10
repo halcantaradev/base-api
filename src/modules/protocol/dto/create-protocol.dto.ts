@@ -97,4 +97,18 @@ export class CreateProtocolDto {
 	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	protocolo_malote?: boolean;
+
+	@ApiProperty({
+		description: 'Documentos do protocolo',
+		example: [1, 2],
+		required: true,
+	})
+	@IsInt({
+		each: true,
+		message:
+			'O documento informado não é válido. Por favor, forneça um documento válido.',
+	})
+	@Type(() => Number)
+	@IsOptional()
+	documentos_ids: number[];
 }

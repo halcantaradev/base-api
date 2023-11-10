@@ -61,6 +61,7 @@ export class ProtocolService {
 				id: true,
 				aceite_usuario: true,
 				aceito: true,
+				rejeitado: true,
 				tipo_documento: {
 					select: {
 						id: true,
@@ -124,6 +125,7 @@ export class ProtocolService {
 		vencimento: true,
 		data_aceite: true,
 		aceito: true,
+		rejeitado: true,
 		created_at: true,
 		updated_at: true,
 	};
@@ -582,6 +584,7 @@ export class ProtocolService {
 							excluido: false,
 						},
 					},
+					malote_virtual_id: true,
 					malotes_documento: {
 						select: {
 							malote_virtual: {
@@ -1051,7 +1054,7 @@ export class ProtocolService {
 				where: {
 					protocolo_id: protocol_id,
 					excluido: false,
-					aceito: true,
+					OR: [{ aceito: true }, { rejeitado: true }],
 				},
 			});
 
@@ -1546,10 +1549,13 @@ export class ProtocolService {
 
 		const protocolTotalDocuments = await this.prisma.protocolo.findFirst({
 			where: {
+				id: protocolo_id,
 				documentos: {
 					every: {
-						excluido: false,
-						rejeitado: true,
+						OR: [
+							{ excluido: false, rejeitado: true },
+							{ excluido: true },
+						],
 					},
 				},
 			},

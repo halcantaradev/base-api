@@ -1,10 +1,9 @@
-import { menulist } from './../public/menu/menus-list';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreatePhysicalPackageDto } from './dto/create-physical-package.dto';
-import { UpdatePhysicalPackageDto } from './dto/update-physical-package.dto';
-import { PrismaService } from 'src/shared/services/prisma.service';
-import { FiltersPhysicalPackage } from './dto/filters-physical-package.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
+import { PrismaService } from 'src/shared/services/prisma.service';
+import { CreatePhysicalPackageDto } from './dto/create-physical-package.dto';
+import { FiltersPhysicalPackage } from './dto/filters-physical-package.dto';
+import { UpdatePhysicalPackageDto } from './dto/update-physical-package.dto';
 
 @Injectable()
 export class PhysicalPackageService {
@@ -153,7 +152,7 @@ export class PhysicalPackageService {
 		id: number,
 		updatePhysicalPackageDto: UpdatePhysicalPackageDto,
 	) {
-		if (id === null || !Number.isNaN(id)) {
+		if (Number.isNaN(id)) {
 			throw new BadRequestException(
 				'O id do malote físico deve ser informado',
 			);
@@ -173,6 +172,8 @@ export class PhysicalPackageService {
 			where: {
 				id: { not: id },
 				codigo: updatePhysicalPackageDto.codigo,
+				alerta: updatePhysicalPackageDto.alerta,
+				ativo: updatePhysicalPackageDto.ativo,
 				excluido: false,
 			},
 		});
@@ -189,6 +190,7 @@ export class PhysicalPackageService {
 				codigo: updatePhysicalPackageDto.codigo,
 				alerta: updatePhysicalPackageDto.alerta,
 				disponivel: updatePhysicalPackageDto.disponivel,
+				ativo: updatePhysicalPackageDto.ativo,
 			},
 		});
 	}

@@ -116,22 +116,8 @@ export class Protocol {
 
 	@ApiProperty({
 		description: 'Lista de documentos do protocolo',
-		example: [
-			{
-				id: 1,
-				nome: 'Protocolo Teste',
-				tipo: { id: 1, nome: 'Protocolo Teste' },
-				aceite_usuario: { id: 1, nome: 'Usuario Teste' },
-				condominio: {
-					id: 1,
-					nome: 'Condomínio Teste',
-					retorna_malote_vazio: 'Discriminação Teste',
-					observacao: 'Observação Teste',
-					data_aceite: '2023-01-01T23:59:59.000Z',
-					aceito: false,
-				},
-			},
-		],
+		type: ProtocolDocument,
+		isArray: true,
 		required: true,
 		readOnly: true,
 	})

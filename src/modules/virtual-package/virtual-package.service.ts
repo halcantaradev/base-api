@@ -144,17 +144,13 @@ export class VirtualPackageService {
 						justificativa: true,
 						excluido: true,
 						documento: {
-							select: {
-								id: true,
+							include: {
 								tipo_documento: {
 									select: {
 										id: true,
 										nome: true,
 									},
 								},
-								discriminacao: true,
-								observacao: true,
-								vencimento: true,
 							},
 						},
 					},
@@ -198,6 +194,7 @@ export class VirtualPackageService {
 					codigo: true,
 				},
 			},
+			id: true,
 			condominio: {
 				select: {
 					id: true,
@@ -230,6 +227,7 @@ export class VirtualPackageService {
 
 		const packagesSelect: Prisma.MaloteVirtualSelect = {
 			data_saida: true,
+			data_retorno: true,
 			protocolado_baixado: true,
 			malote_fisico: {
 				select: {
@@ -249,7 +247,9 @@ export class VirtualPackageService {
 			empresa_id,
 			situacao: filter.situacao,
 			excluido: false,
-			id: filter.codigo,
+			id: filter.malotes_virtuais_ids?.length
+				? { in: filter.malotes_virtuais_ids }
+				: filter.codigo,
 			created_at:
 				filter.tipo_data == 1 && filter.data_filtro
 					? {
@@ -457,19 +457,22 @@ export class VirtualPackageService {
 
 		if (!virtualPackages.length)
 			throw new BadRequestException(
-				'Malote(s) informado(s) já recebido(s) ou não encontrado(s)',
+				'Malote(s) informado(s) já retornado(s) ou não encontrado(s)',
 			);
 
-		const packages_ids_accept = virtualPackages.map(
-			(virtualPackage) => virtualPackage.id,
+		await Promise.all(
+			virtualPackages.map(
+				async (pack) =>
+					await this.prisma.maloteVirtual.update({
+						data: {
+							situacao: 2,
+							situacao_anterior: pack.situacao,
+							data_retorno: new Date(),
+						},
+						where: { id: pack.id },
+					}),
+			),
 		);
-
-		await this.prisma.maloteVirtual.updateMany({
-			data: { situacao: 2, situacao_anterior: 1 },
-			where: {
-				id: { in: packages_ids_accept },
-			},
-		});
 	}
 
 	async receiveDoc(
@@ -781,15 +784,15 @@ export class VirtualPackageService {
 			),
 		);
 
-		const maloteDocs = await this.prisma.maloteDocumento.createMany({
+		await this.prisma.maloteDocumento.createMany({
 			data: docs.map((doc) => ({
 				documento_id: doc.id,
 				malote_virtual_id: id,
-				finalizado: true,
+				situacao: 2,
 			})),
 		});
 
-		return maloteDocs;
+		return docs;
 	}
 
 	async findAllNewDocs(id: number, empresa_id: number) {
@@ -1010,7 +1013,7 @@ export class VirtualPackageService {
 
 		const gerados = await this.prisma.maloteDocumento.findMany({
 			include: {
-				documento: true,
+				documento: { include: { tipo_documento: true } },
 			},
 			where: {
 				malote_virtual_id: id,
@@ -1023,7 +1026,7 @@ export class VirtualPackageService {
 
 		const novos = await this.prisma.maloteDocumento.findMany({
 			include: {
-				documento: true,
+				documento: { include: { tipo_documento: true } },
 			},
 			where: {
 				malote_virtual_id: id,

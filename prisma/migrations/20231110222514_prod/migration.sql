@@ -9,6 +9,8 @@ ALTER TABLE "empresas_has_usuarios" ADD COLUMN     "tipo_usuario" INTEGER NOT NU
 
 -- AlterTable
 ALTER TABLE "protocolo_documentos" ADD COLUMN     "malote_virtual_id" INTEGER,
+ADD COLUMN     "motivo_rejeitado" TEXT,
+ADD COLUMN     "rejeitado" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "retorna" BOOLEAN NOT NULL DEFAULT false,
 ADD COLUMN     "valor" DOUBLE PRECISION,
 ADD COLUMN     "vencimento" TIMESTAMP(3),

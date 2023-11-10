@@ -242,7 +242,7 @@ async function createMenu() {
 	console.log('Menus gerados com sucesso!');
 }
 
-async function creatSetupSistena(empresa_id: number) {
+async function creatSetupSistema(empresa_id: number) {
 	const setup = await prisma.sistemaSetup.findFirst();
 
 	if (!setup) {
@@ -321,7 +321,7 @@ async function main() {
 	const empresa = await createEmpresa();
 	const user = await createUser(empresa);
 	await createTipoInfracao(empresa.id);
-	await creatSetupSistena(empresa.id);
+	await creatSetupSistema(empresa.id);
 	await cretePermissionToUser(user.id, empresa.id);
 	await createMenu();
 	await createLayoutDefaultNotification(empresa.id);

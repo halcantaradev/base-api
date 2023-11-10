@@ -12,7 +12,7 @@ export class FiltersProtocolCondominiumDto {
 	busca: string;
 
 	@ApiProperty({
-		description: 'Departamento do condomínio',
+		description: 'Departamento de origem do protocolo',
 		example: 1,
 		required: false,
 	})
@@ -25,5 +25,21 @@ export class FiltersProtocolCondominiumDto {
 			'O campo departamento de origem é obrigatório. Por favor, forneça um departamento.',
 	})
 	@Type(() => Number)
-	departamento_id: number;
+	departamento_origem_id: number;
+
+	@ApiProperty({
+		description: 'Departamento de destino do protocolo',
+		example: 1,
+		required: false,
+	})
+	@IsInt({
+		message:
+			'O campo departamento de destino informado não é válido. Por favor, forneça um departamento válido.',
+	})
+	@IsNotEmpty({
+		message:
+			'O campo departamento de destino é obrigatório. Por favor, forneça um departamento.',
+	})
+	@Type(() => Number)
+	departamento_destino_id: number;
 }

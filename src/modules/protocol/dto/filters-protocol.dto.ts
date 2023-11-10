@@ -15,11 +15,19 @@ export class FiltersProtocolDto {
 
 	@ApiProperty({
 		description: 'Filtro por tipo do protocolo',
-		example: '001',
+		example: 1,
 		required: false,
 	})
 	@IsOptional()
 	tipo: 1 | 2;
+
+	@ApiProperty({
+		description: 'Filtro por tipo dos itens do protocolo',
+		example: 1,
+		required: false,
+	})
+	@IsOptional()
+	tipo_protocolo: 1 | 2;
 
 	@ApiProperty({
 		description: 'Filtro por situação do protocolo',

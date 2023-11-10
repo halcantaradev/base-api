@@ -41,6 +41,7 @@ import { ProtocolDocumentListReturn } from './entities/protocol-document-list-re
 import { AcceptDocumentProtocolDto } from './dto/accept-document-protocol.dto';
 import { ReverseDocumentProtocolDto } from './dto/reverse-document-protocol.dto.ts';
 import { SendEmailProtocolDto } from './dto/send-email-protocol.dto';
+import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -79,6 +80,7 @@ export class ProtocolController {
 	}
 
 	@Post('list')
+	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-listar')
 	@ApiOperation({ summary: 'Lista os protocolos' })
 	@ApiResponse({
@@ -112,15 +114,16 @@ export class ProtocolController {
 		};
 	}
 
-	@Post('accept')
+	@Post('list/accept')
+	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-listar-documentos')
 	@ApiOperation({
-		summary: 'Lista os documentos de um protocolo',
+		summary: 'Lista os protocolos para serem aceitos',
 	})
 	@ApiResponse({
 		description: 'Protocolo listado com sucesso',
 		status: HttpStatus.OK,
-		type: ProtocolDocumentListReturn,
+		type: ProtocolListReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao validar os campos enviados',
@@ -128,7 +131,7 @@ export class ProtocolController {
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao listar os documentos',
+		description: 'Ocorreu um erro ao listar os protocolos',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
@@ -148,6 +151,7 @@ export class ProtocolController {
 	}
 
 	@Post('condominiums')
+	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-listar-condominios')
 	@UseInterceptors(UserCondominiumsAccess)
 	@ApiOperation({
@@ -277,7 +281,8 @@ export class ProtocolController {
 	}
 
 	@Post(':id/documents/accept')
-	@Role('protocolos-documento-aceitar')
+	@HttpCode(HttpStatus.OK)
+	@Role('protocolos-documentos-aceitar')
 	@ApiOperation({ summary: 'Aceita os documentos de um protocolo' })
 	@ApiResponse({
 		description: 'Documentos aceitos com sucesso',
@@ -305,6 +310,33 @@ export class ProtocolController {
 			acceptDocumentsProtocolDto.documentos_ids,
 			user,
 		);
+	}
+	@Post(':id/documents/reject')
+	@HttpCode(HttpStatus.OK)
+	@Role('protocolos-documentos-rejeitar')
+	@ApiOperation({ summary: 'Rejeita os documentos de um protocolo' })
+	@ApiResponse({
+		description: 'Os documentos informados foram rejeitados',
+		status: HttpStatus.OK,
+		type: ProtocolReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os documentos enviados',
+
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao rejeitar os documentos',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async rejectDocuments(
+		@Param('id') id: string,
+		@Body() body: RejectDocumentProtocolDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		return await this.protocolService.rejectDocuments(+id, body, user);
 	}
 
 	@Get(':id/emails')
@@ -337,6 +369,7 @@ export class ProtocolController {
 	}
 
 	@Post(':id/emails')
+	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-enviar-emails')
 	@ApiOperation({ summary: 'Envia os emails de um protocolo' })
 	@ApiResponse({
@@ -500,7 +533,7 @@ export class ProtocolController {
 	}
 
 	@Put(':id/document/reversal')
-	@Role('protocolos-documento-estornar')
+	@Role('protocolos-documentos-estornar')
 	@ApiOperation({ summary: 'Estorna um documento' })
 	@ApiResponse({
 		description: 'Documento estornado com sucesso',

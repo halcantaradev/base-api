@@ -21,4 +21,11 @@ export class SetupSystem {
 		required: true,
 	})
 	sancao: string;
+
+	@ApiProperty({
+		description: 'Status de uso de malotes físicos',
+		example: true,
+		required: false,
+	})
+	obriga_malote_fisico: boolean;
 }

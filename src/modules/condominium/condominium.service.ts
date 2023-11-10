@@ -186,6 +186,7 @@ export class CondominiumService {
 		return this.prisma.pessoa.update({
 			data: {
 				nome: body.nome,
+				ativo: body.ativo,
 				cnpj: body.cnpj,
 				cep: body.cep,
 				endereco: body.endereco,
@@ -946,7 +947,9 @@ export class CondominiumService {
 		const unidades = await this.prisma.unidade.findMany({
 			select: {
 				id: true,
+
 				codigo: true,
+				created_at: true,
 				condominos: {
 					select: {
 						condomino: { select: { nome: true, id: true } },
@@ -1093,12 +1096,25 @@ export class CondominiumService {
 			select: {
 				id: true,
 				codigo: true,
+				condominio: {
+					select: {
+						nome: true,
+					},
+				},
 				condominos: {
 					select: {
-						condomino: { select: { nome: true } },
+						condomino: {
+							select: {
+								nome: true,
+								endereco: true,
+								cidade: true,
+								bairro: true,
+							},
+						},
 						tipo: { select: { descricao: true } },
 					},
 				},
+				created_at: true,
 				ativo: true,
 			},
 			where: {

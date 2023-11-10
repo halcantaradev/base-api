@@ -19,7 +19,7 @@ export class FiltersResidenceActiveDto {
 		each: true,
 	})
 	@Type(() => Number)
-	condominios_ids: number[];
+	condominios_ids?: number[];
 
 	@ApiProperty({
 		description: 'Filtro por nome ou código da unidade',

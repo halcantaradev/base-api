@@ -132,6 +132,21 @@ export class CreateUserDto {
 	cargo_id: number;
 
 	@ApiProperty({
+		description: 'Tipo de acesso do usuário',
+		example: 1,
+		required: true,
+	})
+	@IsNotEmpty({
+		message:
+			'O campo tipo de acesso é obrigatório. Por favor, forneça um tipo de acesso.',
+	})
+	@IsInt({
+		message:
+			'O campo tipo de acesso informado não é válido. Por favor, forneça um tipo de acesso válido.',
+	})
+	tipo_usuario: number;
+
+	@ApiProperty({
 		description: 'Status de acesso a todos os departamentos do usuário',
 		example: true,
 		required: false,

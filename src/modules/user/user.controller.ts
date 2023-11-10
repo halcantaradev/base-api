@@ -32,6 +32,7 @@ import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominium
 import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 import { ReportUserDto } from './dto/report-user.dto';
 import { ReportUserReturn } from './entities/report-user-return.entity';
+import { TiposUsuarios } from 'src/shared/consts/tipos-usuarios.const';
 
 @ApiTags('Usuários')
 @Controller('users')
@@ -41,6 +42,7 @@ export class UserController {
 	constructor(private readonly userService: UserService) {}
 
 	@Post()
+	@Role('usuarios-cadastrar')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({ summary: 'Cria um novo usuário' })
 	@ApiResponse({
@@ -105,6 +107,8 @@ export class UserController {
 				ativo: true,
 			},
 			condominiums,
+			true,
+			TiposUsuarios.PADRAO,
 		);
 	}
 
@@ -136,6 +140,7 @@ export class UserController {
 			},
 			condominiums,
 			true,
+			TiposUsuarios.PADRAO,
 		);
 	}
 

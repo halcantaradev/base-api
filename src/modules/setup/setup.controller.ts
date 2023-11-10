@@ -19,6 +19,10 @@ import { UpdateSetupSystemDto } from './dto/update-setup-system.dto';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { ReturnSetupSystemEntity } from './entities/return-setup-system.entity';
+import { ReturnSetupPackageEntity } from './entities/return-setup-package.entity';
+import { UpdateSetupPackageDto } from './dto/update-setup-package.dto';
+import { ReturnSetupPackageBikerListEntity } from './entities/return-setup-package-biker.entity';
+import { ReturnSetupPackageRouteListEntity } from './entities/return-setup-package-route.entity';
 
 @ApiTags('Módulo de Configurações')
 @UseGuards(PermissionGuard)
@@ -70,6 +74,93 @@ export class SetupController {
 			data: await this.setupService.updateSetupNotification(
 				+id,
 				updateSetupNotificationDto,
+			),
+		};
+	}
+
+	@Get('packages/routes')
+	@Role('setup-malotes-listar')
+	@ApiOperation({ summary: 'Lista as rotas de malotes disponíveis' })
+	@ApiResponse({
+		description: 'Rotas listadas com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnSetupPackageRouteListEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async getRoutesPackage(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.setupService.findRoutesPackage(user.empresa_id),
+		};
+	}
+
+	@Get('packages/bikers')
+	@Role('setup-malotes-listar')
+	@ApiOperation({ summary: 'Lista as motoqueiros de malotes disponíveis' })
+	@ApiResponse({
+		description: 'Motoristas listados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnSetupPackageBikerListEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async getBikersPackage(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.setupService.findBikersPackage(user.empresa_id),
+		};
+	}
+
+	@Get('packages/:id')
+	@Role('setup-malotes-listar')
+	@ApiOperation({ summary: 'Lista os dados de setup de malotes' })
+	@ApiResponse({
+		description: 'Dados de setup listados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnSetupPackageEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async getSetupPackage(@Param('id') id: number) {
+		return {
+			success: true,
+			data: await this.setupService.findSetupPackage(+id),
+		};
+	}
+
+	@Patch('packages/:id')
+	@Role('setup-malotes-atualizar')
+	@ApiOperation({ summary: 'Atualiza os dados de setup de malotes' })
+	@ApiResponse({
+		description: 'Dados de setup atualizados com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnSetupPackageEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar os dados',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async updateSetupPackage(
+		@Param('id') id: number,
+		@Body() updateSetupPackageDto: UpdateSetupPackageDto,
+	) {
+		return {
+			success: true,
+			message: 'Configurações atualizadas com sucesso!',
+			data: await this.setupService.updateSetupPackage(
+				+id,
+				updateSetupPackageDto,
 			),
 		};
 	}

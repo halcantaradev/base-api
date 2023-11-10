@@ -58,6 +58,30 @@ export class ProtocolDocument {
 	observacao: string;
 
 	@ApiProperty({
+		description: 'Documento retorna',
+		example: true,
+		required: false,
+		readOnly: true,
+	})
+	retorna: boolean;
+
+	@ApiProperty({
+		description: 'Valor do documento',
+		example: 12.34,
+		required: true,
+		readOnly: true,
+	})
+	valor: number;
+
+	@ApiProperty({
+		description: 'Data de vencimento do documento',
+		example: new Date(),
+		required: false,
+		readOnly: true,
+	})
+	vencimento: Date;
+
+	@ApiProperty({
 		description: 'Data de aceite do documento',
 		example: '2023-01-01T23:59:59.000Z',
 		required: true,
@@ -72,6 +96,14 @@ export class ProtocolDocument {
 		readOnly: true,
 	})
 	aceito: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o documento foi rejeitado',
+		example: false,
+		required: true,
+		readOnly: true,
+	})
+	rejeitado: boolean;
 
 	@ApiProperty({
 		description: 'Data de criação do documento',
@@ -96,4 +128,24 @@ export class ProtocolDocument {
 		readOnly: true,
 	})
 	total_anexos?: number;
+
+	@ApiProperty({
+		description: 'Total de malotes virtuais não finalizados do documento',
+		example: [
+			{
+				malote: {
+					id: 1,
+					situacao: 1,
+				},
+			},
+		],
+		required: true,
+		readOnly: true,
+	})
+	malotes_documento?: {
+		malote: {
+			id: number;
+			situacao: number;
+		};
+	}[];
 }

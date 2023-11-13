@@ -436,12 +436,12 @@ export class ProtocolController {
 		};
 	}
 
-	@Post(':id/document')
+	@Post(':id/virtual-package')
 	@HttpCode(HttpStatus.OK)
 	@Role('protocolos-atualizar-dados')
-	@ApiOperation({ summary: 'Cria um novo documento' })
+	@ApiOperation({ summary: 'Cria um novo malote virtual' })
 	@ApiResponse({
-		description: 'Documento criado com sucesso',
+		description: 'Malote virtual criado com sucesso',
 		status: HttpStatus.OK,
 		type: ProtocolDocumentReturn,
 	})
@@ -451,7 +451,7 @@ export class ProtocolController {
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao criar o documento',
+		description: 'Ocorreu um erro ao criar o malote virtual',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})

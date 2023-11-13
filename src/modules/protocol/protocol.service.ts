@@ -1600,19 +1600,29 @@ export class ProtocolService {
 		createVirtualPackageProtocolDto: CreateVirtualPackageProtocolDto,
 		user: UserAuth,
 	) {
+		const protocolo = await this.prisma.protocolo.findFirst({
+			where: {
+				id: protocolo_id,
+				excluido: false,
+			},
+		});
+
+		if (!protocolo) {
+			throw new BadRequestException('Protocolo não encontrado');
+		}
+
 		const virtualPackages = await this.prisma.maloteVirtual.findMany({
 			include: {
 				malote_fisico: true,
 			},
 			where: {
 				id: {
-					in: CreateDocumentProtocolDto.malotes_virtuais_ids,
+					in: createVirtualPackageProtocolDto.malotes_virtuais_ids,
 				},
 				condominio: {
 					departamentos_condominio: {
 						some: {
-							departamento_id:
-								CreateDocumentProtocolDto.destino_departamento_id,
+							departamento_id: protocolo.destino_departamento_id,
 						},
 					},
 				},
@@ -1641,22 +1651,28 @@ export class ProtocolService {
 				empresa_id: user.empresa_id,
 			},
 		});
-		this.virtualPackages.map;
-		await this.prisma.protocoloDocumento.create({
-			data: {
-				protocolo_id,
-				discriminacao: `Malote Virtual: ${
-					virtualPackage.id
-				}; Malote Físico: ${
-					virtualPackage.malote_fisico?.codigo || 'N/A'
-				}`,
-				observacao: '',
-				retorna: false,
-				condominio_id: virtualPackage.condominio_id,
-				malote_virtual_id: virtualPackage.id,
-			},
-		});
 
-		return;
+		if (!virtualPackages.length) {
+			throw new BadRequestException(
+				'Malote(s) informado(s) não pode(m) ser utilizado(s)',
+			);
+		}
+
+		virtualPackages.map(async (virtualPackage) => {
+			await this.prisma.protocoloDocumento.create({
+				data: {
+					protocolo_id,
+					discriminacao: `Malote Virtual: ${
+						virtualPackage.id
+					}; Malote Físico: ${
+						virtualPackage.malote_fisico?.codigo || 'N/A'
+					}`,
+					observacao: '',
+					retorna: false,
+					condominio_id: virtualPackage.condominio_id,
+					malote_virtual_id: virtualPackage.id,
+				},
+			});
+		});
 	}
 }

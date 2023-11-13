@@ -46,23 +46,27 @@ export class HistoryService {
 					filtersProtocolDocumentHistoryDto.situacao || undefined,
 				usuario_id:
 					filtersProtocolDocumentHistoryDto.usuario_id || undefined,
-				created_at: {
-					gte: filtersProtocolDocumentHistoryDto?.data_registro
-						? setCustomHour(
-								filtersProtocolDocumentHistoryDto
-									?.data_registro[0],
-						  )
-						: undefined,
-					lte: filtersProtocolDocumentHistoryDto?.data_registro
-						? setCustomHour(
-								filtersProtocolDocumentHistoryDto
-									?.data_registro[1],
-								23,
-								59,
-								59,
-						  )
-						: undefined,
-				},
+				created_at: filtersProtocolDocumentHistoryDto?.data_registro
+					? {
+							gte: filtersProtocolDocumentHistoryDto
+								.data_registro[0]
+								? setCustomHour(
+										filtersProtocolDocumentHistoryDto
+											?.data_registro[0],
+								  )
+								: undefined,
+							lte: filtersProtocolDocumentHistoryDto
+								.data_registro[1]
+								? setCustomHour(
+										filtersProtocolDocumentHistoryDto
+											?.data_registro[1],
+										23,
+										59,
+										59,
+								  )
+								: undefined,
+					  }
+					: undefined,
 			},
 		});
 	}

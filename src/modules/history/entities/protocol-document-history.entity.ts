@@ -27,7 +27,7 @@ export class ProtocolDocumentHistory {
 		example: 'Descrição Teste',
 		readOnly: true,
 	})
-	descricao: number;
+	descricao: string;
 
 	@ApiProperty({
 		description: 'Data que o registro foi criado',

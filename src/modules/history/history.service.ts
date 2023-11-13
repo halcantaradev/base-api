@@ -15,6 +15,8 @@ export class HistoryService {
 				return {
 					id: situation,
 					descricao: ProtocolHistorySituation.DESCRICAO[situation],
+					cor: ProtocolHistorySituation.COR[situation],
+					icone: ProtocolHistorySituation.ICONE[situation],
 				};
 			});
 	}

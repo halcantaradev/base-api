@@ -16,6 +16,7 @@ import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { ProtocolDocumentHistoryListReturn } from './entities/protocol-document-history-list-return.entity';
 import { FiltersProtocolDocumentHistoryDto } from './dto/filters-protocol-document-history.dto';
+import { ProtocolDocumentHistorySituationReturn } from './entities/protocol-document-history-situation-return.entity';
 
 @ApiTags('Historicos')
 @UseGuards(PermissionGuard)
@@ -26,19 +27,16 @@ export class HistoryController {
 
 	@Get('protocol-documents/situations')
 	@Role('protocolos-documentos-historico')
-	@ApiOperation({ summary: 'Lista os registro de historico do documento' })
+	@ApiOperation({
+		summary: 'Lista os tipos de situações de historico do documento',
+	})
 	@ApiResponse({
-		description: 'Registros listados com sucesso',
+		description: 'Tipos listados com sucesso',
 		status: HttpStatus.OK,
-		type: ProtocolDocumentHistoryListReturn,
+		type: ProtocolDocumentHistorySituationReturn,
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao validar os campos enviados',
-		status: HttpStatus.BAD_REQUEST,
-		type: ReturnEntity.error(),
-	})
-	@ApiResponse({
-		description: 'Ocorreu um erro ao listar os registros',
+		description: 'Ocorreu um erro ao listar os dados',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})

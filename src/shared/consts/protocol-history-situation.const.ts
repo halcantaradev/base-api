@@ -34,4 +34,42 @@ export class ProtocolHistorySituation {
 		15: 'Baixa Estornada',
 		16: 'Impresso no módulo de malotes',
 	};
+
+	static COR = {
+		1: 'green',
+		2: 'blue',
+		3: 'green',
+		4: 'red',
+		5: 'blue',
+		6: 'blue',
+		7: 'red',
+		8: 'blue',
+		9: 'blue',
+		10: 'blue',
+		11: 'blue',
+		12: 'blue',
+		13: 'green',
+		14: 'red',
+		15: 'red',
+		16: 'blue',
+	};
+
+	static ICONE = {
+		1: 'cloud-download',
+		2: 'plus-circle',
+		3: 'cloud-download',
+		4: 'delivered-procedure',
+		5: 'rollback',
+		6: 'edit',
+		7: 'close-circle',
+		8: 'printer',
+		9: 'plus-circle',
+		10: 'plus-circle',
+		11: 'plus-circle',
+		12: 'plus-circle',
+		13: 'cloud-download',
+		14: 'delete',
+		15: 'close-circle',
+		16: 'plus-circle',
+	};
 }

@@ -157,17 +157,13 @@ export class VirtualPackageService {
 						justificativa: true,
 						excluido: true,
 						documento: {
-							select: {
-								id: true,
+							include: {
 								tipo_documento: {
 									select: {
 										id: true,
 										nome: true,
 									},
 								},
-								discriminacao: true,
-								observacao: true,
-								vencimento: true,
 							},
 						},
 					},
@@ -207,7 +203,9 @@ export class VirtualPackageService {
 			empresa_id: user.empresa_id,
 			situacao: filters.situacao,
 			excluido: false,
-			id: filters.codigo,
+			id: filters.malotes_virtuais_ids?.length
+				? { in: filters.malotes_virtuais_ids }
+				: filters.codigo,
 			created_at:
 				filters.tipo_data == 1 && filters.data_filtro
 					? {
@@ -487,22 +485,22 @@ export class VirtualPackageService {
 
 		if (!virtualPackages.length)
 			throw new BadRequestException(
-				'Malote(s) informado(s) já recebido(s) ou não encontrado(s)',
+				'Malote(s) informado(s) já retornado(s) ou não encontrado(s)',
 			);
 
-		const packages_ids_accept = virtualPackages.map(
-			(virtualPackage) => virtualPackage.id,
+		await Promise.all(
+			virtualPackages.map(
+				async (pack) =>
+					await this.prisma.maloteVirtual.update({
+						data: {
+							situacao: VirtualPackageSituation.RECEBIDO,
+							situacao_anterior: pack.situacao,
+							data_retorno: new Date(),
+						},
+						where: { id: pack.id },
+					}),
+			),
 		);
-
-		await this.prisma.maloteVirtual.updateMany({
-			data: {
-				situacao: VirtualPackageSituation.RECEBIDO,
-				situacao_anterior: VirtualPackageSituation.PENDENTE,
-			},
-			where: {
-				id: { in: packages_ids_accept },
-			},
-		});
 	}
 
 	async receiveDoc(
@@ -859,7 +857,7 @@ export class VirtualPackageService {
 			),
 		);
 
-		const maloteDocs = await this.prisma.maloteDocumento.createMany({
+		await this.prisma.maloteDocumento.createMany({
 			data: docs.map((doc) => ({
 				documento_id: doc.id,
 				malote_virtual_id: id,
@@ -867,7 +865,7 @@ export class VirtualPackageService {
 			})),
 		});
 
-		return maloteDocs;
+		return docs;
 	}
 
 	async findAllNewDocs(id: number, empresa_id: number) {

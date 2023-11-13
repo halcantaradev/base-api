@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsString, IsBoolean, IsInt } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 
 export class CreatePhysicalPackageDto {
@@ -22,4 +22,14 @@ export class CreatePhysicalPackageDto {
 	@IsBoolean({ message: 'O campo alerta deve ser um valor booleano' })
 	@Transform(BooleanTransformHelper)
 	alerta: boolean;
+
+	@ApiProperty({
+		example: false,
+		description: 'Indica se o malote físico está ativo',
+		required: true,
+	})
+	@IsNotEmpty()
+	@IsBoolean({ message: 'O campo ativo deve ser um valor booleano' })
+	@Transform(BooleanTransformHelper)
+	ativo: boolean;
 }

@@ -98,6 +98,14 @@ export class ProtocolDocument {
 	aceito: boolean;
 
 	@ApiProperty({
+		description: 'Identifica se o documento foi rejeitado',
+		example: false,
+		required: true,
+		readOnly: true,
+	})
+	rejeitado: boolean;
+
+	@ApiProperty({
 		description: 'Data de criação do documento',
 		example: '2023-01-01T23:59:59.000Z',
 		required: true,

@@ -119,18 +119,19 @@ export class IntegrationController {
 		try {
 			if (body.data) {
 				console.log('Dados recebidos!');
-
 				switch (body.tipo) {
 					case EntidadesSincronimo.CONDOMINIO:
 						await this.integrationService.syncCondominio(
 							body.data,
 							user.empresa_id,
+							+payload.database_config.id,
 						);
 						break;
 					case EntidadesSincronimo.UNIDADE:
 						await this.integrationService.syncUnidade(
 							body.data,
 							user.empresa_id,
+							+payload.database_config.id,
 						);
 						break;
 				}
@@ -165,7 +166,9 @@ export class IntegrationController {
 			channel.ack(orginalMessage);
 			return context;
 		} catch (error) {
+			console.log('========= Falha na sincronização =========');
 			console.log(error);
+			console.log('==========================================');
 			return context;
 		}
 	}

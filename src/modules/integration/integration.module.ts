@@ -30,7 +30,33 @@ import { GlobalModule } from '../global/global.module';
 						Filas.NOTIFICATION + '-' + process.env.PREFIX_EMPRESA,
 					noAck: true,
 					persistent: true,
-					queueOptions: {},
+				},
+			},
+			{
+				name: 'SYNC_ERROR_LOG_SERVICE',
+				transport: Transport.RMQ,
+				options: {
+					urls: [
+						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
+					],
+					queue:
+						'gestaoweb-sync-erro-log-' + process.env.PREFIX_EMPRESA,
+					noAck: true,
+					persistent: true,
+				},
+			},
+			{
+				name: 'SYNC_GENERIC_LOG_SERVICE',
+				transport: Transport.RMQ,
+				options: {
+					urls: [
+						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
+					],
+					queue:
+						'gestaoweb-sync-generic-log-' +
+						process.env.PREFIX_EMPRESA,
+					noAck: true,
+					persistent: true,
 				},
 			},
 		]),

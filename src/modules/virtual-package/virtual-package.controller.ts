@@ -185,19 +185,19 @@ export class VirtualPackageController {
 	@Post('receive-package')
 	@HttpCode(HttpStatus.OK)
 	@Role('malotes-virtuais-baixar')
-	@ApiOperation({ summary: 'Realiza o recebimento do malote' })
+	@ApiOperation({ summary: 'Marca o malote como retornado' })
 	@ApiResponse({
-		description: 'Malotes recebido com sucesso',
+		description: 'Retornado com sucesso',
 		status: HttpStatus.OK,
 		type: ReturnEntity.success(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao receber o malote',
+		description: 'Ocorreu um erro ao marcar o malote como retornado',
 		status: HttpStatus.BAD_REQUEST,
 		type: ReturnEntity.error(),
 	})
 	@ApiResponse({
-		description: 'Ocorreu um erro ao receber o malote',
+		description: 'Ocorreu um erro ao marcar o malote como retornado',
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
@@ -211,7 +211,10 @@ export class VirtualPackageController {
 			user.empresa_id,
 		);
 
-		return { success: true, message: 'Malote(s) recebido(s) com sucesso' };
+		return {
+			success: true,
+			message: 'Malote(s) macado(s como retronado(s) com sucesso',
+		};
 	}
 
 	@Post('protocol')
@@ -415,7 +418,7 @@ export class VirtualPackageController {
 	}
 
 	@Patch(':id/receive/reverse')
-	@Role('malotes-virtuais-documentos-estornar-recebimento')
+	@Role('malotes-virtuais-documentos-estornar-retorno')
 	@ApiOperation({
 		summary: 'Estorna a baixa de um documento do malote',
 	})
@@ -474,13 +477,15 @@ export class VirtualPackageController {
 		@Body()
 		createNewDocumentVirtualPackageDto: CreateNewDocumenteProtocolVirtualPackageDto,
 	) {
-		await this.virtualPackageService.createNewDoc(
-			+id,
-			createNewDocumentVirtualPackageDto,
-			user,
-		);
-
-		return { success: true, message: 'Documento salvo com sucesso!' };
+		return {
+			success: true,
+			message: 'Documento salvo com sucesso!',
+			data: await this.virtualPackageService.createNewDoc(
+				+id,
+				createNewDocumentVirtualPackageDto,
+				user,
+			),
+		};
 	}
 
 	@Get(':id/new-documents')
@@ -541,7 +546,7 @@ export class VirtualPackageController {
 	) {
 		await this.virtualPackageService.removeNewDoc(+id, +id_document, user);
 
-		return { success: true, message: 'Documento atualizado com sucesso!' };
+		return { success: true, message: 'Documento removido com sucesso!' };
 	}
 
 	@Post(':id/new-documents/finalize')

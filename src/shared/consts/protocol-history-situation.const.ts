@@ -57,7 +57,7 @@ export class ProtocolHistorySituation {
 	static ICONE = {
 		1: 'plus-circle',
 		2: 'delivered-procedure',
-		3: 'checked-circle',
+		3: 'check-circle',
 		4: 'close-circle',
 		5: 'rollback',
 		6: 'edit',

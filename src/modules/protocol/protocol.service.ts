@@ -1,3 +1,4 @@
+import { VirtualPackage } from './../virtual-package/entities/virtual-package.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateProtocolDto } from './dto/create-protocol.dto';
@@ -1781,6 +1782,16 @@ export class ProtocolService {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
+		const virtualPackageAlreadyExist =
+			await this.prisma.protocoloDocumento.findMany({
+				where: {
+					excluido: false,
+					malote_virtual_id: {
+						in: createVirtualPackageProtocolDto.malotes_virtuais_ids,
+					},
+				},
+			});
+
 		const virtualPackages = await this.prisma.maloteVirtual.findMany({
 			include: {
 				malote_fisico: true,
@@ -1789,6 +1800,18 @@ export class ProtocolService {
 				id: {
 					in: createVirtualPackageProtocolDto.malotes_virtuais_ids,
 				},
+				documentos_protocolo: virtualPackageAlreadyExist.length
+					? {
+							some: {
+								malote_virtual_id: {
+									notIn: virtualPackageAlreadyExist.map(
+										(document) =>
+											document.malote_virtual_id,
+									),
+								},
+							},
+					  }
+					: undefined,
 				condominio: {
 					departamentos_condominio: {
 						some: {
@@ -1798,19 +1821,23 @@ export class ProtocolService {
 				},
 				OR: [
 					{
-						situacao: { in: [1, 2] },
-						documentos_malote: {
-							every: {
-								OR: [{ situacao: 1 }, { excluido: true }],
-							},
+						situacao: {
+							in: [VirtualPackageSituation.RECEBIDO],
 						},
 					},
 					{
-						situacao: 4,
+						situacao: VirtualPackageSituation.BAIXADO,
 						documentos_malote: {
 							every: {
 								OR: [
-									{ situacao: { in: [2, 3] } },
+									{
+										situacao: {
+											in: [
+												VirtualPackageDocumentSituation.BAIXADO,
+												VirtualPackageDocumentSituation.NAO_RECEBIDO,
+											],
+										},
+									},
 									{ excluido: false },
 								],
 							},
@@ -1841,6 +1868,27 @@ export class ProtocolService {
 					retorna: false,
 					condominio_id: virtualPackage.condominio_id,
 					malote_virtual_id: virtualPackage.id,
+				},
+			});
+
+			await this.prisma.maloteVirtual.update({
+				data: {
+					situacao_anterior:
+						virtualPackage.situacao !==
+						VirtualPackageSituation.BAIXADO
+							? virtualPackage.situacao
+							: undefined,
+					situacao:
+						virtualPackage.situacao !==
+						VirtualPackageSituation.BAIXADO
+							? VirtualPackageSituation.PROTOCOLADO
+							: undefined,
+					protocolado_baixado:
+						virtualPackage.situacao ==
+						VirtualPackageSituation.BAIXADO,
+				},
+				where: {
+					id: virtualPackage.id,
 				},
 			});
 		});

@@ -14,6 +14,10 @@ import { ReceiveVirtualPackageDto } from './dto/receive-virtual-package.dto';
 import { ReverseReceiveVirtualPackageDto } from './dto/reverse-receive-virtual-package.dto';
 import { ReverseVirtualPackageDto } from './dto/reverse-virtual-package.dto';
 import { CreateNewDocumenteProtocolVirtualPackageDto } from './dto/create-new-document-protocol-virtual-package.dto';
+import { VirtualPackageDocumentSituation } from 'src/shared/consts/virtual-package-document-situation.const';
+import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
+import { ProtocolSituation } from 'src/shared/consts/protocol-situation.const';
+import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
 
 @Injectable()
 export class VirtualPackageService {
@@ -52,7 +56,7 @@ export class VirtualPackageService {
 				daysSelected[key] = true;
 		});
 
-		const documentos = await this.prisma.protocoloDocumento.findMany({
+		const documents = await this.prisma.protocoloDocumento.findMany({
 			select: {
 				id: true,
 			},
@@ -76,7 +80,7 @@ export class VirtualPackageService {
 			},
 		});
 
-		if (!documentos.length)
+		if (!documents.length)
 			throw new BadRequestException('Documentos não encontrados');
 
 		const malote = await this.prisma.maloteVirtual.create({
@@ -88,7 +92,7 @@ export class VirtualPackageService {
 				data_saida: new Date(),
 				documentos_malote: {
 					createMany: {
-						data: documentos.map((document) => ({
+						data: documents.map((document) => ({
 							documento_id: document.id,
 						})),
 					},
@@ -101,10 +105,19 @@ export class VirtualPackageService {
 				gerado: true,
 			},
 			where: {
-				documento_id: { in: documentos.map((document) => document.id) },
+				documento_id: { in: documents.map((document) => document.id) },
 				gerado: false,
 				empresa_id: user.empresa_id,
 			},
+		});
+
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents.map((document) => ({
+				documento_id: document.id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.ENVIADO_MALOTE,
+				descricao: `Malote ${malote.id}`,
+			})),
 		});
 
 		if (malote?.malote_fisico_id) {
@@ -114,7 +127,7 @@ export class VirtualPackageService {
 			});
 		}
 
-		return { success: true, message: 'Malote gerado com successo!' };
+		return;
 	}
 
 	findById(empresa_id: number, id: number) {
@@ -185,77 +198,20 @@ export class VirtualPackageService {
 		return data;
 	}
 
-	findBy(empresa_id: number, filter: FiltersVirtualPackageDto) {
-		const documentsSelect: Prisma.MaloteVirtualSelect = {
-			data_saida: true,
-			data_retorno: true,
-			malote_fisico: {
-				select: {
-					codigo: true,
-				},
-			},
-			id: true,
-			condominio: {
-				select: {
-					id: true,
-					nome: true,
-					departamentos_condominio: {
-						select: {
-							departamento: {
-								select: {
-									id: true,
-									nome: true,
-								},
-							},
-						},
-					},
-				},
-			},
-			documentos_malote: {
-				select: {
-					justificativa: true,
-					documento: {
-						select: {
-							id: true,
-							discriminacao: true,
-							retorna: true,
-						},
-					},
-				},
-			},
-		};
-
-		const packagesSelect: Prisma.MaloteVirtualSelect = {
-			data_saida: true,
-			data_retorno: true,
-			protocolado_baixado: true,
-			malote_fisico: {
-				select: {
-					codigo: true,
-				},
-			},
-			condominio: {
-				select: {
-					id: true,
-					nome: true,
-				},
-			},
-			updated_at: true,
-		};
-
+	async report(user: UserAuth, filters: FiltersVirtualPackageDto) {
 		const where: Prisma.MaloteVirtualWhereInput = {
-			empresa_id,
-			situacao: filter.situacao,
+			empresa_id: user.empresa_id,
+			situacao: filters.situacao,
 			excluido: false,
-			id: filter.malotes_virtuais_ids?.length
-				? { in: filter.malotes_virtuais_ids }
-				: filter.codigo,
+			id: filters.malotes_virtuais_ids?.length
+				? { in: filters.malotes_virtuais_ids }
+				: filters.codigo,
 			created_at:
-				filter.tipo_data == 1 && filter.data_filtro
+				filters.tipo_data == 1 && filters.data_filtro
 					? {
-							gte: setCustomHour(filter.data_filtro[0], 0, 0, 0),
+							gte: setCustomHour(filters.data_filtro[0], 0, 0, 0),
 							lte: setCustomHour(
-								filter.data_filtro[1],
+								filters.data_filtro[1],
 								23,
 								59,
 								59,
@@ -263,11 +219,11 @@ export class VirtualPackageService {
 					  }
 					: undefined,
 			data_saida:
-				filter.tipo_data == 2 && filter.data_filtro
+				filters.tipo_data == 2 && filters.data_filtro
 					? {
-							gte: setCustomHour(filter.data_filtro[0], 0, 0, 0),
+							gte: setCustomHour(filters.data_filtro[0], 0, 0, 0),
 							lte: setCustomHour(
-								filter.data_filtro[1],
+								filters.data_filtro[1],
 								23,
 								59,
 								59,
@@ -275,38 +231,119 @@ export class VirtualPackageService {
 					  }
 					: undefined,
 			data_retorno:
-				filter.tipo_data == 3 && filter.data_filtro
+				filters.tipo_data == 3 && filters.data_filtro
 					? {
-							gte: setCustomHour(filter.data_filtro[0], 0, 0, 0),
+							gte: setCustomHour(filters.data_filtro[0], 0, 0, 0),
 							lte: setCustomHour(
-								filter.data_filtro[1],
+								filters.data_filtro[1],
 								23,
 								59,
 								59,
 							),
 					  }
 					: undefined,
-			malote_fisico: filter.codigo_malote_fisico
+			malote_fisico: filters.codigo_malote_fisico
 				? {
 						codigo: {
-							contains: filter.codigo_malote_fisico,
+							contains: filters.codigo_malote_fisico,
 							mode: 'insensitive',
 						},
 				  }
 				: undefined,
-			condominio_id: filter.condominios_ids
-				? { in: filter.condominios_ids }
+			condominio_id: filters.condominios_ids
+				? { in: filters.condominios_ids }
 				: undefined,
-			usuario_id: filter.usuario_ids
-				? { in: filter.usuario_ids }
+			usuario_id: filters.usuario_ids
+				? { in: filters.usuario_ids }
 				: undefined,
 		};
 
+		let data;
+		if (filters.tipo === VirtualPackageType.SINTETICO) {
+			data = await this.reportSynthetic(where);
+		} else {
+			data = await this.reportAnalytic(where);
+
+			Promise.all(
+				data.map(async (virtualPackage) => {
+					await this.prisma.protocoloDocumentoHistorico.createMany({
+						data: virtualPackage.documentos_malote.map(
+							(document) => ({
+								documento_id: document.documento.id,
+								usuario_id: user.id,
+								situacao:
+									ProtocolHistorySituation.MALOTE_IMPRESSO,
+							}),
+						),
+					});
+				}),
+			);
+		}
+
+		return data;
+	}
+
+	reportAnalytic(where: Prisma.MaloteVirtualWhereInput) {
 		return this.prisma.maloteVirtual.findMany({
-			select:
-				filter.tipo === VirtualPackageType.SINTETICO
-					? packagesSelect
-					: documentsSelect,
+			select: {
+				data_saida: true,
+				data_retorno: true,
+				malote_fisico: {
+					select: {
+						codigo: true,
+					},
+				},
+				condominio: {
+					select: {
+						id: true,
+						nome: true,
+						departamentos_condominio: {
+							select: {
+								departamento: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+							},
+						},
+					},
+				},
+				documentos_malote: {
+					select: {
+						justificativa: true,
+						documento: {
+							select: {
+								id: true,
+								discriminacao: true,
+								retorna: true,
+							},
+						},
+					},
+				},
+			},
+			where,
+		});
+	}
+
+	reportSynthetic(where: Prisma.MaloteVirtualWhereInput) {
+		return this.prisma.maloteVirtual.findMany({
+			select: {
+				data_saida: true,
+				protocolado_baixado: true,
+				malote_fisico: {
+					select: {
+						codigo: true,
+					},
+				},
+				condominio: {
+					select: {
+						id: true,
+						nome: true,
+					},
+				},
+				updated_at: true,
+			},
 			where,
 		});
 	}
@@ -385,6 +422,7 @@ export class VirtualPackageService {
 				? { in: filter.usuario_ids }
 				: undefined,
 		};
+
 		const malotes = await this.prisma.maloteVirtual.findMany({
 			select: {
 				id: true,
@@ -439,7 +477,7 @@ export class VirtualPackageService {
 				id: {
 					in: receivePackageVirtualPackageDto.malotes_virtuais_ids,
 				},
-				situacao: 1,
+				situacao: VirtualPackageSituation.PENDENTE,
 				excluido: false,
 				empresa_id,
 			},
@@ -455,7 +493,7 @@ export class VirtualPackageService {
 				async (pack) =>
 					await this.prisma.maloteVirtual.update({
 						data: {
-							situacao: 2,
+							situacao: VirtualPackageSituation.RECEBIDO,
 							situacao_anterior: pack.situacao,
 							data_retorno: new Date(),
 						},
@@ -485,21 +523,31 @@ export class VirtualPackageService {
 				},
 				malote_virtual_id: id,
 				excluido: false,
-				situacao: 1,
+				situacao: VirtualPackageDocumentSituation.PENDENTE,
 				malote_virtual: {
 					excluido: false,
 					empresa_id: user.empresa_id,
 					OR: [
 						{
-							situacao: { in: [1, 2] },
+							situacao: {
+								in: [
+									VirtualPackageSituation.PENDENTE,
+									VirtualPackageSituation.RECEBIDO,
+								],
+							},
 						},
 						{
-							situacao: 3,
+							situacao: VirtualPackageSituation.PROTOCOLADO,
 							documentos_malote: {
 								every: {
 									OR: [
 										{
-											situacao: { in: [2, 3] },
+											situacao: {
+												in: [
+													VirtualPackageDocumentSituation.BAIXADO,
+													VirtualPackageDocumentSituation.NAO_RECEBIDO,
+												],
+											},
 											excluido: false,
 										},
 										{
@@ -543,7 +591,9 @@ export class VirtualPackageService {
 
 		await this.prisma.maloteDocumento.updateMany({
 			data: {
-				situacao: receiveVirtualPackageDto.recebido ? 2 : 3,
+				situacao: receiveVirtualPackageDto.recebido
+					? VirtualPackageDocumentSituation.BAIXADO
+					: VirtualPackageDocumentSituation.NAO_RECEBIDO,
 				justificativa:
 					receiveVirtualPackageDto?.justificativa || undefined,
 			},
@@ -553,6 +603,17 @@ export class VirtualPackageService {
 					in: documents_ids_accept,
 				},
 			},
+		});
+
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents_ids_accept.map((document_id) => ({
+				documento_id: document_id,
+				usuario_id: user.id,
+				situacao: receiveVirtualPackageDto.recebido
+					? ProtocolHistorySituation.BAIXADO
+					: ProtocolHistorySituation.NAO_RECEBIDO,
+				descricao: receiveVirtualPackageDto?.justificativa,
+			})),
 		});
 
 		const malote = await this.prisma.maloteVirtual.findFirst({
@@ -565,7 +626,7 @@ export class VirtualPackageService {
 					},
 					where: {
 						excluido: false,
-						situacao: 1,
+						situacao: VirtualPackageDocumentSituation.PENDENTE,
 					},
 				},
 			},
@@ -576,10 +637,17 @@ export class VirtualPackageService {
 			await this.prisma.maloteVirtual.update({
 				data: {
 					protocolado_baixado:
-						malote.situacao == 3 ? true : undefined,
-					situacao: malote.situacao == 3 ? undefined : 4,
+						malote.situacao == VirtualPackageSituation.PROTOCOLADO
+							? true
+							: undefined,
+					situacao:
+						malote.situacao == VirtualPackageSituation.PROTOCOLADO
+							? undefined
+							: VirtualPackageSituation.BAIXADO,
 					situacao_anterior:
-						malote.situacao == 3 ? undefined : malote.situacao,
+						malote.situacao == VirtualPackageSituation.PROTOCOLADO
+							? undefined
+							: malote.situacao,
 				},
 				where: {
 					id,
@@ -599,7 +667,8 @@ export class VirtualPackageService {
 								every: {
 									documentos_malote: {
 										every: {
-											situacao: 1,
+											situacao:
+												VirtualPackageDocumentSituation.PENDENTE,
 										},
 									},
 								},
@@ -620,16 +689,13 @@ export class VirtualPackageService {
 			}
 		}
 
-		return {
-			success: true,
-			message: 'Documento(s) baixado(s) com sucesso!',
-		};
+		return;
 	}
 
 	async reverseReceiveDoc(
 		id: number,
 		reverseReceiveVirtualPackageDto: ReverseReceiveVirtualPackageDto,
-		empresa_id: number,
+		user: UserAuth,
 	) {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Documento não encontrado');
@@ -654,17 +720,23 @@ export class VirtualPackageService {
 				id: { in: reverseReceiveVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
 				excluido: false,
-				situacao: { in: [2, 3] },
+				situacao: {
+					in: [
+						VirtualPackageDocumentSituation.BAIXADO,
+						VirtualPackageDocumentSituation.NAO_RECEBIDO,
+					],
+				},
 				malote_virtual: {
 					excluido: false,
-					empresa_id,
+					empresa_id: user.empresa_id,
 				},
 			},
 		});
 
 		if (
 			!documents.length ||
-			(virtualPackage.situacao == 4 && virtualPackage.protocolado_baixado)
+			(virtualPackage.situacao == VirtualPackageSituation.BAIXADO &&
+				virtualPackage.protocolado_baixado)
 		)
 			throw new BadRequestException(
 				'Documento(s) informado(s) não pode ser estornado(s) ou não encontrado(s)',
@@ -673,7 +745,10 @@ export class VirtualPackageService {
 		const documents_ids_accept = documents.map((document) => document.id);
 
 		await this.prisma.maloteDocumento.updateMany({
-			data: { situacao: 1, justificativa: null },
+			data: {
+				situacao: VirtualPackageDocumentSituation.PENDENTE,
+				justificativa: null,
+			},
 			where: {
 				malote_virtual_id: id,
 				id: { in: documents_ids_accept },
@@ -683,7 +758,7 @@ export class VirtualPackageService {
 		await this.prisma.maloteVirtual.update({
 			data: {
 				situacao: virtualPackage.protocolado_baixado
-					? 3
+					? VirtualPackageSituation.PROTOCOLADO
 					: virtualPackage.situacao_anterior || undefined,
 				situacao_anterior: virtualPackage.protocolado_baixado
 					? undefined
@@ -693,6 +768,14 @@ export class VirtualPackageService {
 			where: {
 				id,
 			},
+		});
+
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents_ids_accept.map((document_id) => ({
+				documento_id: document_id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.ESTORNO_BAIXA,
+			})),
 		});
 
 		return;
@@ -743,7 +826,7 @@ export class VirtualPackageService {
 					empresa_id: user.empresa_id,
 					tipo: 1,
 					finalizado: true,
-					situacao: 3,
+					situacao: ProtocolSituation.ACEITO,
 					destino_departamento_id:
 						receiveNewDocumentVirtualPackageDto.departamento_id,
 					origem_usuario_id: user.id,
@@ -774,7 +857,7 @@ export class VirtualPackageService {
 			),
 		);
 
-		const maloteDocs = await this.prisma.maloteDocumento.createMany({
+		await this.prisma.maloteDocumento.createMany({
 			data: docs.map((doc) => ({
 				documento_id: doc.id,
 				malote_virtual_id: id,
@@ -782,7 +865,7 @@ export class VirtualPackageService {
 			})),
 		});
 
-		return maloteDocs;
+		return docs;
 	}
 
 	async findAllNewDocs(id: number, empresa_id: number) {
@@ -901,9 +984,9 @@ export class VirtualPackageService {
 	async reverseDoc(
 		id: number,
 		reverseVirtualPackageDto: ReverseVirtualPackageDto,
-		empresa_id: number,
+		user: UserAuth,
 	) {
-		if (Number.isNaN(id) || Number.isNaN(empresa_id)) {
+		if (Number.isNaN(id)) {
 			throw new BadRequestException('Documento não encontrado');
 		}
 
@@ -916,11 +999,11 @@ export class VirtualPackageService {
 				id: { in: reverseVirtualPackageDto.documentos_ids },
 				malote_virtual_id: id,
 				excluido: false,
-				situacao: 1,
+				situacao: VirtualPackageDocumentSituation.PENDENTE,
 				malote_virtual: {
 					excluido: false,
-					empresa_id,
-					situacao: 1,
+					empresa_id: user.empresa_id,
+					situacao: VirtualPackageSituation.PENDENTE,
 				},
 			},
 		});
@@ -951,6 +1034,14 @@ export class VirtualPackageService {
 				documento_id: { in: documents_ids_accept },
 				excluido: false,
 			},
+		});
+
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents_ids_accept.map((document_id) => ({
+				documento_id: document_id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.ESTORNO_MALOTE,
+			})),
 		});
 
 		const malote = await this.prisma.maloteVirtual.findUnique({
@@ -1063,19 +1154,37 @@ export class VirtualPackageService {
 				},
 				OR: [
 					{
-						situacao: { in: [1, 2] },
+						situacao: {
+							in: [
+								VirtualPackageSituation.PENDENTE,
+								VirtualPackageSituation.RECEBIDO,
+							],
+						},
 						documentos_malote: {
 							every: {
-								OR: [{ situacao: 1 }, { excluido: true }],
+								OR: [
+									{
+										situacao:
+											VirtualPackageDocumentSituation.PENDENTE,
+									},
+									{ excluido: true },
+								],
 							},
 						},
 					},
 					{
-						situacao: 4,
+						situacao: VirtualPackageSituation.BAIXADO,
 						documentos_malote: {
 							every: {
 								OR: [
-									{ situacao: { in: [2, 3] } },
+									{
+										situacao: {
+											in: [
+												VirtualPackageDocumentSituation.BAIXADO,
+												VirtualPackageDocumentSituation.NAO_RECEBIDO,
+											],
+										},
+									},
 									{ excluido: false },
 								],
 							},
@@ -1133,11 +1242,18 @@ export class VirtualPackageService {
 				await this.prisma.maloteVirtual.update({
 					data: {
 						situacao_anterior:
-							virtualPackage.situacao !== 4
+							virtualPackage.situacao !==
+							VirtualPackageSituation.BAIXADO
 								? virtualPackage.situacao
 								: undefined,
-						situacao: virtualPackage.situacao !== 4 ? 3 : undefined,
-						protocolado_baixado: virtualPackage.situacao == 4,
+						situacao:
+							virtualPackage.situacao !==
+							VirtualPackageSituation.BAIXADO
+								? VirtualPackageSituation.PROTOCOLADO
+								: undefined,
+						protocolado_baixado:
+							virtualPackage.situacao ==
+							VirtualPackageSituation.BAIXADO,
 					},
 					where: {
 						id: virtualPackage.id,

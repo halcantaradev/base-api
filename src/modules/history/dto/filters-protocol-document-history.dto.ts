@@ -30,7 +30,8 @@ export class FiltersProtocolDocumentHistoryDto {
 	situacao?: number;
 
 	@ApiProperty({
-		description: 'Data inicial para filtro dos registros',
+		description:
+			'Período de datas (inicial e final) para filtro dos registros',
 		example: [new Date(), new Date()],
 		required: true,
 	})

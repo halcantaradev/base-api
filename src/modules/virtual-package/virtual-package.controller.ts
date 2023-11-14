@@ -63,11 +63,13 @@ export class VirtualPackageController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	create(
+	async create(
 		@CurrentUser() user: UserAuth,
 		@Body() createVirtualPackageDto: CreateVirtualPackageDto,
 	) {
-		return this.virtualPackageService.create(createVirtualPackageDto, user);
+		await this.virtualPackageService.create(createVirtualPackageDto, user);
+
+		return { success: true, message: 'Malote gerado com successo!' };
 	}
 
 	@Get('physical-packages')
@@ -172,10 +174,7 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersVirtualPackageDto,
 	) {
-		const data = await this.virtualPackageService.findBy(
-			user.empresa_id,
-			filters,
-		);
+		const data = await this.virtualPackageService.report(user, filters);
 
 		return {
 			success: true,
@@ -376,7 +375,7 @@ export class VirtualPackageController {
 		await this.virtualPackageService.reverseDoc(
 			+id,
 			reverseVirtualPackageDto,
-			user.empresa_id,
+			user,
 		);
 
 		return { success: true, message: 'Documento excluído com sucesso!' };
@@ -406,11 +405,16 @@ export class VirtualPackageController {
 		@Param('id') id: string,
 		@Body() receiveVirtualPackageDto: ReceiveVirtualPackageDto,
 	) {
-		return this.virtualPackageService.receiveDoc(
+		await this.virtualPackageService.receiveDoc(
 			+id,
 			receiveVirtualPackageDto,
 			user,
 		);
+
+		return {
+			success: true,
+			message: 'Documento(s) baixado(s) com sucesso!',
+		};
 	}
 
 	@Patch(':id/receive/reverse')
@@ -442,10 +446,10 @@ export class VirtualPackageController {
 		await this.virtualPackageService.reverseReceiveDoc(
 			+id,
 			reverseReceiveVirtualPackageDto,
-			user.empresa_id,
+			user,
 		);
 
-		return { success: true, message: 'Baixa estornada com sucesso!' };
+		return { success: true, message: 'Baixa(s) estornada(s) com sucesso!' };
 	}
 
 	@Post(':id/new-documents')

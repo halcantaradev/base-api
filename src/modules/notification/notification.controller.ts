@@ -245,7 +245,9 @@ export class NotificationController {
 		const notificacao = await this.notificationService.update(
 			+id,
 			updateNotificationDto,
+			user.id,
 		);
+
 		await this.notificationService.generateDoc(
 			updateNotificationDto.layout_id,
 			user.empresa_id,

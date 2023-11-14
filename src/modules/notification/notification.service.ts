@@ -1190,6 +1190,7 @@ export class NotificationService {
 	async update(
 		id: number,
 		updateNotificationDto: UpdateNotificationDto,
+		user_id: number,
 	): Promise<ReturnNotificationEntity> {
 		const notification = await this.prisma.notificacao.findUnique({
 			where: { id },
@@ -1240,6 +1241,7 @@ export class NotificationService {
 		if (updateNotificationDto.arquivos_ids?.length) {
 			await this.arquivoService.removeFiles(
 				updateNotificationDto.arquivos_ids,
+				user_id,
 			);
 		}
 

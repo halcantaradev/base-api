@@ -695,4 +695,10 @@ export const permissionslist: Array<{
 		key: 'protocolos-documentos-rejeitar',
 		message: 'Sem permissão para rejeitar documento do protocolo',
 	},
+	{
+		label: 'Visualizar histórico do documento do protocolo',
+		module: 'Protocolos',
+		key: 'protocolos-documentos-historico',
+		message: 'Sem permissão para visualizar o histórico do documento',
+	},
 ];

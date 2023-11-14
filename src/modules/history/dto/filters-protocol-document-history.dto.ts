@@ -4,7 +4,7 @@ import { IsOptional, IsInt, IsDateString } from 'class-validator';
 
 export class FiltersProtocolDocumentHistoryDto {
 	@ApiProperty({
-		description: 'Filtro por nome ou código do registro',
+		description: 'Filtro por usuário dos registros',
 		example: 1,
 		required: false,
 	})
@@ -17,7 +17,7 @@ export class FiltersProtocolDocumentHistoryDto {
 	usuario_id?: number;
 
 	@ApiProperty({
-		description: 'Filtro por nome ou código do registro',
+		description: 'Filtro por situacao dos registros',
 		example: 1,
 		required: false,
 	})

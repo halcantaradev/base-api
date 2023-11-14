@@ -201,7 +201,9 @@ export class VirtualPackageService {
 	async report(user: UserAuth, filters: FiltersVirtualPackageDto) {
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id: user.empresa_id,
-			situacao: filters.situacao,
+			situacao: filters.situacao.length
+				? { in: filters.situacao }
+				: undefined,
 			excluido: false,
 			id: filters.malotes_virtuais_ids?.length
 				? { in: filters.malotes_virtuais_ids }
@@ -368,7 +370,9 @@ export class VirtualPackageService {
 	) {
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id,
-			situacao: filter.situacao,
+			situacao: filter.situacao?.length
+				? { in: filter.situacao }
+				: undefined,
 			excluido: false,
 			id: filter.codigo,
 			created_at:

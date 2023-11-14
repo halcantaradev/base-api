@@ -861,7 +861,7 @@ export class VirtualPackageService {
 			data: docs.map((doc) => ({
 				documento_id: doc.id,
 				malote_virtual_id: id,
-				situacao: 2,
+				situacao: VirtualPackageDocumentSituation.BAIXADO,
 			})),
 		});
 

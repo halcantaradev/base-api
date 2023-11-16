@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNotEmpty, IsOptional, Max, Min } from 'class-validator';
+import {
+	IsInt,
+	IsNotEmpty,
+	IsOptional,
+	IsString,
+	Max,
+	Min,
+} from 'class-validator';
 
 export class CreateVirtualPackageDto {
 	@ApiProperty({
@@ -28,6 +35,30 @@ export class CreateVirtualPackageDto {
 	})
 	@IsOptional()
 	malote_fisico_id?: number;
+
+	@ApiProperty({
+		description: 'Lacre de saida',
+		example: 1,
+		required: false,
+	})
+	@IsString({
+		message:
+			'O lacrou informado não é válido. Por favor, forneça um lacrou válido.',
+	})
+	@IsOptional()
+	lacre_saida?: string;
+
+	@ApiProperty({
+		description: 'Lacre de retorno',
+		example: 1,
+		required: false,
+	})
+	@IsString({
+		message:
+			'O lacrou informado não é válido. Por favor, forneça um lacrou válido.',
+	})
+	@IsOptional()
+	lacre_retorno?: string;
 
 	@ApiProperty({
 		description: 'Dia da semana para saida do malote fisíco',

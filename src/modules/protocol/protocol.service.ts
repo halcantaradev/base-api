@@ -191,41 +191,33 @@ export class ProtocolService {
 					filtersProtocolDto.origem_usuario_id || undefined,
 				destino_usuario_id:
 					filtersProtocolDto.destino_usuario_id || undefined,
-				documentos:
-					filtersProtocolDto.condominios_ids ||
-					filtersProtocolDto?.aceito_por
-						? {
-								some: {
-									condominio_id: filtersProtocolDto
-										.condominios_ids?.length
-										? {
-												in: filtersProtocolDto.condominios_ids,
-										  }
-										: undefined,
-									aceite_usuario_id:
-										filtersProtocolDto?.aceito_por ||
-										undefined,
-									data_aceite: filtersProtocolDto.data_aceito
-										?.length
-										? {
-												lte:
-													setCustomHour(
-														filtersProtocolDto
-															.data_aceito[1],
-														23,
-														59,
-														59,
-													) || undefined,
-												gte:
-													setCustomHour(
-														filtersProtocolDto
-															.data_aceito[0],
-													) || undefined,
-										  }
-										: undefined,
-								},
-						  }
-						: undefined,
+				documentos: {
+					some: {
+						condominio_id: filtersProtocolDto.condominios_ids
+							?.length
+							? {
+									in: filtersProtocolDto.condominios_ids,
+							  }
+							: undefined,
+						aceite_usuario_id:
+							filtersProtocolDto?.aceito_por || undefined,
+						data_aceite: filtersProtocolDto.data_aceito?.length
+							? {
+									lte:
+										setCustomHour(
+											filtersProtocolDto.data_aceito[1],
+											23,
+											59,
+											59,
+										) || undefined,
+									gte:
+										setCustomHour(
+											filtersProtocolDto.data_aceito[0],
+										) || undefined,
+							  }
+							: undefined,
+					},
+				},
 				tipo: filtersProtocolDto.tipo || undefined,
 				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao
@@ -280,6 +272,8 @@ export class ProtocolService {
 				: false
 			: undefined;
 
+		console.log(filtersProtocolDto);
+
 		return this.prisma.protocolo.findMany({
 			select: this.select,
 			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
@@ -302,41 +296,34 @@ export class ProtocolService {
 					filtersProtocolDto.origem_usuario_id || undefined,
 				destino_usuario_id:
 					filtersProtocolDto.destino_usuario_id || undefined,
-				documentos:
-					filtersProtocolDto.condominios_ids ||
-					filtersProtocolDto?.aceito_por
-						? {
-								some: {
-									condominio_id: filtersProtocolDto
-										.condominios_ids?.length
-										? {
-												in: filtersProtocolDto.condominios_ids,
-										  }
-										: undefined,
-									aceite_usuario_id:
-										filtersProtocolDto?.aceito_por ||
-										undefined,
-									data_aceite: filtersProtocolDto.data_aceito
-										?.length
-										? {
-												lte:
-													setCustomHour(
-														filtersProtocolDto
-															.data_aceito[1],
-														23,
-														59,
-														59,
-													) || undefined,
-												gte:
-													setCustomHour(
-														filtersProtocolDto
-															.data_aceito[0],
-													) || undefined,
-										  }
-										: undefined,
-								},
-						  }
-						: undefined,
+				documentos: {
+					some: {
+						condominio_id: filtersProtocolDto.condominios_ids
+							?.length
+							? {
+									in: filtersProtocolDto.condominios_ids,
+							  }
+							: undefined,
+						aceite_usuario_id:
+							filtersProtocolDto?.aceito_por || undefined,
+						data_aceite: filtersProtocolDto.data_aceito?.length
+							? {
+									lte:
+										setCustomHour(
+											filtersProtocolDto.data_aceito[1],
+											23,
+											59,
+											59,
+										) || undefined,
+									gte:
+										setCustomHour(
+											filtersProtocolDto.data_aceito[0],
+										) || undefined,
+							  }
+							: undefined,
+					},
+				},
+
 				tipo: filtersProtocolDto.tipo || undefined,
 				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao

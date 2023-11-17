@@ -150,6 +150,11 @@ export const layoutConst: Array<{
 		field: '{{{vencimento_multa_notificacao}}}',
 	},
 	{
+		label: 'Prazo para interpor da notificação',
+		const: '[PRAZO_INTERPOR]',
+		field: '{{{prazo_interpor}}}',
+	},
+	{
 		label: 'Dados de pagamento da notificação tipo multa',
 		const: '[DADOS_PAGAMENTO_NOTIFICACAO_SE_MULTA]',
 		field: '{{{dados_pagamento_notificacao_se_multa}}}',

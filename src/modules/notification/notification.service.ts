@@ -1311,12 +1311,17 @@ export class NotificationService {
 		dataToPrint.nome_sindico = sindico?.length ? sindico[0].nome : '';
 		dataToPrint.sancao_padrao = setupSistema ? setupSistema.sancao : '';
 		dataToPrint.texto_padrao_notificacao = setupSistema
-			? setupSistema.texto_padrao_notificacao
+			? data.tipo_registro == 1
+				? setupSistema.texto_padrao_notificacao
+				: setupSistema.texto_padrao_notificacao_multa
 			: '';
+
 		dataToPrint.observacao_padrao_notificacao_condominio = setupNotificacao
 			? setupNotificacao.observacoes
 			: '';
-
+		dataToPrint.prazo_interpor = setupNotificacao?.prazo_interpor_recurso
+			? setupNotificacao?.prazo_interpor_recurso
+			: 0;
 		dataToPrint.data_atual = new Intl.DateTimeFormat('pt-BR', {
 			dateStyle: 'short',
 		}).format(new Date());

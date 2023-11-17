@@ -211,6 +211,10 @@ export class SetupService {
 					updateSetupSystemDto.texto_padrao_notificacao != null
 						? updateSetupSystemDto.texto_padrao_notificacao
 						: undefined,
+				texto_padrao_notificacao_multa:
+					updateSetupSystemDto.texto_padrao_notificacao_multa != null
+						? updateSetupSystemDto.texto_padrao_notificacao_multa
+						: '',
 				obriga_malote_fisico:
 					updateSetupSystemDto.obriga_malote_fisico != null
 						? updateSetupSystemDto.obriga_malote_fisico

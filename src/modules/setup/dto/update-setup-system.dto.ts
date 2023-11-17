@@ -46,6 +46,19 @@ export class UpdateSetupSystemDto {
 	texto_padrao_notificacao?: string;
 
 	@ApiProperty({
+		description:
+			'Texto padrão aplicado nas notificações de multa do sistema',
+		example: 'Texto teste',
+		required: true,
+	})
+	@IsString({
+		message:
+			'O campo texto padrão de multa informado não é válido. Por favor, forneça um texto válido.',
+	})
+	@IsOptional()
+	texto_padrao_notificacao_multa?: string;
+
+	@ApiProperty({
 		description: 'Status de uso de malotes físicos',
 		example: true,
 		required: false,

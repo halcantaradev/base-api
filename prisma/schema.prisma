@@ -448,13 +448,14 @@ model CondomimioAdministracao {
 }
 
 model SistemaSetup {
-  empresa_id               Int      @unique
-  salario_minimo_base      Float
-  sancao                   String   @db.Text
-  obriga_malote_fisico     Boolean  @default(false)
-  texto_padrao_notificacao String   @db.Text
-  created_at               DateTime @default(now())
-  updated_at               DateTime @updatedAt
+  empresa_id                     Int      @unique
+  salario_minimo_base            Float
+  sancao                         String   @db.Text
+  obriga_malote_fisico           Boolean  @default(false)
+  texto_padrao_notificacao       String   @db.Text
+  texto_padrao_notificacao_multa String   @db.Text
+  created_at                     DateTime @default(now())
+  updated_at                     DateTime @updatedAt
 
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
 

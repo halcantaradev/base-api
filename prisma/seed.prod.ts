@@ -252,13 +252,19 @@ async function creatSetupSistema(empresa_id: number) {
 				sancao: `Nos Termos da Lei nº 4.591/64 e Lei 10406/02, vimos notificá-lo da infração cometida, que de acordo com
 					código civil, convenção e/ou regimento interno do seu condomínio, é de responsabilidade do proprietário
 					acima identificado.`,
-				texto_padrao_notificacao: `De acordo com determinação da Convenção e Regimento Interno, fica o(a) proprietário(a)
-					notificado(a) da infração e aplicada a advertência escrita, ficando ainda notificado (a) de que será
-					aplicada multa pecuniária no valor abaixo, sem prejuízo das ações cíveis de reparação de danos
-					que lhe poderão ser propostas pelo condomínio.`,
+				texto_padrao_notificacao: `A inobservância de qualquer dos artigos da Convenção e Regimento Interno tornará o condômino
+				infrator passível de advertência escrita pelo Sindico, ficando ainda notificado (a) de que deverá
+				fazer com que cesse a causa da presente sob pena de ser aplicada multa pecuniária, de acordo
+				com o que dispõe o art. 1.337, do código civil, sem prejuízo das ações cíveis de reparação de
+				danos que lhe poderão ser propostas pelo condomínio.`,
+				texto_padrao_notificacao_multa: `De acordo com determinação da Convenção e Regimento Interno, fica o(a) proprietário(a)
+				notificado(a) da infração e aplicada a advertência escrita, ficando ainda notificado (a) de que será
+				aplicada multa pecuniária no valor abaixo, sem prejuízo das ações cíveis de reparação de danos
+				que lhe poderão ser propostas pelo condomínio.`,
 				empresa_id,
 			},
 		});
+		console.log('Configurações do sistema gerados com sucesso!');
 	}
 }
 

@@ -202,6 +202,24 @@ export class VirtualPackageService {
 		return data;
 	}
 
+	async validateSeal(seal: string): Promise<boolean> {
+		const validation = await this.prisma.maloteVirtual.findFirst({
+			where: {
+				OR: [
+					{
+						lacre_saida: seal,
+					},
+					{
+						lacre_retorno: seal,
+					},
+				],
+				excluido: false,
+			},
+		});
+
+		return !!validation;
+	}
+
 	async report(user: UserAuth, filters: FiltersVirtualPackageDto) {
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id: user.empresa_id,

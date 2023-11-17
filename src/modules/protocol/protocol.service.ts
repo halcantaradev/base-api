@@ -1753,7 +1753,7 @@ export class ProtocolService {
 		};
 	}
 
-	async createVirtualPackage(
+	async createProtocolVirtualPackage(
 		protocolo_id: number,
 		createVirtualPackageProtocolDto: CreateVirtualPackageProtocolDto,
 		user: UserAuth,

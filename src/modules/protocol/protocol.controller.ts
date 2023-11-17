@@ -463,7 +463,7 @@ export class ProtocolController {
 		return {
 			success: true,
 			message: 'Malote adicionado com sucesso',
-			data: await this.protocolService.createVirtualPackage(
+			data: await this.protocolService.createProtocolVirtualPackage(
 				+id,
 				createDocumentProtocolDto,
 				user,

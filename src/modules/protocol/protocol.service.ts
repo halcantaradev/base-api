@@ -272,8 +272,6 @@ export class ProtocolService {
 				: false
 			: undefined;
 
-		console.log(filtersProtocolDto);
-
 		return this.prisma.protocolo.findMany({
 			select: this.select,
 			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
@@ -485,6 +483,10 @@ export class ProtocolService {
 					data_finalizado: updateProtocolDto.finalizado
 						? new Date()
 						: undefined,
+					protocolo_malote:
+						updateProtocolDto.protocolo_malote != null
+							? updateProtocolDto.protocolo_malote
+							: undefined,
 				},
 				where: {
 					id,
@@ -497,6 +499,10 @@ export class ProtocolService {
 					data_finalizado: updateProtocolDto.finalizado
 						? new Date()
 						: undefined,
+					protocolo_malote:
+						updateProtocolDto.protocolo_malote != null
+							? updateProtocolDto.protocolo_malote
+							: undefined,
 				},
 				where: {
 					id,
@@ -1161,6 +1167,9 @@ export class ProtocolService {
 			throw new BadRequestException('Documento não encontrado');
 
 		if (protocolo.protocolo_malote && exclude) {
+			if (!document.malote_virtual_id) {
+				throw new BadRequestException('Malote virtual não encontrado');
+			}
 			const hasReceivedDocuments =
 				!!(await this.prisma.maloteDocumento.findFirst({
 					where: {

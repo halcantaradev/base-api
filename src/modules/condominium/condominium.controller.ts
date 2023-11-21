@@ -99,6 +99,45 @@ export class CondominiumController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
+	async findAllFiltered(
+		@CurrentUserCondominiums() condominiums: number[],
+		@CurrentUser() user: UserAuth,
+		@Body() filters: FiltersCondominiumDto,
+		@Query() pagination: Pagination,
+	) {
+		const dados = await this.condominioService.findAll(
+			filters,
+			user,
+			condominiums,
+			null,
+			pagination,
+		);
+
+		return {
+			success: true,
+			...dados,
+		};
+	}
+
+	@Post('list/all')
+	@Role('condominios-listar')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ summary: 'Lista todos os condomínios sem delimitações' })
+	@ApiResponse({
+		description: 'Condomínios listados com sucesso',
+		status: HttpStatus.OK,
+		type: CondominiumListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os filtros enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os condomínios',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
 	async findAll(
 		@CurrentUserCondominiums() condominiums: number[],
 		@CurrentUser() user: UserAuth,
@@ -111,6 +150,8 @@ export class CondominiumController {
 			condominiums,
 			null,
 			pagination,
+			false,
+			true,
 		);
 
 		return {

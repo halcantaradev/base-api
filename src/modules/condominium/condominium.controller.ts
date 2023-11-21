@@ -122,7 +122,7 @@ export class CondominiumController {
 	@Post('list/all')
 	@Role('condominios-listar')
 	@HttpCode(HttpStatus.OK)
-	@ApiOperation({ summary: 'Lista todos os condomínios' })
+	@ApiOperation({ summary: 'Lista todos os condomínios sem delimitações' })
 	@ApiResponse({
 		description: 'Condomínios listados com sucesso',
 		status: HttpStatus.OK,

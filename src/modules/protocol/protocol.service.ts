@@ -134,6 +134,26 @@ export class ProtocolService {
 	};
 
 	async create(createProtocolDto: CreateProtocolDto, user: UserAuth) {
+		let documents = [];
+
+		if (createProtocolDto.documentos_ids) {
+			documents = await this.prisma.protocoloDocumento.findMany({
+				where: {
+					id: { in: createProtocolDto.documentos_ids },
+					malotes_documento: {
+						some: {
+							situacao: VirtualPackageDocumentSituation.BAIXADO,
+							malote_virtual_id:
+								createProtocolDto?.malote_virtual_id,
+						},
+					},
+				},
+			});
+
+			if (!documents.length)
+				throw new BadRequestException('Documentos não encontrados');
+		}
+
 		const protocol = await this.prisma.protocolo.create({
 			data: {
 				empresa_id: user.empresa_id,
@@ -155,46 +175,45 @@ export class ProtocolService {
 			await Promise.all(
 				createProtocolDto.documentos_ids.map(async (id) => {
 					let document =
-						await this.prisma.protocoloDocumento.findFirst({
-							where: {
-								id,
+						documents.find((document) => document.id === id) ||
+						null;
+
+					if (document) {
+						document = await this.prisma.protocoloDocumento.create({
+							data: {
+								...document,
+								id: undefined,
+								protocolo_id: protocol.id,
+								aceito: false,
+								aceite_usuario_id: null,
+								data_aceite: null,
+								created_at: undefined,
+								updated_at: undefined,
 							},
 						});
 
-					document = await this.prisma.protocoloDocumento.create({
-						data: {
-							...document,
-							id: undefined,
-							protocolo_id: protocol.id,
-							aceito: false,
-							aceite_usuario_id: null,
-							data_aceite: null,
-							created_at: undefined,
-							updated_at: undefined,
-						},
-					});
+						const files = await this.prisma.arquivo.findMany({
+							where: {
+								ativo: true,
+								origem: FilesOrigin.PROTOCOL,
+								referencia_id: id,
+							},
+						});
 
-					const files = await this.prisma.arquivo.findMany({
-						where: {
-							ativo: true,
-							origem: FilesOrigin.PROTOCOL,
-							referencia_id: id,
-						},
-					});
-
-					if (files.length) {
-						await Promise.all(
-							files.map(async (file) => {
-								await this.prisma.arquivo.create({
-									data: {
-										...file,
-										referencia_id: document.id,
-										created_at: undefined,
-										updated_at: undefined,
-									},
-								});
-							}),
-						);
+						if (files.length) {
+							await Promise.all(
+								files.map(async (file) => {
+									await this.prisma.arquivo.create({
+										data: {
+											...file,
+											referencia_id: document.id,
+											created_at: undefined,
+											updated_at: undefined,
+										},
+									});
+								}),
+							);
+						}
 					}
 				}),
 			);

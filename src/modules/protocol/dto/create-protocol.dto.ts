@@ -99,6 +99,19 @@ export class CreateProtocolDto {
 	protocolo_malote?: boolean;
 
 	@ApiProperty({
+		description: 'Malote de origem dos documentos do protocolo',
+		example: 1,
+		required: true,
+	})
+	@IsOptional()
+	@IsInt({
+		message:
+			'O campo malote de destino informado não é válido. Por favor, forneça um malote válido.',
+	})
+	@Type(() => Number)
+	malote_virtual_id?: number;
+
+	@ApiProperty({
 		description: 'Documentos do protocolo',
 		example: [1, 2],
 		required: true,

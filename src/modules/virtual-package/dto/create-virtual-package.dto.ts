@@ -43,7 +43,7 @@ export class CreateVirtualPackageDto {
 	})
 	@IsString({
 		message:
-			'O lacrou informado não é válido. Por favor, forneça um lacrou válido.',
+			'O lacre informado não é válido. Por favor, forneça um lacre válido.',
 	})
 	@IsOptional()
 	lacre_saida?: string;
@@ -55,7 +55,7 @@ export class CreateVirtualPackageDto {
 	})
 	@IsString({
 		message:
-			'O lacrou informado não é válido. Por favor, forneça um lacrou válido.',
+			'O lacre informado não é válido. Por favor, forneça um lacre válido.',
 	})
 	@IsOptional()
 	lacre_retorno?: string;

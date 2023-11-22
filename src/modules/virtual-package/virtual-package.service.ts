@@ -18,6 +18,7 @@ import { VirtualPackageDocumentSituation } from 'src/shared/consts/virtual-packa
 import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
 import { ProtocolSituation } from 'src/shared/consts/protocol-situation.const';
 import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
+import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 
 @Injectable()
 export class VirtualPackageService {
@@ -132,11 +133,19 @@ export class VirtualPackageService {
 		return;
 	}
 
-	findById(empresa_id: number, id: number) {
+	async findById(empresa_id: number, id: number) {
 		if (Number.isNaN(id))
 			throw new BadRequestException('Malote não encontrado');
 
-		return this.prisma.maloteVirtual.findFirst({
+		const arquivos = await this.prisma.arquivo.findMany({
+			where: {
+				ativo: true,
+				origem: FilesOrigin.VIRTUAL_PACKAGE,
+				referencia_id: id,
+			},
+		});
+
+		const virtualPackage = await this.prisma.maloteVirtual.findFirst({
 			select: {
 				id: true,
 				situacao: true,
@@ -182,6 +191,8 @@ export class VirtualPackageService {
 				excluido: false,
 			},
 		});
+
+		return { ...virtualPackage, arquivos: arquivos };
 	}
 
 	async findAllPhysicalPackage(empresa_id: number) {
@@ -223,7 +234,9 @@ export class VirtualPackageService {
 	async report(user: UserAuth, filters: FiltersVirtualPackageDto) {
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id: user.empresa_id,
-			situacao: filters.situacao,
+			situacao: filters.situacao.length
+				? { in: filters.situacao }
+				: undefined,
 			excluido: false,
 			id: filters.malotes_virtuais_ids?.length
 				? { in: filters.malotes_virtuais_ids }
@@ -390,7 +403,9 @@ export class VirtualPackageService {
 	) {
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id,
-			situacao: filter.situacao,
+			situacao: filter.situacao?.length
+				? { in: filter.situacao }
+				: undefined,
 			excluido: false,
 			id: filter.codigo,
 			created_at:
@@ -439,6 +454,16 @@ export class VirtualPackageService {
 				: undefined,
 			condominio_id: filter.condominios_ids
 				? { in: filter.condominios_ids }
+				: undefined,
+
+			condominio: filter.departmento_destino_id
+				? {
+						departamentos_condominio: {
+							some: {
+								departamento_id: filter.departmento_destino_id,
+							},
+						},
+				  }
 				: undefined,
 			usuario_id: filter.usuario_ids
 				? { in: filter.usuario_ids }

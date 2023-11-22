@@ -1,15 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import {
 	IsDateString,
 	IsInt,
 	IsNotEmpty,
 	IsOptional,
 	IsString,
-	Validate,
 } from 'class-validator';
-import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
-import { IsBooleanType } from 'src/shared/validators';
 
 export class FiltersSearchVirtualPackageDto {
 	@ApiProperty({
@@ -65,18 +61,6 @@ export class FiltersSearchVirtualPackageDto {
 	codigo_malote_fisico?: string;
 
 	@ApiProperty({
-		description: 'Situação do malote',
-		example: true,
-		required: false,
-	})
-	@IsInt({
-		message:
-			'O campo situação informado não é válido. Por favor, forneça uma situação válida.',
-	})
-	@IsOptional()
-	situacao?: number;
-
-	@ApiProperty({
 		description: 'Filtro por usuário',
 		example: [1, 2],
 		required: false,
@@ -102,4 +86,29 @@ export class FiltersSearchVirtualPackageDto {
 			'O campo filtrar data por informado não é válido. Por favor, forneça um filtro válido.',
 	})
 	tipo_data: number;
+
+	@ApiProperty({
+		description: 'Filtro por departamento destino',
+		example: [1, 2],
+		required: false,
+	})
+	@IsOptional()
+	@IsInt({
+		message:
+			'O campo departamento destino informado não é válido. Por favor, forneça um condomínio válido.',
+	})
+	departmento_destino_id?: number;
+
+	@ApiProperty({
+		description: 'Filtro por situação',
+		example: [1, 2],
+		required: false,
+	})
+	@IsOptional()
+	@IsInt({
+		each: true,
+		message:
+			'O campo de situação informado não é válido. Por favor, forneça uma situação válida.',
+	})
+	situacao?: number[];
 }

@@ -262,31 +262,40 @@ export class ProtocolService {
 				destino_usuario_id:
 					filtersProtocolDto.destino_usuario_id || undefined,
 				documentos: {
-					some: {
-						condominio_id: filtersProtocolDto.condominios_ids
-							?.length
+					some:
+						filtersProtocolDto.condominios_ids?.length ||
+						filtersProtocolDto?.aceito_por ||
+						filtersProtocolDto.data_aceito?.length
 							? {
-									in: filtersProtocolDto.condominios_ids,
+									condominio_id: filtersProtocolDto
+										.condominios_ids?.length
+										? {
+												in: filtersProtocolDto.condominios_ids,
+										  }
+										: undefined,
+									aceite_usuario_id:
+										filtersProtocolDto?.aceito_por ||
+										undefined,
+									data_aceite: filtersProtocolDto.data_aceito
+										?.length
+										? {
+												lte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[1],
+														23,
+														59,
+														59,
+													) || undefined,
+												gte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[0],
+													) || undefined,
+										  }
+										: undefined,
 							  }
 							: undefined,
-						aceite_usuario_id:
-							filtersProtocolDto?.aceito_por || undefined,
-						data_aceite: filtersProtocolDto.data_aceito?.length
-							? {
-									lte:
-										setCustomHour(
-											filtersProtocolDto.data_aceito[1],
-											23,
-											59,
-											59,
-										) || undefined,
-									gte:
-										setCustomHour(
-											filtersProtocolDto.data_aceito[0],
-										) || undefined,
-							  }
-							: undefined,
-					},
 				},
 				tipo: filtersProtocolDto.tipo || undefined,
 				situacao: filtersProtocolDto.situacao || undefined,

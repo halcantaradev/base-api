@@ -262,31 +262,40 @@ export class ProtocolService {
 				destino_usuario_id:
 					filtersProtocolDto.destino_usuario_id || undefined,
 				documentos: {
-					some: {
-						condominio_id: filtersProtocolDto.condominios_ids
-							?.length
+					some:
+						filtersProtocolDto.condominios_ids?.length ||
+						filtersProtocolDto?.aceito_por ||
+						filtersProtocolDto.data_aceito?.length
 							? {
-									in: filtersProtocolDto.condominios_ids,
+									condominio_id: filtersProtocolDto
+										.condominios_ids?.length
+										? {
+												in: filtersProtocolDto.condominios_ids,
+										  }
+										: undefined,
+									aceite_usuario_id:
+										filtersProtocolDto?.aceito_por ||
+										undefined,
+									data_aceite: filtersProtocolDto.data_aceito
+										?.length
+										? {
+												lte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[1],
+														23,
+														59,
+														59,
+													) || undefined,
+												gte:
+													setCustomHour(
+														filtersProtocolDto
+															.data_aceito[0],
+													) || undefined,
+										  }
+										: undefined,
 							  }
 							: undefined,
-						aceite_usuario_id:
-							filtersProtocolDto?.aceito_por || undefined,
-						data_aceite: filtersProtocolDto.data_aceito?.length
-							? {
-									lte:
-										setCustomHour(
-											filtersProtocolDto.data_aceito[1],
-											23,
-											59,
-											59,
-										) || undefined,
-									gte:
-										setCustomHour(
-											filtersProtocolDto.data_aceito[0],
-										) || undefined,
-							  }
-							: undefined,
-					},
 				},
 				tipo: filtersProtocolDto.tipo || undefined,
 				situacao: filtersProtocolDto.situacao || undefined,
@@ -537,26 +546,11 @@ export class ProtocolService {
 		if (!protocolo.documentos.length) {
 			protocolo = await this.prisma.protocolo.update({
 				data: {
-					tipo: updateProtocolDto.tipo || undefined,
-					destino_departamento_id:
-						updateProtocolDto.destino_departamento_id || undefined,
-					destino_usuario_id: updateProtocolDto.destino_usuario_id,
-					origem_usuario_id: updateProtocolDto.origem_departamento_id
-						? user.id
-						: undefined,
-					origem_departamento_id:
-						updateProtocolDto.origem_departamento_id || undefined,
-					retorna_malote_vazio:
-						updateProtocolDto.retorna_malote_vazio || undefined,
 					ativo: updateProtocolDto.ativo || undefined,
 					finalizado: updateProtocolDto.finalizado || undefined,
 					data_finalizado: updateProtocolDto.finalizado
 						? new Date()
 						: undefined,
-					protocolo_malote:
-						updateProtocolDto.protocolo_malote != null
-							? updateProtocolDto.protocolo_malote
-							: undefined,
 				},
 				where: {
 					id,
@@ -569,10 +563,6 @@ export class ProtocolService {
 					data_finalizado: updateProtocolDto.finalizado
 						? new Date()
 						: undefined,
-					protocolo_malote:
-						updateProtocolDto.protocolo_malote != null
-							? updateProtocolDto.protocolo_malote
-							: undefined,
 				},
 				where: {
 					id,

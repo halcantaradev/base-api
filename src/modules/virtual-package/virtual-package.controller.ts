@@ -477,7 +477,10 @@ export class VirtualPackageController {
 			user,
 		);
 
-		return { success: true, message: 'Baixa(s) estornada(s) com sucesso!' };
+		return {
+			success: true,
+			message: 'Baixa(s) ou Não recebimento estornado(s) com sucesso!',
+		};
 	}
 
 	@Post(':id/new-documents')

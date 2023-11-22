@@ -20,46 +20,50 @@ export class UploadFileService {
 		files: Express.Multer.File[],
 		user_id: number,
 	) {
-		if (await this.validateReference(params.reference_id, params.origin)) {
-			await Promise.all(
-				files.map(async (file, index) => {
-					const keyName = `${uuidv4()}${
-						path.parse(file.originalname).ext
-					}`;
-					const url = await this.s3Service.upload(
-						file.buffer,
-						`${FilesOrigin.EXTENSO[params.origin]}/${keyName}`,
-					);
+		const validation = await this.validateReference(
+			params.reference_id,
+			params.origin,
+		);
 
-					await this.prisma.arquivo.create({
-						data: {
-							url,
-							nome: Buffer.from(
-								file.originalname,
-								'latin1',
-							).toString('utf8'),
-							key: keyName,
-							origem: params.origin,
-							referencia_id: params.reference_id,
-							descricao: JSON.parse(params.descricao)[index],
-							tipo: path
-								.parse(file.originalname)
-								.ext.replace('.', ''),
-						},
-					});
-				}),
-			);
-
-			await this.registerHistory(
-				files.map((file) => file.originalname),
-				params.reference_id,
-				params.origin,
-				user_id,
-			);
-		} else
+		if (!validation)
 			throw new BadRequestException(
 				'Ocorreu um erro ao salvar o arquivo',
 			);
+
+		await Promise.all(
+			files.map(async (file, index) => {
+				const keyName = `${uuidv4()}${
+					path.parse(file.originalname).ext
+				}`;
+				const url = await this.s3Service.upload(
+					file.buffer,
+					`${FilesOrigin.EXTENSO[params.origin]}/${keyName}`,
+				);
+
+				await this.prisma.arquivo.create({
+					data: {
+						url,
+						nome: Buffer.from(file.originalname, 'latin1').toString(
+							'utf8',
+						),
+						key: keyName,
+						origem: params.origin,
+						referencia_id: params.reference_id,
+						descricao: JSON.parse(params.descricao)[index],
+						tipo: path
+							.parse(file.originalname)
+							.ext.replace('.', ''),
+					},
+				});
+			}),
+		);
+
+		await this.registerHistory(
+			files.map((file) => file.originalname),
+			params.reference_id,
+			params.origin,
+			user_id,
+		);
 	}
 
 	async removeFiles(ids: number[], user_id: number) {

@@ -42,6 +42,7 @@ import { AcceptDocumentProtocolDto } from './dto/accept-document-protocol.dto';
 import { ReverseDocumentProtocolDto } from './dto/reverse-document-protocol.dto.ts';
 import { SendEmailProtocolDto } from './dto/send-email-protocol.dto';
 import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
+import { CreateVirtualPackageProtocolDto } from './dto/create-virtual-package-protocol.dto';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -428,6 +429,41 @@ export class ProtocolController {
 			success: true,
 			message: 'Documento adicionado com sucesso',
 			data: await this.protocolService.createDocument(
+				+id,
+				createDocumentProtocolDto,
+				user,
+			),
+		};
+	}
+
+	@Post(':id/virtual-package')
+	@HttpCode(HttpStatus.OK)
+	@Role('protocolos-atualizar-dados')
+	@ApiOperation({ summary: 'Adiciona um novo malote virtual ao protocolo' })
+	@ApiResponse({
+		description: 'Malote virtual foi adicionado com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolDocumentReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao adicionar o malote virtual',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async createVirtualPackage(
+		@Param('id') id: string,
+		@Body() createDocumentProtocolDto: CreateVirtualPackageProtocolDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		return {
+			success: true,
+			message: 'Malote adicionado com sucesso',
+			data: await this.protocolService.createProtocolVirtualPackage(
 				+id,
 				createDocumentProtocolDto,
 				user,

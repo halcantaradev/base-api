@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { File } from 'src/shared/entities/file.entity';
 
 export class VirtualPackage {
 	@ApiProperty({
@@ -54,4 +55,13 @@ export class VirtualPackage {
 			vencimento: Date;
 		};
 	}[];
+
+	@ApiProperty({
+		description: 'Lista de arquivos do malote',
+		type: File,
+		isArray: true,
+		required: true,
+		readOnly: true,
+	})
+	arquivos?: File[];
 }

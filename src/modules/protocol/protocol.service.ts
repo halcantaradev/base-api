@@ -546,26 +546,11 @@ export class ProtocolService {
 		if (!protocolo.documentos.length) {
 			protocolo = await this.prisma.protocolo.update({
 				data: {
-					tipo: updateProtocolDto.tipo || undefined,
-					destino_departamento_id:
-						updateProtocolDto.destino_departamento_id || undefined,
-					destino_usuario_id: updateProtocolDto.destino_usuario_id,
-					origem_usuario_id: updateProtocolDto.origem_departamento_id
-						? user.id
-						: undefined,
-					origem_departamento_id:
-						updateProtocolDto.origem_departamento_id || undefined,
-					retorna_malote_vazio:
-						updateProtocolDto.retorna_malote_vazio || undefined,
 					ativo: updateProtocolDto.ativo || undefined,
 					finalizado: updateProtocolDto.finalizado || undefined,
 					data_finalizado: updateProtocolDto.finalizado
 						? new Date()
 						: undefined,
-					protocolo_malote:
-						updateProtocolDto.protocolo_malote != null
-							? updateProtocolDto.protocolo_malote
-							: undefined,
 				},
 				where: {
 					id,
@@ -578,10 +563,6 @@ export class ProtocolService {
 					data_finalizado: updateProtocolDto.finalizado
 						? new Date()
 						: undefined,
-					protocolo_malote:
-						updateProtocolDto.protocolo_malote != null
-							? updateProtocolDto.protocolo_malote
-							: undefined,
 				},
 				where: {
 					id,

@@ -228,6 +228,7 @@ export class CondominiumService {
 		condominiums: number[],
 		usuario_id?: number,
 		ativo = false,
+		todos = false,
 	): Promise<Prisma.PessoaWhereInput> {
 		const idUser =
 			usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
@@ -471,9 +472,37 @@ export class CondominiumService {
 				: null,
 		].filter((filter) => !!filter);
 
+		const filtersSelectedAll: Prisma.PessoaWhereInput[] = [
+			filters.condominio
+				? {
+						OR: [
+							{
+								nome: {
+									contains: filters.condominio
+										.toString()
+										.normalize('NFC')
+										.replace(/[\u0300-\u036f]/g, ''),
+									mode: Prisma.QueryMode.insensitive,
+								},
+							},
+							!Number.isNaN(+filters.condominio)
+								? {
+										id: +filters.condominio,
+								  }
+								: null,
+						].filter((filtro) => !!filtro),
+				  }
+				: null,
+		];
 		return {
 			empresa_id: user.empresa_id,
-			AND: filtersSelected.length ? filtersSelected : undefined,
+			AND: todos
+				? filtersSelectedAll.length
+					? filtersSelectedAll
+					: undefined
+				: filtersSelected.length
+				? filtersSelected
+				: undefined,
 		};
 	}
 
@@ -484,6 +513,7 @@ export class CondominiumService {
 		usuario_id?: number,
 		pagination?: Pagination,
 		ativo = false,
+		todos = false,
 	) {
 		return this.pessoaService.findAll(
 			'condominio',
@@ -536,6 +566,7 @@ export class CondominiumService {
 				condominiums,
 				usuario_id,
 				ativo,
+				todos,
 			),
 			pagination,
 		);

@@ -90,7 +90,7 @@ export class SubsidiaryController {
 
 	@Post('active')
 	@HttpCode(HttpStatus.OK)
-	@Role('filiais-listar-ativos')
+	@Role('filiais-listar-ativas')
 	@ApiOperation({ summary: 'Lista todas as filiais ativas' })
 	@ApiResponse({
 		description: 'Filiais ativas listadas com sucesso',

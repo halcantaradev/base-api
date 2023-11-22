@@ -17,22 +17,22 @@ export class ProtocolHistorySituation {
 	static MALOTE_IMPRESSO = 16;
 
 	static DESCRICAO = {
-		1: 'Criado',
-		2: 'Enviado',
-		3: 'Aceito',
-		4: 'Rejeitado',
-		5: 'Aceite estornado',
-		6: 'Atualizado',
-		7: 'Excluido',
-		8: 'Impresso no módulo de protocolos',
+		1: 'Adicionado no protocolo',
+		2: 'Enviado junto ao protocolo',
+		3: 'Aceito no protocolo',
+		4: 'Rejeitado no protocolo',
+		5: 'Aceite estornado no protocolo',
+		6: 'Atualizado no protocolo',
+		7: 'Excluído no protocolo',
+		8: 'Impresso no protocolo',
 		9: 'Enviado para a fila',
-		10: 'Envio para a fila estornado',
+		10: 'Removido da fila',
 		11: 'Enviado para o malote',
-		12: 'Envio para o malote estornado',
-		13: 'Baixado',
-		14: 'Não recebido',
-		15: 'Baixa Estornada',
-		16: 'Impresso no módulo de malotes',
+		12: 'Removido do malote',
+		13: 'Baixado no malote',
+		14: 'Não recebido no malote',
+		15: 'Baixa estornada no malote',
+		16: 'Impresso no malote',
 	};
 
 	static COR = {

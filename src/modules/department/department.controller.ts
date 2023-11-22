@@ -98,7 +98,7 @@ export class DepartmentController {
 	@Role([
 		'departamentos-listar-ativos',
 		{
-			role: 'usuarios-atualizar-vinculos-condominios',
+			role: 'usuarios-listar-condominios-limitados',
 			param: 'usuario_id',
 			param_type: 'query',
 		},

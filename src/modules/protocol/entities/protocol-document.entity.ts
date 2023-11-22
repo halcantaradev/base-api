@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { File } from 'src/shared/entities/file.entity';
 
 export class ProtocolDocument {
 	@ApiProperty({
@@ -148,4 +149,13 @@ export class ProtocolDocument {
 			situacao: number;
 		};
 	}[];
+
+	@ApiProperty({
+		description: 'Lista de arquivos do protocolo',
+		type: File,
+		isArray: true,
+		required: true,
+		readOnly: true,
+	})
+	arquivos?: File[];
 }

@@ -1,1 +1,6 @@
-export const uploadFileOrigin = [null, 'notificacao', 'protocoloDocumento'];
+export const uploadFileOrigin = [
+	null,
+	'notificacao',
+	'protocoloDocumento',
+	'maloteVirtual',
+];

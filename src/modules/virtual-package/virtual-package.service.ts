@@ -926,7 +926,7 @@ export class VirtualPackageService {
 			data: docs.map((doc) => ({
 				documento_id: doc.id,
 				malote_virtual_id: id,
-				situacao: 2,
+				situacao: VirtualPackageDocumentSituation.BAIXADO,
 			})),
 		});
 
@@ -1166,6 +1166,16 @@ export class VirtualPackageService {
 				excluido: false,
 				documento: { fila_geracao_malote: { some: {} } },
 			},
+			orderBy: [
+				{
+					documento: {
+						retorna: 'desc',
+					},
+				},
+				{
+					situacao: 'asc',
+				},
+			],
 			take: pagination?.page ? 10 : 100,
 			skip: pagination?.page ? (pagination?.page - 1) * 1 : undefined,
 		});

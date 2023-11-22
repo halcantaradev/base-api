@@ -37,5 +37,5 @@ export class VirtualPackageReport {
 		readOnly: true,
 		isArray: true,
 	})
-	documentos_malote: ProtocolDocument[];
+	documentos_malote?: ProtocolDocument[];
 }

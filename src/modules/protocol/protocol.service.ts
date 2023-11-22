@@ -1,3 +1,4 @@
+import { VirtualPackage } from './../virtual-package/entities/virtual-package.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateProtocolDto } from './dto/create-protocol.dto';
@@ -25,6 +26,11 @@ import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 import { TypeNotificationProtocol } from './enums/type-notification-protocol.enum';
 import { defaultLogo } from 'src/shared/consts/default-logo.base64';
 import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
+import { CreateVirtualPackageProtocolDto } from './dto/create-virtual-package-protocol.dto';
+import { ProtocolSituation } from 'src/shared/consts/protocol-situation.const';
+import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
+import { VirtualPackageDocumentSituation } from 'src/shared/consts/virtual-package-document-situation.const';
+import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
 
 @Injectable()
 export class ProtocolService {
@@ -129,8 +135,28 @@ export class ProtocolService {
 		updated_at: true,
 	};
 
-	create(createProtocolDto: CreateProtocolDto, user: UserAuth) {
-		return this.prisma.protocolo.create({
+	async create(createProtocolDto: CreateProtocolDto, user: UserAuth) {
+		let documents = [];
+
+		if (createProtocolDto.documentos_ids) {
+			documents = await this.prisma.protocoloDocumento.findMany({
+				where: {
+					id: { in: createProtocolDto.documentos_ids },
+					malotes_documento: {
+						some: {
+							situacao: VirtualPackageDocumentSituation.BAIXADO,
+							malote_virtual_id:
+								createProtocolDto?.malote_virtual_id,
+						},
+					},
+				},
+			});
+
+			if (!documents.length)
+				throw new BadRequestException('Documentos não encontrados');
+		}
+
+		const protocol = await this.prisma.protocolo.create({
 			data: {
 				empresa_id: user.empresa_id,
 				tipo: createProtocolDto.tipo,
@@ -146,6 +172,56 @@ export class ProtocolService {
 				ativo: true,
 			},
 		});
+
+		if (createProtocolDto.documentos_ids) {
+			await Promise.all(
+				createProtocolDto.documentos_ids.map(async (id) => {
+					let document =
+						documents.find((document) => document.id === id) ||
+						null;
+
+					if (document) {
+						document = await this.prisma.protocoloDocumento.create({
+							data: {
+								...document,
+								id: undefined,
+								protocolo_id: protocol.id,
+								aceito: false,
+								aceite_usuario_id: null,
+								data_aceite: null,
+								created_at: undefined,
+								updated_at: undefined,
+							},
+						});
+
+						const files = await this.prisma.arquivo.findMany({
+							where: {
+								ativo: true,
+								origem: FilesOrigin.PROTOCOL,
+								referencia_id: id,
+							},
+						});
+
+						if (files.length) {
+							await Promise.all(
+								files.map(async (file) => {
+									await this.prisma.arquivo.create({
+										data: {
+											...file,
+											referencia_id: document.id,
+											created_at: undefined,
+											updated_at: undefined,
+										},
+									});
+								}),
+							);
+						}
+					}
+				}),
+			);
+		}
+
+		return protocol;
 	}
 
 	async findBy(
@@ -185,41 +261,33 @@ export class ProtocolService {
 					filtersProtocolDto.origem_usuario_id || undefined,
 				destino_usuario_id:
 					filtersProtocolDto.destino_usuario_id || undefined,
-				documentos:
-					filtersProtocolDto.condominios_ids ||
-					filtersProtocolDto?.aceito_por
-						? {
-								some: {
-									condominio_id: filtersProtocolDto
-										.condominios_ids?.length
-										? {
-												in: filtersProtocolDto.condominios_ids,
-										  }
-										: undefined,
-									aceite_usuario_id:
-										filtersProtocolDto?.aceito_por ||
-										undefined,
-									data_aceite: filtersProtocolDto.data_aceito
-										?.length
-										? {
-												lte:
-													setCustomHour(
-														filtersProtocolDto
-															.data_aceito[1],
-														23,
-														59,
-														59,
-													) || undefined,
-												gte:
-													setCustomHour(
-														filtersProtocolDto
-															.data_aceito[0],
-													) || undefined,
-										  }
-										: undefined,
-								},
-						  }
-						: undefined,
+				documentos: {
+					some: {
+						condominio_id: filtersProtocolDto.condominios_ids
+							?.length
+							? {
+									in: filtersProtocolDto.condominios_ids,
+							  }
+							: undefined,
+						aceite_usuario_id:
+							filtersProtocolDto?.aceito_por || undefined,
+						data_aceite: filtersProtocolDto.data_aceito?.length
+							? {
+									lte:
+										setCustomHour(
+											filtersProtocolDto.data_aceito[1],
+											23,
+											59,
+											59,
+										) || undefined,
+									gte:
+										setCustomHour(
+											filtersProtocolDto.data_aceito[0],
+										) || undefined,
+							  }
+							: undefined,
+					},
+				},
 				tipo: filtersProtocolDto.tipo || undefined,
 				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao
@@ -296,41 +364,34 @@ export class ProtocolService {
 					filtersProtocolDto.origem_usuario_id || undefined,
 				destino_usuario_id:
 					filtersProtocolDto.destino_usuario_id || undefined,
-				documentos:
-					filtersProtocolDto.condominios_ids ||
-					filtersProtocolDto?.aceito_por
-						? {
-								some: {
-									condominio_id: filtersProtocolDto
-										.condominios_ids?.length
-										? {
-												in: filtersProtocolDto.condominios_ids,
-										  }
-										: undefined,
-									aceite_usuario_id:
-										filtersProtocolDto?.aceito_por ||
-										undefined,
-									data_aceite: filtersProtocolDto.data_aceito
-										?.length
-										? {
-												lte:
-													setCustomHour(
-														filtersProtocolDto
-															.data_aceito[1],
-														23,
-														59,
-														59,
-													) || undefined,
-												gte:
-													setCustomHour(
-														filtersProtocolDto
-															.data_aceito[0],
-													) || undefined,
-										  }
-										: undefined,
-								},
-						  }
-						: undefined,
+				documentos: {
+					some: {
+						condominio_id: filtersProtocolDto.condominios_ids
+							?.length
+							? {
+									in: filtersProtocolDto.condominios_ids,
+							  }
+							: undefined,
+						aceite_usuario_id:
+							filtersProtocolDto?.aceito_por || undefined,
+						data_aceite: filtersProtocolDto.data_aceito?.length
+							? {
+									lte:
+										setCustomHour(
+											filtersProtocolDto.data_aceito[1],
+											23,
+											59,
+											59,
+										) || undefined,
+									gte:
+										setCustomHour(
+											filtersProtocolDto.data_aceito[0],
+										) || undefined,
+							  }
+							: undefined,
+					},
+				},
+
 				tipo: filtersProtocolDto.tipo || undefined,
 				situacao: filtersProtocolDto.situacao || undefined,
 				created_at: filtersProtocolDto.data_emissao
@@ -467,9 +528,11 @@ export class ProtocolService {
 	) {
 		let protocolo = await this.findById(id, user);
 
-		if (!protocolo || protocolo.situacao != 1) {
+		if (!protocolo || protocolo.situacao != ProtocolSituation.PENDENTE) {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
+
+		const protocolHasFinalized = protocolo.finalizado;
 
 		if (!protocolo.documentos.length) {
 			protocolo = await this.prisma.protocolo.update({
@@ -490,6 +553,10 @@ export class ProtocolService {
 					data_finalizado: updateProtocolDto.finalizado
 						? new Date()
 						: undefined,
+					protocolo_malote:
+						updateProtocolDto.protocolo_malote != null
+							? updateProtocolDto.protocolo_malote
+							: undefined,
 				},
 				where: {
 					id,
@@ -502,10 +569,26 @@ export class ProtocolService {
 					data_finalizado: updateProtocolDto.finalizado
 						? new Date()
 						: undefined,
+					protocolo_malote:
+						updateProtocolDto.protocolo_malote != null
+							? updateProtocolDto.protocolo_malote
+							: undefined,
 				},
 				where: {
 					id,
 				},
+			});
+		}
+
+		if (!protocolHasFinalized && protocolo.finalizado) {
+			const documents = await this.findAllDocuments(id, user);
+
+			await this.prisma.protocoloDocumentoHistorico.createMany({
+				data: documents.map((document) => ({
+					documento_id: document.id,
+					usuario_id: user.id,
+					situacao: ProtocolHistorySituation.ENVIADO,
+				})),
 			});
 		}
 
@@ -534,7 +617,7 @@ export class ProtocolService {
 		if (!protocolo || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
-		return this.prisma.protocoloDocumento.create({
+		const document = await this.prisma.protocoloDocumento.create({
 			data: {
 				protocolo_id,
 				discriminacao: createDocumentProtocolDto.discriminacao,
@@ -546,6 +629,18 @@ export class ProtocolService {
 				tipo_documento_id: createDocumentProtocolDto.tipo_documento_id,
 			},
 		});
+
+		await this.prisma.protocoloDocumentoHistorico.create({
+			data: {
+				documento_id: document.id,
+				usuario_id: user.id,
+				situacao: protocolo.finalizado
+					? ProtocolHistorySituation.ENVIADO
+					: ProtocolHistorySituation.CRIADO,
+			},
+		});
+
+		return document;
 	}
 
 	async findAllDocuments(protocolo_id: number, user?: UserAuth) {
@@ -658,10 +753,22 @@ export class ProtocolService {
 			dataToPrint,
 		);
 
-		return this.pdfService.setTitlePDF(
+		const pdf = await this.pdfService.setTitlePDF(
 			`PROTOCOLO_${new Date().getTime()}`,
 			await this.pdfService.getPDF(protocoloFile),
 		);
+
+		const documents = await this.findAllDocuments(protocol_id, user);
+
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents.map((document) => ({
+				documento_id: document.id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.PROTOCOLO_IMPRESSO,
+			})),
+		});
+
+		return pdf;
 	}
 
 	async dataToHandle(id: number) {
@@ -825,7 +932,7 @@ export class ProtocolService {
 		const arquivos = await this.prisma.arquivo.findMany({
 			where: {
 				ativo: true,
-				origem: 2,
+				origem: FilesOrigin.PROTOCOL,
 				referencia_id: document_id,
 			},
 		});
@@ -902,6 +1009,14 @@ export class ProtocolService {
 			},
 		});
 
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents_ids_accept.map((document_id) => ({
+				documento_id: document_id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.ACEITO,
+			})),
+		});
+
 		const protocolTotalDocuments =
 			await this.prisma.protocoloDocumento.findMany({
 				where: {
@@ -916,7 +1031,9 @@ export class ProtocolService {
 				id: protocol_id,
 			},
 			data: {
-				situacao: !protocolTotalDocuments.length ? 3 : 2,
+				situacao: !protocolTotalDocuments.length
+					? ProtocolSituation.ACEITO
+					: ProtocolSituation.ACEITO_PARCIALMENTE,
 			},
 		});
 
@@ -1011,10 +1128,15 @@ export class ProtocolService {
 					doc.malote_virtual.documentos_malote.length !=
 						doc.malote_virtual.documentos_malote.filter(
 							(d) =>
-								(![2, 3].includes(d.situacao) && !d.excluido) ||
+								(![
+									VirtualPackageDocumentSituation.BAIXADO,
+									VirtualPackageDocumentSituation.NAO_RECEBIDO,
+								].includes(d.situacao) &&
+									!d.excluido) ||
 								d.excluido,
 						).length &&
-					doc.malote_virtual.situacao != 4
+					doc.malote_virtual.situacao !=
+						VirtualPackageSituation.BAIXADO
 				) {
 					canReverse = false;
 					packageNotReserse.push(doc.malote_virtual.id);
@@ -1048,6 +1170,14 @@ export class ProtocolService {
 			},
 		});
 
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documents_ids_reverse.map((document_id) => ({
+				documento_id: document_id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.ESTORNO_ACEITE,
+			})),
+		});
+
 		const protocolTotalDocuments =
 			await this.prisma.protocoloDocumento.findMany({
 				where: {
@@ -1062,7 +1192,9 @@ export class ProtocolService {
 				id: protocol_id,
 			},
 			data: {
-				situacao: !protocolTotalDocuments.length ? 1 : 2,
+				situacao: !protocolTotalDocuments.length
+					? ProtocolSituation.PENDENTE
+					: ProtocolSituation.ACEITO_PARCIALMENTE,
 			},
 		});
 
@@ -1105,14 +1237,27 @@ export class ProtocolService {
 			throw new BadRequestException('Documento não encontrado');
 
 		if (protocolo.protocolo_malote && exclude) {
+			if (!document.malote_virtual_id) {
+				throw new BadRequestException('Malote virtual não encontrado');
+			}
 			const hasReceivedDocuments =
 				!!(await this.prisma.maloteDocumento.findFirst({
 					where: {
 						id: document.malote_virtual_id,
 						excluido: false,
-						situacao: { in: [2, 3] },
+						situacao: {
+							in: [
+								VirtualPackageDocumentSituation.BAIXADO,
+								VirtualPackageDocumentSituation.NAO_RECEBIDO,
+							],
+						},
 						malote_virtual: {
-							situacao_anterior: { notIn: [3, 4] },
+							situacao_anterior: {
+								notIn: [
+									VirtualPackageSituation.PROTOCOLADO,
+									VirtualPackageSituation.BAIXADO,
+								],
+							},
 						},
 					},
 				}));
@@ -1124,6 +1269,19 @@ export class ProtocolService {
 		}
 
 		const documentUpdated = await this.prisma.protocoloDocumento.update({
+			select: {
+				vencimento: true,
+				condominio: {
+					select: {
+						nome: true,
+					},
+				},
+				tipo_documento: {
+					select: {
+						nome: true,
+					},
+				},
+			},
 			data: {
 				discriminacao: updateDocumentProtocolDto.discriminacao,
 				observacao: updateDocumentProtocolDto.observacao,
@@ -1138,6 +1296,71 @@ export class ProtocolService {
 				id: document_id,
 			},
 		});
+
+		if (exclude)
+			await this.prisma.protocoloDocumentoHistorico.create({
+				data: {
+					documento_id: document_id,
+					usuario_id: user.id,
+					situacao: ProtocolHistorySituation.EXCLUIDO,
+				},
+			});
+		else if (
+			document.condominio.id != updateDocumentProtocolDto.condominio_id ||
+			document.discriminacao != updateDocumentProtocolDto.discriminacao ||
+			document.observacao != updateDocumentProtocolDto.observacao ||
+			document.retorna != updateDocumentProtocolDto.retorna ||
+			document.vencimento != documentUpdated.vencimento ||
+			document.valor != updateDocumentProtocolDto.valor ||
+			document.tipo_documento.id !=
+				updateDocumentProtocolDto.tipo_documento_id
+		)
+			await this.prisma.protocoloDocumentoHistorico.create({
+				data: {
+					documento_id: document_id,
+					usuario_id: user.id,
+					situacao: ProtocolHistorySituation.ATUALIZADO,
+					descricao: `${
+						document.condominio.id ==
+						updateDocumentProtocolDto.condominio_id
+							? ``
+							: `Observação: ${document.condominio.nome} → ${documentUpdated.condominio.nome}<br>`
+					}${
+						document.discriminacao ==
+						updateDocumentProtocolDto.discriminacao
+							? ``
+							: `Discriminação: ${document.discriminacao} → ${updateDocumentProtocolDto.discriminacao}<br>`
+					}${
+						document.observacao ==
+						updateDocumentProtocolDto.observacao
+							? ``
+							: `Observação: ${document.observacao} → ${updateDocumentProtocolDto.observacao}<br>`
+					}${
+						document.tipo_documento.id ==
+						updateDocumentProtocolDto.tipo_documento_id
+							? ``
+							: `Observação: ${document.tipo_documento.nome} → ${documentUpdated.tipo_documento.nome}<br>`
+					}${
+						document.valor == updateDocumentProtocolDto.valor
+							? ``
+							: `Valor: ${document.valor} → ${updateDocumentProtocolDto.valor}<br>`
+					}${
+						document.vencimento == documentUpdated.vencimento
+							? ``
+							: `Vencimento: ${document.vencimento} → ${documentUpdated.vencimento}<br>`
+					}${
+						document.retorna == updateDocumentProtocolDto.retorna
+							? ``
+							: `Necessário retornar: ${
+									document.retorna ? 'SIM' : 'NÃO'
+							  } → ${
+									updateDocumentProtocolDto.retorna
+										? 'SIM'
+										: 'NÃO'
+							  }<br>`
+					}`,
+				},
+			});
 
 		if (protocolo.protocolo_malote && exclude) {
 			const virtualPackage = await this.prisma.maloteVirtual.findFirst({
@@ -1155,12 +1378,18 @@ export class ProtocolService {
 				data: {
 					situacao:
 						virtualPackage.protocolado_baixado &&
-						[3, 4].includes(virtualPackage.situacao)
+						[
+							VirtualPackageSituation.PROTOCOLADO,
+							VirtualPackageSituation.BAIXADO,
+						].includes(virtualPackage.situacao)
 							? undefined
 							: virtualPackage.situacao_anterior,
 					situacao_anterior:
 						virtualPackage.protocolado_baixado &&
-						[3, 4].includes(virtualPackage.situacao)
+						[
+							VirtualPackageSituation.PROTOCOLADO,
+							VirtualPackageSituation.BAIXADO,
+						].includes(virtualPackage.situacao)
 							? undefined
 							: null,
 					protocolado_baixado: false,
@@ -1495,7 +1724,7 @@ export class ProtocolService {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
-		if (body.documentos_ids.length === 0) {
+		if (!body.documentos_ids.length) {
 			throw new BadRequestException('Nenhum documento encontrado');
 		}
 
@@ -1546,6 +1775,15 @@ export class ProtocolService {
 			},
 		});
 
+		await this.prisma.protocoloDocumentoHistorico.createMany({
+			data: documentsExists.map((document) => ({
+				documento_id: document.id,
+				usuario_id: user.id,
+				situacao: ProtocolHistorySituation.REJEITADO,
+				descricao: body.motivo_rejeitado,
+			})),
+		});
+
 		const protocolTotalDocuments = await this.prisma.protocolo.findFirst({
 			where: {
 				id: protocolo_id,
@@ -1568,7 +1806,7 @@ export class ProtocolService {
 					id: protocolo_id,
 				},
 				data: {
-					situacao: 4,
+					situacao: ProtocolSituation.RECUSADO,
 				},
 			});
 		} else {
@@ -1592,5 +1830,133 @@ export class ProtocolService {
 			success: true,
 			message: 'Os documento(s) foram rejeitados!',
 		};
+	}
+
+	async createProtocolVirtualPackage(
+		protocolo_id: number,
+		createVirtualPackageProtocolDto: CreateVirtualPackageProtocolDto,
+		user: UserAuth,
+	) {
+		const protocolo = await this.prisma.protocolo.findFirst({
+			where: {
+				id: protocolo_id,
+				excluido: false,
+			},
+		});
+
+		if (!protocolo) {
+			throw new BadRequestException('Protocolo não encontrado');
+		}
+
+		const virtualPackageAlreadyExist =
+			await this.prisma.protocoloDocumento.findMany({
+				where: {
+					excluido: false,
+					malote_virtual_id: {
+						in: createVirtualPackageProtocolDto.malotes_virtuais_ids,
+					},
+				},
+			});
+
+		const virtualPackages = await this.prisma.maloteVirtual.findMany({
+			include: {
+				malote_fisico: true,
+			},
+			where: {
+				id: {
+					in: createVirtualPackageProtocolDto.malotes_virtuais_ids,
+				},
+				documentos_protocolo: virtualPackageAlreadyExist.length
+					? {
+							some: {
+								malote_virtual_id: {
+									notIn: virtualPackageAlreadyExist.map(
+										(document) =>
+											document.malote_virtual_id,
+									),
+								},
+							},
+					  }
+					: undefined,
+				condominio: {
+					departamentos_condominio: {
+						some: {
+							departamento_id: protocolo.destino_departamento_id,
+						},
+					},
+				},
+				OR: [
+					{
+						situacao: {
+							in: [VirtualPackageSituation.RECEBIDO],
+						},
+					},
+					{
+						situacao: VirtualPackageSituation.BAIXADO,
+						documentos_malote: {
+							every: {
+								OR: [
+									{
+										situacao: {
+											in: [
+												VirtualPackageDocumentSituation.BAIXADO,
+												VirtualPackageDocumentSituation.NAO_RECEBIDO,
+											],
+										},
+									},
+									{ excluido: false },
+								],
+							},
+						},
+					},
+				],
+				excluido: false,
+				empresa_id: user.empresa_id,
+			},
+		});
+
+		if (!virtualPackages.length) {
+			throw new BadRequestException(
+				'Malote(s) informado(s) não pode(m) ser utilizado(s)',
+			);
+		}
+
+		virtualPackages.map(async (virtualPackage) => {
+			await this.prisma.protocoloDocumento.create({
+				data: {
+					protocolo_id,
+					discriminacao: `Malote Virtual: ${
+						virtualPackage.id
+					}; Malote Físico: ${
+						virtualPackage.malote_fisico?.codigo || 'N/A'
+					}`,
+					observacao: '',
+					retorna: false,
+					condominio_id: virtualPackage.condominio_id,
+					malote_virtual_id: virtualPackage.id,
+				},
+			});
+
+			await this.prisma.maloteVirtual.update({
+				data: {
+					situacao_anterior:
+						virtualPackage.situacao !==
+						VirtualPackageSituation.BAIXADO
+							? virtualPackage.situacao
+							: undefined,
+					situacao:
+						virtualPackage.situacao !==
+						VirtualPackageSituation.BAIXADO
+							? VirtualPackageSituation.PROTOCOLADO
+							: undefined,
+					protocolado_baixado:
+						virtualPackage.situacao ==
+						VirtualPackageSituation.BAIXADO,
+				},
+				where: {
+					id: virtualPackage.id,
+				},
+			});
+		});
 	}
 }

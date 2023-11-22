@@ -22,6 +22,8 @@ import { UploadFileDto } from './dto/upload-file.dto';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { RemoveFileDto } from './dto/remove-file.dto';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 
 @ApiTags('Envio de Arquivos')
 @Controller('uploads')
@@ -48,8 +50,9 @@ export class UploadFileController {
 	async saveFiles(
 		@Body() body: UploadFileDto,
 		@UploadedFiles() files: Express.Multer.File[],
+		@CurrentUser() user: UserAuth,
 	) {
-		await this.uploadFileService.saveFiles(body, files);
+		await this.uploadFileService.saveFiles(body, files, user.id);
 
 		return { success: true, message: 'Arquivos enviados com sucesso' };
 	}
@@ -67,8 +70,11 @@ export class UploadFileController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async removeFiles(@Body() body: RemoveFileDto) {
-		await this.uploadFileService.removeFiles(body.ids);
+	async removeFiles(
+		@Body() body: RemoveFileDto,
+		@CurrentUser() user: UserAuth,
+	) {
+		await this.uploadFileService.removeFiles(body.ids, user.id);
 
 		return { success: true, message: 'Arquivos removidos com sucesso' };
 	}

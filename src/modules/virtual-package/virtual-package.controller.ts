@@ -34,6 +34,7 @@ import { VirtualPackageReportReturnEntity } from './entities/virtual-package-rep
 import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
 import { VirtualPackageService } from './virtual-package.service';
 import { CreateNewDocumenteProtocolVirtualPackageDto } from './dto/create-new-document-protocol-virtual-package.dto';
+import { ValidateSealVirtualPackageListReturn } from './entities/validate-seal-virtual-package-return.entity';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -63,11 +64,13 @@ export class VirtualPackageController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	create(
+	async create(
 		@CurrentUser() user: UserAuth,
 		@Body() createVirtualPackageDto: CreateVirtualPackageDto,
 	) {
-		return this.virtualPackageService.create(createVirtualPackageDto, user);
+		await this.virtualPackageService.create(createVirtualPackageDto, user);
+
+		return { success: true, message: 'Malote gerado com successo!' };
 	}
 
 	@Get('physical-packages')
@@ -92,6 +95,33 @@ export class VirtualPackageController {
 		const data = await this.virtualPackageService.findAllPhysicalPackage(
 			user.empresa_id,
 		);
+
+		return {
+			success: true,
+			data,
+		};
+	}
+
+	@Get('validate-seal')
+	@Role('malotes-virtuais-gerar')
+	@ApiOperation({ summary: 'Valida se o lacre informado foi utilizado' })
+	@ApiResponse({
+		description: 'Lacre validado com sucesso',
+		status: HttpStatus.OK,
+		type: ValidateSealVirtualPackageListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar o lacre',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar o lacre',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	async validateSeal(@Query('lacre') seal: string) {
+		const data = await this.virtualPackageService.validateSeal(seal);
 
 		return {
 			success: true,
@@ -172,10 +202,7 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Body() filters: FiltersVirtualPackageDto,
 	) {
-		const data = await this.virtualPackageService.findBy(
-			user.empresa_id,
-			filters,
-		);
+		const data = await this.virtualPackageService.report(user, filters);
 
 		return {
 			success: true,
@@ -376,7 +403,7 @@ export class VirtualPackageController {
 		await this.virtualPackageService.reverseDoc(
 			+id,
 			reverseVirtualPackageDto,
-			user.empresa_id,
+			user,
 		);
 
 		return { success: true, message: 'Documento excluído com sucesso!' };
@@ -406,11 +433,16 @@ export class VirtualPackageController {
 		@Param('id') id: string,
 		@Body() receiveVirtualPackageDto: ReceiveVirtualPackageDto,
 	) {
-		return this.virtualPackageService.receiveDoc(
+		await this.virtualPackageService.receiveDoc(
 			+id,
 			receiveVirtualPackageDto,
 			user,
 		);
+
+		return {
+			success: true,
+			message: 'Documento(s) baixado(s) com sucesso!',
+		};
 	}
 
 	@Patch(':id/receive/reverse')
@@ -442,10 +474,10 @@ export class VirtualPackageController {
 		await this.virtualPackageService.reverseReceiveDoc(
 			+id,
 			reverseReceiveVirtualPackageDto,
-			user.empresa_id,
+			user,
 		);
 
-		return { success: true, message: 'Baixa estornada com sucesso!' };
+		return { success: true, message: 'Baixa(s) estornada(s) com sucesso!' };
 	}
 
 	@Post(':id/new-documents')

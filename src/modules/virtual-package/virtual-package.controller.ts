@@ -34,6 +34,7 @@ import { VirtualPackageReportReturnEntity } from './entities/virtual-package-rep
 import { VirtualPackageListReturn } from './entities/virtual-package-return.entity';
 import { VirtualPackageService } from './virtual-package.service';
 import { CreateNewDocumenteProtocolVirtualPackageDto } from './dto/create-new-document-protocol-virtual-package.dto';
+import { ValidateSealVirtualPackageListReturn } from './entities/validate-seal-virtual-package-return.entity';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -94,6 +95,33 @@ export class VirtualPackageController {
 		const data = await this.virtualPackageService.findAllPhysicalPackage(
 			user.empresa_id,
 		);
+
+		return {
+			success: true,
+			data,
+		};
+	}
+
+	@Get('validate-seal')
+	@Role('malotes-virtuais-gerar')
+	@ApiOperation({ summary: 'Valida se o lacre informado foi utilizado' })
+	@ApiResponse({
+		description: 'Lacre validado com sucesso',
+		status: HttpStatus.OK,
+		type: ValidateSealVirtualPackageListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar o lacre',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar o lacre',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	async validateSeal(@Query('lacre') seal: string) {
+		const data = await this.virtualPackageService.validateSeal(seal);
 
 		return {
 			success: true,

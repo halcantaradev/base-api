@@ -90,6 +90,8 @@ export class VirtualPackageService {
 				empresa_id: user.empresa_id,
 				condominio_id: createVirtualPackageDto.condominio_id,
 				malote_fisico_id: createVirtualPackageDto.malote_fisico_id,
+				lacre_saida: createVirtualPackageDto.lacre_saida,
+				lacre_retorno: createVirtualPackageDto.lacre_retorno,
 				data_saida: new Date(),
 				documentos_malote: {
 					createMany: {
@@ -159,6 +161,8 @@ export class VirtualPackageService {
 				},
 				usuario: { select: { nome: true } },
 				malote_fisico: { select: { codigo: true } },
+				lacre_saida: true,
+				lacre_retorno: true,
 				documentos_malote: {
 					select: {
 						id: true,
@@ -207,6 +211,24 @@ export class VirtualPackageService {
 		});
 
 		return data;
+	}
+
+	async validateSeal(seal: string): Promise<boolean> {
+		const validation = await this.prisma.maloteVirtual.findFirst({
+			where: {
+				OR: [
+					{
+						lacre_saida: seal,
+					},
+					{
+						lacre_retorno: seal,
+					},
+				],
+				excluido: false,
+			},
+		});
+
+		return !!validation;
 	}
 
 	async report(user: UserAuth, filters: FiltersVirtualPackageDto) {
@@ -446,6 +468,22 @@ export class VirtualPackageService {
 			usuario_id: filter.usuario_ids
 				? { in: filter.usuario_ids }
 				: undefined,
+			OR: filter.lacre
+				? [
+						{
+							lacre_saida: {
+								contains: filter.lacre,
+								mode: 'insensitive',
+							},
+						},
+						{
+							lacre_retorno: {
+								contains: filter.lacre,
+								mode: 'insensitive',
+							},
+						},
+				  ]
+				: undefined,
 		};
 
 		const malotes = await this.prisma.maloteVirtual.findMany({
@@ -475,6 +513,8 @@ export class VirtualPackageService {
 					},
 				},
 				malote_fisico: { select: { codigo: true } },
+				lacre_saida: true,
+				lacre_retorno: true,
 				usuario: { select: { nome: true } },
 			},
 			where,

@@ -61,6 +61,18 @@ export class FiltersSearchVirtualPackageDto {
 	codigo_malote_fisico?: string;
 
 	@ApiProperty({
+		description: 'Filtro por lacre do malote',
+		example: '0001',
+		required: false,
+	})
+	@IsOptional()
+	@IsString({
+		message:
+			'O campo lacre informado não é válido. Por favor, forneça um lacre válido.',
+	})
+	lacre?: string;
+
+	@ApiProperty({
 		description: 'Filtro por usuário',
 		example: [1, 2],
 		required: false,

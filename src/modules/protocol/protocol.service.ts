@@ -401,11 +401,15 @@ export class ProtocolService {
 				},
 
 				tipo: filtersProtocolDto.tipo || undefined,
-				situacao:
-					filtersProtocolDto.situacao != null &&
-					filtersProtocolDto.situacao != ProtocolSituation.CANCELADO
-						? filtersProtocolDto.situacao
-						: undefined,
+				situacao: {
+					in:
+						filtersProtocolDto.situacao != null &&
+						filtersProtocolDto.situacao !=
+							ProtocolSituation.CANCELADO
+							? [filtersProtocolDto.situacao]
+							: undefined,
+					notIn: [ProtocolSituation.CANCELADO],
+				},
 				created_at: filtersProtocolDto.data_emissao
 					? {
 							lte:

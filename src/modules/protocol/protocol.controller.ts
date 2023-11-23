@@ -219,7 +219,7 @@ export class ProtocolController {
 		};
 	}
 
-	@Patch(':id')
+	@Post('cancel/:id')
 	@Role('protocolos-cancelar')
 	@ApiOperation({ summary: 'Cancela o protocolo informado' })
 	@ApiResponse({

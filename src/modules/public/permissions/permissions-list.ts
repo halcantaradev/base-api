@@ -701,4 +701,10 @@ export const permissionslist: Array<{
 		key: 'protocolos-documentos-historico',
 		message: 'Sem permissão para visualizar o histórico do documento',
 	},
+	{
+		label: 'Cancelar protocolo',
+		module: 'Protocolos',
+		key: 'protocolos-cancelar',
+		message: 'Sem permissão para cancelar protocolo',
+	},
 ];

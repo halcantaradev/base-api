@@ -593,7 +593,6 @@ model Protocolo {
   protocolo_malote        Boolean   @default(false)
   retorna_malote_vazio    Boolean   @default(false)
   finalizado              Boolean   @default(false)
-  cancelado               Boolean   @default(false)
   motivo_cancelamento     String?   @db.Text
   situacao                Int       @default(1)
   ativo                   Boolean   @default(true)

@@ -219,6 +219,30 @@ export class ProtocolController {
 		};
 	}
 
+	@Patch(':id')
+	@Role('protocolos-cancelar')
+	@ApiOperation({ summary: 'Cancela o protocolo informado' })
+	@ApiResponse({
+		description: 'Protocolo cancelado com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao cancelar o protocolo',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async cancelProtocol(
+		@Param('id') id: string,
+		@CurrentUser() user: UserAuth,
+		@Body('motivo') motivo?: string,
+	) {
+		return {
+			success: true,
+			data: await this.protocolService.cancelById(+id, motivo, user),
+		};
+	}
+
 	@Get('print/:id')
 	@Role('protocolos-exibir-dados')
 	@ApiOperation({ summary: 'Imprimir os dados do protocolo' })

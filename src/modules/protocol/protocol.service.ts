@@ -1,4 +1,3 @@
-import { VirtualPackage } from './../virtual-package/entities/virtual-package.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/services/prisma.service';
 import { CreateProtocolDto } from './dto/create-protocol.dto';
@@ -94,7 +93,7 @@ export class ProtocolService {
 		retorna_malote_vazio: true,
 		ativo: true,
 		situacao: true,
-
+		motivo_cancelamento: true,
 		finalizado: true,
 		data_finalizado: true,
 		created_at: true,
@@ -526,6 +525,27 @@ export class ProtocolService {
 						},
 					},
 				],
+			},
+		});
+	}
+
+	async cancelById(
+		id: number,
+		motivo = '',
+		user: UserAuth,
+	): Promise<Protocol> {
+		const protocol = await this.findById(id, user);
+
+		if (!protocol || protocol.situacao != ProtocolSituation.PENDENTE)
+			throw new BadRequestException('Protocolo não encontrado');
+
+		return this.prisma.protocolo.update({
+			where: {
+				id,
+			},
+			data: {
+				situacao: ProtocolSituation.CANCELADO,
+				motivo_cancelamento: motivo,
 			},
 		});
 	}

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
 	IsDateString,
 	IsInt,
@@ -13,6 +14,7 @@ export class FiltersSearchVirtualPackageDto {
 		example: 1,
 		required: false,
 	})
+	@Transform(({ value }) => Number(value))
 	@IsOptional()
 	@IsInt({
 		message:

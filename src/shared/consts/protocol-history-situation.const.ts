@@ -12,9 +12,10 @@ export class ProtocolHistorySituation {
 	static ENVIADO_MALOTE = 11;
 	static ESTORNO_MALOTE = 12;
 	static BAIXADO = 13;
-	static NAO_RECEBIDO = 14;
+	static NAO_RETORNADO = 14;
 	static ESTORNO_BAIXA = 15;
 	static MALOTE_IMPRESSO = 16;
+	static ESTORNO_NAO_RETORNADO = 17;
 
 	static DESCRICAO = {
 		1: 'Adicionado no protocolo',
@@ -33,6 +34,7 @@ export class ProtocolHistorySituation {
 		14: 'Não recebido no malote',
 		15: 'Baixa estornada no malote',
 		16: 'Impresso no malote',
+		17: 'Não recebimento estornado no malote',
 	};
 
 	static COR = {
@@ -52,6 +54,7 @@ export class ProtocolHistorySituation {
 		14: 'red',
 		15: 'red',
 		16: 'blue',
+		17: 'red',
 	};
 
 	static ICONE = {
@@ -71,5 +74,6 @@ export class ProtocolHistorySituation {
 		14: 'issues-close',
 		15: 'rollback',
 		16: 'printer',
+		17: 'rollback',
 	};
 }

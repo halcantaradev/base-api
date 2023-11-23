@@ -234,7 +234,7 @@ export class VirtualPackageService {
 	async report(user: UserAuth, filters: FiltersVirtualPackageDto) {
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id: user.empresa_id,
-			situacao: filters.situacao.length
+			situacao: filters.situacao?.length
 				? { in: filters.situacao }
 				: undefined,
 			excluido: false,
@@ -676,7 +676,7 @@ export class VirtualPackageService {
 				usuario_id: user.id,
 				situacao: receiveVirtualPackageDto.recebido
 					? ProtocolHistorySituation.BAIXADO
-					: ProtocolHistorySituation.NAO_RECEBIDO,
+					: ProtocolHistorySituation.NAO_RETORNADO,
 				descricao: receiveVirtualPackageDto?.justificativa,
 			})),
 		});
@@ -780,6 +780,7 @@ export class VirtualPackageService {
 			select: {
 				id: true,
 				malote_virtual_id: true,
+				situacao: true,
 			},
 			where: {
 				id: { in: reverseReceiveVirtualPackageDto.documentos_ids },
@@ -807,7 +808,10 @@ export class VirtualPackageService {
 				'Documento(s) informado(s) não pode ser estornado(s) ou não encontrado(s)',
 			);
 
-		const documents_ids_accept = documents.map((document) => document.id);
+		const documents_ids_accept = documents.map((document) => ({
+			id: document.id,
+			situacao: document.situacao,
+		}));
 
 		await this.prisma.maloteDocumento.updateMany({
 			data: {
@@ -816,7 +820,7 @@ export class VirtualPackageService {
 			},
 			where: {
 				malote_virtual_id: id,
-				id: { in: documents_ids_accept },
+				id: { in: documents_ids_accept.map((d) => d.id) },
 			},
 		});
 
@@ -836,10 +840,13 @@ export class VirtualPackageService {
 		});
 
 		await this.prisma.protocoloDocumentoHistorico.createMany({
-			data: documents_ids_accept.map((document_id) => ({
-				documento_id: document_id,
+			data: documents_ids_accept.map((document) => ({
+				documento_id: document.id,
 				usuario_id: user.id,
-				situacao: ProtocolHistorySituation.ESTORNO_BAIXA,
+				situacao:
+					document.situacao == 3
+						? ProtocolHistorySituation.ESTORNO_NAO_RETORNADO
+						: ProtocolHistorySituation.ESTORNO_BAIXA,
 			})),
 		});
 

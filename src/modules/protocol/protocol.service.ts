@@ -401,7 +401,11 @@ export class ProtocolService {
 				},
 
 				tipo: filtersProtocolDto.tipo || undefined,
-				situacao: filtersProtocolDto.situacao || undefined,
+				situacao:
+					filtersProtocolDto.situacao != null &&
+					filtersProtocolDto.situacao != ProtocolSituation.CANCELADO
+						? filtersProtocolDto.situacao
+						: undefined,
 				created_at: filtersProtocolDto.data_emissao
 					? {
 							lte:
@@ -782,9 +786,10 @@ export class ProtocolService {
 	}
 
 	async dataToHandle(id: number) {
-		const protocol = await this.prisma.protocolo.findUnique({
+		const protocol = await this.prisma.protocolo.findFirst({
 			where: {
 				id,
+				situacao: { notIn: ProtocolSituation.CANCELADO },
 			},
 		});
 
@@ -977,6 +982,8 @@ export class ProtocolService {
 			},
 			where: {
 				id: protocol_id,
+				excluido: false,
+				situacao: { notIn: ProtocolSituation.CANCELADO },
 				destino_departamento: !user.acessa_todos_departamentos
 					? {
 							usuarios: {
@@ -1013,7 +1020,6 @@ export class ProtocolService {
 			},
 			data: {
 				aceito: true,
-
 				aceite_usuario_id: user.id,
 				data_aceite: new Date(),
 			},
@@ -1105,6 +1111,8 @@ export class ProtocolService {
 			},
 			where: {
 				id: protocol_id,
+				excluido: false,
+				situacao: { notIn: ProtocolSituation.CANCELADO },
 				destino_departamento: !user.acessa_todos_departamentos
 					? {
 							usuarios: {
@@ -1748,6 +1756,8 @@ export class ProtocolService {
 					in: body.documentos_ids,
 				},
 				protocolo: {
+					excluido: false,
+					situacao: { notIn: ProtocolSituation.CANCELADO },
 					destino_departamento: !user.acessa_todos_departamentos
 						? {
 								usuarios: {
@@ -1824,6 +1834,7 @@ export class ProtocolService {
 				where: {
 					id: protocolo_id,
 					excluido: false,
+					situacao: { notIn: ProtocolSituation.CANCELADO },
 				},
 			});
 		}
@@ -1851,6 +1862,7 @@ export class ProtocolService {
 			where: {
 				id: protocolo_id,
 				excluido: false,
+				situacao: { notIn: ProtocolSituation.CANCELADO },
 			},
 		});
 

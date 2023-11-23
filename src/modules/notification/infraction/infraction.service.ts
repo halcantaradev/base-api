@@ -1,7 +1,7 @@
 import { UpdateInfractionDto } from './dto/update-infraction.dto';
 import { CreateInfractionDto } from './dto/create-infraction.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { FilterInfractionDto } from './dto/filter-infraction.dto';
 import { Prisma } from '@prisma/client';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';

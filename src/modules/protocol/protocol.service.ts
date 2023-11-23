@@ -1,6 +1,6 @@
 import { VirtualPackage } from './../virtual-package/entities/virtual-package.entity';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { CreateProtocolDto } from './dto/create-protocol.dto';
 import { UpdateProtocolDto } from './dto/update-protocol.dto';
 import { Prisma } from '@prisma/client';

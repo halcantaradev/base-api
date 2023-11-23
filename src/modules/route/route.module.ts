@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { RouteService } from './route.service';
+import { PrismaModule } from 'src/shared/services/prisma/prisma.module';
 import { RouteController } from './route.controller';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { RouteService } from './route.service';
 
 @Module({
 	controllers: [RouteController],
-	providers: [RouteService, PrismaService],
+	providers: [RouteService],
+	imports: [PrismaModule],
 })
 export class RouteModule {}

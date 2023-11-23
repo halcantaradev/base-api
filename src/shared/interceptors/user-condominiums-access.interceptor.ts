@@ -4,7 +4,7 @@ import {
 	Injectable,
 	NestInterceptor,
 } from '@nestjs/common';
-import { PrismaService } from '../services/prisma.service';
+import { PrismaService } from '../services/prisma/prisma.service';
 import { UserAuth } from '../entities/user-auth.entity';
 
 @Injectable()

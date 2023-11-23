@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { setCustomHour } from 'src/shared/helpers/date.helper';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { FiltersProtocolDocumentHistoryDto } from './dto/filters-protocol-document-history.dto';
 import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
 

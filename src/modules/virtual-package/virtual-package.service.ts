@@ -234,7 +234,7 @@ export class VirtualPackageService {
 	async report(user: UserAuth, filters: FiltersVirtualPackageDto) {
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id: user.empresa_id,
-			situacao: filters.situacao.length
+			situacao: filters.situacao?.length
 				? { in: filters.situacao }
 				: undefined,
 			excluido: false,

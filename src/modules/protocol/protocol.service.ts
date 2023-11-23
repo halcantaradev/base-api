@@ -64,10 +64,54 @@ export class ProtocolService {
 		documentos: {
 			select: {
 				id: true,
-				aceite_usuario: true,
-				aceito: true,
-				rejeitado: true,
+				created_at: true,
+				protocolo: {
+					select: {
+						origem_usuario: {
+							select: {
+								nome: true,
+							},
+						},
+					},
+				},
 				tipo_documento: {
+					select: {
+						nome: true,
+					},
+				},
+				retorna: true,
+				vencimento: true,
+				rejeitado: true,
+				motivo_rejeitado: true,
+				valor: true,
+				fila_geracao_malote: {
+					where: {
+						excluido: false,
+					},
+				},
+				malote_virtual_id: true,
+				malotes_documento: {
+					select: {
+						malote_virtual: {
+							select: {
+								id: true,
+								situacao: true,
+							},
+						},
+					},
+					where: {
+						excluido: false,
+					},
+				},
+				discriminacao: true,
+				data_aceite: true,
+				aceite_usuario: {
+					select: {
+						nome: true,
+					},
+				},
+				aceito: true,
+				condominio: {
 					select: {
 						id: true,
 						nome: true,
@@ -237,7 +281,7 @@ export class ProtocolService {
 
 		return await this.prisma.protocolo.findMany({
 			select: this.select,
-			take: !filtersProtocolDto && pagination?.page ? 20 : 100,
+			take: !filtersProtocolDto && pagination?.page ? 20 : undefined,
 			skip:
 				!filtersProtocolDto && pagination?.page
 					? (pagination?.page - 1) * 20

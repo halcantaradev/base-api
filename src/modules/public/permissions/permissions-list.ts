@@ -707,4 +707,10 @@ export const permissionslist: Array<{
 		key: 'protocolos-cancelar',
 		message: 'Sem permissão para cancelar protocolo',
 	},
+	{
+		label: 'Visualizar relatório do protocolo',
+		module: 'Protocolos',
+		key: 'protocolos-relatorio',
+		message: 'Sem permissão para visualizar o relatório de protocolos',
+	},
 ];

@@ -507,7 +507,9 @@ export class VirtualPackageService {
 						},
 						setup_rotas: {
 							select: {
-								motoqueiro: true,
+								motoqueiro: {
+									select: { id: true, nome: true },
+								},
 							},
 						},
 					},

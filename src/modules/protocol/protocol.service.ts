@@ -30,6 +30,7 @@ import { ProtocolSituation } from 'src/shared/consts/protocol-situation.const';
 import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
 import { VirtualPackageDocumentSituation } from 'src/shared/consts/virtual-package-document-situation.const';
 import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
+import { CancelProtocolDto } from './dto/cancel-protocol.dto';
 
 @Injectable()
 export class ProtocolService {
@@ -138,7 +139,7 @@ export class ProtocolService {
 		retorna_malote_vazio: true,
 		ativo: true,
 		situacao: true,
-
+		motivo_cancelado: true,
 		finalizado: true,
 		data_finalizado: true,
 		created_at: true,
@@ -462,7 +463,15 @@ export class ProtocolService {
 				},
 
 				tipo: filtersProtocolDto.tipo || undefined,
-				situacao: filtersProtocolDto.situacao || undefined,
+				situacao: {
+					in:
+						filtersProtocolDto.situacao != null &&
+						filtersProtocolDto.situacao !=
+							ProtocolSituation.CANCELADO
+							? [filtersProtocolDto.situacao]
+							: undefined,
+					notIn: [ProtocolSituation.CANCELADO],
+				},
 				created_at: filtersProtocolDto.data_emissao
 					? {
 							lte:
@@ -590,6 +599,27 @@ export class ProtocolService {
 		});
 	}
 
+	async cancelById(
+		id: number,
+		cancelProtocolDto: CancelProtocolDto,
+		user: UserAuth,
+	): Promise<Protocol> {
+		const protocol = await this.findById(id, user);
+
+		if (!protocol || protocol.situacao != ProtocolSituation.PENDENTE)
+			throw new BadRequestException('Protocolo não encontrado');
+
+		return this.prisma.protocolo.update({
+			where: {
+				id,
+			},
+			data: {
+				situacao: ProtocolSituation.CANCELADO,
+				motivo_cancelado: cancelProtocolDto.motivo_cancelado,
+			},
+		});
+	}
+
 	async update(
 		id: number,
 		updateProtocolDto: UpdateProtocolDto,
@@ -664,7 +694,11 @@ export class ProtocolService {
 	) {
 		const protocolo = await this.findById(protocolo_id, user);
 
-		if (!protocolo || Number.isNaN(protocolo_id))
+		if (
+			!protocolo ||
+			Number.isNaN(protocolo_id) ||
+			protocolo.situacao === ProtocolSituation.CANCELADO
+		)
 			throw new BadRequestException('Protocolo não encontrado');
 
 		const document = await this.prisma.protocoloDocumento.create({
@@ -822,9 +856,10 @@ export class ProtocolService {
 	}
 
 	async dataToHandle(id: number) {
-		const protocol = await this.prisma.protocolo.findUnique({
+		const protocol = await this.prisma.protocolo.findFirst({
 			where: {
 				id,
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 			},
 		});
 
@@ -1017,6 +1052,8 @@ export class ProtocolService {
 			},
 			where: {
 				id: protocol_id,
+				excluido: false,
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				destino_departamento: !user.acessa_todos_departamentos
 					? {
 							usuarios: {
@@ -1053,7 +1090,6 @@ export class ProtocolService {
 			},
 			data: {
 				aceito: true,
-
 				aceite_usuario_id: user.id,
 				data_aceite: new Date(),
 			},
@@ -1145,6 +1181,8 @@ export class ProtocolService {
 			},
 			where: {
 				id: protocol_id,
+				excluido: false,
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				destino_departamento: !user.acessa_todos_departamentos
 					? {
 							usuarios: {
@@ -1788,6 +1826,8 @@ export class ProtocolService {
 					in: body.documentos_ids,
 				},
 				protocolo: {
+					excluido: false,
+					situacao: { notIn: [ProtocolSituation.CANCELADO] },
 					destino_departamento: !user.acessa_todos_departamentos
 						? {
 								usuarios: {
@@ -1864,6 +1904,7 @@ export class ProtocolService {
 				where: {
 					id: protocolo_id,
 					excluido: false,
+					situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				},
 			});
 		}
@@ -1891,6 +1932,7 @@ export class ProtocolService {
 			where: {
 				id: protocolo_id,
 				excluido: false,
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 			},
 		});
 

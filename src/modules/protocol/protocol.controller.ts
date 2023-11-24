@@ -43,6 +43,7 @@ import { ReverseDocumentProtocolDto } from './dto/reverse-document-protocol.dto.
 import { SendEmailProtocolDto } from './dto/send-email-protocol.dto';
 import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
 import { CreateVirtualPackageProtocolDto } from './dto/create-virtual-package-protocol.dto';
+import { CancelProtocolDto } from './dto/cancel-protocol.dto';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -216,6 +217,32 @@ export class ProtocolController {
 		return {
 			success: true,
 			data: await this.protocolService.findById(+id, user),
+		};
+	}
+
+	@Post('cancel/:id')
+	@Role('protocolos-cancelar')
+	@ApiOperation({ summary: 'Cancela o protocolo informado' })
+	@ApiResponse({
+		description: 'Protocolo cancelado com sucesso',
+		status: HttpStatus.OK,
+		type: ProtocolReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao cancelar o protocolo',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async cancelProtocol(
+		@Param('id') id: string,
+		@CurrentUser() user: UserAuth,
+		@Body() cancelProtocolDto: CancelProtocolDto,
+	) {
+		await this.protocolService.cancelById(+id, cancelProtocolDto, user);
+
+		return {
+			success: true,
+			message: 'Protocolo cancelado com sucesso',
 		};
 	}
 

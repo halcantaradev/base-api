@@ -630,7 +630,9 @@ export class VirtualPackageService {
 											protocolo: {
 												excluido: false,
 												situacao: {
-													notIn: ProtocolSituation.CANCELADO,
+													notIn: [
+														ProtocolSituation.CANCELADO,
+													],
 												},
 												destino_departamento_id:
 													!user.acessa_todos_departamentos
@@ -892,7 +894,7 @@ export class VirtualPackageService {
 				where: {
 					id: novos.documento.protocolo_id,
 					excluido: false,
-					situacao: { notIn: ProtocolSituation.CANCELADO },
+					situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				},
 			});
 		}
@@ -963,7 +965,7 @@ export class VirtualPackageService {
 				empresa_id: empresa_id,
 				finalizado: false,
 				excluido: false,
-				situacao: { notIn: ProtocolSituation.CANCELADO },
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				ativo: true,
 			},
 		});
@@ -1042,7 +1044,7 @@ export class VirtualPackageService {
 				finalizado: false,
 				excluido: false,
 				ativo: true,
-				situacao: { notIn: ProtocolSituation.CANCELADO },
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 			},
 		});
 

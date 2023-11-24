@@ -859,7 +859,7 @@ export class ProtocolService {
 		const protocol = await this.prisma.protocolo.findFirst({
 			where: {
 				id,
-				situacao: { notIn: ProtocolSituation.CANCELADO },
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 			},
 		});
 
@@ -1053,7 +1053,7 @@ export class ProtocolService {
 			where: {
 				id: protocol_id,
 				excluido: false,
-				situacao: { notIn: ProtocolSituation.CANCELADO },
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				destino_departamento: !user.acessa_todos_departamentos
 					? {
 							usuarios: {
@@ -1182,7 +1182,7 @@ export class ProtocolService {
 			where: {
 				id: protocol_id,
 				excluido: false,
-				situacao: { notIn: ProtocolSituation.CANCELADO },
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				destino_departamento: !user.acessa_todos_departamentos
 					? {
 							usuarios: {
@@ -1827,7 +1827,7 @@ export class ProtocolService {
 				},
 				protocolo: {
 					excluido: false,
-					situacao: { notIn: ProtocolSituation.CANCELADO },
+					situacao: { notIn: [ProtocolSituation.CANCELADO] },
 					destino_departamento: !user.acessa_todos_departamentos
 						? {
 								usuarios: {
@@ -1904,7 +1904,7 @@ export class ProtocolService {
 				where: {
 					id: protocolo_id,
 					excluido: false,
-					situacao: { notIn: ProtocolSituation.CANCELADO },
+					situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				},
 			});
 		}
@@ -1932,7 +1932,7 @@ export class ProtocolService {
 			where: {
 				id: protocolo_id,
 				excluido: false,
-				situacao: { notIn: ProtocolSituation.CANCELADO },
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 			},
 		});
 

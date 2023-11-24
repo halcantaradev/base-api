@@ -30,7 +30,6 @@ import { QueueGeneratePackageModule } from './modules/queue-generate-package/que
 import { ExternalAccessDocumentsModule } from './modules/external-access-documents/external-access-documents.module';
 import { ContractTypesCondominiumModule } from './modules/contract-type-condominium/contract-types-condominium.module';
 
-import { PrismaService } from './shared/services/prisma.service';
 import { LayoutConstsService } from './shared/services/layout-consts.service';
 
 import {
@@ -39,6 +38,7 @@ import {
 	CondominiumExists,
 	DocumentTypeExists,
 } from './shared/validators';
+import { PrismaModule } from './shared/services/prisma/prisma.module';
 
 @Module({
 	imports: [
@@ -69,12 +69,12 @@ import {
 		QueueGeneratePackageModule,
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
+		PrismaModule,
 	],
 	controllers: [AppController],
 	providers: [
 		AppService,
 		UserExists,
-		PrismaService,
 		DepartmentExists,
 		CondominiumExists,
 		DocumentTypeExists,

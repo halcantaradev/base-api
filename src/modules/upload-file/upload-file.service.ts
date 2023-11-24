@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { uploadFileOrigin } from './constants/upload-file-origin.constant';
 import { S3Service } from 'src/shared/services/s3.service';
 import { UploadFileDto } from './dto/upload-file.dto';

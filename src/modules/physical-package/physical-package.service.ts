@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Pagination } from 'src/shared/entities/pagination.entity';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { CreatePhysicalPackageDto } from './dto/create-physical-package.dto';
 import { FiltersPhysicalPackage } from './dto/filters-physical-package.dto';
 import { UpdatePhysicalPackageDto } from './dto/update-physical-package.dto';

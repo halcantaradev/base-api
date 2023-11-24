@@ -9,7 +9,7 @@ import { resolve } from 'path';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
 import { EmailService } from 'src/shared/services/email.service';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { UserAuth } from '../../../shared/entities/user-auth.entity';
 import { FirstAccessDto } from './dto/first-access.dto';
 import { LoginDataDto } from './dto/login-data.dto';

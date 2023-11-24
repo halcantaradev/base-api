@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { UpdateRouteDto } from './dto/update-route.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 
 @Injectable()

@@ -633,7 +633,11 @@ export class ProtocolService {
 	) {
 		const protocolo = await this.findById(protocolo_id, user);
 
-		if (!protocolo || Number.isNaN(protocolo_id))
+		if (
+			!protocolo ||
+			Number.isNaN(protocolo_id) ||
+			protocolo.situacao === ProtocolSituation.CANCELADO
+		)
 			throw new BadRequestException('Protocolo não encontrado');
 
 		const document = await this.prisma.protocoloDocumento.create({

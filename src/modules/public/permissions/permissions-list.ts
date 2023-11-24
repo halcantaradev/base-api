@@ -701,4 +701,10 @@ export const permissionslist: Array<{
 		key: 'protocolos-documentos-historico',
 		message: 'Sem permissão para visualizar o histórico do documento',
 	},
+	{
+		label: 'Visualizar relatório do protocolo',
+		module: 'Protocolos',
+		key: 'protocolos-relatorio',
+		message: 'Sem permissão para visualizar o relatório de protocolos',
+	},
 ];

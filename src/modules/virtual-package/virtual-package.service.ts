@@ -629,15 +629,20 @@ export class VirtualPackageService {
 										{
 											aceito: true,
 											excluido: false,
-											protocolo:
-												!user.acessa_todos_departamentos
-													? {
-															destino_departamento_id:
-																{
-																	in: user.departamentos_ids,
-																},
-													  }
-													: undefined,
+											protocolo: {
+												excluido: false,
+												situacao: {
+													notIn: [
+														ProtocolSituation.CANCELADO,
+													],
+												},
+												destino_departamento_id:
+													!user.acessa_todos_departamentos
+														? {
+																in: user.departamentos_ids,
+														  }
+														: undefined,
+											},
 										},
 										{ excluido: true },
 									],
@@ -890,6 +895,8 @@ export class VirtualPackageService {
 				select: { id: true },
 				where: {
 					id: novos.documento.protocolo_id,
+					excluido: false,
+					situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				},
 			});
 		}
@@ -960,6 +967,7 @@ export class VirtualPackageService {
 				empresa_id: empresa_id,
 				finalizado: false,
 				excluido: false,
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				ativo: true,
 			},
 		});
@@ -1038,6 +1046,7 @@ export class VirtualPackageService {
 				finalizado: false,
 				excluido: false,
 				ativo: true,
+				situacao: { notIn: [ProtocolSituation.CANCELADO] },
 			},
 		});
 

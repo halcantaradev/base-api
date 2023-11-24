@@ -237,9 +237,11 @@ export class ProtocolController {
 		@CurrentUser() user: UserAuth,
 		@Body('motivo') motivo?: string,
 	) {
+		await this.protocolService.cancelById(+id, motivo, user);
+
 		return {
 			success: true,
-			data: await this.protocolService.cancelById(+id, motivo, user),
+			message: 'Protocolo cancelado com sucesso',
 		};
 	}
 

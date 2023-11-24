@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { ContractTypesCondominiumService } from './contract-types-condominium.service';
+import { PrismaModule } from 'src/shared/services/prisma/prisma.module';
 import { ContractTypesCondominiumController } from './contract-types-condominium.controller';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { ContractTypesCondominiumService } from './contract-types-condominium.service';
 
 @Module({
 	controllers: [ContractTypesCondominiumController],
-	providers: [ContractTypesCondominiumService, PrismaService],
+	providers: [ContractTypesCondominiumService],
+	imports: [PrismaModule],
 })
 export class ContractTypesCondominiumModule {}

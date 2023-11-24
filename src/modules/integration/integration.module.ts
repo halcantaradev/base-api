@@ -1,14 +1,14 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { Filas } from 'src/shared/consts/filas.const';
 import { ExternalJwtModule } from 'src/shared/services/external-jwt/external-jwt.module';
 import { FilaModule } from 'src/shared/services/fila/fila.module';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaModule } from 'src/shared/services/prisma/prisma.module';
+import { GlobalModule } from '../global/global.module';
 import { PermissionsModule } from '../public/permissions/permissions.module';
 import { IntegrationController } from './integration.controller';
 import { IntegrationService } from './integration.service';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { Filas } from 'src/shared/consts/filas.const';
-import { GlobalModule } from '../global/global.module';
 
 @Module({
 	controllers: [IntegrationController],
@@ -18,6 +18,7 @@ import { GlobalModule } from '../global/global.module';
 		HttpModule,
 		FilaModule,
 		PermissionsModule,
+		PrismaModule,
 		ClientsModule.register([
 			{
 				name: 'NOTIFICACAO_CONSUMER_SERVICE',
@@ -61,6 +62,6 @@ import { GlobalModule } from '../global/global.module';
 			},
 		]),
 	],
-	providers: [IntegrationService, PrismaService],
+	providers: [IntegrationService],
 })
 export class IntegrationModule {}

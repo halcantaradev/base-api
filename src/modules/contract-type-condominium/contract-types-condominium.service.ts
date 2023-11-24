@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateContractTypesCondominiumDto } from './dto/create-contract-types-condominium.dto';
 import { UpdateContractTypesCondominiumDto } from './dto/update-contract-types-condominium.dto';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { FiltersContractTypesCondominiumDto } from './dto/filters-contract-types-condominium.dto';
 

@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { PersonService } from '../person/person.service';
 import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';

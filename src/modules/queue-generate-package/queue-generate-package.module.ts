@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { QueueGeneratePackageService } from './queue-generate-package.service';
+import { PrismaModule } from 'src/shared/services/prisma/prisma.module';
 import { QueueGeneratePackageController } from './queue-generate-package.controller';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { QueueGeneratePackageService } from './queue-generate-package.service';
 
 @Module({
 	controllers: [QueueGeneratePackageController],
-	providers: [QueueGeneratePackageService, PrismaService],
+	providers: [QueueGeneratePackageService],
+	imports: [PrismaModule],
 })
 export class QueueGeneratePackageModule {}

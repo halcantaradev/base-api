@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClientRMQ } from '@nestjs/microservices';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
 import { FilaService } from 'src/shared/services/fila/fila.service';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import {
 	CondominioIntegrationDto,
 	PessoaUnidadeDto,

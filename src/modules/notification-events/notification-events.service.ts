@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { NotificationWsService } from 'src/shared/services/notification-ws.service';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { SendNotificationEventUserDto } from './dto/send-notification-event-user.dto';
 import { SendNotificationEventDepartmentDto } from './dto/send-notification-event-department.dto';
 

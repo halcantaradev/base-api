@@ -1,20 +1,19 @@
 import { Module } from '@nestjs/common';
-import { UserService } from './user.service';
+import { PersonModule } from '../person/person.module';
 import { UserController } from './user.controller';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { UserService } from './user.service';
 import {
-	UsernameNotExists,
 	EmailNotExists,
 	OcupationExists,
+	UsernameNotExists,
 } from './validators';
-import { PersonModule } from '../person/person.module';
+import { PrismaModule } from 'src/shared/services/prisma/prisma.module';
 
 @Module({
-	imports: [PersonModule],
+	imports: [PersonModule, PrismaModule],
 	controllers: [UserController],
 	providers: [
 		UserService,
-		PrismaService,
 		UsernameNotExists,
 		EmailNotExists,
 		OcupationExists,

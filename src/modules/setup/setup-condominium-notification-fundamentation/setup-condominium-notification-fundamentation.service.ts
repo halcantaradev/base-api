@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateSetupCondominiumNotificationFundamentationDto } from './dto/create-setup-condominium-notification-fundamentation.dto';
 import { UpdateSetupCondominiumNotificationFundamentationDto } from './dto/update-setup-condominium-notification-fundamentation.dto';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 
 @Injectable()
 export class SetupCondominiumNotificationFundamentationService {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateLayoutsNotificationDto } from './dto/create-layouts-notification.dto';
 import { UpdateLayoutsNotificationDto } from './dto/update-layouts-notification.dto';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 
 @Injectable()
 export class LayoutsNotificationService {

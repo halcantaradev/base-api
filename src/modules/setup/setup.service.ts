@@ -1,5 +1,5 @@
 import { UpdateSetupNotificationDto } from './dto/update-setup-notification.dto';
-import { PrismaService } from './../../shared/services/prisma.service';
+import { PrismaService } from '../../shared/services/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { UpdateSetupSystemDto } from './dto/update-setup-system.dto';
 import { UpdateSetupPackageDto } from './dto/update-setup-package.dto';

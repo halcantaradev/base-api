@@ -2,7 +2,7 @@ import { FiltersDepartmentDto } from './dto/filters-department.dto';
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { Prisma } from '@prisma/client';
 

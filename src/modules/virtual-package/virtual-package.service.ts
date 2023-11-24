@@ -4,7 +4,7 @@ import { VirtualPackageType } from 'src/shared/consts/report-virtual-package-tyo
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { setCustomHour } from 'src/shared/helpers/date.helper';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { CreateProtocolVirtualPackageDto } from './dto/create-new-protocol-virtual-package.dto';
 import { CreateVirtualPackageDto } from './dto/create-virtual-package.dto';
 import { FiltersSearchVirtualPackageDto } from './dto/filters-search-virtual-package.dto';
@@ -234,7 +234,7 @@ export class VirtualPackageService {
 	async report(user: UserAuth, filters: FiltersVirtualPackageDto) {
 		const where: Prisma.MaloteVirtualWhereInput = {
 			empresa_id: user.empresa_id,
-			situacao: filters.situacao.length
+			situacao: filters.situacao?.length
 				? { in: filters.situacao }
 				: undefined,
 			excluido: false,

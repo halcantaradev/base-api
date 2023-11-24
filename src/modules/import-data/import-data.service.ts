@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PasswordHelper } from 'src/shared/helpers/password.helper';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { WorkSheet, read, utils } from 'xlsx';
 
 @Injectable()

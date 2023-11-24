@@ -4,7 +4,7 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { format } from 'src/shared/helpers/currency.helper';
 import { EmailService } from 'src/shared/services/email.service';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { S3Service } from 'src/shared/services/s3.service';
 import { CondominiumService } from '../condominium/condominium.service';
 import { Condominium } from '../condominium/entities/condominium.entity';

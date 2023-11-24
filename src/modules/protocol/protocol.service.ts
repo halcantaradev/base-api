@@ -30,6 +30,7 @@ import { ProtocolSituation } from 'src/shared/consts/protocol-situation.const';
 import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
 import { VirtualPackageDocumentSituation } from 'src/shared/consts/virtual-package-document-situation.const';
 import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
+import { CancelProtocolDto } from './dto/cancel-protocol.dto';
 
 @Injectable()
 export class ProtocolService {
@@ -93,7 +94,7 @@ export class ProtocolService {
 		retorna_malote_vazio: true,
 		ativo: true,
 		situacao: true,
-		motivo_cancelamento: true,
+		motivo_cancelado: true,
 		finalizado: true,
 		data_finalizado: true,
 		created_at: true,
@@ -539,7 +540,7 @@ export class ProtocolService {
 
 	async cancelById(
 		id: number,
-		motivo = '',
+		cancelProtocolDto: CancelProtocolDto,
 		user: UserAuth,
 	): Promise<Protocol> {
 		const protocol = await this.findById(id, user);
@@ -553,7 +554,7 @@ export class ProtocolService {
 			},
 			data: {
 				situacao: ProtocolSituation.CANCELADO,
-				motivo_cancelamento: motivo,
+				motivo_cancelado: cancelProtocolDto.motivo_cancelado,
 			},
 		});
 	}

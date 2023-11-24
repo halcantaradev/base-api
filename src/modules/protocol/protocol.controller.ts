@@ -43,6 +43,7 @@ import { ReverseDocumentProtocolDto } from './dto/reverse-document-protocol.dto.
 import { SendEmailProtocolDto } from './dto/send-email-protocol.dto';
 import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
 import { CreateVirtualPackageProtocolDto } from './dto/create-virtual-package-protocol.dto';
+import { CancelProtocolDto } from './dto/cancel-protocol.dto';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -235,9 +236,9 @@ export class ProtocolController {
 	async cancelProtocol(
 		@Param('id') id: string,
 		@CurrentUser() user: UserAuth,
-		@Body('motivo') motivo?: string,
+		@Body() cancelProtocolDto: CancelProtocolDto,
 	) {
-		await this.protocolService.cancelById(+id, motivo, user);
+		await this.protocolService.cancelById(+id, cancelProtocolDto, user);
 
 		return {
 			success: true,

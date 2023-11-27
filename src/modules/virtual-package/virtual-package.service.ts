@@ -1246,7 +1246,7 @@ export class VirtualPackageService {
 					{
 						situacao: {
 							in: [
-								VirtualPackageSituation.ENVIADO,
+								VirtualPackageSituation.BAIXADO,
 								VirtualPackageSituation.RETORNADO,
 							],
 						},

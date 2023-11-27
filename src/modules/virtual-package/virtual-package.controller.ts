@@ -35,6 +35,7 @@ import { VirtualPackageListReturn } from './entities/virtual-package-return.enti
 import { VirtualPackageService } from './virtual-package.service';
 import { CreateNewDocumenteProtocolVirtualPackageDto } from './dto/create-new-document-protocol-virtual-package.dto';
 import { ValidateSealVirtualPackageListReturn } from './entities/validate-seal-virtual-package-return.entity';
+import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situation.const';
 
 @ApiTags('Malotes Virtuais')
 @UseGuards(PermissionGuard)
@@ -210,7 +211,7 @@ export class VirtualPackageController {
 		};
 	}
 
-	@Post('receive-package')
+	@Post('receive-package/:situacao?')
 	@HttpCode(HttpStatus.OK)
 	@Role('malotes-virtuais-baixar')
 	@ApiOperation({ summary: 'Marca o malote como retornado' })
@@ -233,11 +234,31 @@ export class VirtualPackageController {
 		@CurrentUser() user: UserAuth,
 		@Body()
 		receivePackageVirtualPackageDto: ReceivePackageVirtualPackageDto,
+		@Param('situacao') situacao?: number,
 	) {
-		await this.virtualPackageService.receivePackageDoc(
-			receivePackageVirtualPackageDto,
-			user.empresa_id,
-		);
+		if (situacao) {
+			switch (situacao) {
+				case VirtualPackageSituation.ENVIADO:
+					await this.virtualPackageService.changeSituationPackageDoc(
+						receivePackageVirtualPackageDto,
+						user.empresa_id,
+						VirtualPackageSituation.PENDENTE,
+						VirtualPackageSituation.ENVIADO,
+					);
+					break;
+				case VirtualPackageSituation.RETORNADO:
+					await this.virtualPackageService.changeSituationPackageDoc(
+						receivePackageVirtualPackageDto,
+						user.empresa_id,
+						VirtualPackageSituation.ENVIADO,
+						VirtualPackageSituation.RETORNADO,
+					);
+					break;
+
+				default:
+					break;
+			}
+		}
 
 		return {
 			success: true,

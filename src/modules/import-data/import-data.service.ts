@@ -105,6 +105,7 @@ export class ImportDataService {
 						uf: condominio.uf,
 						cep: condominio.cep,
 						empresa_id,
+						importado: false,
 					},
 				});
 

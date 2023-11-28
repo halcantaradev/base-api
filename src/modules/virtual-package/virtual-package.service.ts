@@ -535,16 +535,18 @@ export class VirtualPackageService {
 		};
 	}
 
-	async receivePackageDoc(
+	async changeSituationPackageDoc(
 		receivePackageVirtualPackageDto: ReceivePackageVirtualPackageDto,
 		empresa_id: number,
+		situacaoCheck: number,
+		situacaoAtual: number,
 	) {
 		const virtualPackages = await this.prisma.maloteVirtual.findMany({
 			where: {
 				id: {
 					in: receivePackageVirtualPackageDto.malotes_virtuais_ids,
 				},
-				situacao: VirtualPackageSituation.PENDENTE,
+				situacao: situacaoCheck,
 				excluido: false,
 				empresa_id,
 			},
@@ -552,7 +554,7 @@ export class VirtualPackageService {
 
 		if (!virtualPackages.length)
 			throw new BadRequestException(
-				'Malote(s) informado(s) já retornado(s) ou não encontrado(s)',
+				'A situação do(s) malote(s) não pode ser alterada!',
 			);
 
 		await Promise.all(
@@ -560,7 +562,7 @@ export class VirtualPackageService {
 				async (pack) =>
 					await this.prisma.maloteVirtual.update({
 						data: {
-							situacao: VirtualPackageSituation.RECEBIDO,
+							situacao: situacaoAtual,
 							situacao_anterior: pack.situacao,
 							data_retorno: new Date(),
 						},
@@ -577,6 +579,16 @@ export class VirtualPackageService {
 	) {
 		if (Number.isNaN(id)) {
 			throw new BadRequestException('Documento não encontrado');
+		}
+
+		const maloteReceived = await this.prisma.maloteVirtual.findUnique({
+			where: { id },
+		});
+
+		if (maloteReceived.situacao != 2) {
+			throw new BadRequestException(
+				'Somente malotes retornados podem ser baixados',
+			);
 		}
 
 		const documents = await this.prisma.maloteDocumento.findMany({
@@ -596,12 +608,7 @@ export class VirtualPackageService {
 					empresa_id: user.empresa_id,
 					OR: [
 						{
-							situacao: {
-								in: [
-									VirtualPackageSituation.PENDENTE,
-									VirtualPackageSituation.RECEBIDO,
-								],
-							},
+							situacao: VirtualPackageSituation.RETORNADO,
 						},
 						{
 							situacao: VirtualPackageSituation.PROTOCOLADO,
@@ -1239,8 +1246,8 @@ export class VirtualPackageService {
 					{
 						situacao: {
 							in: [
-								VirtualPackageSituation.PENDENTE,
-								VirtualPackageSituation.RECEBIDO,
+								VirtualPackageSituation.BAIXADO,
+								VirtualPackageSituation.RETORNADO,
 							],
 						},
 						documentos_malote: {

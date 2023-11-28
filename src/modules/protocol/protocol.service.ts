@@ -1980,7 +1980,7 @@ export class ProtocolService {
 				OR: [
 					{
 						situacao: {
-							in: [VirtualPackageSituation.RECEBIDO],
+							in: [VirtualPackageSituation.RETORNADO],
 						},
 					},
 					{

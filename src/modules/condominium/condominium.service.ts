@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { PersonService } from '../person/person.service';
 import { FiltersCondominiumDto } from './dto/filters-condominium.dto';
 import { FiltersResidenceDto } from './dto/filters-residence.dto';
@@ -186,6 +186,7 @@ export class CondominiumService {
 		return this.prisma.pessoa.update({
 			data: {
 				nome: body.nome,
+				ativo: body.ativo,
 				cnpj: body.cnpj,
 				cep: body.cep,
 				endereco: body.endereco,
@@ -977,7 +978,9 @@ export class CondominiumService {
 		const unidades = await this.prisma.unidade.findMany({
 			select: {
 				id: true,
+
 				codigo: true,
+				created_at: true,
 				condominos: {
 					select: {
 						condomino: { select: { nome: true, id: true } },
@@ -1124,12 +1127,25 @@ export class CondominiumService {
 			select: {
 				id: true,
 				codigo: true,
+				condominio: {
+					select: {
+						nome: true,
+					},
+				},
 				condominos: {
 					select: {
-						condomino: { select: { nome: true } },
+						condomino: {
+							select: {
+								nome: true,
+								endereco: true,
+								cidade: true,
+								bairro: true,
+							},
+						},
 						tipo: { select: { descricao: true } },
 					},
 				},
+				created_at: true,
 				ativo: true,
 			},
 			where: {

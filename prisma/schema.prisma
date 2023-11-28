@@ -49,6 +49,12 @@ model Pessoa {
   protocolos_documentos_condominio ProtocoloDocumento[]
   protocolos_empresa               Protocolo[]
   emails_setup                     EmailSetup[]
+  rotas                            Rota[]
+  malotes_fisicos                  MalotesFisicos[]
+  condominio_malotes_virtuais      MaloteVirtual[]               @relation("CondominioMalotes")
+  empresa_malotes_virtuais         MaloteVirtual[]               @relation("EmpresaMalotes")
+  setup_rotas                      MaloteSetup?
+  documento_fila_geracao           DocumentoFilaGeracao[]
   tipo_infracao                    CondominioHasTipoInfracao[]
   condominios_tipos_contratos      CondominiosHasTiposContrato[]
 
@@ -70,9 +76,10 @@ model TiposPessoa {
 }
 
 model Cargo {
-  id         Int      @id @default(autoincrement())
-  nome       String   @unique
-  ativo      Boolean  @default(true)
+  id    Int     @id @default(autoincrement())
+  nome  String  @unique
+  ativo Boolean @default(true)
+
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
@@ -114,25 +121,29 @@ model User {
   created_at                 DateTime @default(now())
   updated_at                 DateTime @updatedAt
 
-  empresas                       EmpresasHasUsuarios[]
-  permissoes                     UsuarioHasPermissoes[]
-  departamentos                  UsuarioHasDepartamentos[]
-  condominios                    UsuarioHasCondominios[]
-  destino_protocolos             Protocolo[]               @relation(name: "DestinoProtocoloUsuario")
-  origem_protocolos              Protocolo[]               @relation(name: "OrigemProtocoloUsuario")
-  protocolo_documentos_recebidos ProtocoloDocumento[]
-  conexoes_socket                ConexaoSocket[]
+  empresas                        EmpresasHasUsuarios[]
+  permissoes                      UsuarioHasPermissoes[]
+  departamentos                   UsuarioHasDepartamentos[]
+  condominios                     UsuarioHasCondominios[]
+  destino_protocolos              Protocolo[]                   @relation(name: "DestinoProtocoloUsuario")
+  origem_protocolos               Protocolo[]                   @relation(name: "OrigemProtocoloUsuario")
+  protocolo_documentos_recebidos  ProtocoloDocumento[]
+  conexoes_socket                 ConexaoSocket[]
+  setup_rotas                     MaloteSetup[]
+  malotes_virtuais                MaloteVirtual[]
+  protocolo_documentos_historicos ProtocoloDocumentoHistorico[]
 
   @@map("usuarios")
 }
 
 model EmpresasHasUsuarios {
-  id         Int      @id @default(autoincrement())
-  usuario_id Int
-  empresa_id Int
-  cargo_id   Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  usuario_id   Int
+  empresa_id   Int
+  cargo_id     Int
+  tipo_usuario Int      @default(1)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   usuario User   @relation(fields: [usuario_id], references: [id])
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
@@ -325,6 +336,7 @@ model Departamento {
   empresa_id Int
   filial_id  Int
   nac        Boolean  @default(false)
+  externo    Boolean  @default(false)
   ativo      Boolean  @default(true)
   excluido   Boolean  @default(false)
   created_at DateTime @default(now())
@@ -439,6 +451,7 @@ model SistemaSetup {
   empresa_id               Int      @unique
   salario_minimo_base      Float
   sancao                   String   @db.Text
+  obriga_malote_fisico     Boolean  @default(false)
   texto_padrao_notificacao String   @db.Text
   created_at               DateTime @default(now())
   updated_at               DateTime @updatedAt
@@ -577,8 +590,10 @@ model Protocolo {
   destino_usuario_id      Int?
   origem_usuario_id       Int?
   data_finalizado         DateTime?
+  protocolo_malote        Boolean   @default(false)
   retorna_malote_vazio    Boolean   @default(false)
   finalizado              Boolean   @default(false)
+  motivo_cancelado        String?   @db.Text
   situacao                Int       @default(1)
   ativo                   Boolean   @default(true)
   excluido                Boolean   @default(false)
@@ -598,21 +613,32 @@ model Protocolo {
 model ProtocoloDocumento {
   id                Int       @id @default(autoincrement())
   protocolo_id      Int
-  tipo_documento_id Int
+  tipo_documento_id Int?
   condominio_id     Int
+  malote_virtual_id Int?
   aceite_usuario_id Int?
   discriminacao     String
   observacao        String?
+  retorna           Boolean   @default(false)
   data_aceite       DateTime?
   aceito            Boolean   @default(false)
+  rejeitado         Boolean   @default(false)
+  motivo_rejeitado  String?
   excluido          Boolean   @default(false)
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  vencimento        DateTime?
 
-  condominio     Pessoa        @relation(fields: [condominio_id], references: [id])
-  tipo_documento TipoDocumento @relation(fields: [tipo_documento_id], references: [id])
-  protocolo      Protocolo     @relation(fields: [protocolo_id], references: [id])
-  aceite_usuario User?         @relation(fields: [aceite_usuario_id], references: [id])
+  valor      Float?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  condominio          Pessoa                        @relation(fields: [condominio_id], references: [id])
+  tipo_documento      TipoDocumento?                @relation(fields: [tipo_documento_id], references: [id])
+  protocolo           Protocolo                     @relation(fields: [protocolo_id], references: [id])
+  aceite_usuario      User?                         @relation(fields: [aceite_usuario_id], references: [id])
+  malote_virtual      MaloteVirtual?                @relation(fields: [malote_virtual_id], references: [id])
+  malotes_documento   MaloteDocumento[]
+  fila_geracao_malote DocumentoFilaGeracao[]
+  historico           ProtocoloDocumentoHistorico[]
 
   @@map("protocolo_documentos")
 }
@@ -678,6 +704,120 @@ model NotificacaoEvento {
   @@map("notificacoes_eventos")
 }
 
+model Rota {
+  id         Int      @id @default(autoincrement())
+  empresa_id Int
+  turno      Int      @default(1)
+  dom        Boolean  @default(false)
+  seg        Boolean  @default(false)
+  ter        Boolean  @default(false)
+  qua        Boolean  @default(false)
+  qui        Boolean  @default(false)
+  sex        Boolean  @default(false)
+  sab        Boolean  @default(false)
+  ativo      Boolean  @default(true)
+  excluido   Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa Pessoa        @relation(fields: [empresa_id], references: [id])
+  setups  MaloteSetup[]
+
+  @@map("rotas")
+}
+
+model MaloteSetup {
+  condominio_id      Int      @unique
+  rota_id            Int
+  motoqueiro_id      Int
+  quantidade_malotes Int
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  condominio Pessoa @relation(fields: [condominio_id], references: [id])
+  rota       Rota   @relation(fields: [rota_id], references: [id])
+  motoqueiro User   @relation(fields: [motoqueiro_id], references: [id])
+
+  @@map("malotes_setup")
+}
+
+model MalotesFisicos {
+  id         Int      @id @default(autoincrement())
+  empresa_id Int
+  codigo     String
+  disponivel Boolean  @default(true)
+  situacao   Int      @default(1)
+  ativo      Boolean  @default(true)
+  alerta     Boolean  @default(false)
+  excluido   Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  empresa          Pessoa          @relation(fields: [empresa_id], references: [id])
+  malotes_virtuais MaloteVirtual[]
+
+  @@map("malotes_fisicos")
+}
+
+model MaloteVirtual {
+  id                     Int       @id @default(autoincrement())
+  empresa_id             Int
+  usuario_id             Int
+  condominio_id          Int
+  malote_fisico_id       Int?
+  malote_disponibilizado Boolean   @default(false)
+  lacre_saida            String?
+  lacre_retorno          String?
+  situacao               Int       @default(1)
+  situacao_anterior      Int?
+  protocolado_baixado    Boolean   @default(false)
+  excluido               Boolean   @default(false)
+  data_saida             DateTime?
+  data_retorno           DateTime?
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
+
+  condominio           Pessoa               @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
+  empresa              Pessoa               @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])
+  malote_fisico        MalotesFisicos?      @relation(fields: [malote_fisico_id], references: [id])
+  usuario              User                 @relation(fields: [usuario_id], references: [id])
+  documentos_malote    MaloteDocumento[]
+  documentos_protocolo ProtocoloDocumento[]
+
+  @@map("malotes_virtuais")
+}
+
+model MaloteDocumento {
+  id                Int      @id @default(autoincrement())
+  malote_virtual_id Int
+  documento_id      Int
+  excluido          Boolean  @default(false)
+  situacao          Int      @default(1)
+  justificativa     String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  malote_virtual MaloteVirtual      @relation(fields: [malote_virtual_id], references: [id])
+  documento      ProtocoloDocumento @relation(fields: [documento_id], references: [id])
+
+  @@map("malotes_documentos")
+}
+
+model DocumentoFilaGeracao {
+  id           Int      @id @default(autoincrement())
+  empresa_id   Int
+  documento_id Int
+  gerado       Boolean  @default(false)
+  excluido     Boolean  @default(false)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  documento ProtocoloDocumento @relation(fields: [documento_id], references: [id])
+  empresa   Pessoa             @relation(fields: [empresa_id], references: [id])
+
+  @@map("documentos_fila_geracao")
+}
+
 model CondominioHasTipoInfracao {
   id               Int      @id @default(autoincrement())
   condominio_id    Int
@@ -691,4 +831,19 @@ model CondominioHasTipoInfracao {
   tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])
 
   @@map("condominios_has_tipos_infracoes")
+}
+
+model ProtocoloDocumentoHistorico {
+  id           Int      @id @default(autoincrement())
+  documento_id Int
+  situacao     Int
+  descricao    String?  @db.Text
+  usuario_id   Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  usuario             User               @relation(fields: [usuario_id], references: [id])
+  protocolo_documento ProtocoloDocumento @relation(fields: [documento_id], references: [id])
+
+  @@map("malote_documento_historicos")
 }

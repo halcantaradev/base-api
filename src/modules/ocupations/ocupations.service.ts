@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { CreateOcupationDto } from './dto/create-ocupation.dto';
 import { UpdateOcupationDto } from './dto/update-ocupation.dto';
 

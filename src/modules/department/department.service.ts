@@ -2,7 +2,7 @@ import { FiltersDepartmentDto } from './dto/filters-department.dto';
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { Prisma } from '@prisma/client';
 
@@ -18,6 +18,7 @@ export class DepartmentService {
 				nome: true,
 			},
 		},
+		externo: true,
 		nome: true,
 		nac: true,
 		ativo: true,
@@ -29,6 +30,7 @@ export class DepartmentService {
 				nome: createDepartmentDto.nome,
 				nac: createDepartmentDto.nac || false,
 				empresa_id,
+				externo: createDepartmentDto.externo,
 				filial_id: createDepartmentDto.filial_id,
 			},
 		});
@@ -74,6 +76,7 @@ export class DepartmentService {
 					  }
 					: undefined,
 				empresa_id: user.empresa_id,
+				externo: filters.externo != null ? filters.externo : undefined,
 				OR: filters.busca
 					? [
 							{
@@ -129,6 +132,7 @@ export class DepartmentService {
 				nac: updateDepartmentDto.nac,
 				nome: updateDepartmentDto.nome,
 				ativo: updateDepartmentDto.ativo,
+				externo: updateDepartmentDto.externo,
 				filial_id: updateDepartmentDto.filial_id,
 			},
 			where: {

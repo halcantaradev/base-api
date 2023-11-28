@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { LayoutsNotificationService } from './layouts-notification.service';
+import { PrismaModule } from 'src/shared/services/prisma/prisma.module';
 import { LayoutsNotificationController } from './layouts-notification.controller';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { LayoutsNotificationService } from './layouts-notification.service';
 
 @Module({
+	imports: [PrismaModule],
 	controllers: [LayoutsNotificationController],
-	providers: [LayoutsNotificationService, PrismaService],
+	providers: [LayoutsNotificationService],
 })
 export class LayoutsNotificationModule {}

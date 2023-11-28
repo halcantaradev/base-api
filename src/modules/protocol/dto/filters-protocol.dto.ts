@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsBooleanType } from 'src/shared/validators';
 import { IsDateString, IsInt, IsOptional, Validate } from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
+import { ProtocolSituation } from 'src/shared/consts/protocol-situation.const';
 
 export class FiltersProtocolDto {
 	@ApiProperty({
@@ -15,19 +16,28 @@ export class FiltersProtocolDto {
 
 	@ApiProperty({
 		description: 'Filtro por tipo do protocolo',
-		example: '001',
+		example: 1,
 		required: false,
 	})
 	@IsOptional()
 	tipo: 1 | 2;
 
 	@ApiProperty({
-		description: 'Filtro por situação do protocolo',
-		example: '001',
+		description: 'Filtro por tipo dos itens do protocolo',
+		example: 1,
 		required: false,
 	})
 	@IsOptional()
-	situacao: 1 | 2 | 3;
+	tipo_protocolo: 1 | 2;
+
+	@ApiProperty({
+		description: 'Filtro por situação do protocolo',
+		enum: ProtocolSituation,
+		example: Object.values(ProtocolSituation),
+		required: false,
+	})
+	@IsOptional()
+	situacao: number;
 
 	@ApiProperty({
 		description: 'Filtro por usuário de origem',

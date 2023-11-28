@@ -2,7 +2,7 @@ import { FiltersSubsidiaryDto } from './dto/filters-subsidiary.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateSubsidiaryDto } from './dto/create-subsidiary.dto';
 import { UpdateSubsidiaryDto } from './dto/update-subsidiary.dto';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
 
 @Injectable()

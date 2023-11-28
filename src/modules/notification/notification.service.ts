@@ -4,7 +4,7 @@ import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { format } from 'src/shared/helpers/currency.helper';
 import { EmailService } from 'src/shared/services/email.service';
 import { ExternalJwtService } from 'src/shared/services/external-jwt/external-jwt.service';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { S3Service } from 'src/shared/services/s3.service';
 import { CondominiumService } from '../condominium/condominium.service';
 import { Condominium } from '../condominium/entities/condominium.entity';
@@ -19,6 +19,12 @@ import { ReturnNotificationEntity } from './entities/return-notification.entity'
 import { ValidatedNotification } from './entities/validated-notification.entity';
 import { setCustomHour } from 'src/shared/helpers/date.helper';
 import { defaultLogo } from 'src/shared/consts/default-logo.base64';
+import { ContactType } from 'src/shared/consts/contact-type.const';
+import { Contact } from 'src/shared/consts/contact.const';
+import { SendMailNotificationDto } from './dto/send-mail-notification.dto';
+import { LayoutsNotificationService } from '../layouts-notification/layouts-notification.service';
+import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
+import { HandlebarsService } from 'src/shared/services/handlebars.service';
 
 @Injectable()
 export class NotificationService {
@@ -30,6 +36,9 @@ export class NotificationService {
 		private readonly emailService: EmailService,
 		private readonly externalJtwService: ExternalJwtService,
 		private readonly s3Service: S3Service,
+		private readonly layoutNotificationServe: LayoutsNotificationService,
+		private readonly layoutService: LayoutConstsService,
+		private readonly handleBarService: HandlebarsService,
 	) {}
 
 	async create(createNotificationDto: CreateNotificationDto, user: UserAuth) {
@@ -160,18 +169,12 @@ export class NotificationService {
 			},
 		}));
 
-		const notifications = await this.prisma.pessoa.findMany({
+		const condominiums = await this.prisma.pessoa.findMany({
 			select: {
 				id: true,
-				nome: true,
-				endereco: true,
 				unidades_condominio: {
 					select: {
 						id: true,
-						codigo: true,
-						condominos: {
-							select: { condomino: true, tipo: true },
-						},
 					},
 					where: filtro
 						? {
@@ -190,7 +193,6 @@ export class NotificationService {
 											filtro.tipo_infracao_id
 												? filtro.tipo_infracao_id
 												: undefined,
-
 										data_emissao: filtro.data_emissao
 											? {
 													gte:
@@ -208,7 +210,6 @@ export class NotificationService {
 														) || undefined,
 											  }
 											: undefined,
-
 										data_infracao: filtro.data_infracao
 											? {
 													gte:
@@ -344,6 +345,134 @@ export class NotificationService {
 					  }
 					: undefined,
 			},
+		});
+
+		const setup = await this.prisma.notificacaoSetup.findMany({
+			select: { condominio_id: true, prazo_interpor_recurso: true },
+			where: {
+				condominio_id: {
+					in: condominiums.map((notificacao) => notificacao.id),
+				},
+			},
+		});
+
+		const residences_ids: number[] = [];
+
+		if (filtro.prazo_recurso && setup.length) {
+			await Promise.all(
+				condominiums.map(async (condominium) => {
+					const setup_condominio = setup.find(
+						(setup) => setup.condominio_id === condominium.id,
+					);
+
+					await Promise.all(
+						condominium.unidades_condominio.map(
+							async (residence) => {
+								const dia = new Date();
+
+								dia.setDate(
+									new Date().getDate() -
+										(setup_condominio?.prazo_interpor_recurso ||
+											0),
+								);
+
+								let notification = true;
+								if (
+									!!setup_condominio?.prazo_interpor_recurso
+								) {
+									notification =
+										!!(await this.prisma.notificacao.findFirst(
+											{
+												where: {
+													data_emissao: {
+														gte:
+															filtro.prazo_recurso ==
+															1
+																? setCustomHour(
+																		dia,
+																  )
+																: undefined,
+														lt:
+															filtro.prazo_recurso ==
+															2
+																? setCustomHour(
+																		dia,
+																  )
+																: undefined,
+													},
+													unidade_id: residence.id,
+													ativo: true,
+												},
+											},
+										));
+								}
+
+								if (notification)
+									residences_ids.push(residence.id);
+							},
+						),
+					);
+				}),
+			);
+		} else {
+			condominiums.forEach((condominium) => {
+				condominium.unidades_condominio.forEach((residence) =>
+					residences_ids.push(residence.id),
+				);
+			});
+		}
+
+		const notifications = await this.prisma.pessoa.findMany({
+			select: {
+				id: true,
+				nome: true,
+				endereco: true,
+				unidades_condominio: {
+					select: {
+						id: true,
+						codigo: true,
+						condominos: {
+							select: { condomino: true, tipo: true },
+						},
+					},
+					where: {
+						AND: [
+							{
+								id: {
+									in: residences_ids,
+								},
+							},
+							{
+								id: filtro.unidades_ids
+									? {
+											in: filtro.unidades_ids,
+									  }
+									: undefined,
+							},
+						],
+					},
+				},
+			},
+			where: {
+				unidades_condominio: {
+					some: {
+						AND: [
+							{
+								id: {
+									in: residences_ids,
+								},
+							},
+							{
+								id: filtro.unidades_ids
+									? {
+											in: filtro.unidades_ids,
+									  }
+									: undefined,
+							},
+						],
+					},
+				},
+			},
 			take: !report && pagination?.page ? 20 : 100,
 			skip:
 				!report && pagination?.page
@@ -354,103 +483,13 @@ export class NotificationService {
 		const total_pages = !report
 			? await this.prisma.pessoa.count({
 					where: {
-						tipos: {
+						unidades_condominio: {
 							some: {
-								tipo: {
-									nome: 'condominio',
+								id: {
+									in: residences_ids,
 								},
 							},
 						},
-						empresa_id: user.empresa_id,
-						id: filtro.condominios_ids
-							? { in: filtro.condominios_ids }
-							: undefined,
-						departamentos_condominio:
-							!user.acessa_todos_departamentos
-								? {
-										some: {
-											departamento_id: {
-												in: user.departamentos_ids,
-											},
-										},
-								  }
-								: {
-										some: {},
-								  },
-						usuarios_condominio: idsConsultores
-							? {
-									some: {
-										usuario_id: {
-											in: idsConsultores,
-										},
-									},
-							  }
-							: undefined,
-						unidades_condominio: filtro
-							? {
-									some: {
-										id: filtro.unidades_ids
-											? {
-													in: filtro.unidades_ids,
-											  }
-											: undefined,
-										notificacoes: {
-											some: {
-												tipo_registro:
-													filtro.tipo_registro
-														? filtro.tipo_registro
-														: undefined,
-												tipo_infracao_id:
-													filtro.tipo_infracao_id
-														? filtro.tipo_infracao_id
-														: undefined,
-
-												data_emissao:
-													filtro.data_emissao
-														? {
-																gte:
-																	setCustomHour(
-																		filtro
-																			.data_emissao[0],
-																		23,
-																		59,
-																		59,
-																	) ||
-																	undefined,
-																lte:
-																	setCustomHour(
-																		filtro
-																			.data_emissao[1],
-																	) ||
-																	undefined,
-														  }
-														: undefined,
-
-												data_infracao:
-													filtro.data_infracao
-														? {
-																gte:
-																	setCustomHour(
-																		filtro
-																			.data_infracao[0],
-																	) ||
-																	undefined,
-																lte:
-																	setCustomHour(
-																		filtro
-																			.data_infracao[1],
-																		23,
-																		59,
-																		59,
-																	) ||
-																	undefined,
-														  }
-														: undefined,
-											},
-										},
-									},
-							  }
-							: undefined,
 					},
 			  })
 			: 0;
@@ -506,38 +545,16 @@ export class NotificationService {
 			);
 		}
 
-		const notifications = await this.prisma.pessoa.findMany({
+		const condominiums = await this.prisma.pessoa.findMany({
 			select: {
 				id: true,
-				nome: true,
-				endereco: true,
 				unidades_condominio: {
 					select: {
 						id: true,
-						codigo: true,
 						notificacoes: {
 							select: {
-								tipo_registro: true,
-								tipo_infracao_id: true,
-								ativo: true,
-								codigo: true,
-								observacoes: true,
-								pessoa_id: true,
-								detalhes_infracao: true,
-								vencimento_multa: true,
-								competencia_multa: true,
-								created_at: true,
-								data_emissao: true,
-								data_infracao: true,
-								fundamentacao_legal: true,
 								id: true,
-								unidade_id: true,
-								unir_taxa: true,
-								updated_at: true,
-								valor_multa: true,
-								tipo_infracao: {
-									select: { id: true, descricao: true },
-								},
+								data_emissao: true,
 							},
 							where: filtro
 								? {
@@ -593,9 +610,6 @@ export class NotificationService {
 										},
 								  }
 								: undefined,
-						},
-						condominos: {
-							select: { condomino: true, tipo: true },
 						},
 					},
 					where: filtro
@@ -700,6 +714,113 @@ export class NotificationService {
 							},
 					  }
 					: undefined,
+			},
+		});
+
+		const setup = await this.prisma.notificacaoSetup.findMany({
+			select: { condominio_id: true, prazo_interpor_recurso: true },
+			where: {
+				condominio_id: {
+					in: condominiums.map((notificacao) => notificacao.id),
+				},
+			},
+		});
+
+		const notifications_ids: number[] = [];
+
+		if (filtro.prazo_recurso && setup.length) {
+			condominiums.forEach((condominium) => {
+				const setup_condominio = setup.find(
+					(setup) => setup.condominio_id === condominium.id,
+				);
+
+				condominium.unidades_condominio.forEach((residence) => {
+					residence.notificacoes.forEach((notification) => {
+						const dia = new Date();
+
+						dia.setDate(
+							new Date().getDate() -
+								(setup_condominio?.prazo_interpor_recurso || 0),
+						);
+
+						if (
+							(filtro.prazo_recurso == 1 &&
+								notification.data_emissao >=
+									setCustomHour(dia)) ||
+							(filtro.prazo_recurso == 2 &&
+								notification.data_emissao <
+									setCustomHour(dia)) ||
+							!!setup_condominio?.prazo_interpor_recurso
+						) {
+							notifications_ids.push(notification.id);
+						}
+					});
+				});
+			});
+		} else {
+			condominiums.map((condominium) => {
+				condominium.unidades_condominio.forEach((residence) =>
+					residence.notificacoes.forEach((notification) => {
+						notifications_ids.push(notification.id);
+					}),
+				);
+			});
+		}
+
+		const notifications = await this.prisma.pessoa.findMany({
+			select: {
+				id: true,
+				nome: true,
+				endereco: true,
+				unidades_condominio: {
+					select: {
+						id: true,
+						codigo: true,
+						notificacoes: {
+							select: {
+								tipo_registro: true,
+								tipo_infracao_id: true,
+								ativo: true,
+								codigo: true,
+								observacoes: true,
+								pessoa_id: true,
+								detalhes_infracao: true,
+								vencimento_multa: true,
+								competencia_multa: true,
+								created_at: true,
+								data_emissao: true,
+								data_infracao: true,
+								fundamentacao_legal: true,
+								id: true,
+								unidade_id: true,
+								unir_taxa: true,
+								updated_at: true,
+								valor_multa: true,
+								tipo_infracao: {
+									select: { id: true, descricao: true },
+								},
+							},
+							where: { id: { in: notifications_ids } },
+						},
+						condominos: {
+							select: { condomino: true, tipo: true },
+						},
+					},
+					where: {
+						notificacoes: {
+							some: { id: { in: notifications_ids } },
+						},
+					},
+				},
+			},
+			where: {
+				unidades_condominio: {
+					some: {
+						notificacoes: {
+							some: { id: { in: notifications_ids } },
+						},
+					},
+				},
 			},
 			take: !report && pagination?.page ? 20 : 100,
 			skip:
@@ -1028,7 +1149,7 @@ export class NotificationService {
 		});
 	}
 
-	async findOneById(id: number): Promise<ReturnNotificationEntity> {
+	async findOneById(id: number) {
 		const notification = await this.prisma.notificacao.findFirst({
 			include: {
 				unidade: {
@@ -1063,15 +1184,13 @@ export class NotificationService {
 			},
 		});
 
-		return {
-			success: true,
-			data: { ...notification, arquivos },
-		};
+		return notification ? { ...notification, arquivos } : null;
 	}
 
 	async update(
 		id: number,
 		updateNotificationDto: UpdateNotificationDto,
+		user_id: number,
 	): Promise<ReturnNotificationEntity> {
 		const notification = await this.prisma.notificacao.findUnique({
 			where: { id },
@@ -1122,6 +1241,7 @@ export class NotificationService {
 		if (updateNotificationDto.arquivos_ids?.length) {
 			await this.arquivoService.removeFiles(
 				updateNotificationDto.arquivos_ids,
+				user_id,
 			);
 		}
 
@@ -1312,68 +1432,142 @@ export class NotificationService {
 
 	async findByUnidade(
 		unidade_id: number,
-		notificationUnidadeDTO: FilterNotificationDto,
+		filtro: FilterNotificationDto,
 		page?: number,
 	) {
-		const where = {
-			unidade_id,
-			unidade: {
+		const notificationList = await this.prisma.notificacao.findMany({
+			select: {
+				id: true,
+				data_emissao: true,
+			},
+			where: {
+				unidade_id,
+				unidade: filtro.condominos_ids
+					? {
+							condominio: {
+								id: { in: filtro.condominos_ids },
+							},
+					  }
+					: undefined,
+				ativo: true,
+				tipo_infracao_id: filtro.tipo_infracao_id
+					? filtro.tipo_infracao_id
+					: undefined,
+				tipo_registro: filtro.tipo_registro
+					? filtro.tipo_registro
+					: undefined,
+				data_emissao: filtro.data_emissao
+					? {
+							gte:
+								setCustomHour(filtro.data_emissao[0]) ||
+								undefined,
+							lte:
+								setCustomHour(
+									filtro.data_emissao[1],
+									23,
+									59,
+									59,
+								) || undefined,
+					  }
+					: undefined,
+				data_infracao: filtro.data_infracao
+					? {
+							gte:
+								setCustomHour(filtro.data_infracao[0]) ||
+								undefined,
+							lte:
+								setCustomHour(
+									filtro.data_infracao[1],
+									23,
+									59,
+									59,
+								) || undefined,
+					  }
+					: undefined,
+			},
+		});
+
+		const setup_condominio = await this.prisma.notificacaoSetup.findFirst({
+			select: { condominio_id: true, prazo_interpor_recurso: true },
+			where: {
 				condominio: {
-					id: { in: notificationUnidadeDTO.condominos_ids },
+					unidades_condominio: {
+						some: {
+							id: unidade_id,
+						},
+					},
 				},
 			},
-			ativo: true,
-			tipo_infracao_id: notificationUnidadeDTO.tipo_infracao_id
-				? notificationUnidadeDTO.tipo_infracao_id
-				: undefined,
-			tipo_registro: notificationUnidadeDTO.tipo_registro
-				? notificationUnidadeDTO.tipo_registro
-				: undefined,
-			data_emissao: notificationUnidadeDTO.data_emissao
-				? {
-						gte:
-							setCustomHour(
-								notificationUnidadeDTO.data_emissao[0],
-							) || undefined,
-						lte:
-							setCustomHour(
-								notificationUnidadeDTO.data_emissao[1],
-								23,
-								59,
-								59,
-							) || undefined,
-				  }
-				: undefined,
+		});
 
-			data_infracao: notificationUnidadeDTO.data_infracao
-				? {
-						gte:
-							setCustomHour(
-								notificationUnidadeDTO.data_infracao[0],
-							) || undefined,
-						lte:
-							setCustomHour(
-								notificationUnidadeDTO.data_infracao[1],
-								23,
-								59,
-								59,
-							) || undefined,
-				  }
-				: undefined,
-		};
+		const notifications_ids: number[] = [];
+		const notifications_ids_expired: number[] = [];
 
-		const total_pages = await this.prisma.notificacao.count({ where });
+		const dia = new Date();
 
-		const data = await this.prisma.notificacao.findMany({
+		dia.setDate(
+			new Date().getDate() -
+				(setup_condominio?.prazo_interpor_recurso || 0),
+		);
+
+		if (filtro.prazo_recurso && !!setup_condominio) {
+			notificationList.forEach((notification) => {
+				if (
+					filtro.prazo_recurso == 1 &&
+					notification.data_emissao >= setCustomHour(dia)
+				) {
+					notifications_ids.push(notification.id);
+				}
+
+				if (
+					filtro.prazo_recurso == 2 &&
+					notification.data_emissao < setCustomHour(dia)
+				) {
+					notifications_ids_expired.push(notification.id);
+					notifications_ids.push(notification.id);
+				}
+			});
+		} else {
+			notificationList.forEach((notification) => {
+				if (notification.data_emissao < setCustomHour(dia)) {
+					notifications_ids_expired.push(notification.id);
+				}
+
+				notifications_ids.push(notification.id);
+			});
+		}
+
+		const notifications = await this.prisma.notificacao.findMany({
 			include: {
 				pessoa: { select: { nome: true } },
 				tipo_infracao: { select: { descricao: true } },
 			},
-			where,
+			where: {
+				id: {
+					in: notifications_ids,
+				},
+			},
 			skip: page ? (page - 1) * 10 : undefined,
 			take: 10,
 		});
-		return { total_pages, data };
+
+		const total_pages = await this.prisma.notificacao.count({
+			where: {
+				id: {
+					in: notifications_ids,
+				},
+			},
+		});
+
+		return {
+			total_pages,
+			data: notifications.map((notification) => ({
+				...notification,
+				prazo_recurso_vencido: notifications_ids_expired.includes(
+					notification.id,
+				),
+			})),
+		};
 	}
 
 	async inativate(id: number) {
@@ -1388,5 +1582,219 @@ export class NotificationService {
 			data: { doc_gerado },
 			where: { id },
 		});
+	}
+
+	async findEmailsById(notification_id: number, empresa_id: number) {
+		const notification = await this.findOneById(notification_id);
+
+		if (!notification || Number.isNaN(notification_id))
+			throw new BadRequestException('Notificação não encontrada');
+
+		const administration =
+			await this.prisma.condomimioAdministracao.findMany({
+				select: {
+					id: true,
+					nome: true,
+					cargo: {
+						select: {
+							nome: true,
+						},
+					},
+				},
+				where: {
+					condominio: {
+						unidades_condominio: {
+							some: {
+								notificacoes: {
+									some: {
+										id: notification_id,
+									},
+								},
+							},
+						},
+						empresa_id,
+					},
+				},
+			});
+
+		const administrationContacts = await this.prisma.contato.findMany({
+			select: {
+				id: true,
+				contato: true,
+				descricao: true,
+				referencia_id: true,
+			},
+			where: {
+				origem: Contact.ADMINISTRACAO_CONDOMINIO,
+				referencia_id: {
+					in: administration.map((adm) => adm.id),
+				},
+				tipo: ContactType.EMAIL,
+			},
+		});
+
+		const residents = await this.prisma.pessoa.findMany({
+			select: {
+				id: true,
+				nome: true,
+				unidades: {
+					select: {
+						tipo: {
+							select: {
+								descricao: true,
+							},
+						},
+					},
+				},
+			},
+			where: {
+				ativo: true,
+				unidades: {
+					some: {
+						unidade_id: notification.unidade_id,
+					},
+				},
+			},
+		});
+
+		const residentsContacts = await this.prisma.contato.findMany({
+			select: {
+				id: true,
+				contato: true,
+				descricao: true,
+				referencia_id: true,
+			},
+			where: {
+				origem: Contact.PESSOA,
+				referencia_id: {
+					in: residents.map((resident) => resident.id),
+				},
+				tipo: ContactType.EMAIL,
+			},
+		});
+
+		return [
+			...administrationContacts.map((contact) => {
+				const admData = administration.find(
+					(adm) => adm.id == contact.referencia_id,
+				);
+
+				return {
+					...contact,
+					referencia_id: undefined,
+					proprietario: {
+						...admData,
+						cargo: undefined,
+						descricao: admData.cargo.nome,
+						tipo: Contact.ADMINISTRACAO_CONDOMINIO,
+					},
+				};
+			}),
+			...residentsContacts.map((contact) => {
+				const residentData = residents.find(
+					(condomino) => condomino.id == contact.referencia_id,
+				);
+
+				return {
+					...contact,
+					referencia_id: undefined,
+					proprietario: {
+						...residentData,
+						unidades: undefined,
+						descricao: residentData.unidades[0].tipo.descricao,
+						tipo: Contact.PESSOA,
+					},
+				};
+			}),
+		];
+	}
+
+	async sendMail(
+		notification_id: number,
+		sendMailNotificationDto: SendMailNotificationDto,
+		empresa_id: number,
+	) {
+		const notification = await this.findOneById(notification_id);
+
+		if (!notification || Number.isNaN(notification_id))
+			throw new BadRequestException('Notificação não encontrada');
+
+		if (
+			!sendMailNotificationDto.contatos_ids.length &&
+			!sendMailNotificationDto.emails.length
+		)
+			throw new BadRequestException(
+				'Nenhum endereço de email selecionado. Por favor, selecione um endereço',
+			);
+
+		const contacts = await this.findEmailsById(notification_id, empresa_id);
+		const contactsList = [
+			...contacts
+				.filter(
+					(contact) =>
+						sendMailNotificationDto?.contatos_ids &&
+						sendMailNotificationDto.contatos_ids.includes(
+							contact.id,
+						),
+				)
+				.map((contact) => contact.contato),
+			...sendMailNotificationDto?.emails,
+		];
+
+		const setupEmail = await this.prisma.emailSetup.findFirst({
+			where: {
+				empresa_id: empresa_id,
+				padrao: true,
+			},
+		});
+
+		const link = this.externalJtwService.generateURLExternal({
+			origin: 'notificacoes',
+			data: { id: notification_id },
+		});
+
+		await Promise.all(
+			contactsList.map((contact) =>
+				this.emailService.send({
+					to: contact,
+					from: process.env.EMAIL_SEND_PROVIDER,
+					subject: `Notificação ${notification_id} emitida`,
+					html: `
+						<p>Nova notificação foi emitida para a unidade ${notification.unidade.codigo}</p>
+						<p>Segue o link para visualizar os dados da notificação</p>
+						<a href="${link}">${link}</a>
+						`,
+					setup: {
+						MAIL_SMTP_HOST: setupEmail.host,
+						MAIL_SMTP_PORT: setupEmail.port,
+						MAIL_SMTP_USER: setupEmail.user,
+						MAIL_SMTP_PASS: setupEmail.password,
+						MAIL_SMTP_SECURE: setupEmail.secure,
+					},
+				}),
+			),
+		);
+	}
+
+	async generateDoc(layout_id: number, empresa_id: number, id: number) {
+		const layoutPadrao = await this.layoutNotificationServe.findOne(
+			layout_id,
+			empresa_id,
+		);
+
+		const layout = this.layoutService.replaceLayoutVars(
+			layoutPadrao.modelo,
+		);
+
+		const notificacao = await this.findOneById(id);
+		const dataToPrint = await this.dataToHandle(notificacao.id);
+
+		const html = this.handleBarService.compile(layout, dataToPrint);
+
+		return {
+			success: true,
+			data: await this.updateLayoutUsado(notificacao.id, html),
+			message: '',
+		};
 	}
 }

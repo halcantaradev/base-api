@@ -84,4 +84,44 @@ export class CreateProtocolDto {
 	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	retorna_malote_vazio?: boolean;
+
+	@ApiProperty({
+		description: 'Identifica se o protocolo é um protocolo malote',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo protocolo malote informado não é válido. Por favor, forneça um valor válido.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	protocolo_malote?: boolean;
+
+	@ApiProperty({
+		description: 'Malote de origem dos documentos do protocolo',
+		example: 1,
+		required: true,
+	})
+	@IsOptional()
+	@IsInt({
+		message:
+			'O campo malote de destino informado não é válido. Por favor, forneça um malote válido.',
+	})
+	@Type(() => Number)
+	malote_virtual_id?: number;
+
+	@ApiProperty({
+		description: 'Documentos do protocolo',
+		example: [1, 2],
+		required: true,
+	})
+	@IsInt({
+		each: true,
+		message:
+			'O documento informado não é válido. Por favor, forneça um documento válido.',
+	})
+	@Type(() => Number)
+	@IsOptional()
+	documentos_ids: number[];
 }

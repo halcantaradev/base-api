@@ -24,6 +24,8 @@ import { DepartmentListReturn } from './entities/department-list-return.entity';
 import { DepartmentReturn } from './entities/department-return.entity';
 import { Role } from 'src/shared/decorators/role.decorator';
 import { FiltersDepartmentDto } from './dto/filters-department.dto';
+import { ValidationNacDepartmentPipe } from './pipes/validate-nac-department.pipe';
+import { FiltersActiveDepartmentDto } from './dto/filters-active-department.dto';
 
 @ApiTags('Departamentos')
 @UseGuards(PermissionGuard)
@@ -53,13 +55,13 @@ export class DepartmentController {
 	})
 	async create(
 		@CurrentUser() user: UserAuth,
-		@Body() createDepartmentDto: CreateDepartmentDto,
+		@Body(new ValidationNacDepartmentPipe())
+		createDepartmentDto: CreateDepartmentDto,
 	) {
 		await this.departmentService.create(
 			user.empresa_id,
 			createDepartmentDto,
 		);
-
 		return { success: true, message: 'Departamento criado com sucesso' };
 	}
 
@@ -96,7 +98,7 @@ export class DepartmentController {
 	@Role([
 		'departamentos-listar-ativos',
 		{
-			role: 'usuarios-atualizar-vinculos-condominios',
+			role: 'usuarios-listar-condominios-limitados',
 			param: 'usuario_id',
 			param_type: 'query',
 		},
@@ -114,18 +116,19 @@ export class DepartmentController {
 	})
 	async findAllActiveByUser(
 		@CurrentUser() user: UserAuth,
-		@Query('usuario_id') usuario_id?: string,
-		@Query('busca') busca?: string,
+		@Query() filters?: FiltersActiveDepartmentDto,
 	) {
 		return {
 			success: true,
 			data: await this.departmentService.findAll(
 				user,
 				{
-					busca,
+					busca: filters.busca,
 					ativo: true,
+					externo:
+						filters.externo === true ? filters.externo : undefined,
 				},
-				+usuario_id,
+				filters.usuario_id,
 			),
 		};
 	}
@@ -146,6 +149,7 @@ export class DepartmentController {
 	async findAllActive(
 		@CurrentUser() user: UserAuth,
 		@Query('busca') busca?: string,
+		@Query('externo') externo?: boolean,
 	) {
 		return {
 			success: true,
@@ -154,6 +158,7 @@ export class DepartmentController {
 				{
 					busca,
 					ativo: true,
+					externo: externo === true ? externo : undefined,
 				},
 				undefined,
 				true,
@@ -202,7 +207,8 @@ export class DepartmentController {
 	async update(
 		@Param('id') id: string,
 		@CurrentUser() user: UserAuth,
-		@Body() updateDepartmentDto: UpdateDepartmentDto,
+		@Body(new ValidationNacDepartmentPipe())
+		updateDepartmentDto: UpdateDepartmentDto,
 	) {
 		return {
 			success: true,

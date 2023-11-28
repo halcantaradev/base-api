@@ -3,6 +3,12 @@ import { Arquivo } from '@prisma/client';
 
 export class NotificationEntity {
 	@ApiProperty({
+		description: 'Id',
+		example: 1,
+		required: true,
+	})
+	id: number;
+	@ApiProperty({
 		description: 'Informações da unidade',
 		example: { codigo: '001' },
 		required: true,

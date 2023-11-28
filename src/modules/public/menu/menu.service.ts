@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 
 @Injectable()
 export class MenuService {

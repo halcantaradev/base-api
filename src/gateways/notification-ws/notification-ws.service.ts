@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
-import { PrismaService } from 'src/shared/services/prisma.service';
+import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { WsException } from '@nestjs/websockets';
 import { SendNotificationUserDto } from './dto/send-notification-user.dto';

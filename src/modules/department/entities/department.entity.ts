@@ -30,6 +30,13 @@ export class Department {
 	nac: boolean;
 
 	@ApiProperty({
+		description: 'Departamento é um externo',
+		example: true,
+		readOnly: true,
+	})
+	externo: boolean;
+
+	@ApiProperty({
 		description: 'Status do departamento',
 		example: true,
 		readOnly: true,

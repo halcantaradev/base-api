@@ -38,6 +38,7 @@ export class ImportDataService {
 			);
 			await this.importCondominios(
 				this.getJsonFromSheet(data['condominios']),
+				empresa_id,
 			);
 
 			return { success: true, message: 'Dados importados com sucesso!' };
@@ -48,53 +49,107 @@ export class ImportDataService {
 
 	async importCondominios(
 		condominios: {
-			identificador: string;
+			identificador: string | null;
 			nac: string;
 			tipo_contrato: string;
+			nome: string;
+			cnpj: string;
+			endereco: string;
+			bairro: string;
+			cidade: string;
+			uf: string;
+			cep: string;
 		}[],
+		empresa_id: number,
 	) {
 		condominios.forEach(async (condominio) => {
-			const condominioExists =
-				await this.prisma.pessoasHasTipos.findFirst({
-					where: { original_pessoa_id: condominio.identificador },
+			if (condominio.identificador) {
+				const condominioExists =
+					await this.prisma.pessoasHasTipos.findFirst({
+						where: { original_pessoa_id: condominio.identificador },
+					});
+
+				if (condominioExists) {
+					const nac = condominio.nac
+						? await this.prisma.departamento.findFirst({
+								where: { nome: condominio.nac },
+						  })
+						: null;
+
+					const condominioDepExist = nac
+						? await this.prisma.condominioHasDepartamentos.findFirst(
+								{
+									where: {
+										departamento_id: nac.id,
+										condominio_id:
+											condominioExists.pessoa_id,
+									},
+								},
+						  )
+						: null;
+					if (!condominioDepExist && nac) {
+						await this.prisma.condominioHasDepartamentos.create({
+							data: {
+								departamento_id: nac.id,
+								condominio_id: condominioExists.pessoa_id,
+							},
+						});
+					}
+				}
+			} else {
+				const condominioExists = await this.prisma.pessoa.create({
+					data: {
+						nome: condominio.nome,
+						cnpj: condominio.cnpj,
+						endereco: condominio.endereco,
+						bairro: condominio.bairro,
+						cidade: condominio.cidade,
+						uf: condominio.uf,
+						cep: condominio.cep,
+						empresa_id,
+						importado: false,
+					},
 				});
 
-			if (condominioExists) {
+				const tipoCond = await this.prisma.tiposPessoa.findFirst({
+					where: { nome: 'condominio' },
+				});
+
+				if (tipoCond && condominioExists) {
+					await this.prisma.pessoasHasTipos.create({
+						data: {
+							pessoa_id: condominioExists.id,
+							tipo_id: tipoCond.id,
+						},
+					});
+				}
+
+				const tipoContrato = condominio.tipo_contrato
+					? await this.prisma.tipoContratoCondominio.findFirst({
+							where: { nome: condominio.tipo_contrato },
+					  })
+					: null;
+				if (tipoContrato) {
+					await this.prisma.condominiosHasTiposContrato.create({
+						data: {
+							condominio_id: condominioExists.id,
+							tipo_contrato_id: tipoContrato.id,
+						},
+					});
+				}
 				const nac = condominio.nac
 					? await this.prisma.departamento.findFirst({
 							where: { nome: condominio.nac },
 					  })
 					: null;
-
-				// const tipoContrato = condominio.tipo_contrato
-				// 	? await this.prisma.tipoContratoCondominio.findFirst({
-				// 			where: { nome: condominio.tipo_contrato },
-				// 	  })
-				// 	: null;
-
-				const condominioDepExist = nac
-					? await this.prisma.condominioHasDepartamentos.findFirst({
-							where: {
-								departamento_id: nac.id,
-								condominio_id: condominioExists.pessoa_id,
-							},
-					  })
-					: null;
-				if (!condominioDepExist && nac) {
+				if (nac) {
 					await this.prisma.condominioHasDepartamentos.create({
 						data: {
+							condominio_id: condominioExists.id,
 							departamento_id: nac.id,
-							condominio_id: condominioExists.pessoa_id,
 						},
 					});
 				}
-
-				// await this.prisma.pessoa.update({
-				// 	data: {
-				// 		tipo_contrato_id: tipoContrato ? tipoContrato.id : null,
-				// 	},
-				// 	where: { id: condominioExists.pessoa_id },
-				// });
 			}
 		});
 	}

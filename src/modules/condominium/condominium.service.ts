@@ -406,8 +406,12 @@ export class CondominiumService {
 				: null,
 			filters.tipos_contrato_ids?.length
 				? {
-						tipo_contrato_id: {
-							in: filters.tipos_contrato_ids,
+						condominios_tipos_contratos: {
+							some: {
+								tipo_contrato_id: {
+									in: filters.tipos_contrato_ids,
+								},
+							},
 						},
 				  }
 				: null,

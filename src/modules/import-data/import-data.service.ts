@@ -53,6 +53,7 @@ export class ImportDataService {
 			nac: string;
 			tipo_contrato: string;
 			nome: string;
+			cnpj: string;
 			endereco: string;
 			bairro: string;
 			cidade: string;
@@ -99,6 +100,7 @@ export class ImportDataService {
 				const condominioExists = await this.prisma.pessoa.create({
 					data: {
 						nome: condominio.nome,
+						cnpj: condominio.cnpj,
 						endereco: condominio.endereco,
 						bairro: condominio.bairro,
 						cidade: condominio.cidade,

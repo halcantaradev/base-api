@@ -216,9 +216,6 @@ export class UserService {
 													  }
 													: undefined,
 										},
-										{
-											acessa_todos_departamentos: true,
-										},
 									],
 								},
 							],

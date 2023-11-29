@@ -142,6 +142,11 @@ export class UserService {
 					empresas: {
 						select: {
 							empresa_id: true,
+							usuario: {
+								select: {
+									acessa_todos_departamentos: true,
+								},
+							},
 							cargo: {
 								select: {
 									id: true,
@@ -188,9 +193,6 @@ export class UserService {
 													},
 											  }
 											: undefined,
-								},
-								{
-									acessa_todos_departamentos: true,
 								},
 							],
 					  }

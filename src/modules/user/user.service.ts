@@ -170,27 +170,51 @@ export class UserService {
 				},
 				where: all
 					? {
-							empresas: {
-								some: {
-									tipo_usuario,
-								},
-							},
-							OR: [
+							AND: [
 								{
-									departamentos:
-										filtros.departamentos &&
-										filtros.departamentos.length
-											? {
-													some: {
-														departamento_id: {
-															in: filtros.departamentos,
-														},
+									empresas: {
+										some: {
+											tipo_usuario,
+										},
+									},
+									OR: filtros.busca
+										? [
+												{
+													id: !Number.isNaN(
+														+filtros.busca,
+													)
+														? +filtros.busca
+														: undefined,
+												},
+												{
+													nome: {
+														contains: filtros.busca,
+														mode: 'insensitive',
 													},
-											  }
-											: undefined,
+												},
+										  ]
+										: undefined,
 								},
 								{
-									acessa_todos_departamentos: true,
+									OR: [
+										{
+											departamentos:
+												filtros.departamentos &&
+												filtros.departamentos.length
+													? {
+															some: {
+																departamento_id:
+																	{
+																		in: filtros.departamentos,
+																	},
+															},
+													  }
+													: undefined,
+										},
+										{
+											acessa_todos_departamentos: true,
+										},
+									],
 								},
 							],
 					  }

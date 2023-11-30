@@ -108,8 +108,6 @@ export class AuthService {
 
 		const url = process.env.API_URL + '/login/password-recovery/' + token;
 
-		console.log(url);
-
 		let html: Buffer | string = await readFileSync(
 			resolve('./src/shared/layouts/recuperacao-senha.html'),
 		);

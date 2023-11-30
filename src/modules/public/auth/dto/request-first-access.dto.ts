@@ -3,17 +3,17 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class RequestFirstAccessDto {
 	@ApiProperty({
-		description: 'Username de acesso do usuário',
+		description: 'Usuário ou email de acesso do usuário',
 		example: 'admin',
 		required: true,
 	})
 	@IsNotEmpty({
 		message:
-			'O campo usuário é obrigatório. Por favor, forneça um usuário.',
+			'O campo usuário é obrigatório. Por favor, forneça um usuário ou email.',
 	})
 	@IsString({
 		message:
-			'O campo usuário informado não é válido. Por favor, forneça um usuário válido.',
+			'O campo usuário informado não é válido. Por favor, forneça um usuário ou email válido.',
 	})
-	username: string;
+	busca: string;
 }

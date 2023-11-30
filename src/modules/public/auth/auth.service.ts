@@ -81,7 +81,10 @@ export class AuthService {
 		const userData = await this.prisma.user.findFirst({
 			include: { empresas: { select: { empresa_id: true } } },
 			where: {
-				username: requestPasswordRecoveryDto.username,
+				OR: [
+					{ username: requestPasswordRecoveryDto.busca },
+					{ email: requestPasswordRecoveryDto.busca },
+				],
 			},
 		});
 
@@ -199,7 +202,10 @@ export class AuthService {
 		const userData = await this.prisma.user.findFirst({
 			include: { empresas: { select: { empresa_id: true } } },
 			where: {
-				username: requestFirstAccessDto.username,
+				OR: [
+					{ username: requestFirstAccessDto.busca },
+					{ email: requestFirstAccessDto.busca },
+				],
 				primeiro_acesso: true,
 			},
 		});

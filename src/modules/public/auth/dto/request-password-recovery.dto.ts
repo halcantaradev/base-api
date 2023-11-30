@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class RequestFirstAccessDto {
+export class RequestPasswordRecoveryDto {
 	@ApiProperty({
 		description: 'Usuário ou email de acesso do usuário',
 		example: 'admin',

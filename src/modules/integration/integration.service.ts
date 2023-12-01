@@ -39,6 +39,22 @@ export class IntegrationService {
 		});
 	}
 
+	findAllActive() {
+		return this.prisma.integracaoDatabase.findMany({
+			select: {
+				id: true,
+				host: true,
+				banco: true,
+				usuario: true,
+				senha: true,
+				porta: true,
+				token: true,
+				data_atualizacao: true,
+			},
+			where: { ativo: true, sincronizando: false },
+		});
+	}
+
 	generateApiTokenAccess(payload: any, id: number) {
 		const token = this.externalService.generateTokenBySecret(
 			process.env.SECRET,

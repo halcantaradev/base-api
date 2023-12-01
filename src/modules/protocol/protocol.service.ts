@@ -1739,67 +1739,61 @@ export class ProtocolService {
 		usuario_id: number,
 		tipo: TypeNotificationProtocol = TypeNotificationProtocol.NOVO_PROTOCOLO,
 	) {
-		try {
-			const department = await this.prisma.departamento.findFirst({
-				select: {
-					id: true,
-					nome: true,
-				},
-				where: {
-					id: departamento_id,
-				},
+		const department = await this.prisma.departamento.findFirst({
+			select: {
+				id: true,
+				nome: true,
+			},
+			where: {
+				id: departamento_id,
+			},
+		});
+
+		let notification;
+
+		switch (tipo) {
+			case TypeNotificationProtocol.NOVO_PROTOCOLO:
+				notification = {
+					titulo: 'Novo Protocolo',
+					conteudo: `Novo protocolo enviado para o departamento ${department.nome}, clique aqui para visualizar`,
+					rota: `protocolos/detalhes/${protocolo.id}`,
+				};
+				break;
+			case TypeNotificationProtocol.ATUALIZACAO_PROTOCOLO:
+				notification = {
+					titulo: `Protocolo ${protocolo.id} foi atualizado`,
+					conteudo: `As informações do protocolo enviado para o departamento ${department.nome} foram atualizadas, clique aqui para visualizar`,
+					rota: `protocolos/detalhes/${protocolo.id}`,
+				};
+				break;
+			case TypeNotificationProtocol.ESTORNO_DOCUMENTO_PROTOCOLO:
+				notification = {
+					titulo: `Protocolo ${protocolo.id} teve um estorno`,
+					conteudo: `Documentos foram estornados pelo departamento de destino, clique aqui para visualizar`,
+					rota: `protocolos/detalhes/${protocolo.id}`,
+				};
+				break;
+			case TypeNotificationProtocol.REJEITADO_DOCUMENTO_PROTOCOLO:
+				notification = {
+					titulo: `Protocolo ${protocolo.id} foi rejeitado`,
+					conteudo: `Documentos foram rejeitados pelo departamento de destino, clique aqui para visualizar`,
+					rota: `protocolos/detalhes/${protocolo.id}`,
+				};
+				break;
+		}
+
+		if (!usuario_id) {
+			await this.notificationEventsService.sendNotificationByDepartment({
+				departamento_id: department.id,
+				empresa_id: empresa_id,
+				notification,
 			});
-
-			let notification;
-
-			switch (tipo) {
-				case TypeNotificationProtocol.NOVO_PROTOCOLO:
-					notification = {
-						titulo: 'Novo Protocolo',
-						conteudo: `Novo protocolo enviado para o departamento ${department.nome}, clique aqui para visualizar`,
-						rota: `protocolos/detalhes/${protocolo.id}`,
-					};
-					break;
-				case TypeNotificationProtocol.ATUALIZACAO_PROTOCOLO:
-					notification = {
-						titulo: `Protocolo ${protocolo.id} foi atualizado`,
-						conteudo: `As informações do protocolo enviado para o departamento ${department.nome} foram atualizadas, clique aqui para visualizar`,
-						rota: `protocolos/detalhes/${protocolo.id}`,
-					};
-					break;
-				case TypeNotificationProtocol.ESTORNO_DOCUMENTO_PROTOCOLO:
-					notification = {
-						titulo: `Protocolo ${protocolo.id} teve um estorno`,
-						conteudo: `Documentos foram estornados pelo departamento de destino, clique aqui para visualizar`,
-						rota: `protocolos/detalhes/${protocolo.id}`,
-					};
-					break;
-				case TypeNotificationProtocol.REJEITADO_DOCUMENTO_PROTOCOLO:
-					notification = {
-						titulo: `Protocolo ${protocolo.id} foi rejeitado`,
-						conteudo: `Documentos foram rejeitados pelo departamento de destino, clique aqui para visualizar`,
-						rota: `protocolos/detalhes/${protocolo.id}`,
-					};
-					break;
-			}
-
-			if (!usuario_id) {
-				await this.notificationEventsService.sendNotificationByDepartment(
-					{
-						departamento_id: department.id,
-						empresa_id: empresa_id,
-						notification,
-					},
-				);
-			} else {
-				await this.notificationEventsService.sendNotificationByUser({
-					usuario_id: usuario_id,
-					empresa_id: empresa_id,
-					notification,
-				});
-			}
-		} catch (err) {
-			console.log(err);
+		} else {
+			await this.notificationEventsService.sendNotificationByUser({
+				usuario_id: usuario_id,
+				empresa_id: empresa_id,
+				notification,
+			});
 		}
 	}
 

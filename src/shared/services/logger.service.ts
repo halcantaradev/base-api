@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { FilaService } from './fila/fila.service';
 import { UserAuth } from '../entities/user-auth.entity';
 
 @Injectable()
 export class LoggerService {
+	private readonly logger = new Logger(LoggerService.name);
 	constructor(private readonly filaService: FilaService) {}
 
 	async send(
@@ -46,8 +47,8 @@ export class LoggerService {
 				datetime: new Date(),
 			};
 
-			console.log(
-				`[${new Date().toLocaleString()}] ${method} ${route} ${responseStatus}`,
+			this.logger.log(
+				`Request {${route}, ${method}} status: ${responseStatus}`,
 			);
 
 			await firstValueFrom(this.filaService.publishLog('', queueBody));

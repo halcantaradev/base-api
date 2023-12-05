@@ -568,6 +568,7 @@ model IntegracaoDatabase {
   senha            String
   porta            Int
   token            String?
+  tipo             String    @default("sqlserver")
   data_atualizacao DateTime?
   ativo            Boolean   @default(true)
   sincronizando    Boolean   @default(false)

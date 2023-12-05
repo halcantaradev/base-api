@@ -19,6 +19,8 @@ import { LoginEntity } from './entities/login.entity';
 import { UserFirstAccess } from './entities/user-first-access.entity';
 import { FirstAccessJwtAuthGuard } from './guards/first-access-jwt-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RequestPasswordRecoveryDto } from './dto/request-password-recovery.dto';
+import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 
 @ApiTags('Autenticação')
 @Controller('auth')
@@ -76,6 +78,71 @@ export class AuthController {
 		};
 	}
 
+	@Post('request-password-recovery')
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({
+		summary: 'Requisita a troca de senha do usuário',
+	})
+	@ApiResponse({
+		description: 'Requisição atendida',
+		status: HttpStatus.OK,
+		type: LoginEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao realizar a ação',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async requestPasswordRecovery(
+		@Body() requestPasswordRecoveryDto: RequestPasswordRecoveryDto,
+	) {
+		await this.authService.requestPasswordRecovery(
+			requestPasswordRecoveryDto,
+		);
+
+		return { success: true, message: 'Email enviado com sucesso!' };
+	}
+
+	@Post('password-recovery')
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(FirstAccessJwtAuthGuard)
+	@ApiOperation({
+		summary: 'Realiza a troca de senha ao recuperar senha do usuário',
+	})
+	@ApiResponse({
+		description: 'Senha alterada com sucesso',
+		status: HttpStatus.OK,
+		type: LoginEntity,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os campos enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao realizar a alteração',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async passwordRecovery(
+		@CurrentUser() user: UserFirstAccess,
+		@Body() passwordRecoveryDto: PasswordRecoveryDto,
+	) {
+		return {
+			success: true,
+			data: await this.authService.passwordRecovery(
+				user,
+				passwordRecoveryDto,
+			),
+			message: 'Senha alterada com sucesso!',
+		};
+	}
+
 	@Post('request-first-access')
 	@HttpCode(HttpStatus.OK)
 	@ApiOperation({
@@ -125,11 +192,15 @@ export class AuthController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	firstAccess(
+	async firstAccess(
 		@CurrentUser() user: UserFirstAccess,
 		@Body() firstAccessDto: FirstAccessDto,
 	) {
-		return this.authService.firstAccess(user, firstAccessDto);
+		return {
+			success: true,
+			data: await this.authService.firstAccess(user, firstAccessDto),
+			message: 'Senha alterada com sucesso!',
+		};
 	}
 
 	@Get('profile')

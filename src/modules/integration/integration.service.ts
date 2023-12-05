@@ -33,6 +33,7 @@ export class IntegrationService {
 				senha: true,
 				porta: true,
 				token: true,
+				tipo: true,
 				data_atualizacao: true,
 			},
 			where: { empresa_id, ativo: true, sincronizando: false },

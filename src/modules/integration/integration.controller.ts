@@ -88,6 +88,7 @@ export class IntegrationController {
 						usuario: integ.usuario,
 						senha: integ.senha,
 						porta: integ.porta,
+						tipo: integ.tipo,
 					},
 					last_date_updated: integ.data_atualizacao,
 					queue_exec:

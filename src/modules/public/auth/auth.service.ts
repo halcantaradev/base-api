@@ -324,7 +324,12 @@ export class AuthService {
 		});
 
 		const syncing = await this.prisma.integracaoDatabase.findMany({
-			where: { empresa_id: empresa.id, sincronizando: true },
+			where: {
+				empresa_id: empresa.id,
+				sincronizando: true,
+				ativo: true,
+				excluido: false,
+			},
 		});
 
 		return {

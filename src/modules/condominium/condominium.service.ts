@@ -563,6 +563,10 @@ export class CondominiumService {
 						},
 					},
 				},
+				tipos: {
+					select: { integracao: { select: { descricao: true } } },
+					where: { tipo: { nome: 'condominio' } },
+				},
 			},
 			await this.getFilterList(
 				filters,

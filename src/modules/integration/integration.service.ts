@@ -49,6 +49,7 @@ export class IntegrationService {
 				usuario: true,
 				senha: true,
 				porta: true,
+				tipo: true,
 				token: true,
 				data_atualizacao: true,
 			},

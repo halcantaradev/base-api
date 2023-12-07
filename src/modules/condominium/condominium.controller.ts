@@ -39,6 +39,7 @@ import { ReportCondominiumReturn } from './entities/report-condominium-return.en
 import { CreateCondominiumDto } from './dto/create-condominium.dto';
 import { UpdateCondominiumDto } from './dto/update-condominium.dto';
 import { CondominiumDocumentListReturn } from './entities/condominium-document-list-return.entity';
+import { FilterCondominiumDocumentDto } from './dto/filter-condominium-document.dto';
 
 @ApiTags('Condomínios')
 @UseGuards(PermissionGuard)
@@ -290,7 +291,7 @@ export class CondominiumController {
 		};
 	}
 
-	@Get(':id/documents')
+	@Post(':id/documents')
 	@Role('condominios-listar-documentos')
 	@ApiOperation({ summary: 'Lista os documentos de um condomínio' })
 	@ApiResponse({
@@ -304,12 +305,19 @@ export class CondominiumController {
 		type: ReturnEntity.error('Erro ao exibir os documentos do condomínio'),
 	})
 	async findDocuments(
-		@CurrentUser() user: UserAuth,
 		@Param('id') id: string,
+		@CurrentUser() user: UserAuth,
+		@Query() pagination: Pagination,
+		@Body() filterCondominiumDocumentDto: FilterCondominiumDocumentDto,
 	) {
 		return {
 			success: true,
-			data: await this.condominioService.findDocuments(+id, user),
+			data: await this.condominioService.findDocuments(
+				+id,
+				filterCondominiumDocumentDto,
+				user,
+				pagination,
+			),
 		};
 	}
 

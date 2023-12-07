@@ -15,6 +15,8 @@ import { CreateCondominiumDto } from './dto/create-condominium.dto';
 import { UpdateCondominiumDto } from './dto/update-condominium.dto';
 import { File } from 'src/shared/entities/file.entity';
 import { FilesOrigin } from 'src/shared/consts/file-origin.const';
+import { FilterCondominiumDocumentDto } from './dto/filter-condominium-document.dto';
+import { setCustomHour } from 'src/shared/helpers/date.helper';
 
 @Injectable()
 export class CondominiumService {
@@ -896,7 +898,12 @@ export class CondominiumService {
 		});
 	}
 
-	async findDocuments(id: number, user: UserAuth): Promise<File[]> {
+	async findDocuments(
+		id: number,
+		filterCondominiumDocumentDto: FilterCondominiumDocumentDto,
+		user: UserAuth,
+		pagination?: Pagination,
+	): Promise<File[]> {
 		const condominio = await this.findOne(id, user);
 
 		if (!condominio)
@@ -909,7 +916,49 @@ export class CondominiumService {
 				origem: FilesOrigin.CONDOMINIUM,
 				referencia_id: id,
 				ativo: true,
+				created_at: filterCondominiumDocumentDto.data_envio
+					? {
+							gte:
+								setCustomHour(
+									filterCondominiumDocumentDto.data_envio[0],
+								) || undefined,
+							lte:
+								setCustomHour(
+									filterCondominiumDocumentDto.data_envio[1],
+									23,
+									59,
+									59,
+								) || undefined,
+					  }
+					: undefined,
+				OR: filterCondominiumDocumentDto.busca
+					? [
+							{
+								id: !Number.isNaN(
+									+filterCondominiumDocumentDto.busca,
+								)
+									? +filterCondominiumDocumentDto.busca
+									: undefined,
+							},
+							{
+								nome: {
+									contains:
+										filterCondominiumDocumentDto.busca,
+									mode: 'insensitive',
+								},
+							},
+							{
+								descricao: {
+									contains:
+										filterCondominiumDocumentDto.busca,
+									mode: 'insensitive',
+								},
+							},
+					  ]
+					: undefined,
 			},
+			take: pagination?.page ? 20 : 100,
+			skip: pagination?.page ? (pagination?.page - 1) * 20 : undefined,
 		});
 	}
 

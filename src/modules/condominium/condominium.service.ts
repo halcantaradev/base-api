@@ -13,6 +13,8 @@ import { UsuariosCondominio } from './entities/usuarios-condominio.entity';
 import { ReportTypeCondominium } from './enum/report-type-condominium.enum';
 import { CreateCondominiumDto } from './dto/create-condominium.dto';
 import { UpdateCondominiumDto } from './dto/update-condominium.dto';
+import { File } from 'src/shared/entities/file.entity';
+import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 
 @Injectable()
 export class CondominiumService {
@@ -890,6 +892,23 @@ export class CondominiumService {
 						},
 					},
 				],
+			},
+		});
+	}
+
+	async findDocuments(id: number, user: UserAuth): Promise<File[]> {
+		const condominio = await this.findOne(id, user);
+
+		if (!condominio)
+			throw new BadRequestException(
+				'Ocorreu um erro ao listar os arquivos do condomínio',
+			);
+
+		return this.prisma.arquivo.findMany({
+			where: {
+				origem: FilesOrigin.CONDOMINIUM,
+				referencia_id: id,
+				ativo: true,
 			},
 		});
 	}

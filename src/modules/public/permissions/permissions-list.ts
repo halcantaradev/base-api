@@ -163,6 +163,18 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar condomínios ativos',
 	},
 	{
+		label: 'Listar todos os documentos de um condomínio',
+		module: 'Condomínios',
+		key: 'condominios-listar-documentos',
+		message: 'Sem permissão para listar os documentos do condomínio',
+	},
+	{
+		label: 'Remover os documentos de um condomínio',
+		module: 'Condomínios',
+		key: 'condominios-atualizar-documentos',
+		message: 'Sem permissão para atualizar os documentos do condomínio',
+	},
+	{
 		label: 'Exibir dados de um condomínio',
 		module: 'Condomínios',
 		key: 'condominios-exibir-dados',

@@ -83,6 +83,8 @@ model Cargo {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
+  perfil Int @default(1)
+
   usuarios   EmpresasHasUsuarios[]
   permissoes CargosHasPermissoes[]
 

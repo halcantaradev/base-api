@@ -5,4 +5,7 @@ import { IsOptional } from 'class-validator';
 export class UpdateOcupationDto extends PartialType(CreateOcupationDto) {
 	@IsOptional()
 	nome: string;
+
+	@IsOptional()
+	perfil?: number;
 }

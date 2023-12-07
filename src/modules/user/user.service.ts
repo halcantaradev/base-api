@@ -99,7 +99,6 @@ export class UserService {
 					create: {
 						cargo_id: createUserDto.cargo_id,
 						empresa_id: user.empresa_id,
-						tipo_usuario: createUserDto.tipo_usuario,
 					},
 				},
 				departamentos: createUserDto.departamentos
@@ -524,7 +523,6 @@ export class UserService {
 						updateMany: {
 							data: {
 								cargo_id: updateUserDto.cargo_id,
-								tipo_usuario: updateUserDto.tipo_usuario,
 							},
 							where: {
 								empresa_id: user.empresa_id,

@@ -16,4 +16,12 @@ export class Ocupation {
 		readOnly: true,
 	})
 	nome: string;
+
+	@ApiProperty({
+		description: 'Perfil do cargo',
+		example: 1 | 2,
+		required: true,
+		readOnly: true,
+	})
+	perfil?: string;
 }

@@ -30,6 +30,7 @@ export class IntegrationService {
 				host: true,
 				banco: true,
 				usuario: true,
+				descricao: true,
 				senha: true,
 				porta: true,
 				token: true,

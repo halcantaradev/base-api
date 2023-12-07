@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString, Validate } from 'class-validator';
+import {
+	IsInt,
+	IsNotEmpty,
+	IsOptional,
+	IsString,
+	Validate,
+} from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
 import { IsBooleanType } from 'src/shared/validators/is_boolean_type.validator';
 
@@ -31,4 +37,16 @@ export class CreateOcupationDto {
 	@Transform(BooleanTransformHelper)
 	@IsOptional()
 	ativo?: boolean;
+
+	@ApiProperty({
+		description: 'Perfil do cargo',
+		example: true,
+		required: false,
+	})
+	@IsInt({
+		message:
+			'O campo perfil informado não é válido. Por favor, forneça um perfil válido.',
+	})
+	@IsOptional()
+	perfil?: number;
 }

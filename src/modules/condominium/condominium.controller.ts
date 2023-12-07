@@ -310,14 +310,16 @@ export class CondominiumController {
 		@Query() pagination: Pagination,
 		@Body() filterCondominiumDocumentDto: FilterCondominiumDocumentDto,
 	) {
+		const data = await this.condominioService.findDocuments(
+			+id,
+			filterCondominiumDocumentDto,
+			user,
+			pagination,
+		);
+
 		return {
 			success: true,
-			data: await this.condominioService.findDocuments(
-				+id,
-				filterCondominiumDocumentDto,
-				user,
-				pagination,
-			),
+			...data,
 		};
 	}
 

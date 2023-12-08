@@ -30,6 +30,7 @@ export class IntegrationService {
 				host: true,
 				banco: true,
 				usuario: true,
+				descricao: true,
 				senha: true,
 				porta: true,
 				token: true,
@@ -37,6 +38,23 @@ export class IntegrationService {
 				data_atualizacao: true,
 			},
 			where: { empresa_id, ativo: true, sincronizando: false },
+		});
+	}
+
+	findAllActive() {
+		return this.prisma.integracaoDatabase.findMany({
+			select: {
+				id: true,
+				host: true,
+				banco: true,
+				usuario: true,
+				senha: true,
+				porta: true,
+				tipo: true,
+				token: true,
+				data_atualizacao: true,
+			},
+			where: { ativo: true, sincronizando: false },
 		});
 	}
 

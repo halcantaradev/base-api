@@ -11,6 +11,7 @@ export class OcupationsService {
 		return this.prisma.cargo.create({
 			data: {
 				nome: createOcupationDto.nome,
+				perfil: createOcupationDto.perfil,
 				ativo:
 					createOcupationDto.ativo != null
 						? createOcupationDto.ativo

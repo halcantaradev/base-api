@@ -39,6 +39,8 @@ import {
 	DocumentTypeExists,
 } from './shared/validators';
 import { PrismaModule } from './shared/services/prisma/prisma.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './shared/services/tasks/tasks.module';
 
 @Module({
 	imports: [
@@ -70,6 +72,8 @@ import { PrismaModule } from './shared/services/prisma/prisma.module';
 		ExternalAccessDocumentsModule,
 		ContractTypesCondominiumModule,
 		PrismaModule,
+		ScheduleModule.forRoot(),
+		TasksModule,
 	],
 	controllers: [AppController],
 	providers: [

@@ -725,4 +725,10 @@ export const permissionslist: Array<{
 		key: 'protocolos-relatorio',
 		message: 'Sem permissão para visualizar o relatório de protocolos',
 	},
+	{
+		label: 'Delimitar usuário ao condomínio',
+		module: 'Usuários',
+		key: 'usuarios-atualizar-vinculos-condominios',
+		message: 'Sem permissão para delimitar condominios para usuários',
+	},
 ];

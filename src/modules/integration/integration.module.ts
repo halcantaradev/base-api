@@ -63,5 +63,6 @@ import { IntegrationService } from './integration.service';
 		]),
 	],
 	providers: [IntegrationService],
+	exports: [IntegrationService],
 })
 export class IntegrationModule {}

@@ -99,7 +99,6 @@ export class UserService {
 					create: {
 						cargo_id: createUserDto.cargo_id,
 						empresa_id: user.empresa_id,
-						tipo_usuario: createUserDto.tipo_usuario,
 					},
 				},
 				departamentos: createUserDto.departamentos
@@ -142,6 +141,11 @@ export class UserService {
 					empresas: {
 						select: {
 							empresa_id: true,
+							usuario: {
+								select: {
+									acessa_todos_departamentos: true,
+								},
+							},
 							cargo: {
 								select: {
 									id: true,
@@ -170,27 +174,48 @@ export class UserService {
 				},
 				where: all
 					? {
-							empresas: {
-								some: {
-									tipo_usuario,
-								},
-							},
-							OR: [
+							AND: [
 								{
-									departamentos:
-										filtros.departamentos &&
-										filtros.departamentos.length
-											? {
-													some: {
-														departamento_id: {
-															in: filtros.departamentos,
-														},
+									empresas: {
+										some: {
+											tipo_usuario,
+										},
+									},
+									OR: filtros.busca
+										? [
+												{
+													id: !Number.isNaN(
+														+filtros.busca,
+													)
+														? +filtros.busca
+														: undefined,
+												},
+												{
+													nome: {
+														contains: filtros.busca,
+														mode: 'insensitive',
 													},
-											  }
-											: undefined,
+												},
+										  ]
+										: undefined,
 								},
 								{
-									acessa_todos_departamentos: true,
+									OR: [
+										{
+											departamentos:
+												filtros.departamentos &&
+												filtros.departamentos.length
+													? {
+															some: {
+																departamento_id:
+																	{
+																		in: filtros.departamentos,
+																	},
+															},
+													  }
+													: undefined,
+										},
+									],
 								},
 							],
 					  }
@@ -498,7 +523,6 @@ export class UserService {
 						updateMany: {
 							data: {
 								cargo_id: updateUserDto.cargo_id,
-								tipo_usuario: updateUserDto.tipo_usuario,
 							},
 							where: {
 								empresa_id: user.empresa_id,

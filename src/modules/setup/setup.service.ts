@@ -122,7 +122,9 @@ export class SetupService {
 				ativo: true,
 				empresas: {
 					some: {
-						tipo_usuario: 2,
+						cargo: {
+							perfil: 2,
+						},
 						empresa_id: empresa_id,
 					},
 				},

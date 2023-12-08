@@ -84,6 +84,7 @@ export class IntegrationController {
 					database_config: {
 						id: integ.id,
 						host: integ.host,
+						descricao: integ.descricao,
 						banco: integ.banco,
 						usuario: integ.usuario,
 						senha: integ.senha,

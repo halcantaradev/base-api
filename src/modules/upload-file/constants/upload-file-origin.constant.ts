@@ -3,4 +3,5 @@ export const uploadFileOrigin = [
 	'notificacao',
 	'protocoloDocumento',
 	'maloteVirtual',
+	'pessoa',
 ];

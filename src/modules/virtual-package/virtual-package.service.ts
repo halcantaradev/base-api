@@ -92,7 +92,6 @@ export class VirtualPackageService {
 				malote_fisico_id: createVirtualPackageDto.malote_fisico_id,
 				lacre_saida: createVirtualPackageDto.lacre_saida,
 				lacre_retorno: createVirtualPackageDto.lacre_retorno,
-				data_saida: new Date(),
 				documentos_malote: {
 					createMany: {
 						data: documents.map((document) => ({
@@ -564,7 +563,15 @@ export class VirtualPackageService {
 						data: {
 							situacao: situacaoAtual,
 							situacao_anterior: pack.situacao,
-							data_retorno: new Date(),
+							data_retorno:
+								situacaoAtual ==
+								VirtualPackageSituation.RETORNADO
+									? new Date()
+									: undefined,
+							data_saida:
+								situacaoAtual == VirtualPackageSituation.ENVIADO
+									? new Date()
+									: undefined,
 						},
 						where: { id: pack.id },
 					}),

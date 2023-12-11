@@ -597,6 +597,7 @@ export class NotificationService {
 		const condominiums = await this.prisma.pessoa.findMany({
 			select: {
 				id: true,
+
 				unidades_condominio: {
 					select: {
 						id: true,
@@ -612,6 +613,7 @@ export class NotificationService {
 													in: filtro.unidades_ids,
 											  }
 											: undefined,
+
 										OR: {
 											ativo: true,
 											tipo_registro: filtro.tipo_registro
@@ -668,6 +670,17 @@ export class NotificationService {
 											in: filtro.unidades_ids,
 									  }
 									: undefined,
+								condominio: {
+									departamentos_condominio: {
+										some: {
+											departamento: {
+												filial_id: {
+													in: filtro.filiais_ids,
+												},
+											},
+										},
+									},
+								},
 								notificacoes: {
 									some: {
 										ativo: true,

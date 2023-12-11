@@ -163,6 +163,7 @@ export class NotificationService {
 					in: filtro.consultores_ids,
 				},
 				acessa_todos_departamentos: true,
+
 				departamentos: {
 					none: {},
 				},
@@ -172,6 +173,7 @@ export class NotificationService {
 		const condominiums = await this.prisma.pessoa.findMany({
 			select: {
 				id: true,
+
 				unidades_condominio: {
 					select: {
 						id: true,
@@ -183,6 +185,17 @@ export class NotificationService {
 											in: filtro.unidades_ids,
 									  }
 									: undefined,
+								condominio: {
+									departamentos_condominio: {
+										some: {
+											departamento: {
+												filial_id: {
+													in: filtro.filiais_ids,
+												},
+											},
+										},
+									},
+								},
 								notificacoes: {
 									some: {
 										ativo: true,
@@ -210,6 +223,7 @@ export class NotificationService {
 														) || undefined,
 											  }
 											: undefined,
+
 										data_infracao: filtro.data_infracao
 											? {
 													gte:
@@ -494,9 +508,44 @@ export class NotificationService {
 			  })
 			: 0;
 
+		const total = !report
+			? await this.prisma.notificacao.count({
+					where: {
+						unidade_id: {
+							in: residences_ids,
+						},
+					},
+			  })
+			: 0;
+
+		const total_infracoes = !report
+			? await this.prisma.notificacao.count({
+					where: {
+						tipo_registro: 1,
+						unidade_id: {
+							in: residences_ids,
+						},
+					},
+			  })
+			: 0;
+
+		const total_multas = !report
+			? await this.prisma.notificacao.count({
+					where: {
+						tipo_registro: 2,
+						unidade_id: {
+							in: residences_ids,
+						},
+					},
+			  })
+			: 0;
+
 		return {
 			data: notifications,
+			total,
 			total_pages,
+			total_infracoes,
+			total_multas,
 		};
 	}
 

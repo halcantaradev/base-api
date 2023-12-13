@@ -41,6 +41,7 @@ import {
 import { PrismaModule } from './shared/services/prisma/prisma.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './shared/services/tasks/tasks.module';
+import { CompanyModule } from './modules/company/company.module';
 
 @Module({
 	imports: [
@@ -74,6 +75,7 @@ import { TasksModule } from './shared/services/tasks/tasks.module';
 		PrismaModule,
 		ScheduleModule.forRoot(),
 		TasksModule,
+		CompanyModule,
 	],
 	controllers: [AppController],
 	providers: [

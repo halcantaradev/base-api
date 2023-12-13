@@ -7,4 +7,5 @@ export class UserPayload {
 	acessa_todos_departamentos: boolean;
 	primeiro_acesso: boolean;
 	iat?: number;
+	loginToken: string;
 }

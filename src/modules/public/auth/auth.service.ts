@@ -10,15 +10,16 @@ import { PasswordHelper } from 'src/shared/helpers/password.helper';
 import { EmailService } from 'src/shared/services/email.service';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
 import { PrismaService } from 'src/shared/services/prisma/prisma.service';
+import { RocketService } from 'src/shared/services/rocket/rocket.service';
 import { UserAuth } from '../../../shared/entities/user-auth.entity';
 import { FirstAccessDto } from './dto/first-access.dto';
 import { LoginDataDto } from './dto/login-data.dto';
+import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 import { RequestFirstAccessDto } from './dto/request-first-access.dto';
+import { RequestPasswordRecoveryDto } from './dto/request-password-recovery.dto';
 import { UserFirstAccessPayload } from './entities/user-first-access-payload.entity';
 import { UserFirstAccess } from './entities/user-first-access.entity';
 import { UserPayload } from './entities/user-payload.entity';
-import { RequestPasswordRecoveryDto } from './dto/request-password-recovery.dto';
-import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,11 +28,12 @@ export class AuthService {
 		private readonly prisma: PrismaService,
 		private readonly emailService: EmailService,
 		private readonly handleBarService: HandlebarsService,
+		private readonly rocketService: RocketService,
 	) {}
 
-	login(user: LoginDataDto) {
+	async login(user: LoginDataDto) {
 		let token;
-
+		let tokenRocket;
 		if (user.primeiro_acesso) {
 			const userPayload: UserFirstAccessPayload = {
 				sub: user.id,
@@ -48,15 +50,30 @@ export class AuthService {
 				departamentos_ids: user.departamentos_ids,
 				acessa_todos_departamentos: user.acessa_todos_departamentos,
 				primeiro_acesso: user.primeiro_acesso,
+				loginToken: '',
 			};
 
-			token = this.jwtService.sign(userPayload);
+			tokenRocket = await this.rocketService.generateToken(
+				{
+					name: user.nome,
+					email: user.email || user.username + '@gestaointegrado.net',
+					username: user.username,
+				},
+				'123456',
+			);
+
+			// if (!tokenRocket)
+			// 	throw new UnauthorizedException('Falha ao realizar login.');
+
+			token = this.jwtService.sign({ ...userPayload, ...tokenRocket });
 		}
+
 		return {
 			success: true,
 			data: {
-				access_token: token,
 				primeiro_acesso: user.primeiro_acesso,
+				rocket: { ...tokenRocket, url: process.env.ROCKET_HOST },
+				access_token: token,
 			},
 			message: user.primeiro_acesso
 				? 'Altere sua senha para continuar!'

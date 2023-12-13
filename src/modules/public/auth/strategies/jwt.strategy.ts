@@ -23,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 			departamentos_ids: payload.departamentos_ids,
 			acessa_todos_departamentos: payload.acessa_todos_departamentos,
 			primeiro_acesso: payload.primeiro_acesso,
+			loginToken: payload.loginToken,
 		};
 	}
 }

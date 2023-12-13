@@ -12,7 +12,10 @@ import { LoggerService } from './shared/services/logger.service';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule, {
-		cors: { origin: ['*'] },
+		cors: {
+			origin: ['http://localhost:3000', 'http://localhost:4200'],
+			credentials: true,
+		},
 	});
 
 	// Swagger Config

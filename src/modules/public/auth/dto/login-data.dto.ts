@@ -1,6 +1,8 @@
 export class LoginDataDto {
 	id: number;
 	nome: string;
+	username?: string;
+	email?: string;
 	empresa_id: number;
 	cargo_id: number;
 	departamentos_ids: number[];

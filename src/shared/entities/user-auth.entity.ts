@@ -19,4 +19,6 @@ export class UserAuth {
 	acessa_todos_departamentos: boolean;
 
 	primeiro_acesso: boolean;
+
+	loginToken: string;
 }

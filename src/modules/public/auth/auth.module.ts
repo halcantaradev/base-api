@@ -10,6 +10,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { HttpModule } from '@nestjs/axios';
+import { RocketModule } from 'src/shared/services/rocket/rocket.module';
 @Module({
 	imports: [
 		PassportModule,
@@ -20,6 +22,8 @@ import { LocalStrategy } from './strategies/local.strategy';
 		UserModule,
 		FilaModule,
 		PrismaModule,
+		HttpModule,
+		RocketModule,
 	],
 	controllers: [AuthController],
 	providers: [

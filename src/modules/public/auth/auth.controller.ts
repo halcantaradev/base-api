@@ -2,6 +2,7 @@ import {
 	Body,
 	Controller,
 	Get,
+	Headers,
 	HttpCode,
 	HttpStatus,
 	Post,
@@ -14,13 +15,13 @@ import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { UserAuth } from '../../../shared/entities/user-auth.entity';
 import { AuthService } from './auth.service';
 import { FirstAccessDto } from './dto/first-access.dto';
+import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 import { RequestFirstAccessDto } from './dto/request-first-access.dto';
+import { RequestPasswordRecoveryDto } from './dto/request-password-recovery.dto';
 import { LoginEntity } from './entities/login.entity';
 import { UserFirstAccess } from './entities/user-first-access.entity';
 import { FirstAccessJwtAuthGuard } from './guards/first-access-jwt-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RequestPasswordRecoveryDto } from './dto/request-password-recovery.dto';
-import { PasswordRecoveryDto } from './dto/password-recovery.dto';
 
 @ApiTags('Autenticação')
 @Controller('auth')
@@ -48,6 +49,23 @@ export class AuthController {
 	@UseGuards(AuthGuard('local'))
 	login(@CurrentUser() user: UserAuth) {
 		return this.authService.login(user);
+	}
+
+	@Post('rocketchat')
+	@HttpCode(HttpStatus.OK)
+	// @UseGuards(JwtAuthGuard)
+	authRocket(
+		@CurrentUser() user: UserAuth,
+		@Body() data: any,
+		@Headers() headers: any,
+	) {
+		console.log(headers);
+		console.log(data);
+
+		return {
+			success: true,
+			// loginToken: '5JJfK0IbJXo3rcUxWVtWfVRFj2m6zxwaxqxwKNibETx',
+		};
 	}
 
 	@Get('verify-first-access')

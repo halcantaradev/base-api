@@ -733,14 +733,14 @@ export const permissionslist: Array<{
 	},
 	{
 		label: 'Exibir dados da empresa',
-		module: 'Empresa',
-		key: 'empresa-exibir-dados',
+		module: 'Sistema',
+		key: 'setup-empresa-exibir-dados',
 		message: 'Sem permissão para exibir os dados da empresa',
 	},
 	{
 		label: 'Atualizar dados da empresa',
-		module: 'Empresa',
-		key: 'empresa-atualizar',
+		module: 'Sistema',
+		key: 'setup-empresa-atualizar',
 		message: 'Sem permissão para atualizar os dados da empresa',
 	},
 ];

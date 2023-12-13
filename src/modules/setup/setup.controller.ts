@@ -23,6 +23,8 @@ import { ReturnSetupPackageEntity } from './entities/return-setup-package.entity
 import { UpdateSetupPackageDto } from './dto/update-setup-package.dto';
 import { ReturnSetupPackageBikerListEntity } from './entities/return-setup-package-biker.entity';
 import { ReturnSetupPackageRouteListEntity } from './entities/return-setup-package-route.entity';
+import { SetupCompanyReturn } from './entities/setup-company-return.entity';
+import { UpdateSetupCompanyDto } from './dto/update-setup-company.dto';
 
 @ApiTags('Módulo de Configurações')
 @UseGuards(PermissionGuard)
@@ -209,6 +211,54 @@ export class SetupController {
 				+user.empresa_id,
 				updateSetupSystemDto,
 			),
+		};
+	}
+
+	@Get('company')
+	@Role('setup-empresa-exibir-dados')
+	@ApiOperation({ summary: 'Lista os dados de uma empresa' })
+	@ApiResponse({
+		description: 'Empresa listada com sucesso',
+		status: HttpStatus.OK,
+		type: SetupCompanyReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados da empresa',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findOne(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.setupService.findOneCompany(user.empresa_id),
+		};
+	}
+
+	@Patch('company')
+	@Role('setup-empresa-atualizar')
+	@ApiOperation({ summary: 'Atualiza os dados de uma empresa' })
+	@ApiResponse({
+		description: 'Empresa atualizada com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar os dados da empresa',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async update(
+		@CurrentUser() user: UserAuth,
+		@Body() updateSetupCompanyDto: UpdateSetupCompanyDto,
+	) {
+		await this.setupService.updateCompany(
+			updateSetupCompanyDto,
+			user.empresa_id,
+		);
+
+		return {
+			success: true,
+			message: 'Condomínio atualizado com sucesso!',
 		};
 	}
 }

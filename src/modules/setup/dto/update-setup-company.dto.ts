@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 
-export class UpdateCompanyDto {
+export class UpdateSetupCompanyDto {
 	@ApiProperty({
 		description: 'Nome da empresa',
 		example: 'Empresa Teste',

@@ -1,13 +1,13 @@
 import { ReturnEntity } from 'src/shared/entities/return.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { Company } from './company.entity';
+import { SetupCompany } from './setup-company.entity';
 
-export class CompanyReturn extends ReturnEntity.success() {
+export class SetupCompanyReturn extends ReturnEntity.success() {
 	@ApiProperty({
 		description: 'Dados que serão retornados',
-		type: Company,
+		type: SetupCompany,
 		readOnly: true,
 		required: false,
 	})
-	data: Company;
+	data: SetupCompany;
 }

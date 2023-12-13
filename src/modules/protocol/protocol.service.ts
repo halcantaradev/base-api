@@ -8,7 +8,11 @@ import { FiltersProtocolDto } from './dto/filters-protocol.dto';
 import { CreateDocumentProtocolDto } from './dto/create-document-protocol.dto';
 import { UpdateDocumentProtocolDto } from './dto/update-document-protocol.dto';
 import { Pagination } from 'src/shared/entities/pagination.entity';
-import { setCustomHour } from 'src/shared/helpers/date.helper';
+import {
+	formatDateLongBr,
+	formatDateNormalBr,
+	setCustomHour,
+} from 'src/shared/helpers/date.helper';
 import { FiltersProtocolCondominiumDto } from './dto/filters-protocol-condominium.dto';
 import { PersonService } from '../person/person.service';
 import { EmailService } from 'src/shared/services/email.service';
@@ -928,9 +932,7 @@ export class ProtocolService {
 
 		const data: any = {};
 
-		data.data_atual_extenso = new Intl.DateTimeFormat('pt-BR', {
-			dateStyle: 'long',
-		}).format(new Date());
+		data.data_atual_extenso = formatDateLongBr(new Date());
 
 		data.numero_protocolo = protocol.id;
 		data.total_documentos_protocolo = total_documentos;
@@ -951,18 +953,14 @@ export class ProtocolService {
 					documents: [
 						{
 							emissao: item.created_at
-								? new Intl.DateTimeFormat('pt-BR').format(
-										item?.created_at,
-								  )
+								? formatDateNormalBr(item?.created_at)
 								: null,
 							usuario: item?.protocolo?.origem_usuario?.nome,
 							tipo: item?.tipo_documento?.nome,
 							protocolo_malote: protocol.protocolo_malote,
 							discriminacao: item?.discriminacao,
 							recebido: item.data_aceite
-								? new Intl.DateTimeFormat('pt-BR').format(
-										item.data_aceite,
-								  )
+								? formatDateNormalBr(item.data_aceite)
 								: null,
 							recebido_por: item?.aceite_usuario?.nome,
 						},
@@ -971,18 +969,14 @@ export class ProtocolService {
 			} else {
 				condominios[item.condominio.id].documents.push({
 					emissao: item.created_at
-						? new Intl.DateTimeFormat('pt-BR').format(
-								item?.created_at,
-						  )
+						? formatDateNormalBr(item?.created_at)
 						: null,
 					usuario: item?.protocolo?.origem_usuario?.nome,
 					tipo: item?.tipo_documento?.nome,
 					protocolo_malote: protocol.protocolo_malote,
 					discriminacao: item?.discriminacao,
 					recebido: item.data_aceite
-						? new Intl.DateTimeFormat('pt-BR').format(
-								item.data_aceite,
-						  )
+						? formatDateNormalBr(item.data_aceite)
 						: null,
 					recebido_por: item?.aceite_usuario?.nome,
 				});

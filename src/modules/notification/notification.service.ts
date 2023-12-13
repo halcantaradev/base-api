@@ -25,6 +25,7 @@ import { SendMailNotificationDto } from './dto/send-mail-notification.dto';
 import { LayoutsNotificationService } from '../layouts-notification/layouts-notification.service';
 import { LayoutConstsService } from 'src/shared/services/layout-consts.service';
 import { HandlebarsService } from 'src/shared/services/handlebars.service';
+import { ReportNotificationType } from 'src/shared/consts/report-notification-type';
 
 @Injectable()
 export class NotificationService {
@@ -550,6 +551,7 @@ export class NotificationService {
 	}
 
 	async generateReport(
+		type: number,
 		user: UserAuth,
 		report: boolean,
 		filtro?: FilterNotificationDto,
@@ -597,7 +599,6 @@ export class NotificationService {
 		const condominiums = await this.prisma.pessoa.findMany({
 			select: {
 				id: true,
-
 				unidades_condominio: {
 					select: {
 						id: true,
@@ -834,6 +835,20 @@ export class NotificationService {
 				id: true,
 				nome: true,
 				endereco: true,
+				departamentos_condominio: {
+					select: {
+						departamento: {
+							select: {
+								filial: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+							},
+						},
+					},
+				},
 				unidades_condominio: {
 					select: {
 						id: true,
@@ -983,6 +998,45 @@ export class NotificationService {
 					},
 			  })
 			: 0;
+
+		if (type === ReportNotificationType.FILIAL) {
+			const data = [];
+			notifications.map((notification) => {
+				notification.departamentos_condominio.map((departamento) => {
+					data.push({
+						id: departamento.departamento.filial.id,
+						nome: departamento.departamento.filial.nome,
+						condominios: {
+							id: notification.id,
+							endereco: notification.endereco,
+							nome: notification.nome,
+							unidades_condominio:
+								notification.unidades_condominio,
+						},
+					});
+				});
+			});
+
+			return {
+				data: data.reduce((item, currentValue) => {
+					const existingItem = item.find(
+						(obj) => obj.id === currentValue.id,
+					);
+					if (!existingItem) {
+						item.push({
+							id: currentValue.id,
+							nome: currentValue.nome,
+							condominios: [currentValue.condominios],
+						});
+					} else {
+						existingItem.condominios.push(currentValue.condominios);
+					}
+					return item;
+				}, []),
+
+				total_pages,
+			};
+		}
 
 		return {
 			data: notifications,

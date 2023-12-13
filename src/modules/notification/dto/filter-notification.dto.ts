@@ -82,6 +82,17 @@ export class FilterNotificationDto {
 	tipo_infracao_id: number;
 
 	@ApiProperty({
+		description: 'Ids das filial',
+		example: 1,
+	})
+	@IsOptional()
+	@IsInt({
+		each: true,
+		message: 'Por favor forneça uma filial válida',
+	})
+	filiais_ids: number[];
+
+	@ApiProperty({
 		description: 'Filtro por data da infração da notificação',
 		example: [new Date(), new Date()],
 		required: false,

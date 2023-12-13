@@ -1,19 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Interval } from '@nestjs/schedule';
 import { IntegrationService } from 'src/modules/integration/integration.service';
 import { Filas } from 'src/shared/consts/filas.const';
+import { IntervalWhen } from '../../decorators/interval.decorator';
 
 @Injectable()
 export class TasksService {
 	private readonly logger = new Logger(TasksService.name);
 	constructor(private readonly integrationService: IntegrationService) {}
 
-	@Interval(
+	@IntervalWhen(
 		1000 *
 			60 *
 			(process.env.SYNC_MINUTES_INTERVAL
 				? +process.env.SYNC_MINUTES_INTERVAL
 				: 60),
+		TasksService.name + ':AutomaticSync',
+		!!+process.env.SYNC_AUTO_ENABLE,
 	)
 	async execute() {
 		try {

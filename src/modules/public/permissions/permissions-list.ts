@@ -266,7 +266,7 @@ export const permissionslist: Array<{
 		message: 'Sem permissão para listar os modelos ativos',
 	},
 	{
-		label: 'Exibidar dados de um modelos de notificações',
+		label: 'Exibir dados de um modelos de notificações',
 		module: 'Notificação',
 		key: 'layouts-notificacao-exibir-dados',
 		message: 'Sem permissão para exibir dados do modelo',

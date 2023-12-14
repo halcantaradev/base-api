@@ -59,5 +59,5 @@ export class ValidateNotificationDto {
 			'O campo data de infração informado não é válido. Por favor, forneça uma data de infração válida.',
 	})
 	@Type(() => Date)
-	data_infracao: Date;
+	data_emissao: Date;
 }

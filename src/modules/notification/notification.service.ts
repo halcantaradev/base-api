@@ -1101,13 +1101,13 @@ export class NotificationService {
 					data_infracao: {
 						gte: new Date(
 							new Date(
-								validateNotificationDto.data_infracao,
+								validateNotificationDto.data_emissao,
 							).setMonth(
-								validateNotificationDto.data_infracao.getMonth() -
+								validateNotificationDto.data_emissao.getMonth() -
 									12,
 							),
 						),
-						lte: validateNotificationDto.data_infracao,
+						lte: validateNotificationDto.data_emissao,
 					},
 				},
 				orderBy: {

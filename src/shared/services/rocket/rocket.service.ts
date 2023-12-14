@@ -5,7 +5,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 @Injectable()
 export class RocketService {
 	baseURL: string;
-	authToken: string; // = 'eARX-V4w--Xb8QqrhS5c6qNGNUkbEq7F0P1ZirBw581';
+	authToken: string;
 	authIdUser: string;
 	constructor(private readonly httpService: HttpService) {
 		this.baseURL = process.env.ROCKET_URL;
@@ -108,12 +108,23 @@ export class RocketService {
 				);
 			}
 
-			const token = await firstValueFrom(
+			const credentials = await firstValueFrom(
 				this.login({ user: userData.username, password }),
 			);
 
+			const authToken = await this.generatePersonalToken({
+				loginToken: credentials.data.data.authToken,
+				userId: credentials.data.data.userId,
+			});
+
+			if (authToken) {
+				return {
+					loginToken: authToken.data.data.authToken,
+				};
+			}
+
 			return {
-				loginToken: token.data.data.authToken,
+				loginToken: credentials.data.data.authToken,
 			};
 		} else {
 			return false;
@@ -126,6 +137,33 @@ export class RocketService {
 	}): Observable<AxiosResponse<any>> {
 		return this.httpService.post(this.baseURL + '/login', data, {
 			headers: { 'Content-Type': 'application/json' },
+		});
+	}
+
+	generatePersonalToken({
+		loginToken,
+		userId,
+	}: {
+		loginToken: string;
+		userId: string;
+	}): Promise<any> {
+		return new Promise((resolve, _) => {
+			this.httpService
+				.post(
+					this.baseURL + '/users.generatePersonalAccessToken',
+					{ tokenName: 'gestaointegrado', bypassTwoFactor: false },
+					{
+						headers: {
+							'X-Auth-Token': loginToken,
+							'X-User-Id': userId,
+							'Content-Type': 'application/json',
+						},
+					},
+				)
+				.subscribe({
+					next: (res) => resolve(res.data),
+					error: () => resolve(false),
+				});
 		});
 	}
 }

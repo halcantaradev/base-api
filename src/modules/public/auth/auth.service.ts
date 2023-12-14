@@ -32,53 +32,68 @@ export class AuthService {
 	) {}
 
 	async login(user: LoginDataDto) {
-		let token;
-		let tokenRocket;
-		if (user.primeiro_acesso) {
-			const userPayload: UserFirstAccessPayload = {
-				sub: user.id,
-				primeiro_acesso: user.primeiro_acesso,
-			};
+		try {
+			let token;
+			let tokenRocket;
+			if (user.primeiro_acesso) {
+				const userPayload: UserFirstAccessPayload = {
+					sub: user.id,
+					primeiro_acesso: user.primeiro_acesso,
+				};
 
-			token = this.jwtService.sign(userPayload, { expiresIn: '20m' });
-		} else {
-			const userPayload: UserPayload = {
-				sub: user.id,
-				nome: user.nome,
-				empresa_id: user.empresa_id,
-				cargo_id: user.cargo_id,
-				departamentos_ids: user.departamentos_ids,
-				acessa_todos_departamentos: user.acessa_todos_departamentos,
-				primeiro_acesso: user.primeiro_acesso,
-				loginToken: '',
-			};
+				token = this.jwtService.sign(userPayload, { expiresIn: '20m' });
+			} else {
+				const userPayload: UserPayload = {
+					sub: user.id,
+					nome: user.nome,
+					empresa_id: user.empresa_id,
+					cargo_id: user.cargo_id,
+					departamentos_ids: user.departamentos_ids,
+					acessa_todos_departamentos: user.acessa_todos_departamentos,
+					primeiro_acesso: user.primeiro_acesso,
+					loginToken: '',
+				};
 
-			tokenRocket = await this.rocketService.generateToken(
-				{
-					name: user.nome,
-					email: user.email || user.username + '@gestaointegrado.net',
-					username: user.username,
+				tokenRocket = await this.rocketService.generateToken(
+					{
+						name: user.nome,
+						email:
+							user.email ||
+							user.username + '@gestaointegrado.net',
+						username: user.username,
+					},
+					'123456',
+				);
+
+				// if (!tokenRocket)
+				// 	throw new UnauthorizedException('Falha ao realizar login.');
+
+				token = this.jwtService.sign({
+					...userPayload,
+					...tokenRocket,
+				});
+			}
+
+			return {
+				success: true,
+				data: {
+					primeiro_acesso: user.primeiro_acesso,
+					rocket: {
+						...tokenRocket,
+						url:
+							process.env.ROCKET_HOST +
+							'/home?resumeToken=' +
+							tokenRocket.loginToken,
+					},
+					access_token: token,
 				},
-				'123456',
-			);
-
-			// if (!tokenRocket)
-			// 	throw new UnauthorizedException('Falha ao realizar login.');
-
-			token = this.jwtService.sign({ ...userPayload, ...tokenRocket });
+				message: user.primeiro_acesso
+					? 'Altere sua senha para continuar!'
+					: 'Login realizado com sucesso!',
+			};
+		} catch (error) {
+			console.log(error);
 		}
-
-		return {
-			success: true,
-			data: {
-				primeiro_acesso: user.primeiro_acesso,
-				rocket: { ...tokenRocket, url: process.env.ROCKET_HOST },
-				access_token: token,
-			},
-			message: user.primeiro_acesso
-				? 'Altere sua senha para continuar!'
-				: 'Login realizado com sucesso!',
-		};
 	}
 
 	async verifyFirstAccess(user: UserFirstAccess) {

@@ -17,7 +17,12 @@ import { ValidateNotificationDto } from './dto/validate-notification.dto';
 import { ReturnNotificationListEntity } from './entities/return-notification-list.entity';
 import { ReturnNotificationEntity } from './entities/return-notification.entity';
 import { ValidatedNotification } from './entities/validated-notification.entity';
-import { setCustomHour } from 'src/shared/helpers/date.helper';
+import {
+	formatDateLongBr,
+	formatDateShortBr,
+	formatDateTimeBr,
+	setCustomHour,
+} from 'src/shared/helpers/date.helper';
 import { defaultLogo } from 'src/shared/consts/default-logo.base64';
 import { ContactType } from 'src/shared/consts/contact-type.const';
 import { Contact } from 'src/shared/consts/contact.const';
@@ -1379,12 +1384,8 @@ export class NotificationService {
 			? setupNotificacao.observacoes
 			: '';
 
-		dataToPrint.data_atual = new Intl.DateTimeFormat('pt-BR', {
-			dateStyle: 'short',
-		}).format(new Date());
-		dataToPrint.data_atual_extenso = new Intl.DateTimeFormat('pt-BR', {
-			dateStyle: 'long',
-		}).format(new Date());
+		dataToPrint.data_atual = formatDateShortBr(new Date());
+		dataToPrint.data_atual_extenso = formatDateLongBr(new Date());
 		dataToPrint.nome_condominio = data.unidade.condominio.nome;
 		dataToPrint.cidade_condominio = data.unidade.condominio.cidade;
 		dataToPrint.cnpj_condominio = data.unidade.condominio.cnpj;
@@ -1406,10 +1407,7 @@ export class NotificationService {
 		dataToPrint.tipo_notificacao =
 			data.tipo_registro == 1 ? 'INFRAÇÃO' : 'MULTA';
 		dataToPrint.numero_notificacao = data.codigo;
-		dataToPrint.data_infracao = new Intl.DateTimeFormat('pt-BR', {
-			dateStyle: 'short',
-			timeStyle: 'short',
-		}).format(data.data_infracao);
+		dataToPrint.data_infracao = formatDateTimeBr(data.data_infracao);
 		dataToPrint.detalhes_infracao = data.detalhes_infracao;
 		dataToPrint.fundamentacao_legal = data.fundamentacao_legal;
 		dataToPrint.observacoes_notificacao = data.observacoes;
@@ -1422,9 +1420,7 @@ export class NotificationService {
 			? 'Sim'
 			: 'Não';
 		dataToPrint.vencimento_multa_notificacao = data.vencimento_multa
-			? new Intl.DateTimeFormat('pt-BR', {
-					dateStyle: 'short',
-			  }).format(data.vencimento_multa)
+			? formatDateShortBr(data.vencimento_multa)
 			: 'Unido a taxa de condomínio';
 
 		const condomino = data.unidade.condominos.filter(

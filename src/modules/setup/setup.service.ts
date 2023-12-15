@@ -5,6 +5,7 @@ import { UpdateSetupSystemDto } from './dto/update-setup-system.dto';
 import { UpdateSetupPackageDto } from './dto/update-setup-package.dto';
 import { RouteShift } from 'src/shared/consts/route-shift.const';
 import { UpdateSetupCompanyDto } from './dto/update-setup-company.dto';
+import { UpdateSetupCompanyThemeDto } from './dto/update-setup-company-theme.dto';
 
 @Injectable()
 export class SetupService {
@@ -252,6 +253,39 @@ export class SetupService {
 			},
 			where: {
 				id: empresa_id,
+			},
+		});
+	}
+
+	async findCompanyTheme(empresa_id: number) {
+		return this.prisma.tema.findUnique({
+			select: {
+				logo: true,
+				logo_clara: true,
+			},
+			where: {
+				empresa_id: empresa_id,
+			},
+		});
+	}
+
+	async updateCompanyTheme(
+		updateSetupCompanyThemeDto: UpdateSetupCompanyThemeDto,
+		empresa_id: number,
+	) {
+		return this.prisma.tema.upsert({
+			create: {
+				empresa_id: empresa_id,
+				nome: `Empresa ${empresa_id}`,
+				logo: updateSetupCompanyThemeDto.logo || null,
+				logo_clara: updateSetupCompanyThemeDto.logo_clara || null,
+			},
+			update: {
+				logo: updateSetupCompanyThemeDto.logo || undefined,
+				logo_clara: updateSetupCompanyThemeDto.logo_clara || undefined,
+			},
+			where: {
+				empresa_id: empresa_id,
 			},
 		});
 	}

@@ -25,6 +25,8 @@ import { ReturnSetupPackageBikerListEntity } from './entities/return-setup-packa
 import { ReturnSetupPackageRouteListEntity } from './entities/return-setup-package-route.entity';
 import { SetupCompanyReturn } from './entities/setup-company-return.entity';
 import { UpdateSetupCompanyDto } from './dto/update-setup-company.dto';
+import { UpdateSetupCompanyThemeDto } from './dto/update-setup-company-theme.dto';
+import { SetupCompanyThemeReturn } from './entities/setup-company-theme-return.entity';
 
 @ApiTags('Módulo de Configurações')
 @UseGuards(PermissionGuard)
@@ -227,7 +229,7 @@ export class SetupController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async findOne(@CurrentUser() user: UserAuth) {
+	async findOneCompany(@CurrentUser() user: UserAuth) {
 		return {
 			success: true,
 			data: await this.setupService.findOneCompany(user.empresa_id),
@@ -247,7 +249,7 @@ export class SetupController {
 		status: HttpStatus.INTERNAL_SERVER_ERROR,
 		type: ReturnEntity.error(),
 	})
-	async update(
+	async updateCompany(
 		@CurrentUser() user: UserAuth,
 		@Body() updateSetupCompanyDto: UpdateSetupCompanyDto,
 	) {
@@ -258,7 +260,55 @@ export class SetupController {
 
 		return {
 			success: true,
-			message: 'Condomínio atualizado com sucesso!',
+			message: 'Empresa atualizada com sucesso!',
+		};
+	}
+
+	@Get('company/themes')
+	@Role('setup-empresa-atualizar')
+	@ApiOperation({ summary: 'Retorna os dados do tema da empresa' })
+	@ApiResponse({
+		description: 'Tema retornado com sucesso',
+		status: HttpStatus.OK,
+		type: SetupCompanyThemeReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao retornar os dados do tema da empresa',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findCompanyTheme(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.setupService.findCompanyTheme(user.empresa_id),
+		};
+	}
+
+	@Patch('company/themes')
+	@Role('setup-empresa-atualizar')
+	@ApiOperation({ summary: 'Atualiza o tema da empresa' })
+	@ApiResponse({
+		description: 'Tema atualizado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar o tema da empresa',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async updateCompanyTheme(
+		@CurrentUser() user: UserAuth,
+		@Body() updateSetupCompanyThemeDto: UpdateSetupCompanyThemeDto,
+	) {
+		await this.setupService.updateCompanyTheme(
+			updateSetupCompanyThemeDto,
+			user.empresa_id,
+		);
+
+		return {
+			success: true,
+			message: 'Logo atualizada com sucesso!',
 		};
 	}
 }

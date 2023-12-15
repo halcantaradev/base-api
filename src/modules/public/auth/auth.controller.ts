@@ -2,7 +2,6 @@ import {
 	Body,
 	Controller,
 	Get,
-	Headers,
 	HttpCode,
 	HttpStatus,
 	Post,
@@ -51,20 +50,22 @@ export class AuthController {
 		return this.authService.login(user);
 	}
 
-	@Post('rocketchat')
+	@Get('rocketchat')
 	@HttpCode(HttpStatus.OK)
-	// @UseGuards(JwtAuthGuard)
-	authRocket(
-		@CurrentUser() user: UserAuth,
-		@Body() data: any,
-		@Headers() headers: any,
-	) {
-		console.log(headers);
-		console.log(data);
-
+	@UseGuards(JwtAuthGuard)
+	async authRocket(@CurrentUser() user: UserAuth) {
+		const loginToken = await this.authService.getRocketURL(
+			user.id,
+			user.empresa_id,
+		);
+		const token =
+			typeof loginToken != 'boolean' ? loginToken.loginToken : '';
 		return {
 			success: true,
-			// loginToken: '5JJfK0IbJXo3rcUxWVtWfVRFj2m6zxwaxqxwKNibETx',
+			data: {
+				url: process.env.ROCKET_HOST + '?resumeToken=' + token,
+				loginToken: token,
+			},
 		};
 	}
 

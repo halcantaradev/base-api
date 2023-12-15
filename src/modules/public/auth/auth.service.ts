@@ -34,7 +34,6 @@ export class AuthService {
 	async login(user: LoginDataDto) {
 		try {
 			let token;
-			let tokenRocket;
 			if (user.primeiro_acesso) {
 				const userPayload: UserFirstAccessPayload = {
 					sub: user.id,
@@ -54,37 +53,13 @@ export class AuthService {
 					loginToken: '',
 				};
 
-				tokenRocket = await this.rocketService.generateToken(
-					{
-						name: user.nome,
-						email:
-							user.email ||
-							user.username + '@gestaointegrado.net',
-						username: user.username,
-					},
-					'123456',
-				);
-
-				// if (!tokenRocket)
-				// 	throw new UnauthorizedException('Falha ao realizar login.');
-
-				token = this.jwtService.sign({
-					...userPayload,
-					...tokenRocket,
-				});
+				token = this.jwtService.sign(userPayload);
 			}
 
 			return {
 				success: true,
 				data: {
 					primeiro_acesso: user.primeiro_acesso,
-					rocket: {
-						...tokenRocket,
-						url:
-							process.env.ROCKET_HOST +
-							'/home?resumeToken=' +
-							tokenRocket.loginToken,
-					},
 					access_token: token,
 				},
 				message: user.primeiro_acesso
@@ -413,5 +388,41 @@ export class AuthService {
 			empresa_id: user.empresas[0].empresa_id,
 			cargo_id: user.empresas[0].cargo.id,
 		};
+	}
+
+	async getRocketURL(
+		usuario_id: number,
+		empresa_id: number,
+	): Promise<
+		| {
+				loginToken: string;
+				userId: string;
+		  }
+		| boolean
+	> {
+		const user = await this.prisma.user.findFirst({
+			where: { id: usuario_id },
+		});
+
+		if (user.rocket_token) {
+			const loged = await this.rocketService.getMe({
+				loginToken: user.rocket_token,
+				userId: user.rocket_user_id,
+			});
+			if (loged)
+				return {
+					loginToken: user.rocket_token,
+					userId: user.rocket_user_id,
+				};
+		}
+
+		return await this.rocketService.generateToken(
+			{
+				name: user.nome,
+				email: user.email || user.username + '@gestaointegrado.net',
+				username: user.username,
+			},
+			empresa_id + user.username + user.id,
+		);
 	}
 }

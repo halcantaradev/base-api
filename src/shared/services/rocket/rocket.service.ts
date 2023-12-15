@@ -94,7 +94,13 @@ export class RocketService {
 			name: string;
 		},
 		password: string,
-	) {
+	): Promise<
+		| {
+				loginToken: string;
+				userId: string;
+		  }
+		| boolean
+	> {
 		if (userData.username !== 'admin') {
 			let user = await this.getUser(userData.username);
 			if (!user) {
@@ -112,19 +118,30 @@ export class RocketService {
 				this.login({ user: userData.username, password }),
 			);
 
-			const authToken = await this.generatePersonalToken({
+			let authToken = await this.getPersonalToken({
 				loginToken: credentials.data.data.authToken,
 				userId: credentials.data.data.userId,
 			});
 
-			if (authToken) {
-				return {
-					loginToken: authToken.data.data.authToken,
-				};
+			if (
+				!authToken ||
+				!authToken.data ||
+				!authToken.data.tokens.length
+			) {
+				authToken = await this.generatePersonalToken({
+					loginToken: credentials.data.data.authToken,
+					userId: credentials.data.data.userId,
+				});
+			} else {
+				authToken = await this.regeneratePersonalToken({
+					loginToken: credentials.data.data.authToken,
+					userId: credentials.data.data.userId,
+				});
 			}
 
 			return {
-				loginToken: credentials.data.data.authToken,
+				loginToken: authToken.data.token,
+				userId: credentials.data.data.userId,
 			};
 		} else {
 			return false;
@@ -147,7 +164,7 @@ export class RocketService {
 		loginToken: string;
 		userId: string;
 	}): Promise<any> {
-		return new Promise((resolve, _) => {
+		return new Promise((resolve) => {
 			this.httpService
 				.post(
 					this.baseURL + '/users.generatePersonalAccessToken',
@@ -161,7 +178,70 @@ export class RocketService {
 					},
 				)
 				.subscribe({
-					next: (res) => resolve(res.data),
+					next: (res) => resolve(res),
+					error: () => resolve(false),
+				});
+		});
+	}
+
+	regeneratePersonalToken({
+		loginToken,
+		userId,
+	}: {
+		loginToken: string;
+		userId: string;
+	}): Promise<any> {
+		return new Promise((resolve) => {
+			this.httpService
+				.post(
+					this.baseURL + '/users.regeneratePersonalAccessToken',
+					{ tokenName: 'gestaointegrado' },
+					{
+						headers: {
+							'X-Auth-Token': loginToken,
+							'X-User-Id': userId,
+							'Content-Type': 'application/json',
+						},
+					},
+				)
+				.subscribe({
+					next: (res) => resolve(res),
+					error: () => resolve(false),
+				});
+		});
+	}
+
+	getPersonalToken({
+		loginToken,
+		userId,
+	}: {
+		loginToken: string;
+		userId: string;
+	}) {
+		return firstValueFrom(
+			this.httpService.get(
+				this.baseURL + '/users.getPersonalAccessTokens',
+				{
+					headers: {
+						'X-Auth-Token': loginToken,
+						'X-User-Id': userId,
+					},
+				},
+			),
+		);
+	}
+
+	getMe({ loginToken, userId }) {
+		return new Promise((resolve) => {
+			this.httpService
+				.get(this.baseURL + '/me', {
+					headers: {
+						'X-Auth-Token': loginToken,
+						'X-User-Id': userId,
+					},
+				})
+				.subscribe({
+					next: (res) => resolve(res),
 					error: () => resolve(false),
 				});
 		});

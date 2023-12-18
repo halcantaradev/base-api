@@ -18,7 +18,10 @@ export class RocketService {
 				this.authToken = res.data.data.authToken;
 				this.authIdUser = res.data.data.userId;
 			},
-			error: (err) => console.log(err),
+			error: (err) =>
+				console.log(
+					'Erro ao logar no rocketchat, verifique as credenciais no ambiente.',
+				),
 		});
 	}
 

@@ -164,7 +164,7 @@ export class NotificationController {
 		};
 	}
 
-	@Post('reports')
+	@Post('reports/:type')
 	@Role('notificacoes-relatorios-condominio')
 	@UseInterceptors(UserCondominiumsAccess)
 	@HttpCode(HttpStatus.OK)
@@ -186,8 +186,10 @@ export class NotificationController {
 	async generateReport(
 		@CurrentUser() user: UserAuth,
 		@Body() filtros: FilterNotificationDto,
+		@Param('type') type: string,
 	) {
 		const dados = await this.notificationService.generateReport(
+			+type,
 			user,
 			true,
 			filtros,

@@ -24,6 +24,7 @@ import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { RemoveFileDto } from './dto/remove-file.dto';
 import { UserAuth } from 'src/shared/entities/user-auth.entity';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { UploadFileReturn } from './entities/upload-file-return.entity';
 
 @ApiTags('Envio de Arquivos')
 @Controller('uploads')
@@ -40,7 +41,7 @@ export class UploadFileController {
 	@ApiResponse({
 		description: 'Upload realizado com sucesso',
 		status: HttpStatus.OK,
-		type: ReturnEntity.success(),
+		type: UploadFileReturn,
 	})
 	@ApiResponse({
 		description: 'Ocorreu um erro ao realizar o upload',
@@ -52,9 +53,11 @@ export class UploadFileController {
 		@UploadedFiles() files: Express.Multer.File[],
 		@CurrentUser() user: UserAuth,
 	) {
-		await this.uploadFileService.saveFiles(body, files, user.id);
-
-		return { success: true, message: 'Arquivos enviados com sucesso' };
+		return {
+			success: true,
+			data: await this.uploadFileService.saveFiles(body, files, user.id),
+			message: 'Arquivos enviados com sucesso',
+		};
 	}
 
 	@Patch()

@@ -23,6 +23,10 @@ import { ReturnSetupPackageEntity } from './entities/return-setup-package.entity
 import { UpdateSetupPackageDto } from './dto/update-setup-package.dto';
 import { ReturnSetupPackageBikerListEntity } from './entities/return-setup-package-biker.entity';
 import { ReturnSetupPackageRouteListEntity } from './entities/return-setup-package-route.entity';
+import { SetupCompanyReturn } from './entities/setup-company-return.entity';
+import { UpdateSetupCompanyDto } from './dto/update-setup-company.dto';
+import { UpdateSetupCompanyThemeDto } from './dto/update-setup-company-theme.dto';
+import { SetupCompanyThemeReturn } from './entities/setup-company-theme-return.entity';
 
 @ApiTags('Módulo de Configurações')
 @UseGuards(PermissionGuard)
@@ -209,6 +213,102 @@ export class SetupController {
 				+user.empresa_id,
 				updateSetupSystemDto,
 			),
+		};
+	}
+
+	@Get('company')
+	@Role('setup-empresa-exibir-dados')
+	@ApiOperation({ summary: 'Lista os dados de uma empresa' })
+	@ApiResponse({
+		description: 'Empresa listada com sucesso',
+		status: HttpStatus.OK,
+		type: SetupCompanyReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os dados da empresa',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findOneCompany(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.setupService.findOneCompany(user.empresa_id),
+		};
+	}
+
+	@Patch('company')
+	@Role('setup-empresa-atualizar')
+	@ApiOperation({ summary: 'Atualiza os dados de uma empresa' })
+	@ApiResponse({
+		description: 'Empresa atualizada com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar os dados da empresa',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async updateCompany(
+		@CurrentUser() user: UserAuth,
+		@Body() updateSetupCompanyDto: UpdateSetupCompanyDto,
+	) {
+		await this.setupService.updateCompany(
+			updateSetupCompanyDto,
+			user.empresa_id,
+		);
+
+		return {
+			success: true,
+			message: 'Empresa atualizada com sucesso!',
+		};
+	}
+
+	@Get('company/themes')
+	@Role('setup-empresa-atualizar')
+	@ApiOperation({ summary: 'Retorna os dados do tema da empresa' })
+	@ApiResponse({
+		description: 'Tema retornado com sucesso',
+		status: HttpStatus.OK,
+		type: SetupCompanyThemeReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao retornar os dados do tema da empresa',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findCompanyTheme(@CurrentUser() user: UserAuth) {
+		return {
+			success: true,
+			data: await this.setupService.findCompanyTheme(user.empresa_id),
+		};
+	}
+
+	@Patch('company/themes')
+	@Role('setup-empresa-atualizar')
+	@ApiOperation({ summary: 'Atualiza o tema da empresa' })
+	@ApiResponse({
+		description: 'Tema atualizado com sucesso',
+		status: HttpStatus.OK,
+		type: ReturnEntity.success(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao atualizar o tema da empresa',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async updateCompanyTheme(
+		@CurrentUser() user: UserAuth,
+		@Body() updateSetupCompanyThemeDto: UpdateSetupCompanyThemeDto,
+	) {
+		await this.setupService.updateCompanyTheme(
+			updateSetupCompanyThemeDto,
+			user.empresa_id,
+		);
+
+		return {
+			success: true,
+			message: 'Logo atualizada com sucesso!',
 		};
 	}
 }

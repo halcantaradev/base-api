@@ -731,4 +731,16 @@ export const permissionslist: Array<{
 		key: 'usuarios-atualizar-vinculos-condominios',
 		message: 'Sem permissão para delimitar condominios para usuários',
 	},
+	{
+		label: 'Exibir dados da empresa',
+		module: 'Sistema',
+		key: 'setup-empresa-exibir-dados',
+		message: 'Sem permissão para exibir os dados da empresa',
+	},
+	{
+		label: 'Atualizar dados da empresa',
+		module: 'Sistema',
+		key: 'setup-empresa-atualizar',
+		message: 'Sem permissão para atualizar os dados da empresa',
+	},
 ];

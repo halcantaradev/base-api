@@ -551,9 +551,9 @@ model Filial {
 model Tema {
   id         Int      @id @default(autoincrement())
   nome       String
-  logo       String
-  logo_white String?
-  empresa_id Int
+  logo       String?
+  logo_clara String?
+  empresa_id Int      @unique
   ativo      Boolean  @default(true)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

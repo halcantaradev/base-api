@@ -9,7 +9,7 @@ export class RocketService {
 	authIdUser: string;
 	constructor(private readonly httpService: HttpService) {
 		this.baseURL = process.env.ROCKET_URL;
-		console.log('Requisitando rocket');
+		console.log('Logando  no rocket');
 		this.login({
 			user: process.env.ROCKET_USER,
 			password: process.env.ROCKET_PASSWORD,

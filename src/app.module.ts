@@ -43,6 +43,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './shared/services/tasks/tasks.module';
 import { RocketModule } from './shared/services/rocket/rocket.module';
 import { HttpModule } from '@nestjs/axios';
+import { SystemParamsModule } from './modules/system-params/system-params.module';
 
 @Module({
 	imports: [
@@ -78,6 +79,7 @@ import { HttpModule } from '@nestjs/axios';
 		TasksModule,
 		RocketModule,
 		HttpModule,
+		SystemParamsModule,
 	],
 	controllers: [AppController],
 	providers: [

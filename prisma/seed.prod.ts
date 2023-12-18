@@ -4,6 +4,7 @@ import { menulist } from '../src/modules/public/menu/menus-list';
 import { permissionslist } from '../src/modules/public/permissions/permissions-list';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
+import { SystemParamsList } from '../src/modules/system-params/system-params-list';
 const prisma = new PrismaClient();
 const salt = bcrypt.genSaltSync(10);
 
@@ -317,6 +318,20 @@ async function createLayoutDefaultNotification(empresa_id: number) {
 	}
 }
 
+async function createSystemParams(empresa_id: number) {
+	await Promise.all(
+		SystemParamsList.map((param) =>
+			prisma.parametroSistema.upsert({
+				create: { ...param, empresa_id },
+				update: { ...param, empresa_id },
+				where: { chave: param.chave },
+			}),
+		),
+	);
+
+	console.log('Parâmetros do sistema atualizados com sucesso!');
+}
+
 async function main() {
 	await createTiposPessoas();
 	await createPermissoesList();
@@ -327,6 +342,7 @@ async function main() {
 	await cretePermissionToUser(user.id, empresa.id);
 	await createMenu();
 	await createLayoutDefaultNotification(empresa.id);
+	await createSystemParams(empresa.id);
 	console.log('Seeds de produção executadas');
 }
 

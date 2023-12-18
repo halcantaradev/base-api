@@ -859,7 +859,7 @@ model ParametroSistema {
   empresa_id Int
   label      String
   descricao  String?
-  chave      String
+  chave      String   @unique
   valor      String
   tipo       String
   ativo      Boolean  @default(true)

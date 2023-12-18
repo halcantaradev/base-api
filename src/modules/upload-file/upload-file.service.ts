@@ -20,6 +20,7 @@ export class UploadFileService {
 		files: Express.Multer.File[],
 		user_id: number,
 	) {
+		const filesData = [];
 		const validation = await this.validateReference(
 			params.reference_id,
 			params.origin,
@@ -40,7 +41,7 @@ export class UploadFileService {
 					`${FilesOrigin.EXTENSO[params.origin]}/${keyName}`,
 				);
 
-				await this.prisma.arquivo.create({
+				const fileData = await this.prisma.arquivo.create({
 					data: {
 						url,
 						nome: Buffer.from(file.originalname, 'latin1').toString(
@@ -55,6 +56,8 @@ export class UploadFileService {
 							.ext.replace('.', ''),
 					},
 				});
+
+				filesData.push(fileData);
 			}),
 		);
 
@@ -64,6 +67,8 @@ export class UploadFileService {
 			params.origin,
 			user_id,
 		);
+
+		return filesData;
 	}
 
 	async removeFiles(ids: number[], user_id: number) {

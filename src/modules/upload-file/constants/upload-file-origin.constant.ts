@@ -4,4 +4,5 @@ export const uploadFileOrigin = [
 	'protocoloDocumento',
 	'maloteVirtual',
 	'pessoa',
+	'pessoa',
 ];

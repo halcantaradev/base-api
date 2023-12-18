@@ -48,8 +48,8 @@ export class PersonService {
 					...where,
 					tipos: { some: { tipo: { nome: tipo } } },
 				},
-				take: page !== null ? (page ? 20 : 100) : undefined,
-				skip: page ? (page - 1) * 20 : undefined,
+				take: page !== null ? (page ? 1 : 100) : undefined,
+				skip: page ? (page - 1) * 1 : undefined,
 			}),
 		};
 	}

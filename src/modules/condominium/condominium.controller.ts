@@ -38,6 +38,7 @@ import { ReportCondominiumDto } from './dto/report-condominium.dto';
 import { ReportCondominiumReturn } from './entities/report-condominium-return.entity';
 import { CreateCondominiumDto } from './dto/create-condominium.dto';
 import { UpdateCondominiumDto } from './dto/update-condominium.dto';
+import { FiltersCondominiumActiveRelationDto } from './dto/filters-condominio-ative-relation';
 
 @ApiTags('Condomínios')
 @UseGuards(PermissionGuard)
@@ -197,6 +198,48 @@ export class CondominiumController {
 			condominiums,
 			+usuario_id,
 			undefined,
+			true,
+		);
+
+		return {
+			success: true,
+			...dados,
+		};
+	}
+
+	@Post('list/relations')
+	@Role(['usuarios-atualizar-vinculos-condominios'])
+	@UseInterceptors(UserCondominiumsAccess)
+	@ApiOperation({
+		summary: 'Lista todos os condomínios ativos para serem delimitados',
+	})
+	@ApiResponse({
+		description: 'Condomínios listados com sucesso',
+		status: HttpStatus.OK,
+		type: CondominiumListReturn,
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao validar os filtros enviados',
+		status: HttpStatus.BAD_REQUEST,
+		type: ReturnEntity.error(),
+	})
+	@ApiResponse({
+		description: 'Ocorreu um erro ao listar os condomínios',
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		type: ReturnEntity.error(),
+	})
+	async findAllActiveRelations(
+		@CurrentUserCondominiums() condominiums: number[],
+		@CurrentUser() user: UserAuth,
+		@Body() filters: FiltersCondominiumActiveRelationDto,
+		@Query() pagination: Pagination,
+	) {
+		const dados = await this.condominioService.findAll(
+			{ ...filters, ativo: true },
+			user,
+			condominiums,
+			+filters.usuario_id,
+			pagination,
 			true,
 		);
 

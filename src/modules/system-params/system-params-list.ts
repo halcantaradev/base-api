@@ -10,7 +10,7 @@ export const SystemParamsList: {
 		label: 'Ativar chat do sistema',
 		descricao: 'Chat para comunicação na empresa',
 		chave: 'usa-rocket-chat',
-		valor: 'true',
+		valor: 'false',
 		tipo: 'checkbox',
 		ativo: true,
 	},

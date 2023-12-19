@@ -173,7 +173,7 @@ async function cretePermissionToUser(usuario_id: number, empresa_id: number) {
 }
 
 async function createMenu() {
-	await prisma.menu.deleteMany({});
+	// await prisma.menu.deleteMany({});
 
 	for await (const menu of menulist) {
 		let menuSaved = await prisma.menu.findFirst({

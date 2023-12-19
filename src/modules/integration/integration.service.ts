@@ -356,6 +356,23 @@ export class IntegrationService {
 								},
 							});
 
+							const hasUnidade =
+								await this.prisma.pessoasHasUnidades.findFirst({
+									where: {
+										pessoa_id: pessoaUnidade.id,
+										unidade_id,
+									},
+								});
+							if (!hasUnidade) {
+								await this.prisma.pessoasHasUnidades.create({
+									data: {
+										pessoa_id: pessoaUnidade.id,
+										unidade_id,
+										pessoa_tipo_id: tipoPessoa.id,
+									},
+								});
+							}
+
 							await this.prisma.$disconnect();
 
 							return pessoaUnidade;

@@ -323,7 +323,12 @@ async function createSystemParams(empresa_id: number) {
 		SystemParamsList.map((param) =>
 			prisma.parametroSistema.upsert({
 				create: { ...param, empresa_id },
-				update: { ...param, empresa_id },
+				update: {
+					...param,
+					empresa_id,
+					valor: undefined,
+					ativo: undefined,
+				},
 				where: { chave: param.chave },
 			}),
 		),

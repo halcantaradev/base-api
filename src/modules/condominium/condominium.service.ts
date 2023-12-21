@@ -838,15 +838,15 @@ export class CondominiumService {
 							},
 						},
 					},
-					// where: {
-					// 	departamento: {
-					// 		condominios: {
-					// 			some: {
-					// 				condominio_id: id,
-					// 			},
-					// 		},
-					// 	},
-					// },
+					where: {
+						departamento: {
+							condominios: {
+								some: {
+									condominio_id: id,
+								},
+							},
+						},
+					},
 				},
 				telefone: true,
 				whatsapp: true,

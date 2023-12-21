@@ -838,15 +838,15 @@ export class CondominiumService {
 							},
 						},
 					},
-					where: {
-						departamento: {
-							condominios: {
-								some: {
-									condominio_id: id,
-								},
-							},
-						},
-					},
+					// where: {
+					// 	departamento: {
+					// 		condominios: {
+					// 			some: {
+					// 				condominio_id: id,
+					// 			},
+					// 		},
+					// 	},
+					// },
 				},
 				telefone: true,
 				whatsapp: true,
@@ -862,24 +862,6 @@ export class CondominiumService {
 								condominio_id: id,
 								condominio: {
 									empresa_id: user.empresa_id,
-									departamentos_condominio:
-										!user.acessa_todos_departamentos
-											? {
-													some: {
-														departamento_id: {
-															in: user.departamentos_ids,
-														},
-													},
-											  }
-											: undefined,
-									usuarios_condominio:
-										!user.acessa_todos_departamentos
-											? {
-													some: {
-														usuario_id: user.id,
-													},
-											  }
-											: undefined,
 								},
 							},
 						},

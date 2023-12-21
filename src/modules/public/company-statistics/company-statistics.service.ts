@@ -6,27 +6,81 @@ import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 export class CompanyStatisticsService {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async getDataCondominio() {
-		const condominios = await this.prisma.pessoa.findMany({
-			select: {
-				updated_at_origin: true,
-			},
+	async getDataCondominio(empresa_id: number) {
+		const ativos = await this.prisma.pessoa.count({
 			where: {
-				updated_at_origin: { gte: new Date('2023-09-01') },
+				ativo: true,
 				tipos: { some: { tipo: { nome: 'condominio' } } },
+				empresa_id,
 			},
 		});
 
-		const group = condominios.reduce((accumulator, c) => {
-			if (!accumulator[formatDateMonthOnly(c.updated_at_origin)]) {
-				accumulator[formatDateMonthOnly(c.updated_at_origin)] = 1;
+		const inativos = await this.prisma.pessoa.count({
+			where: {
+				ativo: false,
+				tipos: { some: { tipo: { nome: 'condominio' } } },
+				empresa_id,
+			},
+		});
+
+		return {
+			ativos,
+			inativos,
+		};
+	}
+
+	async getNotificacoes(empresa_id: number) {
+		const dataFiltro = new Date();
+		dataFiltro.setMonth(dataFiltro.getMonth() - 3);
+
+		const notificacoes = await this.prisma.notificacao.findMany({
+			select: { data_emissao: true },
+			where: {
+				ativo: true,
+				tipo_registro: 1,
+				data_emissao: { gte: dataFiltro },
+				pessoa: { empresa_id },
+			},
+			orderBy: { data_emissao: 'asc' },
+		});
+		const notData = {};
+		notificacoes.forEach((notify) => {
+			if (!notData[formatDateMonthOnly(notify.data_emissao)]) {
+				notData[formatDateMonthOnly(notify.data_emissao)] = 1;
 			} else {
-				accumulator[formatDateMonthOnly(c.updated_at_origin)] += 1;
+				notData[formatDateMonthOnly(notify.data_emissao)] += 1;
 			}
+		});
 
-			return accumulator;
-		}, {});
+		const multas = await this.prisma.notificacao.findMany({
+			select: { data_emissao: true },
+			where: {
+				ativo: true,
+				tipo_registro: 2,
+				data_emissao: { gte: dataFiltro },
+				pessoa: { empresa_id },
+			},
+		});
+		const multaData = {};
+		multas.forEach((multa) => {
+			if (!multaData[formatDateMonthOnly(multa.data_emissao)]) {
+				multaData[formatDateMonthOnly(multa.data_emissao)] = 1;
+			} else {
+				multaData[formatDateMonthOnly(multa.data_emissao)] += 1;
+			}
+		});
 
-		return group;
+		const keys = [
+			...new Set([...Object.keys(notData), ...Object.keys(multaData)]),
+		];
+
+		keys.forEach((k) => {
+			console.log(k);
+
+			if (!notData[k]) notData[k] = 1;
+			if (!multaData[k]) multaData[k] = 1;
+		});
+
+		return { notificacoes: notData, multas: multaData, keys };
 	}
 }

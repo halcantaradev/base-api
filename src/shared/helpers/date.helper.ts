@@ -34,3 +34,10 @@ export function formatDateNormalBr(dateParam: Date) {
 		timeZone: 'America/Sao_Paulo',
 	}).format(dateParam);
 }
+
+export function formatDateMonthOnly(dateParam: Date) {
+	return new Intl.DateTimeFormat('pt-BR', {
+		month: 'short',
+		timeZone: 'America/Sao_Paulo',
+	}).format(dateParam);
+}

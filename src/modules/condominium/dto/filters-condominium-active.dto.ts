@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsInt, IsOptional, Validate } from 'class-validator';
+import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
+import { IsBooleanType } from 'src/shared/validators';
 
 export class FiltersCondominiumActiveDto {
 	@ApiProperty({
@@ -14,4 +17,17 @@ export class FiltersCondominiumActiveDto {
 	})
 	@IsOptional()
 	departamentos_ids?: number[];
+
+	@ApiProperty({
+		description: 'Incluir a empresa na listagem',
+		example: true,
+		required: false,
+	})
+	@Validate(IsBooleanType, {
+		message:
+			'O campo incluir empresa informado não é válido. Por favor, forneça um valor válido.',
+	})
+	@Transform(BooleanTransformHelper)
+	@IsOptional()
+	incluir_empresa?: boolean;
 }

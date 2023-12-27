@@ -523,7 +523,7 @@ export class CondominiumService {
 		ativo = false,
 		todos = false,
 	) {
-		return this.pessoaService.findAll(
+		const condominiumsList = await this.pessoaService.findAll(
 			PeopleType.CONDOMINIO,
 			{
 				departamentos_condominio: {
@@ -582,6 +582,84 @@ export class CondominiumService {
 			),
 			pagination,
 		);
+
+		const companiesList = await this.pessoaService.findAll(
+			PeopleType.EMPRESA,
+			{
+				departamentos_condominio: {
+					select: {
+						departamento_id: true,
+						departamento: {
+							select: {
+								id: true,
+								nome: true,
+								nac: true,
+								ativo: true,
+								filial: {
+									select: {
+										id: true,
+										nome: true,
+									},
+								},
+							},
+						},
+					},
+					where: {
+						departamento: {
+							condominios: {
+								some: {
+									condominio: {
+										empresa_id: user.empresa_id,
+									},
+								},
+							},
+						},
+					},
+				},
+				condominios_tipos_contratos: {
+					select: {
+						tipo_contrato: {
+							select: {
+								id: true,
+								nome: true,
+								ativo: true,
+							},
+						},
+					},
+				},
+				tipos: {
+					select: { integracao: { select: { descricao: true } } },
+					where: { tipo: { nome: 'condominio' } },
+				},
+			},
+			filters.condominio
+				? {
+						id: user.empresa_id,
+						OR: [
+							{
+								nome: {
+									contains: filters.condominio
+										.toString()
+										.normalize('NFC')
+										.replace(/[\u0300-\u036f]/g, ''),
+									mode: Prisma.QueryMode.insensitive,
+								},
+							},
+							!Number.isNaN(+filters.condominio)
+								? {
+										id: +filters.condominio,
+								  }
+								: null,
+						].filter((filtro) => !!filtro),
+				  }
+				: null,
+			pagination,
+		);
+
+		return {
+			data: [...companiesList.data, ...condominiumsList.data],
+			total_pages: condominiumsList.total_pages,
+		};
 	}
 
 	async report(

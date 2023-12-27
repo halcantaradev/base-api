@@ -173,11 +173,9 @@ async function cretePermissionToUser(usuario_id: number, empresa_id: number) {
 }
 
 async function createMenu() {
-	// await prisma.menu.deleteMany({});
-
 	for await (const menu of menulist) {
 		let menuSaved = await prisma.menu.findFirst({
-			where: { label: menu.label, url: menu.url },
+			where: { id: menu.id_relation },
 		});
 
 		if (!menuSaved) {
@@ -222,19 +220,23 @@ async function createMenu() {
 										},
 								  })
 								: null;
-
-							return prisma.menu.create({
-								data: {
-									id: item.id_relation,
-									menu_id: menuSaved.id,
-									permissao_id: permission?.id,
-									label: item.label,
-									url: item.url,
-									icon: item.icon,
-									target: item.target,
-									ativo: item.ativo,
-								},
+							const menuExts = await prisma.menu.findUnique({
+								where: { id: item.id_relation },
 							});
+							if (!menuExts)
+								return prisma.menu.create({
+									data: {
+										id: item.id_relation,
+										menu_id: menuSaved.id,
+										permissao_id: permission?.id,
+										label: item.label,
+										url: item.url,
+										icon: item.icon,
+										target: item.target,
+										ativo: item.ativo,
+									},
+								});
+							return false;
 						}
 
 						return null;
@@ -320,18 +322,17 @@ async function createLayoutDefaultNotification(empresa_id: number) {
 
 async function createSystemParams(empresa_id: number) {
 	await Promise.all(
-		SystemParamsList.map((param) =>
-			prisma.parametroSistema.upsert({
-				create: { ...param, empresa_id },
-				update: {
-					...param,
-					empresa_id,
-					valor: undefined,
-					ativo: undefined,
-				},
+		SystemParamsList.map(async (param) => {
+			const ParamExist = await prisma.parametroSistema.findUnique({
 				where: { chave: param.chave },
-			}),
-		),
+			});
+			if (!ParamExist) {
+				return prisma.parametroSistema.create({
+					data: { ...param, empresa_id },
+				});
+			}
+			return false;
+		}),
 	);
 
 	console.log('Parâmetros do sistema atualizados com sucesso!');

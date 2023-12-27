@@ -24,9 +24,10 @@ export class CompanyStatisticsController {
 					await this.companyStatisticsService.getDataCondominio(
 						user.empresa_id,
 					),
-				infracoes: await this.companyStatisticsService.getNotificacoes(
-					user.empresa_id,
-				),
+				notificacoes:
+					await this.companyStatisticsService.getNotificacoes(
+						user.empresa_id,
+					),
 			},
 		};
 	}

@@ -79,6 +79,6 @@ export class CompanyStatisticsService {
 			if (!multaData[k]) multaData[k] = 0;
 		});
 
-		return { notificacoes: notData, multas: multaData, keys };
+		return { infracoes: notData, multas: multaData, keys };
 	}
 }

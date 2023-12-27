@@ -6,8 +6,10 @@ import {
 } from 'class-validator';
 
 @Injectable()
-@ValidatorConstraint({ name: 'CondominiumExists', async: true })
-export class CondominiumExists implements ValidatorConstraintInterface {
+@ValidatorConstraint({ name: 'CondominiumOrCompanyExists', async: true })
+export class CondominiumOrCompanyExists
+	implements ValidatorConstraintInterface
+{
 	constructor(private readonly prisma: PrismaService) {}
 
 	async validate(id: number) {
@@ -18,7 +20,9 @@ export class CondominiumExists implements ValidatorConstraintInterface {
 					tipos: {
 						some: {
 							tipo: {
-								nome: 'condominio',
+								nome: {
+									in: ['empresa', 'condominio'],
+								},
 							},
 						},
 					},
@@ -32,6 +36,6 @@ export class CondominiumExists implements ValidatorConstraintInterface {
 	}
 
 	defaultMessage() {
-		return `O condomínio informado não pode ser utilizado`;
+		return `O condomínio/empresa informado não pode ser utilizado`;
 	}
 }

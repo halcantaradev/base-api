@@ -35,8 +35,8 @@ import { LayoutConstsService } from './shared/services/layout-consts.service';
 import {
 	UserExists,
 	DepartmentExists,
-	CondominiumExists,
 	DocumentTypeExists,
+	CondominiumOrCompanyExists,
 } from './shared/validators';
 import { PrismaModule } from './shared/services/prisma/prisma.module';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -86,9 +86,9 @@ import { SystemParamsModule } from './modules/system-params/system-params.module
 		AppService,
 		UserExists,
 		DepartmentExists,
-		CondominiumExists,
 		DocumentTypeExists,
 		LayoutConstsService,
+		CondominiumOrCompanyExists,
 	],
 })
 export class AppModule {}

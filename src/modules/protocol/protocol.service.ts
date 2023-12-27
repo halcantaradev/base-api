@@ -35,6 +35,8 @@ import { VirtualPackageSituation } from 'src/shared/consts/virtual-package-situa
 import { VirtualPackageDocumentSituation } from 'src/shared/consts/virtual-package-document-situation.const';
 import { ProtocolHistorySituation } from 'src/shared/consts/protocol-history-situation.const';
 import { CancelProtocolDto } from './dto/cancel-protocol.dto';
+import { PeopleType } from 'src/shared/consts/people-type.const';
+import { ProtocolType } from 'src/shared/consts/protocol-type.const';
 
 @Injectable()
 export class ProtocolService {
@@ -116,7 +118,7 @@ export class ProtocolService {
 					},
 				},
 				aceito: true,
-				condominio: {
+				pessoa: {
 					select: {
 						id: true,
 						nome: true,
@@ -166,7 +168,7 @@ export class ProtocolService {
 				nome: true,
 			},
 		},
-		condominio: {
+		pessoa: {
 			select: {
 				id: true,
 				nome: true,
@@ -278,7 +280,7 @@ export class ProtocolService {
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
-		const protocolo_malote = filtersProtocolDto.tipo_protocolo
+		const package_protocol = filtersProtocolDto.tipo_protocolo
 			? filtersProtocolDto.tipo_protocolo == 2
 				? true
 				: false
@@ -295,7 +297,7 @@ export class ProtocolService {
 				id: !Number.isNaN(+filtersProtocolDto.id)
 					? +filtersProtocolDto.id
 					: undefined,
-				protocolo_malote,
+				protocolo_malote: package_protocol,
 				finalizado:
 					filtersProtocolDto.finalizado !== undefined
 						? filtersProtocolDto.finalizado
@@ -312,14 +314,14 @@ export class ProtocolService {
 					filtersProtocolDto.destino_usuario_id || undefined,
 				documentos: {
 					some:
-						filtersProtocolDto.condominios_ids?.length ||
+						filtersProtocolDto.pessoas_ids?.length ||
 						filtersProtocolDto?.aceito_por ||
 						filtersProtocolDto.data_aceito?.length
 							? {
-									condominio_id: filtersProtocolDto
-										.condominios_ids?.length
+									pessoa_id: filtersProtocolDto.pessoas_ids
+										?.length
 										? {
-												in: filtersProtocolDto.condominios_ids,
+												in: filtersProtocolDto.pessoas_ids,
 										  }
 										: undefined,
 									aceite_usuario_id:
@@ -410,7 +412,7 @@ export class ProtocolService {
 		user: UserAuth,
 		pagination?: Pagination,
 	) {
-		const protocolo_malote = filtersProtocolDto.tipo_protocolo
+		const package_protocol = filtersProtocolDto.tipo_protocolo
 			? filtersProtocolDto.tipo_protocolo == 2
 				? true
 				: false
@@ -427,7 +429,7 @@ export class ProtocolService {
 				id: !Number.isNaN(+filtersProtocolDto.id)
 					? +filtersProtocolDto.id
 					: undefined,
-				protocolo_malote,
+				protocolo_malote: package_protocol,
 				destino_departamento_id:
 					filtersProtocolDto.destino_departamento_ids
 						? {
@@ -440,10 +442,9 @@ export class ProtocolService {
 					filtersProtocolDto.destino_usuario_id || undefined,
 				documentos: {
 					some: {
-						condominio_id: filtersProtocolDto.condominios_ids
-							?.length
+						pessoa_id: filtersProtocolDto.pessoas_ids?.length
 							? {
-									in: filtersProtocolDto.condominios_ids,
+									in: filtersProtocolDto.pessoas_ids,
 							  }
 							: undefined,
 						aceite_usuario_id:
@@ -629,16 +630,16 @@ export class ProtocolService {
 		updateProtocolDto: UpdateProtocolDto,
 		user: UserAuth,
 	) {
-		let protocolo = await this.findById(id, user);
+		let protocol = await this.findById(id, user);
 
-		if (!protocolo || protocolo.situacao != ProtocolSituation.PENDENTE) {
+		if (!protocol || protocol.situacao != ProtocolSituation.PENDENTE) {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
-		const protocolHasFinalized = protocolo.finalizado;
+		const isFinalized = protocol.finalizado;
 
-		if (!protocolo.documentos.length) {
-			protocolo = await this.prisma.protocolo.update({
+		if (!protocol.documentos.length) {
+			protocol = await this.prisma.protocolo.update({
 				data: {
 					ativo: updateProtocolDto.ativo || undefined,
 					finalizado: updateProtocolDto.finalizado || undefined,
@@ -651,7 +652,7 @@ export class ProtocolService {
 				},
 			});
 		} else {
-			protocolo = await this.prisma.protocolo.update({
+			protocol = await this.prisma.protocolo.update({
 				data: {
 					finalizado: updateProtocolDto.finalizado || undefined,
 					data_finalizado: updateProtocolDto.finalizado
@@ -664,7 +665,7 @@ export class ProtocolService {
 			});
 		}
 
-		if (!protocolHasFinalized && protocolo.finalizado) {
+		if (!isFinalized && protocol.finalizado) {
 			const documents = await this.findAllDocuments(id, user);
 
 			await this.prisma.protocoloDocumentoHistorico.createMany({
@@ -676,9 +677,9 @@ export class ProtocolService {
 			});
 		}
 
-		if (protocolo) {
+		if (protocol) {
 			this.sendNotification(
-				protocolo,
+				protocol,
 				updateProtocolDto.destino_departamento_id,
 				user.empresa_id,
 				null,
@@ -688,7 +689,7 @@ export class ProtocolService {
 			);
 		}
 
-		return protocolo;
+		return protocol;
 	}
 
 	async createDocument(
@@ -696,12 +697,12 @@ export class ProtocolService {
 		createDocumentProtocolDto: CreateDocumentProtocolDto,
 		user: UserAuth,
 	) {
-		const protocolo = await this.findById(protocolo_id, user);
+		const protocol = await this.findById(protocolo_id, user);
 
 		if (
-			!protocolo ||
+			!protocol ||
 			Number.isNaN(protocolo_id) ||
-			protocolo.situacao === ProtocolSituation.CANCELADO
+			protocol.situacao === ProtocolSituation.CANCELADO
 		)
 			throw new BadRequestException('Protocolo não encontrado');
 
@@ -713,7 +714,7 @@ export class ProtocolService {
 				retorna: createDocumentProtocolDto.retorna,
 				vencimento: createDocumentProtocolDto.vencimento,
 				valor: createDocumentProtocolDto.valor,
-				condominio_id: createDocumentProtocolDto.condominio_id,
+				pessoa_id: createDocumentProtocolDto.pessoa_id,
 				tipo_documento_id: createDocumentProtocolDto.tipo_documento_id,
 			},
 		});
@@ -722,7 +723,7 @@ export class ProtocolService {
 			data: {
 				documento_id: document.id,
 				usuario_id: user.id,
-				situacao: protocolo.finalizado
+				situacao: protocol.finalizado
 					? ProtocolHistorySituation.ENVIADO
 					: ProtocolHistorySituation.CRIADO,
 			},
@@ -732,9 +733,9 @@ export class ProtocolService {
 	}
 
 	async findAllDocuments(protocolo_id: number, user?: UserAuth) {
-		const protocolo = await this.findById(protocolo_id, user);
+		const protocol = await this.findById(protocolo_id, user);
 
-		if (!protocolo || Number.isNaN(protocolo_id))
+		if (!protocol || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
 		const documentsProtocol = await this.prisma.protocoloDocumento.findMany(
@@ -788,7 +789,7 @@ export class ProtocolService {
 						},
 					},
 					aceito: true,
-					condominio: {
+					pessoa: {
 						select: {
 							id: true,
 							nome: true,
@@ -806,7 +807,7 @@ export class ProtocolService {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
-		const arquivos = await this.prisma.arquivo.findMany({
+		const files = await this.prisma.arquivo.findMany({
 			where: {
 				ativo: true,
 				origem: FilesOrigin.PROTOCOL,
@@ -818,8 +819,7 @@ export class ProtocolService {
 
 		return documentsProtocol.map((d) => ({
 			...d,
-			total_anexos: arquivos.filter((a) => a.referencia_id === d.id)
-				.length,
+			total_anexos: files.filter((a) => a.referencia_id === d.id).length,
 		}));
 	}
 
@@ -836,14 +836,11 @@ export class ProtocolService {
 
 		const dataToPrint = await this.dataToHandle(protocol_id);
 
-		const protocoloFile = this.handleBarService.compile(
-			layout,
-			dataToPrint,
-		);
+		const protocolFile = this.handleBarService.compile(layout, dataToPrint);
 
 		const pdf = await this.pdfService.setTitlePDF(
 			`PROTOCOLO_${new Date().getTime()}`,
-			await this.pdfService.getPDF(protocoloFile),
+			await this.pdfService.getPDF(protocolFile),
 		);
 
 		const documents = await this.findAllDocuments(protocol_id, user);
@@ -870,7 +867,7 @@ export class ProtocolService {
 		if (!protocol || Number.isNaN(id))
 			throw new BadRequestException('Protocolo não encontrado');
 
-		const total_documentos = await this.prisma.protocoloDocumento.count({
+		const total_documents = await this.prisma.protocoloDocumento.count({
 			where: {
 				protocolo_id: id,
 				excluido: false,
@@ -902,7 +899,7 @@ export class ProtocolService {
 							nome: true,
 						},
 					},
-					condominio: {
+					pessoa: {
 						select: {
 							id: true,
 							nome: true,
@@ -916,7 +913,7 @@ export class ProtocolService {
 			},
 		);
 
-		const empresa = await this.prisma.pessoa.findUnique({
+		const company = await this.prisma.pessoa.findUnique({
 			select: {
 				nome: true,
 				temas: {
@@ -935,21 +932,21 @@ export class ProtocolService {
 		data.data_atual_extenso = formatDateLongBr(new Date());
 
 		data.numero_protocolo = protocol.id;
-		data.total_documentos_protocolo = total_documentos;
-		data.empresa_nome = empresa.nome || '';
+		data.total_documentos_protocolo = total_documents;
+		data.empresa_nome = company.nome || '';
 		data.empresa_logo = `<img src="${
-			empresa.temas.length && empresa.temas[0].logo
-				? empresa.temas[0].logo
+			company.temas.length && company.temas[0].logo
+				? company.temas[0].logo
 				: defaultLogo
 		}" width="150"/>`;
 
-		const condominios = [];
+		const condominiums = [];
 
 		documentsProtocol.forEach((item) => {
-			if (!condominios[item.condominio.id]) {
-				condominios[item.condominio.id] = {
-					id: item.condominio.id,
-					nome: item.condominio.nome,
+			if (!condominiums[item.pessoa.id]) {
+				condominiums[item.pessoa.id] = {
+					id: item.pessoa.id,
+					nome: item.pessoa.nome,
 					documents: [
 						{
 							emissao: item.created_at
@@ -967,7 +964,7 @@ export class ProtocolService {
 					],
 				};
 			} else {
-				condominios[item.condominio.id].documents.push({
+				condominiums[item.pessoa.id].documents.push({
 					emissao: item.created_at
 						? formatDateNormalBr(item?.created_at)
 						: null,
@@ -983,7 +980,7 @@ export class ProtocolService {
 			}
 		});
 
-		data.condominios = condominios;
+		data.condominios = condominiums;
 		return data;
 	}
 
@@ -992,9 +989,9 @@ export class ProtocolService {
 		document_id: number,
 		user: UserAuth,
 	) {
-		const protocolo = await this.findById(protocolo_id, user);
+		const protocol = await this.findById(protocolo_id, user);
 
-		if (!protocolo || Number.isNaN(protocolo_id))
+		if (!protocol || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
 		if (Number.isNaN(document_id))
@@ -1008,7 +1005,7 @@ export class ProtocolService {
 			},
 		});
 
-		const arquivos = await this.prisma.arquivo.findMany({
+		const files = await this.prisma.arquivo.findMany({
 			where: {
 				ativo: true,
 				origem: FilesOrigin.PROTOCOL,
@@ -1016,7 +1013,7 @@ export class ProtocolService {
 			},
 		});
 
-		return { ...document, arquivos };
+		return { ...document, arquivos: files };
 	}
 
 	async acceptDocuments(
@@ -1024,7 +1021,7 @@ export class ProtocolService {
 		documents_ids: number[],
 		user: UserAuth,
 	) {
-		const documentExists = await this.prisma.protocolo.findFirst({
+		const document = await this.prisma.protocolo.findFirst({
 			select: {
 				documentos: {
 					where: {
@@ -1062,17 +1059,13 @@ export class ProtocolService {
 			},
 		});
 
-		if (
-			!documentExists ||
-			!documentExists?.documentos ||
-			!documentExists.documentos.length
-		) {
+		if (!document || !document?.documentos || !document.documentos.length) {
 			throw new BadRequestException(
 				'Documento(s) informado(s) não aceitos ou não encontrados',
 			);
 		}
 
-		const documents_ids_accept = documentExists.documentos.map(
+		const documents_ids_accept = document.documentos.map(
 			(document) => document.id,
 		);
 
@@ -1128,7 +1121,7 @@ export class ProtocolService {
 		documents_ids: number[],
 		user: UserAuth,
 	) {
-		const documentExists = await this.prisma.protocolo.findFirst({
+		const document = await this.prisma.protocolo.findFirst({
 			select: {
 				protocolo_malote: true,
 				documentos: {
@@ -1191,21 +1184,17 @@ export class ProtocolService {
 			},
 		});
 
-		if (
-			!documentExists ||
-			!documentExists?.documentos ||
-			!documentExists.documentos.length
-		) {
+		if (!document || !document?.documentos || !document.documentos.length) {
 			throw new BadRequestException(
 				'Documento(s) informado(s) não aceitos, já na fila ou não encontrados',
 			);
 		}
 
-		if (documentExists.protocolo_malote) {
+		if (document.protocolo_malote) {
 			let canReverse = true;
 			const packageNotReserse: number[] = [];
 
-			documentExists.documentos.forEach((doc) => {
+			document.documentos.forEach((doc) => {
 				if (
 					doc.malote_virtual.documentos_malote.length !=
 						doc.malote_virtual.documentos_malote.filter(
@@ -1233,7 +1222,7 @@ export class ProtocolService {
 				);
 		}
 
-		const documents_ids_reverse = documentExists.documentos.map(
+		const documents_ids_reverse = document.documentos.map(
 			(document) => document.id,
 		);
 
@@ -1301,12 +1290,12 @@ export class ProtocolService {
 		user: UserAuth,
 		exclude = false,
 	) {
-		const protocolo = await this.findById(protocolo_id, user);
+		const protocol = await this.findById(protocolo_id, user);
 
-		if (!protocolo || Number.isNaN(protocolo_id))
+		if (!protocol || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
-		if (protocolo.protocolo_malote && !exclude)
+		if (protocol.protocolo_malote && !exclude)
 			throw new BadRequestException('Documento não pode ser alterado');
 
 		const document = await this.findDocumentById(
@@ -1318,7 +1307,7 @@ export class ProtocolService {
 		if (!document || Number.isNaN(document_id) || document.aceito)
 			throw new BadRequestException('Documento não encontrado');
 
-		if (protocolo.protocolo_malote && exclude) {
+		if (protocol.protocolo_malote && exclude) {
 			if (!document.malote_virtual_id) {
 				throw new BadRequestException('Malote virtual não encontrado');
 			}
@@ -1353,7 +1342,7 @@ export class ProtocolService {
 		const documentUpdated = await this.prisma.protocoloDocumento.update({
 			select: {
 				vencimento: true,
-				condominio: {
+				pessoa: {
 					select: {
 						nome: true,
 					},
@@ -1367,7 +1356,7 @@ export class ProtocolService {
 			data: {
 				discriminacao: updateDocumentProtocolDto.discriminacao,
 				observacao: updateDocumentProtocolDto.observacao,
-				condominio_id: updateDocumentProtocolDto.condominio_id,
+				pessoa_id: updateDocumentProtocolDto.pessoa_id,
 				retorna: updateDocumentProtocolDto.retorna,
 				valor: updateDocumentProtocolDto.valor,
 				vencimento: updateDocumentProtocolDto.vencimento,
@@ -1388,7 +1377,7 @@ export class ProtocolService {
 				},
 			});
 		else if (
-			document.condominio.id != updateDocumentProtocolDto.condominio_id ||
+			document.pessoa.id != updateDocumentProtocolDto.pessoa_id ||
 			document.discriminacao != updateDocumentProtocolDto.discriminacao ||
 			document.observacao != updateDocumentProtocolDto.observacao ||
 			document.retorna != updateDocumentProtocolDto.retorna ||
@@ -1403,10 +1392,10 @@ export class ProtocolService {
 					usuario_id: user.id,
 					situacao: ProtocolHistorySituation.ATUALIZADO,
 					descricao: `${
-						document.condominio.id ==
-						updateDocumentProtocolDto.condominio_id
+						document.pessoa.id ==
+						updateDocumentProtocolDto.pessoa_id
 							? ``
-							: `Observação: ${document.condominio.nome} → ${documentUpdated.condominio.nome}<br>`
+							: `Observação: ${document.pessoa.nome} → ${documentUpdated.pessoa.nome}<br>`
 					}${
 						document.discriminacao ==
 						updateDocumentProtocolDto.discriminacao
@@ -1444,7 +1433,7 @@ export class ProtocolService {
 				},
 			});
 
-		if (protocolo.protocolo_malote && exclude) {
+		if (protocol.protocolo_malote && exclude) {
 			const virtualPackage = await this.prisma.maloteVirtual.findFirst({
 				select: {
 					situacao: true,
@@ -1490,77 +1479,99 @@ export class ProtocolService {
 		condominiums: number[],
 		user: UserAuth,
 	) {
-		const departamento_origem = await this.prisma.departamento.findFirst({
+		const department_origin = await this.prisma.departamento.findFirst({
 			where: {
 				id: filtersProtocolCondominiumDto.departamento_origem_id,
 				empresa_id: user.empresa_id,
 			},
 		});
 
-		const departamento_destino = await this.prisma.departamento.findFirst({
+		const department_destiny = await this.prisma.departamento.findFirst({
 			where: {
 				id: filtersProtocolCondominiumDto.departamento_destino_id,
 				empresa_id: user.empresa_id,
 			},
 		});
 
-		if (!departamento_origem && !departamento_destino) return [];
+		if (!department_origin && !department_destiny) return [];
 
-		return (
-			await this.pessoaService.findAll(
-				'condominio',
-				{},
-				{
-					id:
-						(departamento_origem.nac || departamento_destino.nac) &&
-						!user.acessa_todos_departamentos
-							? {
-									in: condominiums,
-							  }
-							: undefined,
-					nome: filtersProtocolCondominiumDto.busca
+		const condominiumsList = await this.pessoaService.findAll(
+			PeopleType.CONDOMINIO,
+			{},
+			{
+				id:
+					(department_origin.nac || department_destiny.nac) &&
+					!user.acessa_todos_departamentos
 						? {
-								contains: filtersProtocolCondominiumDto.busca,
-								mode: 'insensitive',
+								in: condominiums,
 						  }
 						: undefined,
-					departamentos_condominio: {
-						some:
-							departamento_origem.nac || departamento_destino.nac
-								? {
-										OR: [
-											{
-												departamento_id:
-													departamento_origem.nac
-														? filtersProtocolCondominiumDto.departamento_origem_id
-														: undefined,
-											},
-											{
-												departamento_id:
-													departamento_destino.nac
-														? filtersProtocolCondominiumDto.departamento_destino_id
-														: undefined,
-											},
-										],
-								  }
-								: {},
-					},
-					empresa_id: user.empresa_id,
-					ativo: true,
+				nome: filtersProtocolCondominiumDto.busca
+					? {
+							contains: filtersProtocolCondominiumDto.busca,
+							mode: 'insensitive',
+					  }
+					: undefined,
+				departamentos_condominio: {
+					some:
+						department_origin.nac || department_destiny.nac
+							? {
+									OR: [
+										{
+											departamento_id:
+												department_origin.nac
+													? filtersProtocolCondominiumDto.departamento_origem_id
+													: undefined,
+										},
+										{
+											departamento_id:
+												department_destiny.nac
+													? filtersProtocolCondominiumDto.departamento_destino_id
+													: undefined,
+										},
+									],
+							  }
+							: {},
 				},
-			)
-		).data;
+				empresa_id: user.empresa_id,
+				ativo: true,
+			},
+		);
+
+		let companiesList = [];
+
+		if (filtersProtocolCondominiumDto.tipo == ProtocolType.INTERNO) {
+			companiesList = (
+				await this.pessoaService.findAll(
+					PeopleType.EMPRESA,
+					{},
+					{
+						id: user.empresa_id,
+						nome: filtersProtocolCondominiumDto.busca
+							? {
+									contains:
+										filtersProtocolCondominiumDto.busca,
+									mode: 'insensitive',
+							  }
+							: undefined,
+						ativo: true,
+					},
+				)
+			).data;
+		}
+
+		return [...condominiumsList.data, ...companiesList];
 	}
 
 	async findEmails(protocolo_id: number, user: UserAuth) {
-		const protocolo = await this.findById(protocolo_id, user);
+		const protocol = await this.findById(protocolo_id, user);
 
-		if (!protocolo || Number.isNaN(protocolo_id))
+		if (!protocol || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
-		const condominios = await this.prisma.protocoloDocumento.findMany({
+		const people = await this.prisma.protocoloDocumento.findMany({
 			select: {
-				condominio: {
+				pessoa: {
 					select: {
 						id: true,
 						nome: true,
@@ -1573,24 +1584,31 @@ export class ProtocolService {
 					},
 				},
 			},
-			distinct: ['condominio_id'],
+			distinct: ['pessoa_id'],
 			where: {
 				protocolo_id,
+				pessoa: {
+					tipos: {
+						some: {
+							tipo: { descricao: PeopleType.CONDOMINIO },
+						},
+					},
+				},
 				excluido: false,
 			},
 		});
 
-		const administracao_ids = [];
+		const admininstration_ids = [];
 
-		condominios.forEach((condominio) => {
-			administracao_ids.push(
-				...condominio.condominio.condominio_administracao.map(
+		people.forEach((condominio) => {
+			admininstration_ids.push(
+				...condominio.pessoa.condominio_administracao.map(
 					(adm) => adm.id,
 				),
 			);
 		});
 
-		const contatos = await this.prisma.contato.findMany({
+		const contacts = await this.prisma.contato.findMany({
 			select: {
 				id: true,
 				contato: true,
@@ -1601,18 +1619,18 @@ export class ProtocolService {
 			where: {
 				origem: Contact.ADMINISTRACAO_CONDOMINIO,
 				referencia_id: {
-					in: administracao_ids,
+					in: admininstration_ids,
 				},
 				tipo: ContactType.EMAIL,
 			},
 		});
 
-		return condominios.map((condominio) => ({
-			...condominio.condominio,
+		return people.map((condominio) => ({
+			...condominio.pessoa,
 			condominio_administracao: undefined,
-			contatos: contatos
+			contatos: contacts
 				.filter((contato) =>
-					condominio.condominio.condominio_administracao
+					condominio.pessoa.condominio_administracao
 						.map((adm) => adm.id)
 						.includes(contato.referencia_id),
 				)
@@ -1620,7 +1638,7 @@ export class ProtocolService {
 					...contato,
 					referencia_id: undefined,
 					proprietario:
-						condominio.condominio.condominio_administracao.find(
+						condominio.pessoa.condominio_administracao.find(
 							(proprietario) =>
 								proprietario.id == contato.referencia_id,
 						),
@@ -1633,15 +1651,15 @@ export class ProtocolService {
 		sendEmailProtocolDto: SendEmailProtocolDto,
 		user: UserAuth,
 	) {
-		const protocolo = await this.findById(protocolo_id, user);
+		const protocol = await this.findById(protocolo_id, user);
 
-		if (!protocolo || Number.isNaN(protocolo_id))
+		if (!protocol || Number.isNaN(protocolo_id))
 			throw new BadRequestException('Protocolo não encontrado');
 
-		const documentos = await this.prisma.protocoloDocumento.findMany({
+		const documents = await this.prisma.protocoloDocumento.findMany({
 			select: {
 				discriminacao: true,
-				condominio: {
+				pessoa: {
 					select: {
 						id: true,
 						nome: true,
@@ -1654,25 +1672,32 @@ export class ProtocolService {
 					},
 				},
 			},
-			distinct: ['condominio_id'],
+			distinct: ['pessoa_id'],
 			where: {
 				protocolo_id,
-				condominio_id: sendEmailProtocolDto.condominio_id,
+				pessoa_id: sendEmailProtocolDto.pessoa_id,
+				pessoa: {
+					tipos: {
+						some: {
+							tipo: { descricao: PeopleType.CONDOMINIO },
+						},
+					},
+				},
 				excluido: false,
 			},
 		});
 
-		const administracao_ids = [];
+		const administration_ids = [];
 
-		documentos.forEach((documento) => {
-			administracao_ids.push(
-				...documento.condominio.condominio_administracao.map(
+		documents.forEach((documento) => {
+			administration_ids.push(
+				...documento.pessoa.condominio_administracao.map(
 					(adm) => adm.id,
 				),
 			);
 		});
 
-		const contatos = await this.prisma.contato.findMany({
+		const contacts = await this.prisma.contato.findMany({
 			select: {
 				contato: true,
 			},
@@ -1683,7 +1708,7 @@ export class ProtocolService {
 				},
 				origem: Contact.ADMINISTRACAO_CONDOMINIO,
 				referencia_id: {
-					in: administracao_ids,
+					in: administration_ids,
 				},
 				tipo: ContactType.EMAIL,
 			},
@@ -1702,7 +1727,7 @@ export class ProtocolService {
 		});
 
 		await Promise.all(
-			contatos.map((contato) =>
+			contacts.map((contato) =>
 				this.emailService.send({
 					to: contato.contato,
 					from: process.env.EMAIL_SEND_PROVIDER,
@@ -1804,7 +1829,7 @@ export class ProtocolService {
 			throw new BadRequestException('Nenhum documento encontrado');
 		}
 
-		const documentsExists = await this.prisma.protocoloDocumento.findMany({
+		const documents = await this.prisma.protocoloDocumento.findMany({
 			where: {
 				protocolo_id,
 				rejeitado: false,
@@ -1831,7 +1856,7 @@ export class ProtocolService {
 			},
 		});
 
-		if (!documentsExists?.length) {
+		if (!documents?.length) {
 			throw new BadRequestException(
 				'Os documentos enviados são inválidos, somente documentos pendentes podem ser rejeitados!',
 			);
@@ -1844,7 +1869,7 @@ export class ProtocolService {
 				excluido: false,
 				aceito: false,
 				id: {
-					in: documentsExists.map((document) => document.id),
+					in: documents.map((document) => document.id),
 				},
 			},
 			data: {
@@ -1854,7 +1879,7 @@ export class ProtocolService {
 		});
 
 		await this.prisma.protocoloDocumentoHistorico.createMany({
-			data: documentsExists.map((document) => ({
+			data: documents.map((document) => ({
 				documento_id: document.id,
 				usuario_id: user.id,
 				situacao: ProtocolHistorySituation.REJEITADO,
@@ -1862,7 +1887,7 @@ export class ProtocolService {
 			})),
 		});
 
-		const protocolTotalDocuments = await this.prisma.protocolo.findFirst({
+		const totalDocuments = await this.prisma.protocolo.findFirst({
 			where: {
 				id: protocolo_id,
 				documentos: {
@@ -1876,10 +1901,10 @@ export class ProtocolService {
 			},
 		});
 
-		let protocolo;
+		let protocol;
 
-		if (protocolTotalDocuments) {
-			protocolo = await this.prisma.protocolo.update({
+		if (totalDocuments) {
+			protocol = await this.prisma.protocolo.update({
 				where: {
 					id: protocolo_id,
 				},
@@ -1888,7 +1913,7 @@ export class ProtocolService {
 				},
 			});
 		} else {
-			protocolo = await this.prisma.protocolo.findFirst({
+			protocol = await this.prisma.protocolo.findFirst({
 				where: {
 					id: protocolo_id,
 					excluido: false,
@@ -1898,10 +1923,10 @@ export class ProtocolService {
 		}
 
 		await this.sendNotification(
-			protocolo,
-			protocolo.origem_departamento_id,
+			protocol,
+			protocol.origem_departamento_id,
 			user.empresa_id,
-			protocolo.destino_usuario_id,
+			protocol.destino_usuario_id,
 			TypeNotificationProtocol.REJEITADO_DOCUMENTO_PROTOCOLO,
 		);
 
@@ -1916,7 +1941,7 @@ export class ProtocolService {
 		createVirtualPackageProtocolDto: CreateVirtualPackageProtocolDto,
 		user: UserAuth,
 	) {
-		const protocolo = await this.prisma.protocolo.findFirst({
+		const protocol = await this.prisma.protocolo.findFirst({
 			where: {
 				id: protocolo_id,
 				excluido: false,
@@ -1924,7 +1949,7 @@ export class ProtocolService {
 			},
 		});
 
-		if (!protocolo) {
+		if (!protocol) {
 			throw new BadRequestException('Protocolo não encontrado');
 		}
 
@@ -1961,7 +1986,7 @@ export class ProtocolService {
 				condominio: {
 					departamentos_condominio: {
 						some: {
-							departamento_id: protocolo.destino_departamento_id,
+							departamento_id: protocol.destino_departamento_id,
 						},
 					},
 				},
@@ -2012,7 +2037,7 @@ export class ProtocolService {
 					}`,
 					observacao: '',
 					retorna: false,
-					condominio_id: virtualPackage.condominio_id,
+					pessoa_id: virtualPackage.condominio_id,
 					malote_virtual_id: virtualPackage.id,
 				},
 			});

@@ -33,7 +33,9 @@ export class FiltersProtocolDto {
 	@ApiProperty({
 		description: 'Filtro por situação do protocolo',
 		enum: ProtocolSituation,
-		example: Object.values(ProtocolSituation),
+		example: Object.values(ProtocolSituation).filter((item) => {
+			return !isNaN(Number(item));
+		}),
 		required: false,
 	})
 	@IsOptional()
@@ -94,10 +96,11 @@ export class FiltersProtocolDto {
 	})
 	@IsInt({
 		each: true,
-		message: 'O campo condomínio deve ser um  array',
+		message:
+			'O campo pessoas informado não é válido. Por favor, forneça um valor válido.',
 	})
 	@IsOptional()
-	condominios_ids: number[];
+	pessoas_ids: number[];
 
 	@ApiProperty({
 		description: 'Filtro por data de emissão',

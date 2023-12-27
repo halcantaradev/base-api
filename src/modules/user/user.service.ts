@@ -12,6 +12,7 @@ import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
 import { PersonService } from '../person/person.service';
 import { Prisma } from '@prisma/client';
 import { ReportUserDto } from './dto/report-user.dto';
+import { PeopleType } from 'src/shared/consts/people-type.const';
 
 @Injectable()
 export class UserService {
@@ -567,7 +568,7 @@ export class UserService {
 			throw new BadRequestException('Departamento não encontrado');
 
 		const condominios = await this.pessoaService.findAll(
-			'condominio',
+			PeopleType.CONDOMINIO,
 			null,
 			{
 				departamentos_condominio: {

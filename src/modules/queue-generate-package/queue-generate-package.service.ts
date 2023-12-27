@@ -33,7 +33,7 @@ export class QueueGeneratePackageService {
 				protocolo: {
 					protocolo_malote: false,
 				},
-				condominio: {
+				pessoa: {
 					empresa_id: user.empresa_id,
 				},
 			},
@@ -79,9 +79,9 @@ export class QueueGeneratePackageService {
 		});
 
 		const documentos = await this.prisma.protocoloDocumento.findMany({
-			distinct: ['condominio_id'],
+			distinct: ['pessoa_id'],
 			select: {
-				condominio: {
+				pessoa: {
 					select: {
 						id: true,
 						nome: true,
@@ -141,7 +141,7 @@ export class QueueGeneratePackageService {
 			},
 
 			where: {
-				condominio: {
+				pessoa: {
 					setup_rotas: {
 						rota: daysSelected,
 					},
@@ -155,20 +155,19 @@ export class QueueGeneratePackageService {
 				},
 			},
 			orderBy: {
-				condominio_id: 'asc',
+				pessoa_id: 'asc',
 			},
 		});
 
 		return documentos.map((documento) => {
 			return {
 				condominio: {
-					...documento.condominio,
+					...documento.pessoa,
 					condominio_malotes_virtuais: undefined,
 					setup_rotas: undefined,
 					alerta_limite_malote:
-						documento.condominio.condominio_malotes_virtuais
-							.length >=
-						documento.condominio.setup_rotas.quantidade_malotes,
+						documento.pessoa.condominio_malotes_virtuais.length >=
+						documento.pessoa.setup_rotas.quantidade_malotes,
 				},
 			};
 		});

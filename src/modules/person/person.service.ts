@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Contact } from 'src/shared/consts/contact.const';
+import { PeopleType } from 'src/shared/consts/people-type.const';
 import { Pagination } from 'src/shared/entities/pagination.entity';
 import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 
@@ -9,7 +10,7 @@ export class PersonService {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async findAll(
-		tipo: string,
+		tipo: PeopleType,
 		select: Prisma.PessoaSelect = {},
 		where: Prisma.PessoaWhereInput = {},
 		pagination: Pagination | null = {},

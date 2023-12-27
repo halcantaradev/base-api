@@ -10,7 +10,10 @@ import {
 	Validate,
 } from 'class-validator';
 import { BooleanTransformHelper } from 'src/shared/helpers/boolean.helper';
-import { DocumentTypeExists, CondominiumExists } from 'src/shared/validators';
+import {
+	CondominiumOrCompanyExists,
+	DocumentTypeExists,
+} from 'src/shared/validators';
 
 export class CreateDocumentProtocolDto {
 	@ApiProperty({
@@ -96,19 +99,19 @@ export class CreateDocumentProtocolDto {
 	observacao?: string;
 
 	@ApiProperty({
-		description: 'Condomínio do documento',
+		description: 'Condomínio/empresa do documento',
 		example: 1,
 		required: true,
 	})
 	@IsNotEmpty({
 		message:
-			'O campo condomínio é obrigatório. Por favor, forneça um condomínio.',
+			'O campo condomínio/empresa é obrigatório. Por favor, forneça um valor.',
 	})
 	@IsInt({
 		message:
-			'O campo condomínio informado não é válido. Por favor, forneça um condomínio válido.',
+			'O campo condomínio/empresa informado não é válido. Por favor, forneça um valor válido.',
 	})
 	@Type(() => Number)
-	@Validate(CondominiumExists)
-	condominio_id: number;
+	@Validate(CondominiumOrCompanyExists)
+	pessoa_id: number;
 }

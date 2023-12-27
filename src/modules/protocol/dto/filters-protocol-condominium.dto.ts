@@ -4,7 +4,7 @@ import { IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class FiltersProtocolCondominiumDto {
 	@ApiProperty({
-		description: 'Filtro por nome ou código do condomínio',
+		description: 'Filtro por nome ou código do condomínio/empresa',
 		example: '001',
 		required: false,
 	})
@@ -42,4 +42,19 @@ export class FiltersProtocolCondominiumDto {
 	})
 	@Type(() => Number)
 	departamento_destino_id: number;
+
+	@ApiProperty({
+		description: 'Tipo do protocolo',
+		example: 1,
+		required: true,
+	})
+	@IsNotEmpty({
+		message: 'O campo tipo é obrigatório. Por favor, forneça um tipo.',
+	})
+	@IsInt({
+		message:
+			'O campo tipo informado não é válido. Por favor, forneça um tipo válido.',
+	})
+	@Type(() => Number)
+	tipo: 1 | 2;
 }

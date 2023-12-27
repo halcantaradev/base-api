@@ -4,23 +4,23 @@ import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class SendEmailProtocolDto {
 	@ApiProperty({
-		description: 'Condomínio do protocolo',
+		description: 'Condominio/Empresa do protocolo',
 		example: 1,
 		required: true,
 	})
 	@IsInt({
 		message:
-			'O condomínio informado não é válido. Por favor, forneça um condomínio válido.',
+			'O condomínio/empresa informado não é válido. Por favor, forneça um valor válido.',
 	})
 	@IsNotEmpty({
 		message:
-			'O condomínio é obrigatório. Por favor, forneça um condomínio.',
+			'O condomínio/empresa é obrigatório. Por favor, forneça um valor.',
 	})
 	@Type(() => Number)
-	condominio_id: number;
+	pessoa_id: number;
 
 	@ApiProperty({
-		description: 'Contatos do condomínio do protocolo',
+		description: 'Contatos da pessoa do protocolo',
 		example: [1],
 		required: true,
 	})

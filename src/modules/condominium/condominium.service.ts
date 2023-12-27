@@ -16,6 +16,7 @@ import { UpdateCondominiumDto } from './dto/update-condominium.dto';
 import { FilesOrigin } from 'src/shared/consts/file-origin.const';
 import { FilterCondominiumDocumentDto } from './dto/filter-condominium-document.dto';
 import { setCustomHour } from 'src/shared/helpers/date.helper';
+import { PeopleType } from 'src/shared/consts/people-type.const';
 
 @Injectable()
 export class CondominiumService {
@@ -523,7 +524,7 @@ export class CondominiumService {
 		todos = false,
 	) {
 		return this.pessoaService.findAll(
-			'condominio',
+			PeopleType.CONDOMINIO,
 			{
 				departamentos_condominio: {
 					select: {
@@ -590,7 +591,7 @@ export class CondominiumService {
 	) {
 		let condominiumsSaved: any[] = (
 			await this.pessoaService.findAll(
-				'condominio',
+				PeopleType.CONDOMINIO,
 				{
 					condominios_tipos_contratos: {
 						select: {
@@ -729,7 +730,7 @@ export class CondominiumService {
 	async findOne(id: number | number[], user: UserAuth): Promise<Condominium> {
 		return this.pessoaService.findOneById(
 			id,
-			'condominio',
+			PeopleType.CONDOMINIO,
 			{
 				importado: true,
 				categoria_id: true,
@@ -1240,6 +1241,6 @@ export class CondominiumService {
 	}
 
 	findOnById(id: number) {
-		return this.pessoaService.findOneById(id, 'condominio');
+		return this.pessoaService.findOneById(id, PeopleType.CONDOMINIO);
 	}
 }

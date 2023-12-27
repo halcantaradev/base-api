@@ -62,8 +62,8 @@ export class VirtualPackageService {
 				id: true,
 			},
 			where: {
-				condominio_id: createVirtualPackageDto.condominio_id,
-				condominio: {
+				pessoa_id: createVirtualPackageDto.condominio_id,
+				pessoa: {
 					setup_rotas: {
 						rota: daysSelected,
 					},
@@ -77,7 +77,7 @@ export class VirtualPackageService {
 				},
 			},
 			orderBy: {
-				condominio_id: 'asc',
+				pessoa_id: 'asc',
 			},
 		});
 
@@ -892,7 +892,7 @@ export class VirtualPackageService {
 
 		if (!malote) throw new BadRequestException('Malote não encontrado');
 
-		const novos = await this.prisma.maloteDocumento.findFirst({
+		const newDocuments = await this.prisma.maloteDocumento.findFirst({
 			include: {
 				documento: true,
 			},
@@ -903,20 +903,20 @@ export class VirtualPackageService {
 			},
 		});
 
-		let protocolo: Prisma.ProtocoloWhereUniqueInput;
-		if (novos) {
-			protocolo = await this.prisma.protocolo.findFirst({
+		let protocol: Prisma.ProtocoloWhereUniqueInput;
+		if (newDocuments) {
+			protocol = await this.prisma.protocolo.findFirst({
 				select: { id: true },
 				where: {
-					id: novos.documento.protocolo_id,
+					id: newDocuments.documento.protocolo_id,
 					excluido: false,
 					situacao: { notIn: [ProtocolSituation.CANCELADO] },
 				},
 			});
 		}
 
-		if (!protocolo)
-			protocolo = await this.prisma.protocolo.create({
+		if (!protocol)
+			protocol = await this.prisma.protocolo.create({
 				data: {
 					empresa_id: user.empresa_id,
 					tipo: 1,
@@ -934,12 +934,12 @@ export class VirtualPackageService {
 
 		const data = receiveNewDocumentVirtualPackageDto.documentos.map(
 			(doc) => ({
-				protocolo_id: protocolo.id,
+				protocolo_id: protocol.id,
 				aceito: true,
 				discriminacao: doc.discriminacao,
 				observacao: doc.observacao || null,
 				retorna: false,
-				condominio_id: malote.condominio_id,
+				pessoa_id: malote.condominio_id,
 				tipo_documento_id: doc.tipo_documento_id,
 				aceite_usuario_id: user.id,
 				data_aceite: new Date(),
@@ -1332,7 +1332,7 @@ export class VirtualPackageService {
 						}`,
 						observacao: '',
 						retorna: false,
-						condominio_id: virtualPackage.condominio_id,
+						pessoa_id: virtualPackage.condominio_id,
 						malote_virtual_id: virtualPackage.id,
 					},
 				});

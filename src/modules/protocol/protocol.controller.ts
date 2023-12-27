@@ -158,10 +158,10 @@ export class ProtocolController {
 	@UseInterceptors(UserCondominiumsAccess)
 	@ApiOperation({
 		summary:
-			'Lista os condomínios que podem ser selecionados nos protocolos',
+			'Lista os condomínios e empresas que podem ser selecionados nos protocolos',
 	})
 	@ApiResponse({
-		description: 'Condominios listados com sucesso',
+		description: 'Condominios / empresas listadas com sucesso',
 		status: HttpStatus.OK,
 		type: ProtocolCondominiumListReturn,
 	})

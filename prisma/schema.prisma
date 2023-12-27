@@ -620,7 +620,7 @@ model ProtocoloDocumento {
   id                Int       @id @default(autoincrement())
   protocolo_id      Int
   tipo_documento_id Int?
-  condominio_id     Int
+  pessoa_id         Int
   malote_virtual_id Int?
   aceite_usuario_id Int?
   discriminacao     String
@@ -637,7 +637,7 @@ model ProtocoloDocumento {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  condominio          Pessoa                        @relation(fields: [condominio_id], references: [id])
+  pessoa              Pessoa                        @relation(fields: [pessoa_id], references: [id])
   tipo_documento      TipoDocumento?                @relation(fields: [tipo_documento_id], references: [id])
   protocolo           Protocolo                     @relation(fields: [protocolo_id], references: [id])
   aceite_usuario      User?                         @relation(fields: [aceite_usuario_id], references: [id])

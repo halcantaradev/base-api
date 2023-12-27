@@ -12,6 +12,6 @@ export const SystemParamsList: {
 		chave: 'usa-rocket-chat',
 		valor: 'false',
 		tipo: 'checkbox',
-		ativo: true,
+		ativo: false,
 	},
 ];

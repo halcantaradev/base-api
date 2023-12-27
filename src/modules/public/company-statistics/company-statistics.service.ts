@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { formatDateMonthOnly } from 'src/shared/helpers/date.helper';
+import { formatDateMonthOnlyNumber } from 'src/shared/helpers/date.helper';
 import { PrismaService } from 'src/shared/services/prisma/prisma.service';
 
 @Injectable()
@@ -45,10 +45,10 @@ export class CompanyStatisticsService {
 		});
 		const notData = {};
 		notificacoes.forEach((notify) => {
-			if (!notData[formatDateMonthOnly(notify.data_emissao)]) {
-				notData[formatDateMonthOnly(notify.data_emissao)] = 1;
+			if (!notData[formatDateMonthOnlyNumber(notify.data_emissao)]) {
+				notData[formatDateMonthOnlyNumber(notify.data_emissao)] = 1;
 			} else {
-				notData[formatDateMonthOnly(notify.data_emissao)] += 1;
+				notData[formatDateMonthOnlyNumber(notify.data_emissao)] += 1;
 			}
 		});
 
@@ -63,10 +63,10 @@ export class CompanyStatisticsService {
 		});
 		const multaData = {};
 		multas.forEach((multa) => {
-			if (!multaData[formatDateMonthOnly(multa.data_emissao)]) {
-				multaData[formatDateMonthOnly(multa.data_emissao)] = 1;
+			if (!multaData[formatDateMonthOnlyNumber(multa.data_emissao)]) {
+				multaData[formatDateMonthOnlyNumber(multa.data_emissao)] = 1;
 			} else {
-				multaData[formatDateMonthOnly(multa.data_emissao)] += 1;
+				multaData[formatDateMonthOnlyNumber(multa.data_emissao)] += 1;
 			}
 		});
 
@@ -75,10 +75,8 @@ export class CompanyStatisticsService {
 		];
 
 		keys.forEach((k) => {
-			console.log(k);
-
-			if (!notData[k]) notData[k] = 1;
-			if (!multaData[k]) multaData[k] = 1;
+			if (!notData[k]) notData[k] = 0;
+			if (!multaData[k]) multaData[k] = 0;
 		});
 
 		return { notificacoes: notData, multas: multaData, keys };

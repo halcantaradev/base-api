@@ -41,3 +41,9 @@ export function formatDateMonthOnly(dateParam: Date) {
 		timeZone: 'America/Sao_Paulo',
 	}).format(dateParam);
 }
+
+export function formatDateMonthOnlyNumber(dateParam: Date) {
+	return new Intl.DateTimeFormat('fr-CA', { month: '2-digit' }).format(
+		dateParam,
+	);
+}

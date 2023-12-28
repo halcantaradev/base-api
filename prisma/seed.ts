@@ -1,426 +1,283 @@
-import {
-	Filial,
-	Pessoa,
-	PrismaClient,
-	Taxa,
-	TiposPessoa,
-	Unidade,
-} from '@prisma/client';
-import { Contact } from '../src/shared/consts/contact.const';
-import { ContactType } from '../src/shared/consts/contact-type.const';
-
+import { Pessoa, PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import { menulist } from '../src/modules/public/menu/menus-list';
+import { permissionslist } from '../src/modules/public/permissions/permissions-list';
+import { SystemParamsList } from '../src/modules/system-params/system-params-list';
 const prisma = new PrismaClient();
+const salt = bcrypt.genSaltSync(10);
 
-async function findEmpresa(): Promise<Pessoa> {
-	const empresa = await prisma.pessoa.findFirst({
-		where: {
-			tipos: {
-				some: {
-					tipo: {
-						nome: 'empresa',
-					},
-				},
-			},
-		},
-	});
-
-	return empresa;
-}
-
-async function createCondominio(empresa: Pessoa) {
-	let tipoCondominio = await prisma.tiposPessoa.findUnique({
-		where: { nome: 'condominio' },
-	});
-
-	let condominio = await prisma.pessoa.findFirst({
-		where: {
-			nome: {
-				contains: 'Condominio',
-				mode: 'insensitive',
-			},
-		},
-	});
-
-	if (!tipoCondominio) {
-		tipoCondominio = await prisma.tiposPessoa.create({
-			data: { nome: 'condominio', descricao: 'Condomínio' },
-		});
-	}
-
-	if (!condominio) {
-		for (let cont = 1; cont <= 3; cont++) {
-			condominio = await prisma.pessoa.create({
-				data: {
-					nome: `Condominio ${cont}`,
-					cnpj: `99999999999${cont}`,
-					empresa_id: empresa.id,
-				},
-			});
-
-			await prisma.pessoasHasTipos.create({
-				data: {
-					pessoa_id: condominio.id,
-					tipo_id: tipoCondominio.id,
-				},
-			});
-
-			await prisma.empresaHasPessoas.create({
-				data: {
-					empresa_id: empresa.id,
-					pessoa_id: condominio.id,
-				},
-			});
-		}
-	}
-
-	return condominio;
-}
-
-async function createContato(
-	referencia_id: number,
-	origem: Contact,
-	tipo: ContactType,
-	descricao: string,
-) {
-	const contatos = await prisma.contato.findFirst({
-		where: { referencia_id: referencia_id, origem },
-	});
-
-	if (!contatos) {
-		await prisma.contato.create({
-			data: {
-				descricao,
-				contato:
-					(tipo == ContactType.EMAIL &&
-						`exemplo${referencia_id}-${origem}@gmail.com`) ||
-					(tipo == ContactType.TELEFONE && `8540028922`) ||
-					'',
-				referencia_id,
-				origem,
-				tipo,
-			},
-		});
-	}
-}
-
-async function createUnidade(condominio: Pessoa) {
-	let unidade = await prisma.unidade.findFirst({
-		where: {
-			codigo: `00${condominio.id}`,
-		},
-	});
-
-	if (!unidade) {
-		unidade = await prisma.unidade.create({
-			data: {
-				codigo: `00${condominio.id}`,
-				condominio_id: condominio.id,
-			},
-		});
-	}
-
-	return unidade;
-}
-
-async function createAdmCondominio(condominio: Pessoa) {
-	let sindico = await prisma.condomimioAdministracao.findFirst({
-		where: { nome: `Síndico do condominio ${condominio.id}` },
-	});
-
-	if (!sindico) {
-		const cargo = await createCargoAdmCondominio('Síndico');
-
-		sindico = await prisma.condomimioAdministracao.create({
-			data: {
-				nome: `Síndico do condominio ${condominio.id}`,
-				condominio_id: condominio.id,
-				cargo_id: cargo.id,
-			},
-		});
-	}
-
-	await createContato(
-		sindico.id,
-		Contact.ADMINISTRACAO_CONDOMINIO,
-		ContactType.EMAIL,
-		'Síndico',
-	);
-
-	await createContato(
-		sindico.id,
-		Contact.ADMINISTRACAO_CONDOMINIO,
-		ContactType.TELEFONE,
-		'Síndico',
-	);
-
-	let gerente = await prisma.condomimioAdministracao.findFirst({
-		where: { nome: `Gerente do condominio ${condominio.id}` },
-	});
-
-	if (!gerente) {
-		const cargo = await createCargoAdmCondominio('Gerente');
-
-		gerente = await prisma.condomimioAdministracao.create({
-			data: {
-				nome: `Gerente do condominio ${condominio.id}`,
-				condominio_id: condominio.id,
-				cargo_id: cargo.id,
-			},
-		});
-	}
-
-	await createContato(
-		gerente.id,
-		Contact.ADMINISTRACAO_CONDOMINIO,
-		ContactType.EMAIL,
-		'Gerente',
-	);
-
-	await createContato(
-		sindico.id,
-		Contact.ADMINISTRACAO_CONDOMINIO,
-		ContactType.TELEFONE,
-		'Gerente',
-	);
-}
-
-async function createTipoCondomino() {
-	let tipoProrietario = await prisma.tiposPessoa.findUnique({
+async function createTiposPessoas() {
+	let tipoPessoa = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'proprietario' },
 	});
 
-	if (!tipoProrietario) {
-		tipoProrietario = await prisma.tiposPessoa.create({
+	if (!tipoPessoa) {
+		await prisma.tiposPessoa.create({
 			data: { nome: 'proprietario', descricao: 'Proprietário' },
 		});
 	}
 
-	let tipoInquilino = await prisma.tiposPessoa.findUnique({
+	tipoPessoa = await prisma.tiposPessoa.findUnique({
 		where: { nome: 'inquilino' },
 	});
 
-	if (!tipoInquilino) {
-		tipoInquilino = await prisma.tiposPessoa.create({
+	if (!tipoPessoa) {
+		await prisma.tiposPessoa.create({
 			data: { nome: 'inquilino', descricao: 'Inquilino' },
 		});
 	}
 
-	return {
-		tipoProrietario,
-		tipoInquilino,
-	};
-}
-
-async function createCondominos(
-	unidade: Unidade,
-	tipoProrietario: TiposPessoa,
-	tipoInquilino: TiposPessoa,
-) {
-	let proprietario = await prisma.pessoa.findFirst({
-		where: { nome: `Francisco do apartamento ${unidade.codigo}` },
+	tipoPessoa = await prisma.tiposPessoa.findUnique({
+		where: { nome: 'empresa' },
 	});
 
-	if (!proprietario) {
-		proprietario = await prisma.pessoa.create({
-			data: {
-				nome: `Francisco do apartamento ${unidade.codigo}`,
-				cnpj: `8888888${unidade.codigo}`,
-			},
-		});
-
-		await prisma.pessoasHasUnidades.create({
-			data: {
-				unidade_id: unidade.id,
-				pessoa_tipo_id: tipoProrietario.id,
-				pessoa_id: proprietario.id,
-			},
+	if (!tipoPessoa) {
+		await prisma.tiposPessoa.create({
+			data: { nome: 'empresa', descricao: 'Empresa' },
 		});
 	}
 
-	await createContato(
-		proprietario.id,
-		Contact.PESSOA,
-		ContactType.EMAIL,
-		'Proprietário',
-	);
-
-	await createContato(
-		proprietario.id,
-		Contact.PESSOA,
-		ContactType.TELEFONE,
-		'Proprietário',
-	);
-
-	let inquilino = await prisma.pessoa.findFirst({
-		where: { nome: `Antônio morador do apartamento ${unidade.codigo}` },
+	tipoPessoa = await prisma.tiposPessoa.findUnique({
+		where: { nome: 'condominio' },
 	});
 
-	if (!inquilino) {
-		inquilino = await prisma.pessoa.create({
-			data: {
-				nome: `Antônio morador do apartamento ${unidade.codigo}`,
-				cnpj: `7777777${unidade.codigo}`,
-			},
-		});
-
-		await prisma.pessoasHasUnidades.create({
-			data: {
-				unidade_id: unidade.id,
-				pessoa_tipo_id: tipoInquilino.id,
-				pessoa_id: inquilino.id,
-			},
+	if (!tipoPessoa) {
+		await prisma.tiposPessoa.create({
+			data: { nome: 'condominio', descricao: 'Condomínio' },
 		});
 	}
 
-	await createContato(
-		inquilino.id,
-		Contact.PESSOA,
-		ContactType.EMAIL,
-		'Inquilino',
-	);
-
-	await createContato(
-		inquilino.id,
-		Contact.PESSOA,
-		ContactType.TELEFONE,
-		'Inquilino',
-	);
+	console.log('Tipos de pessoas criados!');
 }
 
-async function createTaxa() {
-	let taxa = await prisma.taxa.findUnique({
-		where: {
-			descricao: 'Taxa de Condomínio',
-		},
+async function createEmpresa() {
+	const tipoEmpresa = await prisma.tiposPessoa.findUnique({
+		where: { nome: 'empresa' },
 	});
 
-	if (!taxa) {
-		taxa = await prisma.taxa.create({
+	const tipoHasEmpresa = await prisma.pessoasHasTipos.findFirst({
+		where: { tipo_id: tipoEmpresa.id },
+	});
+
+	let empresa: any = null;
+	if (!tipoHasEmpresa) {
+		empresa = await prisma.pessoa.create({
 			data: {
-				descricao: 'Taxa de Condomínio',
+				nome: 'Empresa Teste',
+				cnpj: '82.186.418/0001-08',
+				endereco: 'Rua A',
+				numero: '2541',
+				bairro: 'Aldeota',
+				cep: '60521-052',
+				cidade: 'Fortaleza',
+				uf: 'CE',
 			},
 		});
+
+		await prisma.pessoasHasTipos.create({
+			data: {
+				pessoa_id: empresa.id,
+				tipo_id: tipoEmpresa.id,
+			},
+		});
+
+		console.log('Empresa criada!');
+	} else {
+		empresa = await prisma.pessoa.findUnique({
+			where: { id: tipoHasEmpresa.pessoa_id },
+		});
+		console.log('Empresa já criada!');
 	}
 
-	return taxa;
+	return empresa;
 }
 
-async function createCargoAdmCondominio(cargo: string) {
-	let sindico = await prisma.cargosCondominio.findFirst({
-		where: {
-			nome: cargo,
-		},
+async function createUser(empresa: Pessoa) {
+	const useExist = await prisma.usuario.findUnique({
+		where: { username: 'admin' },
 	});
 
-	if (!sindico) {
-		sindico = await prisma.cargosCondominio.create({
+	const cargoExist = await prisma.cargo.findFirst({
+		where: { nome: 'Admin' },
+	});
+
+	if (!useExist && !cargoExist) {
+		const user = await prisma.usuario.create({
 			data: {
-				nome: cargo,
+				nome: 'Admin',
+				username: 'admin',
+				email: 'admin@admin.com',
+				acessa_todos_departamentos: true,
+				password: bcrypt.hashSync('123456', salt),
 			},
 		});
-	}
 
-	return sindico;
-}
-
-async function createTaxaUnidade(taxa: Taxa, unidade: Unidade) {
-	const taxaExists = await prisma.unidadeHasTaxas.findFirst({
-		where: { unidade_id: unidade.id },
-	});
-	if (!taxaExists)
-		await prisma.unidadeHasTaxas.create({
+		const cargo = await prisma.cargo.create({
 			data: {
-				unidade_id: unidade.id,
-				valor: 2500,
-				taxa_id: taxa.id,
+				nome: 'Admin',
 			},
 		});
-}
 
-async function createFilial(empresa: Pessoa) {
-	let filial = await prisma.filial.findFirst({
-		where: {
-			nome: 'Filial de Teste',
-		},
-	});
-
-	if (!filial)
-		filial = await prisma.filial.create({
+		await prisma.empresasHasUsuarios.create({
 			data: {
-				nome: 'Filial de Teste',
+				usuario_id: user.id,
 				empresa_id: empresa.id,
+				cargo_id: cargo.id,
 			},
 		});
 
-	return filial;
+		return user;
+	} else {
+		console.log('Usuário já cadastrado');
+	}
+
+	return useExist;
 }
 
-async function createDepartamento(empresa: Pessoa, filial: Filial) {
-	const departamento = await prisma.departamento.findFirst({
-		where: {
-			nome: 'Departamento de Teste',
-		},
+async function createPermissoesList() {
+	for await (const permission of permissionslist) {
+		const p = await prisma.permissoes.findFirst({
+			where: { key: permission.key },
+		});
+
+		if (!p) {
+			await prisma.permissoes.create({ data: permission });
+		} else {
+			await prisma.permissoes.update({
+				data: permission,
+				where: { id: p.id },
+			});
+		}
+	}
+	console.log('Permissões criadas ou atualizadas!');
+}
+
+async function cretePermissionToUser(usuario_id: number, empresa_id: number) {
+	await prisma.usuarioHasPermissoes.deleteMany({
+		where: { usuario_id },
 	});
 
-	if (!departamento)
-		await prisma.departamento.create({
-			data: {
-				nome: 'Departamento de Teste',
-				empresa_id: empresa.id,
-				nac: false,
-				externo: false,
-				filial_id: filial.id,
-			},
+	const permissoes = await prisma.permissoes.findMany({});
+
+	await prisma.usuarioHasPermissoes.createMany({
+		data: permissoes.map((permission) => ({
+			usuario_id,
+			empresa_id,
+			permissao_id: permission.id,
+		})),
+	});
+
+	console.log('Permissões consedidas ao usuário Admin');
+}
+
+async function createMenu() {
+	// await prisma.menu.deleteMany({});
+
+	for await (const menu of menulist) {
+		let menuSaved = await prisma.menu.findUnique({
+			where: { id: menu.id_relation },
 		});
+
+		if (!menuSaved) {
+			const permission = menu.permission_key
+				? await prisma.permissoes.findFirst({
+						where: {
+							key: menu.permission_key,
+						},
+				  })
+				: null;
+
+			menuSaved = await prisma.menu.create({
+				data: {
+					id: menu.id_relation,
+					permissao_id: permission?.id,
+					label: menu.label,
+					url: menu.url,
+					icon: menu.icon,
+					target: menu.target,
+					ativo: menu.ativo != undefined ? menu.ativo : true,
+				},
+			});
+		}
+
+		if (
+			menulist.findIndex((item) => menu.id_relation == item.relation) !=
+			-1
+		) {
+			await Promise.all(
+				menulist
+					.filter((item) => item.relation == menu.id_relation)
+					.map(async (item) => {
+						const menuSavedNested = await prisma.menu.findFirst({
+							where: { url: item.url },
+						});
+
+						if (!menuSavedNested) {
+							const permission = item.permission_key
+								? await prisma.permissoes.findFirst({
+										where: {
+											key: item.permission_key,
+										},
+								  })
+								: null;
+
+							const menuExists = await prisma.menu.findUnique({
+								where: { id: item.id_relation },
+							});
+
+							if (!menuExists)
+								return prisma.menu.create({
+									data: {
+										id: item.id_relation,
+										menu_id: menuSaved.id,
+										permissao_id: permission?.id,
+										label: item.label,
+										url: item.url,
+										icon: item.icon,
+										target: item.target,
+										ativo: item.ativo,
+									},
+								});
+
+							return null;
+						}
+
+						return null;
+					}),
+			);
+		}
+	}
+	console.log('Menus gerados com sucesso!');
+}
+
+async function createSystemParams(empresa_id: number) {
+	await Promise.all(
+		SystemParamsList.map((param) =>
+			prisma.parametroSistema.upsert({
+				create: { ...param, empresa_id },
+				update: {
+					...param,
+					empresa_id,
+					valor: undefined,
+					ativo: undefined,
+				},
+				where: { chave: param.chave },
+			}),
+		),
+	);
+
+	console.log('Parâmetros do sistema atualizados com sucesso!');
 }
 
 async function main() {
-	const empresa = await findEmpresa();
-
-	await createCondominio(empresa);
-
-	const condominios = await prisma.pessoa.findMany({
-		where: {
-			tipos: {
-				some: {
-					tipo: {
-						nome: 'condominio',
-					},
-				},
-			},
-		},
-	});
-
-	const tipos = await createTipoCondomino();
-	const taxa = await createTaxa();
-
-	await Promise.all([
-		condominios.map(async (condominio) => {
-			await createContato(
-				condominio.id,
-				Contact.PESSOA,
-				ContactType.EMAIL,
-				'Condomínio',
-			);
-
-			await createAdmCondominio(condominio);
-
-			const unidade = await createUnidade(condominio);
-
-			await createCondominos(
-				unidade,
-				tipos.tipoProrietario,
-				tipos.tipoInquilino,
-			);
-
-			await createTaxaUnidade(taxa, unidade);
-		}),
-	]);
-
-	const filial = await createFilial(empresa);
-	await createDepartamento(empresa, filial);
-
-	console.log('Seeds de desenvolvimento executadas');
+	await createTiposPessoas();
+	await createPermissoesList();
+	const empresa = await createEmpresa();
+	const user = await createUser(empresa);
+	await cretePermissionToUser(user.id, empresa.id);
+	await createMenu();
+	await createSystemParams(empresa.id);
+	console.log('Seeds de produção executadas');
 }
 
 main()

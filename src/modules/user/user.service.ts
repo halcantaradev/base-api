@@ -24,7 +24,7 @@ export class UserService {
 		user: UserAuth,
 		filtros: ListUserDto = {},
 		condominiums?: number[],
-	): Promise<Prisma.UserWhereInput> {
+	): Promise<Prisma.UsuarioWhereInput> {
 		return {
 			OR: filtros.busca
 				? [
@@ -84,7 +84,7 @@ export class UserService {
 	}
 
 	async create(createUserDto: CreateUserDto, user: UserAuth) {
-		await this.prisma.user.create({
+		await this.prisma.usuario.create({
 			data: {
 				nome: createUserDto.nome,
 				username: createUserDto.username,
@@ -124,11 +124,10 @@ export class UserService {
 		filtros: ListUserDto = {},
 		condominiums?: number[],
 		all = false,
-		tipo_usuario?: number,
 	): Promise<ReturnUserListEntity> {
 		return {
 			success: true,
-			data: await this.prisma.user.findMany({
+			data: await this.prisma.usuario.findMany({
 				select: {
 					id: true,
 					nome: true,
@@ -152,7 +151,6 @@ export class UserService {
 									nome: true,
 								},
 							},
-							tipo_usuario: true,
 						},
 						where: {
 							empresa_id: user.empresa_id,
@@ -176,11 +174,6 @@ export class UserService {
 					? {
 							AND: [
 								{
-									empresas: {
-										some: {
-											tipo_usuario,
-										},
-									},
 									OR: filtros.busca
 										? [
 												{
@@ -232,7 +225,7 @@ export class UserService {
 		user: UserAuth,
 		condominiums: number[],
 	) {
-		const usersSaved = await this.prisma.user.findMany({
+		const usersSaved = await this.prisma.usuario.findMany({
 			select: {
 				id: true,
 				nome: true,
@@ -316,7 +309,7 @@ export class UserService {
 	}
 
 	async findOneById(id: number, user: UserAuth): Promise<ReturnUserEntity> {
-		const userSaved = await this.prisma.user.findFirst({
+		const userSaved = await this.prisma.usuario.findFirst({
 			select: {
 				id: true,
 				nome: true,
@@ -337,7 +330,6 @@ export class UserService {
 								nome: true,
 							},
 						},
-						tipo_usuario: true,
 					},
 					where: {
 						empresa_id: user.empresa_id,
@@ -394,12 +386,14 @@ export class UserService {
 		user: UserAuth,
 		updateUserDto: UpdateUserDto,
 	): Promise<ReturnUserEntity> {
-		const userSaved = await this.prisma.user.findUnique({ where: { id } });
+		const userSaved = await this.prisma.usuario.findUnique({
+			where: { id },
+		});
 
 		if (!userSaved) throw new BadRequestException('Usuário não encontrado');
 
 		if (updateUserDto.username) {
-			const userWithUsername = await this.prisma.user.findFirst({
+			const userWithUsername = await this.prisma.usuario.findFirst({
 				where: {
 					username: updateUserDto.username,
 					id: {
@@ -413,7 +407,7 @@ export class UserService {
 		}
 
 		if (updateUserDto.email) {
-			const userWithEmail = await this.prisma.user.findFirst({
+			const userWithEmail = await this.prisma.usuario.findFirst({
 				where: {
 					email: updateUserDto.email,
 					id: {
@@ -464,7 +458,7 @@ export class UserService {
 		return {
 			success: true,
 			message: 'Usuário atualizado com sucesso.',
-			data: await this.prisma.user.update({
+			data: await this.prisma.usuario.update({
 				select: {
 					id: true,
 					nome: true,
@@ -608,7 +602,9 @@ export class UserService {
 		user: UserAuth,
 		linkCondominiumsDto: LinkCondominiumsDto,
 	) {
-		const userSaved = await this.prisma.user.findUnique({ where: { id } });
+		const userSaved = await this.prisma.usuario.findUnique({
+			where: { id },
+		});
 
 		if (!userSaved) throw new BadRequestException('Usuário não encontrado');
 

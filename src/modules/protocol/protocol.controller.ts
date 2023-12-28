@@ -14,36 +14,35 @@ import {
 	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
-import { ProtocolService } from './protocol.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { Role } from 'src/shared/decorators/role.decorator';
+import { Pagination } from 'src/shared/entities/pagination.entity';
+import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { UserAuth } from 'src/shared/entities/user-auth.entity';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { PermissionGuard } from '../public/auth/guards/permission.guard';
-import { Role } from 'src/shared/decorators/role.decorator';
-import { ReturnEntity } from 'src/shared/entities/return.entity';
-import { CreateProtocolDto } from './dto/create-protocol.dto';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
-import { UserAuth } from 'src/shared/entities/user-auth.entity';
-import { ProtocolReturn } from './entities/protocol-return.entity';
-import { UpdateProtocolDto } from './dto/update-protocol.dto';
-import { FiltersProtocolDto } from './dto/filters-protocol.dto';
-import { ProtocolListReturn } from './entities/protocol-list-return.entity';
-import { CreateDocumentProtocolDto } from './dto/create-document-protocol.dto';
-import { UpdateDocumentProtocolDto } from './dto/update-document-protocol.dto';
-import { Pagination } from 'src/shared/entities/pagination.entity';
-import { Protocol } from './entities/protocol.entity';
-import { Response } from 'express';
-import { FiltersProtocolCondominiumDto } from './dto/filters-protocol-condominium.dto';
-import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
-import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
-import { ProtocolCondominiumListReturn } from './entities/protocol-condominium-list-return.entity';
-import { ProtocolDocumentReturn } from './entities/protocol-document-return.entity';
-import { ProtocolDocumentListReturn } from './entities/protocol-document-list-return.entity';
 import { AcceptDocumentProtocolDto } from './dto/accept-document-protocol.dto';
+import { CancelProtocolDto } from './dto/cancel-protocol.dto';
+import { CreateDocumentProtocolDto } from './dto/create-document-protocol.dto';
+import { CreateProtocolDto } from './dto/create-protocol.dto';
+import { FiltersProtocolCondominiumDto } from './dto/filters-protocol-condominium.dto';
+import { FiltersProtocolDto } from './dto/filters-protocol.dto';
+import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
 import { ReverseDocumentProtocolDto } from './dto/reverse-document-protocol.dto.ts';
 import { SendEmailProtocolDto } from './dto/send-email-protocol.dto';
-import { RejectDocumentProtocolDto } from './dto/reject-document-protocol.dto';
-import { CreateVirtualPackageProtocolDto } from './dto/create-virtual-package-protocol.dto';
-import { CancelProtocolDto } from './dto/cancel-protocol.dto';
+import { UpdateDocumentProtocolDto } from './dto/update-document-protocol.dto';
+import { UpdateProtocolDto } from './dto/update-protocol.dto';
+import { ProtocolCondominiumListReturn } from './entities/protocol-condominium-list-return.entity';
+import { ProtocolDocumentListReturn } from './entities/protocol-document-list-return.entity';
+import { ProtocolDocumentReturn } from './entities/protocol-document-return.entity';
+import { ProtocolListReturn } from './entities/protocol-list-return.entity';
+import { ProtocolReturn } from './entities/protocol-return.entity';
+import { Protocol } from './entities/protocol.entity';
+import { ProtocolService } from './protocol.service';
 
 @ApiTags('Protocolos')
 @UseGuards(PermissionGuard)
@@ -456,41 +455,6 @@ export class ProtocolController {
 			success: true,
 			message: 'Documento adicionado com sucesso',
 			data: await this.protocolService.createDocument(
-				+id,
-				createDocumentProtocolDto,
-				user,
-			),
-		};
-	}
-
-	@Post(':id/virtual-package')
-	@HttpCode(HttpStatus.OK)
-	@Role('protocolos-atualizar-dados')
-	@ApiOperation({ summary: 'Adiciona um novo malote virtual ao protocolo' })
-	@ApiResponse({
-		description: 'Malote virtual foi adicionado com sucesso',
-		status: HttpStatus.OK,
-		type: ProtocolDocumentReturn,
-	})
-	@ApiResponse({
-		description: 'Ocorreu um erro ao validar os campos enviados',
-		status: HttpStatus.BAD_REQUEST,
-		type: ReturnEntity.error(),
-	})
-	@ApiResponse({
-		description: 'Ocorreu um erro ao adicionar o malote virtual',
-		status: HttpStatus.INTERNAL_SERVER_ERROR,
-		type: ReturnEntity.error(),
-	})
-	async createVirtualPackage(
-		@Param('id') id: string,
-		@Body() createDocumentProtocolDto: CreateVirtualPackageProtocolDto,
-		@CurrentUser() user: UserAuth,
-	) {
-		return {
-			success: true,
-			message: 'Malote adicionado com sucesso',
-			data: await this.protocolService.createProtocolVirtualPackage(
 				+id,
 				createDocumentProtocolDto,
 				user,

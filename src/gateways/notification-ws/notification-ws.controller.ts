@@ -27,9 +27,4 @@ export class NotificationWSController {
 			sendNotificationDepartmentDto,
 		);
 	}
-
-	@MessagePattern('synchronism')
-	sendNotificationSync(@Payload() data: any) {
-		this.notificationWSGateway.sendNotificationSync(data);
-	}
 }

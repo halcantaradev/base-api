@@ -72,7 +72,7 @@ export class AuthService {
 	}
 
 	async verifyFirstAccess(user: UserFirstAccess) {
-		const userData = await this.prisma.user.findFirst({
+		const userData = await this.prisma.usuario.findFirst({
 			where: {
 				id: user.id,
 				primeiro_acesso: true,
@@ -85,7 +85,7 @@ export class AuthService {
 	async requestPasswordRecovery(
 		requestPasswordRecoveryDto: RequestPasswordRecoveryDto,
 	) {
-		const userData = await this.prisma.user.findFirst({
+		const userData = await this.prisma.usuario.findFirst({
 			include: { empresas: { select: { empresa_id: true } } },
 			where: {
 				OR: [
@@ -113,7 +113,9 @@ export class AuthService {
 			},
 		});
 
-		const url = process.env.API_URL + '/login/password-recovery/' + token;
+		const url = process.env.APP_URL + '/login/password-recovery/' + token;
+		console.log(process.env.APP_URL);
+		console.log(url);
 
 		let html: Buffer | string = await readFileSync(
 			resolve('./src/shared/layouts/recuperacao-senha.html'),
@@ -152,7 +154,7 @@ export class AuthService {
 				'Senha não confere com a confirmação da senha',
 			);
 
-		const userExists = await this.prisma.user.findFirst({
+		const userExists = await this.prisma.usuario.findFirst({
 			where: {
 				id: user.id,
 			},
@@ -171,7 +173,7 @@ export class AuthService {
 				'Digite uma senha diferente da anterior',
 			);
 
-		const userData = await this.prisma.user.update({
+		const userData = await this.prisma.usuario.update({
 			include: {
 				empresas: {
 					include: { cargo: true },
@@ -204,7 +206,7 @@ export class AuthService {
 	}
 
 	async requestFirstAccess(requestFirstAccessDto: RequestFirstAccessDto) {
-		const userData = await this.prisma.user.findFirst({
+		const userData = await this.prisma.usuario.findFirst({
 			include: { empresas: { select: { empresa_id: true } } },
 			where: {
 				OR: [
@@ -233,7 +235,7 @@ export class AuthService {
 			},
 		});
 
-		const url = process.env.API_URL + '/login/first-access/' + token;
+		const url = process.env.APP_URL + '/login/first-access/' + token;
 
 		let html: Buffer | string = await readFileSync(
 			resolve('./src/shared/layouts/primeiro-acesso.html'),
@@ -269,7 +271,7 @@ export class AuthService {
 				'Senha não confere com a confirmação da senha',
 			);
 
-		const userExists = await this.prisma.user.findFirst({
+		const userExists = await this.prisma.usuario.findFirst({
 			where: {
 				id: user.id,
 				primeiro_acesso: true,
@@ -286,7 +288,7 @@ export class AuthService {
 				'Digite uma senha diferente da anterior',
 			);
 
-		const userData = await this.prisma.user.update({
+		const userData = await this.prisma.usuario.update({
 			include: {
 				empresas: {
 					include: { cargo: true },
@@ -330,26 +332,16 @@ export class AuthService {
 			},
 		});
 
-		const syncing = await this.prisma.integracaoDatabase.findMany({
-			where: {
-				empresa_id: empresa.id,
-				sincronizando: true,
-				ativo: true,
-				excluido: false,
-			},
-		});
-
 		return {
 			nome: user.nome,
 			empresa: empresa.nome,
 			acessa_todos_departamentos: user.acessa_todos_departamentos,
 			temas: empresa.temas,
-			syncing: !!syncing.length,
 		};
 	}
 
 	async validateUser(username: string, password?: string) {
-		const user = await this.prisma.user.findFirst({
+		const user = await this.prisma.usuario.findFirst({
 			include: {
 				empresas: {
 					include: { cargo: true },
@@ -400,7 +392,7 @@ export class AuthService {
 		  }
 		| boolean
 	> {
-		const user = await this.prisma.user.findFirst({
+		const user = await this.prisma.usuario.findFirst({
 			where: { id: usuario_id },
 		});
 

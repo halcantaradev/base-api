@@ -12,7 +12,7 @@ export class UserExists implements ValidatorConstraintInterface {
 
 	async validate(id: number) {
 		try {
-			const user = await this.prisma.user.findFirst({
+			const user = await this.prisma.usuario.findFirst({
 				where: {
 					id,
 				},

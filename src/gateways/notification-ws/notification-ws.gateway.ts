@@ -66,8 +66,4 @@ export class NotificationWSGateway
 			sendNotificationDepartmentDto,
 		);
 	}
-
-	sendNotificationSync(data: any) {
-		this.server.emit('synchronism', data);
-	}
 }

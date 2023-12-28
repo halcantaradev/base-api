@@ -30,6 +30,7 @@ export class MenuService {
 									},
 								},
 							],
+							active: true,
 						},
 						ativo: true,
 					},
@@ -72,6 +73,7 @@ export class MenuService {
 											},
 										},
 									],
+									active: true,
 								},
 								ativo: true,
 							},
@@ -98,6 +100,7 @@ export class MenuService {
 									},
 								},
 							],
+							active: true,
 						},
 						items: {
 							none: {

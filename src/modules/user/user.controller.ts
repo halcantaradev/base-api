@@ -13,26 +13,25 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PermissionGuard } from 'src/modules/public/auth/guards/permission.guard';
+import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { Role } from 'src/shared/decorators/role.decorator';
 import { ReturnEntity } from 'src/shared/entities/return.entity';
+import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
 import { UserAuth } from '../../shared/entities/user-auth.entity';
 import { JwtAuthGuard } from '../public/auth/guards/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
+import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
+import { LinkCondominiumsDto } from './dto/link-condominiums.dto';
+import { ListUserActiveDto } from './dto/list-user-active.dto';
+import { ListUserDto } from './dto/list-user.dto';
+import { ReportUserDto } from './dto/report-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ReportUserReturn } from './entities/report-user-return.entity';
+import { ReturnUserCondominiums } from './entities/return-user-condominiums.entity';
 import { ReturnUserListEntity } from './entities/return-user-list.entity';
 import { ReturnUserEntity } from './entities/return-user.entity';
 import { UserService } from './user.service';
-import { Role } from 'src/shared/decorators/role.decorator';
-import { ListUserDto } from './dto/list-user.dto';
-import { ListUserActiveDto } from './dto/list-user-active.dto';
-import { LinkCondominiumsDto } from './dto/link-condominiums.dto';
-import { ReturnUserCondominiums } from './entities/return-user-condominiums.entity';
-import { FilterUserCondominiumDto } from './dto/filter-user-condominium.dto';
-import { UserCondominiumsAccess } from 'src/shared/interceptors/user-condominiums-access.interceptor';
-import { CurrentUserCondominiums } from 'src/shared/decorators/current-user-condominiums.decorator';
-import { ReportUserDto } from './dto/report-user.dto';
-import { ReportUserReturn } from './entities/report-user-return.entity';
-import { TiposUsuarios } from 'src/shared/consts/tipos-usuarios.const';
 
 @ApiTags('Usuários')
 @Controller('users')
@@ -108,7 +107,6 @@ export class UserController {
 			},
 			condominiums,
 			true,
-			TiposUsuarios.PADRAO,
 		);
 	}
 
@@ -140,7 +138,6 @@ export class UserController {
 			},
 			condominiums,
 			true,
-			TiposUsuarios.PADRAO,
 		);
 	}
 

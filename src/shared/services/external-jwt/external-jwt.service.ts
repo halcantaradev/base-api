@@ -16,7 +16,7 @@ export class ExternalJwtService {
 	}
 	generateURLExternal(payload: { origin: string; data: any }) {
 		const token = this.generateToken(payload);
-		return process.env.API_URL + '/api/access-docs?doc=' + token;
+		return process.env.APP_URL + '/api/access-docs?doc=' + token;
 	}
 
 	generateTokenBySecret(secret: string, payload: any) {

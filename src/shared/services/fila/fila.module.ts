@@ -9,21 +9,6 @@ import { NotificationWsService } from '../notification-ws.service';
 	imports: [
 		ClientsModule.register([
 			{
-				name: 'SYNC_SERVICE',
-				transport: Transport.RMQ,
-				options: {
-					urls: [
-						`amqp://${process.env.RABBITMQ_USER}:${process.env.RABBITMQ_PASS}@${process.env.RABBITMQ_URL}`,
-					],
-					queue: Filas.SYNC,
-					noAck: true,
-					persistent: true,
-					queueOptions: {},
-				},
-			},
-		]),
-		ClientsModule.register([
-			{
 				name: 'EMAIL_SERVICE',
 				transport: Transport.RMQ,
 				options: {

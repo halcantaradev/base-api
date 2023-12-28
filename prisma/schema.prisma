@@ -12,7 +12,6 @@ model Pessoa {
   nome       String
   cnpj       String?
   empresa_id Int?
-
   numero            String?
   endereco          String?
   cep               String?
@@ -20,12 +19,9 @@ model Pessoa {
   cidade            String?
   uf                String?
   categoria_id      Int?
-  importado         Boolean   @default(true)
   ativo             Boolean   @default(true)
   created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
-  updated_at_origin DateTime?
-
+  updated_at        DateTime  @updatedAt 
   unidades_condominio              Unidade[]
   tipos                            PessoasHasTipos[]
   unidades                         PessoasHasUnidades[]
@@ -33,29 +29,15 @@ model Pessoa {
   permissoes_cargos                CargosHasPermissoes[]
   permissoes_usuarios              UsuarioHasPermissoes[]
   departamentos                    Departamento[]
-  notificacoes                     Notificacao[]
   departamentos_condominio         CondominioHasDepartamentos[]
-  empresas_pessoa                  EmpresaHasPessoas[]           @relation("EmpresaEmpresaPessoa")
-  pessoas_empresa                  EmpresaHasPessoas[]           @relation("PessoaEmpresaPessoa")
-  LayoutsNotificacao               LayoutsNotificacao[]
   condominio_administracao         CondomimioAdministracao[]
   usuarios_condominio              UsuarioHasCondominios[]
-  setup_condominio_notificacoes    NotificacaoSetup?
   setup_empresa_sistema            SistemaSetup[]
-  tipos_infracoes                  TipoInfracao[]
   filiais_empresa                  Filial[]
   temas                            Tema[]
-  integracoes                      IntegracaoDatabase[]
   protocolos_documentos_condominio ProtocoloDocumento[]
   protocolos_empresa               Protocolo[]
   emails_setup                     EmailSetup[]
-  rotas                            Rota[]
-  malotes_fisicos                  MalotesFisicos[]
-  condominio_malotes_virtuais      MaloteVirtual[]               @relation("CondominioMalotes")
-  empresa_malotes_virtuais         MaloteVirtual[]               @relation("EmpresaMalotes")
-  setup_rotas                      MaloteSetup?
-  documento_fila_geracao           DocumentoFilaGeracao[]
-  tipo_infracao                    CondominioHasTipoInfracao[]
   condominios_tipos_contratos      CondominiosHasTiposContrato[]
   parametros_sistema               ParametroSistema[]
 
@@ -95,20 +77,17 @@ model Cargo {
 model PessoasHasTipos {
   id                 Int      @id @default(autoincrement())
   pessoa_id          Int
-  tipo_id            Int
-  original_pessoa_id String?
-  integracao_id      Int?
+  tipo_id            Int  
   created_at         DateTime @default(now())
   updated_at         DateTime @updatedAt
 
-  pessoa     Pessoa              @relation(fields: [pessoa_id], references: [id])
-  tipo       TiposPessoa         @relation(fields: [tipo_id], references: [id])
-  integracao IntegracaoDatabase? @relation(fields: [integracao_id], references: [id])
+  pessoa Pessoa      @relation(fields: [pessoa_id], references: [id])
+  tipo   TiposPessoa @relation(fields: [tipo_id], references: [id])
 
   @@map("pessoas_has_tipo")
 }
 
-model User {
+model Usuario {
   id                         Int      @id @default(autoincrement())
   email                      String   @unique
   nome                       String
@@ -134,8 +113,6 @@ model User {
   origem_protocolos               Protocolo[]                   @relation(name: "OrigemProtocoloUsuario")
   protocolo_documentos_recebidos  ProtocoloDocumento[]
   conexoes_socket                 ConexaoSocket[]
-  setup_rotas                     MaloteSetup[]
-  malotes_virtuais                MaloteVirtual[]
   protocolo_documentos_historicos ProtocoloDocumentoHistorico[]
 
   @@map("usuarios")
@@ -145,33 +122,28 @@ model EmpresasHasUsuarios {
   id           Int      @id @default(autoincrement())
   usuario_id   Int
   empresa_id   Int
-  cargo_id     Int
-  tipo_usuario Int      @default(1)
+  cargo_id     Int 
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  usuario User   @relation(fields: [usuario_id], references: [id])
-  empresa Pessoa @relation(fields: [empresa_id], references: [id])
-  cargo   Cargo  @relation(fields: [cargo_id], references: [id])
+  usuario Usuario @relation(fields: [usuario_id], references: [id])
+  empresa Pessoa  @relation(fields: [empresa_id], references: [id])
+  cargo   Cargo   @relation(fields: [cargo_id], references: [id])
 
   @@map("empresas_has_usuarios")
 }
 
 model Unidade {
-  id                  Int       @id @default(autoincrement())
-  original_unidade_id String?
+  id                  Int       @id @default(autoincrement()) 
   condominio_id       Int
   codigo              String
   ativo               Boolean   @default(true)
   created_at          DateTime  @default(now())
-  updated_at          DateTime  @updatedAt
-  updated_at_origin   DateTime?
+  updated_at          DateTime  @updatedAt 
 
-  condominos   PessoasHasUnidades[]
-  notificacoes Notificacao[]
+  condominos PessoasHasUnidades[]
 
-  condominio      Pessoa            @relation(fields: [condominio_id], references: [id])
-  UnidadeHasTaxas UnidadeHasTaxas[]
+  condominio Pessoa @relation(fields: [condominio_id], references: [id])
 
   @@map("unidades")
 }
@@ -189,53 +161,6 @@ model PessoasHasUnidades {
   tipo      TiposPessoa @relation(fields: [pessoa_tipo_id], references: [id])
 
   @@map("pessoas_has_unidades")
-}
-
-model TipoInfracao {
-  id                  Int      @id @default(autoincrement())
-  empresa_id          Int
-  descricao           String
-  fundamentacao_legal String?  @db.Text
-  ativo               Boolean  @default(true)
-  created_at          DateTime @default(now())
-  updated_at          DateTime @updatedAt
-
-  notificacoes Notificacao[]
-
-  empresa    Pessoa                      @relation(fields: [empresa_id], references: [id])
-  condominio CondominioHasTipoInfracao[]
-
-  @@map("tipos_infracao")
-}
-
-model Notificacao {
-  id                  Int       @id @default(autoincrement())
-  unidade_id          Int
-  pessoa_id           Int
-  layout_id           Int
-  tipo_infracao_id    Int
-  tipo_registro       Int       @default(1)
-  data_emissao        DateTime  @default(now())
-  data_infracao       DateTime  @default(now())
-  codigo              String
-  doc_gerado          String?
-  detalhes_infracao   String
-  fundamentacao_legal String    @db.Text
-  observacoes         String?   @db.Text
-  valor_multa         Float?
-  competencia_multa   String?
-  unir_taxa           Boolean   @default(false)
-  vencimento_multa    DateTime?
-  ativo               Boolean   @default(true)
-  created_at          DateTime  @default(now())
-  updated_at          DateTime  @updatedAt
-
-  unidade       Unidade            @relation(fields: [unidade_id], references: [id])
-  pessoa        Pessoa             @relation(fields: [pessoa_id], references: [id])
-  tipo_infracao TipoInfracao       @relation(fields: [tipo_infracao_id], references: [id])
-  layout        LayoutsNotificacao @relation(fields: [layout_id], references: [id])
-
-  @@map("notificacoes")
 }
 
 model Permissoes {
@@ -277,7 +202,7 @@ model UsuarioHasPermissoes {
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  usuario   User       @relation(fields: [usuario_id], references: [id])
+  usuario   Usuario    @relation(fields: [usuario_id], references: [id])
   empresa   Pessoa     @relation(fields: [empresa_id], references: [id])
   permissao Permissoes @relation(fields: [permissao_id], references: [id])
 
@@ -341,7 +266,6 @@ model Departamento {
   empresa_id Int
   filial_id  Int
   nac        Boolean  @default(false)
-  externo    Boolean  @default(false)
   ativo      Boolean  @default(true)
   excluido   Boolean  @default(false)
   created_at DateTime @default(now())
@@ -358,22 +282,6 @@ model Departamento {
   @@map("departamentos")
 }
 
-model LayoutsNotificacao {
-  id         Int      @id @default(autoincrement())
-  empresa_id Int
-  nome       String
-  modelo     String   @db.Text
-  padrao     Boolean  @default(false)
-  ativo      Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  empresa      Pessoa        @relation(fields: [empresa_id], references: [id])
-  notificacoes Notificacao[]
-
-  @@map("layouts_notificacao")
-}
-
 model UsuarioHasDepartamentos {
   usuario_id       Int
   departamento_id  Int
@@ -381,7 +289,7 @@ model UsuarioHasDepartamentos {
   created_at       DateTime @default(now())
   updated_at       DateTime @updatedAt
 
-  usuario      User         @relation(fields: [usuario_id], references: [id])
+  usuario      Usuario      @relation(fields: [usuario_id], references: [id])
   departamento Departamento @relation(fields: [departamento_id], references: [id])
 
   @@id([usuario_id, departamento_id])
@@ -407,24 +315,11 @@ model UsuarioHasCondominios {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
-  usuario    User   @relation(fields: [usuario_id], references: [id])
-  condominio Pessoa @relation(fields: [condominio_id], references: [id])
+  usuario    Usuario @relation(fields: [usuario_id], references: [id])
+  condominio Pessoa  @relation(fields: [condominio_id], references: [id])
 
   @@id([usuario_id, condominio_id])
   @@map("usuario_has_condominios")
-}
-
-model EmpresaHasPessoas {
-  empresa_id Int
-  pessoa_id  Int
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  empresa Pessoa @relation(name: "EmpresaEmpresaPessoa", fields: [empresa_id], references: [id])
-  pessoa  Pessoa @relation(name: "PessoaEmpresaPessoa", fields: [pessoa_id], references: [id])
-
-  @@id([empresa_id, pessoa_id])
-  @@map("empresa_has_pessoas")
 }
 
 model CargosCondominio {
@@ -453,61 +348,13 @@ model CondomimioAdministracao {
 }
 
 model SistemaSetup {
-  empresa_id               Int      @unique
-  salario_minimo_base      Float
-  sancao                   String   @db.Text
-  obriga_malote_fisico     Boolean  @default(false)
-  texto_padrao_notificacao String   @db.Text
-  created_at               DateTime @default(now())
-  updated_at               DateTime @updatedAt
+  empresa_id Int      @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   empresa Pessoa @relation(fields: [empresa_id], references: [id])
 
   @@map("sistema_setup")
-}
-
-model NotificacaoSetup {
-  condominio_id                              Int      @unique
-  primeira_reincidencia                      Boolean  @default(false)
-  primeira_reincidencia_base_pagamento       Int?
-  primeira_reincidencia_percentual_pagamento Float?
-  segunda_reincidencia                       Boolean  @default(false)
-  segunda_reincidencia_base_pagamento        Int?
-  prazo_interpor_recurso                     Int?
-  observacoes                                String?
-  created_at                                 DateTime @default(now())
-  updated_at                                 DateTime @updatedAt
-
-  condominio Pessoa @relation(fields: [condominio_id], references: [id])
-
-  @@map("notificacoes_setup")
-}
-
-model Taxa {
-  id         Int      @id @default(autoincrement())
-  descricao  String   @unique
-  ativo      Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  unidades UnidadeHasTaxas[]
-
-  @@map("taxas")
-}
-
-model UnidadeHasTaxas {
-  unidade_id Int
-  taxa_id    Int
-  valor      Float
-  ativo      Boolean  @default(true)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  unidade Unidade @relation(fields: [unidade_id], references: [id])
-  taxa    Taxa    @relation(fields: [taxa_id], references: [id])
-
-  @@id([unidade_id, taxa_id])
-  @@map("unidades_has_taxas")
 }
 
 model TipoContratoCondominio {
@@ -563,30 +410,6 @@ model Tema {
   @@map("temas")
 }
 
-model IntegracaoDatabase {
-  id               Int       @id @default(autoincrement())
-  empresa_id       Int
-  descricao        String
-  host             String
-  banco            String
-  usuario          String
-  senha            String
-  porta            Int
-  token            String?
-  tipo             String    @default("sqlserver")
-  data_atualizacao DateTime?
-  ativo            Boolean   @default(true)
-  sincronizando    Boolean   @default(false)
-  excluido         Boolean   @default(false)
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
-
-  empresa Pessoa            @relation(fields: [empresa_id], references: [id])
-  pessoas PessoasHasTipos[]
-
-  @@map("integracoes_database")
-}
-
 model Protocolo {
   id                      Int       @id @default(autoincrement())
   tipo                    Int       @default(1)
@@ -596,8 +419,6 @@ model Protocolo {
   destino_usuario_id      Int?
   origem_usuario_id       Int?
   data_finalizado         DateTime?
-  protocolo_malote        Boolean   @default(false)
-  retorna_malote_vazio    Boolean   @default(false)
   finalizado              Boolean   @default(false)
   motivo_cancelado        String?   @db.Text
   situacao                Int       @default(1)
@@ -609,8 +430,8 @@ model Protocolo {
   empresa              Pessoa               @relation(fields: [empresa_id], references: [id])
   destino_departamento Departamento         @relation(name: "DestinoProtocoloDepartamento", fields: [destino_departamento_id], references: [id])
   origem_departamento  Departamento         @relation(name: "OrigemProtocoloDepartamento", fields: [origem_departamento_id], references: [id])
-  destino_usuario      User?                @relation(name: "DestinoProtocoloUsuario", fields: [destino_usuario_id], references: [id])
-  origem_usuario       User?                @relation(name: "OrigemProtocoloUsuario", fields: [origem_usuario_id], references: [id])
+  destino_usuario      Usuario?             @relation(name: "DestinoProtocoloUsuario", fields: [destino_usuario_id], references: [id])
+  origem_usuario       Usuario?             @relation(name: "OrigemProtocoloUsuario", fields: [origem_usuario_id], references: [id])
   documentos           ProtocoloDocumento[]
 
   @@map("protocolos")
@@ -621,7 +442,6 @@ model ProtocoloDocumento {
   protocolo_id      Int
   tipo_documento_id Int?
   condominio_id     Int
-  malote_virtual_id Int?
   aceite_usuario_id Int?
   discriminacao     String
   observacao        String?
@@ -632,19 +452,15 @@ model ProtocoloDocumento {
   motivo_rejeitado  String?
   excluido          Boolean   @default(false)
   vencimento        DateTime?
+  valor             Float?
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
 
-  valor      Float?
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  condominio          Pessoa                        @relation(fields: [condominio_id], references: [id])
-  tipo_documento      TipoDocumento?                @relation(fields: [tipo_documento_id], references: [id])
-  protocolo           Protocolo                     @relation(fields: [protocolo_id], references: [id])
-  aceite_usuario      User?                         @relation(fields: [aceite_usuario_id], references: [id])
-  malote_virtual      MaloteVirtual?                @relation(fields: [malote_virtual_id], references: [id])
-  malotes_documento   MaloteDocumento[]
-  fila_geracao_malote DocumentoFilaGeracao[]
-  historico           ProtocoloDocumentoHistorico[]
+  condominio     Pessoa                        @relation(fields: [condominio_id], references: [id])
+  tipo_documento TipoDocumento?                @relation(fields: [tipo_documento_id], references: [id])
+  protocolo      Protocolo                     @relation(fields: [protocolo_id], references: [id])
+  aceite_usuario Usuario?                      @relation(fields: [aceite_usuario_id], references: [id])
+  historico      ProtocoloDocumentoHistorico[]
 
   @@map("protocolo_documentos")
 }
@@ -691,7 +507,7 @@ model ConexaoSocket {
   updated_at      DateTime  @updatedAt
   status          Int       @default(1)
 
-  usuario User? @relation(fields: [usuario_id], references: [id])
+  usuario Usuario? @relation(fields: [usuario_id], references: [id])
 
   @@map("conexoes_socket")
 }
@@ -710,135 +526,6 @@ model NotificacaoEvento {
   @@map("notificacoes_eventos")
 }
 
-model Rota {
-  id         Int      @id @default(autoincrement())
-  empresa_id Int
-  turno      Int      @default(1)
-  dom        Boolean  @default(false)
-  seg        Boolean  @default(false)
-  ter        Boolean  @default(false)
-  qua        Boolean  @default(false)
-  qui        Boolean  @default(false)
-  sex        Boolean  @default(false)
-  sab        Boolean  @default(false)
-  ativo      Boolean  @default(true)
-  excluido   Boolean  @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  empresa Pessoa        @relation(fields: [empresa_id], references: [id])
-  setups  MaloteSetup[]
-
-  @@map("rotas")
-}
-
-model MaloteSetup {
-  condominio_id      Int      @unique
-  rota_id            Int
-  motoqueiro_id      Int
-  quantidade_malotes Int
-  created_at         DateTime @default(now())
-  updated_at         DateTime @updatedAt
-
-  condominio Pessoa @relation(fields: [condominio_id], references: [id])
-  rota       Rota   @relation(fields: [rota_id], references: [id])
-  motoqueiro User   @relation(fields: [motoqueiro_id], references: [id])
-
-  @@map("malotes_setup")
-}
-
-model MalotesFisicos {
-  id         Int      @id @default(autoincrement())
-  empresa_id Int
-  codigo     String
-  disponivel Boolean  @default(true)
-  situacao   Int      @default(1)
-  ativo      Boolean  @default(true)
-  alerta     Boolean  @default(false)
-  excluido   Boolean  @default(false)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-
-  empresa          Pessoa          @relation(fields: [empresa_id], references: [id])
-  malotes_virtuais MaloteVirtual[]
-
-  @@map("malotes_fisicos")
-}
-
-model MaloteVirtual {
-  id                     Int       @id @default(autoincrement())
-  empresa_id             Int
-  usuario_id             Int
-  condominio_id          Int
-  malote_fisico_id       Int?
-  malote_disponibilizado Boolean   @default(false)
-  lacre_saida            String?
-  lacre_retorno          String?
-  situacao               Int       @default(1)
-  situacao_anterior      Int?
-  protocolado_baixado    Boolean   @default(false)
-  excluido               Boolean   @default(false)
-  data_saida             DateTime?
-  data_retorno           DateTime?
-  created_at             DateTime  @default(now())
-  updated_at             DateTime  @updatedAt
-
-  condominio           Pessoa               @relation(name: "CondominioMalotes", fields: [condominio_id], references: [id])
-  empresa              Pessoa               @relation(name: "EmpresaMalotes", fields: [empresa_id], references: [id])
-  malote_fisico        MalotesFisicos?      @relation(fields: [malote_fisico_id], references: [id])
-  usuario              User                 @relation(fields: [usuario_id], references: [id])
-  documentos_malote    MaloteDocumento[]
-  documentos_protocolo ProtocoloDocumento[]
-
-  @@map("malotes_virtuais")
-}
-
-model MaloteDocumento {
-  id                Int      @id @default(autoincrement())
-  malote_virtual_id Int
-  documento_id      Int
-  excluido          Boolean  @default(false)
-  situacao          Int      @default(1)
-  justificativa     String?
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
-
-  malote_virtual MaloteVirtual      @relation(fields: [malote_virtual_id], references: [id])
-  documento      ProtocoloDocumento @relation(fields: [documento_id], references: [id])
-
-  @@map("malotes_documentos")
-}
-
-model DocumentoFilaGeracao {
-  id           Int      @id @default(autoincrement())
-  empresa_id   Int
-  documento_id Int
-  gerado       Boolean  @default(false)
-  excluido     Boolean  @default(false)
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-
-  documento ProtocoloDocumento @relation(fields: [documento_id], references: [id])
-  empresa   Pessoa             @relation(fields: [empresa_id], references: [id])
-
-  @@map("documentos_fila_geracao")
-}
-
-model CondominioHasTipoInfracao {
-  id               Int      @id @default(autoincrement())
-  condominio_id    Int
-  tipo_infracao_id Int
-  fundamentacao    String   @db.Text
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
-  excluido         Boolean  @default(false)
-
-  condominio    Pessoa       @relation(fields: [condominio_id], references: [id])
-  tipo_infracao TipoInfracao @relation(fields: [tipo_infracao_id], references: [id])
-
-  @@map("condominios_has_tipos_infracoes")
-}
-
 model ProtocoloDocumentoHistorico {
   id           Int      @id @default(autoincrement())
   documento_id Int
@@ -848,10 +535,10 @@ model ProtocoloDocumentoHistorico {
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
-  usuario             User               @relation(fields: [usuario_id], references: [id])
+  usuario             Usuario            @relation(fields: [usuario_id], references: [id])
   protocolo_documento ProtocoloDocumento @relation(fields: [documento_id], references: [id])
 
-  @@map("malote_documento_historicos")
+  @@map("documento_protocolo_historicos")
 }
 
 model ParametroSistema {

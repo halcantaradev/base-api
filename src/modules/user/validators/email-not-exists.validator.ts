@@ -13,7 +13,7 @@ export class EmailNotExists implements ValidatorConstraintInterface {
 
 	async validate(email: string) {
 		try {
-			const user = await this.prisma.user.findFirst({ where: { email } });
+			const user = await this.prisma.usuario.findFirst({ where: { email } });
 
 			return !user;
 		} catch (err) {

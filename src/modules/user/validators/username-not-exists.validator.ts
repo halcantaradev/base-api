@@ -12,7 +12,7 @@ export class UsernameNotExists implements ValidatorConstraintInterface {
 
 	async validate(username: string) {
 		try {
-			const user = await this.prisma.user.findFirst({
+			const user = await this.prisma.usuario.findFirst({
 				where: { username },
 			});
 

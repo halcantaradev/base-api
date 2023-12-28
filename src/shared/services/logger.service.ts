@@ -14,7 +14,7 @@ export class LoggerService {
 		responseMessage: string | string[] | undefined,
 	): Promise<boolean> {
 		try {
-			const user: UserAuth = request?.user;
+			const user: UserAuth = request?.usuario;
 
 			const ip = request.ip;
 			const body = request.body;

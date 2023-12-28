@@ -12,8 +12,6 @@
     "start:dev": "nest start --watch",
     "start:notification-consumer-dev": "nest start --watch --config notification-consumer.json",
     "start:notification-consumer": "nest start --config notification-consumer.json",
-    "start:sync-consumer-dev": "nest start --watch --config sync-consumer.json",
-    "start:sync-consumer": "nest start --config sync-consumer.json",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -25,8 +23,7 @@
     "migrate:dev": "prisma migrate dev --name dev",
     "migrate:prod": "prisma migrate dev --name prod",
     "migrate:deploy": "prisma migrate deploy",
-    "seed:dev": "ts-node prisma/seed.prod.ts && ts-node prisma/seed.ts",
-    "seed:prod": "ts-node prisma/seed.prod.ts"
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.373.0",

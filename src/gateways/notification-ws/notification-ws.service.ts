@@ -156,7 +156,7 @@ export class NotificationWSService {
 		server: Server,
 		sendNotificationDepartmentDto: SendNotificationDepartmentDto,
 	) {
-		const usersDepartment = await this.prisma.user.findMany({
+		const usersDepartment = await this.prisma.usuario.findMany({
 			select: {
 				id: true,
 				empresas: {

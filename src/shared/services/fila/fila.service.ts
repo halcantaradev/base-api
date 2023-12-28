@@ -6,7 +6,6 @@ import { Filas } from 'src/shared/consts/filas.const';
 export class FilaService {
 	logService: ClientRMQ;
 	constructor(
-		@Inject('SYNC_SERVICE') private readonly syncService?: ClientRMQ,
 		@Inject('EMAIL_SERVICE') private readonly emailService?: ClientRMQ,
 		@Inject('NOTIFICACAO_SERVICE')
 		private readonly notificationService?: ClientRMQ,
@@ -33,14 +32,6 @@ export class FilaService {
 	publishEmail(pattern: string, payload: any): Promise<boolean> {
 		return new Promise((res, rej) => {
 			this.emailService
-				.emit(pattern, payload)
-				.subscribe({ next: () => res(true), error: (err) => rej(err) });
-		});
-	}
-
-	publishSync(pattern: string, payload: any): Promise<boolean> {
-		return new Promise((res, rej) => {
-			this.syncService
 				.emit(pattern, payload)
 				.subscribe({ next: () => res(true), error: (err) => rej(err) });
 		});

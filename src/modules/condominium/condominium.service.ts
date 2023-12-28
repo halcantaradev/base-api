@@ -94,7 +94,6 @@ export class CondominiumService {
 				uf: createCondominiumDto.uf,
 				numero: createCondominiumDto.numero,
 				categoria_id: createCondominiumDto.categoria_id,
-				importado: createCondominiumDto.importado,
 				tipos: condominioId.id
 					? {
 							create: [
@@ -130,7 +129,6 @@ export class CondominiumService {
 			where: {
 				id,
 				empresa_id,
-				importado: false,
 			},
 		});
 
@@ -236,7 +234,7 @@ export class CondominiumService {
 		const idUser =
 			usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
 
-		const userData = await this.prisma.user.findFirst({
+		const userData = await this.prisma.usuario.findFirst({
 			include: {
 				departamentos: {
 					select: {
@@ -288,7 +286,7 @@ export class CondominiumService {
 			);
 		}
 
-		const fullAccess = !!(await this.prisma.user.findFirst({
+		const fullAccess = !!(await this.prisma.usuario.findFirst({
 			where: {
 				id: {
 					in: filters.consultores_ids,
@@ -566,10 +564,6 @@ export class CondominiumService {
 						},
 					},
 				},
-				tipos: {
-					select: { integracao: { select: { descricao: true } } },
-					where: { tipo: { nome: 'condominio' } },
-				},
 			},
 			await this.getFilterList(
 				filters,
@@ -731,7 +725,6 @@ export class CondominiumService {
 			id,
 			'condominio',
 			{
-				importado: true,
 				categoria_id: true,
 				departamentos_condominio: {
 					select: {
@@ -804,7 +797,7 @@ export class CondominiumService {
 		id: number,
 		user: UserAuth,
 	): Promise<UsuariosCondominio[]> {
-		return this.prisma.user.findMany({
+		return this.prisma.usuario.findMany({
 			select: {
 				id: true,
 				nome: true,

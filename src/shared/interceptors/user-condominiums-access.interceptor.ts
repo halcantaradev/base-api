@@ -19,7 +19,7 @@ export class UserCondominiumsAccess implements NestInterceptor {
 		const idUser =
 			usuario_id && !Number.isNaN(usuario_id) ? usuario_id : user.id;
 
-		const userData = await this.prisma.user.findFirst({
+		const userData = await this.prisma.usuario.findFirst({
 			include: {
 				departamentos: {
 					select: {

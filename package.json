@@ -20,8 +20,6 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migrate:dev": "prisma migrate dev --name dev",
-    "migrate:prod": "prisma migrate dev --name prod",
     "migrate:deploy": "prisma migrate deploy",
     "seed": "ts-node prisma/seed.ts"
   },
@@ -55,8 +53,7 @@
     "pdf-lib": "^1.17.1",
     "prisma": "4.15.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0",
-    "xlsx": "^0.18.5"
+    "rxjs": "^7.2.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

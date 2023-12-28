@@ -18,7 +18,7 @@ export class RocketService {
 				this.authToken = res.data.data.authToken;
 				this.authIdUser = res.data.data.userId;
 			},
-			error: (err) =>
+			error: () =>
 				console.log(
 					'Erro ao logar no rocketchat, verifique as credenciais no ambiente.',
 				),
@@ -81,7 +81,7 @@ export class RocketService {
 		const user = await this.getUser(username);
 		return new Promise((resolve, reject) => {
 			this.post('/users.update', {
-				userId: user.user._id,
+				userId: user.usuario._id,
 				data: { password },
 			}).subscribe({
 				next: (res) => resolve(res.data),
@@ -104,51 +104,53 @@ export class RocketService {
 		  }
 		| boolean
 	> {
-		if (userData.username !== 'admin') {
-			let user = await this.getUser(userData.username);
-			if (!user) {
-				user = await this.createUser(
-					{
-						username: userData.username,
-						name: userData.name,
-						email: userData.email,
-					},
-					password,
-				);
-			}
+		if (userData.username == 'admin') userData.username += 'dev';
 
-			const credentials = await firstValueFrom(
-				this.login({ user: userData.username, password }),
+		let user = await this.getUser(userData.username);
+
+		if (!user) {
+			user = await this.createUser(
+				{
+					username: userData.username,
+					name: userData.name,
+					email: userData.email,
+				},
+				password,
 			);
+		}
 
-			let authToken = await this.getPersonalToken({
+		const credentials = await firstValueFrom(
+			this.login({ user: userData.username, password }),
+		);
+
+		const authToken = await this.getPersonalToken({
+			loginToken: credentials.data.data.authToken,
+			userId: credentials.data.data.userId,
+		});
+
+		let personalTokens =
+			authToken && authToken.data && authToken.data.tokens.length
+				? authToken.data.tokens.filter(
+						(token) => token.name == 'gestaointegrado',
+				  )
+				: false;
+
+		if (!personalTokens || !personalTokens.length) {
+			personalTokens = await this.generatePersonalToken({
 				loginToken: credentials.data.data.authToken,
 				userId: credentials.data.data.userId,
 			});
-
-			if (
-				!authToken ||
-				!authToken.data ||
-				!authToken.data.tokens.length
-			) {
-				authToken = await this.generatePersonalToken({
-					loginToken: credentials.data.data.authToken,
-					userId: credentials.data.data.userId,
-				});
-			} else {
-				authToken = await this.regeneratePersonalToken({
-					loginToken: credentials.data.data.authToken,
-					userId: credentials.data.data.userId,
-				});
-			}
-
-			return {
-				loginToken: authToken.data.token,
-				userId: credentials.data.data.userId,
-			};
 		} else {
-			return false;
+			personalTokens = await this.regeneratePersonalToken({
+				loginToken: credentials.data.data.authToken,
+				userId: credentials.data.data.userId,
+			});
 		}
+
+		return {
+			loginToken: personalTokens.data.token,
+			userId: credentials.data.data.userId,
+		};
 	}
 
 	login(data: {
